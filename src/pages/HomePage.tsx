@@ -1,0 +1,246 @@
+/**
+ * Home Page
+ *
+ * Dashboard showing overall debt payoff progress.
+ * Features: Debt-free countdown, progress overview, category breakdown,
+ * payoff timeline chart, credit utilization, daily inspiration.
+ */
+
+import { useMemo } from 'react';
+import { format, parseISO } from 'date-fns';
+import { User } from 'lucide-react';
+import { useApp } from '../context/AppContext';
+import {
+  calculateDebtSummary,
+  generatePayoffPlan,
+  formatTimeUntil,
+  formatCurrency,
+  formatPercent,
+} from '../lib/calculations';
+import { ProgressRing } from '../components/ui/ProgressRing';
+import { CATEGORY_INFO } from '../types';
+
+export function HomePage() {
+  const { debts, strategy, settings } = useApp();
+
+  // Calculate summary stats
+  const summary = useMemo(() => calculateDebtSummary(debts), [debts]);
+
+  // Generate payoff plan
+  const plan = useMemo(
+    () => generatePayoffPlan(debts, strategy),
+    [debts, strategy]
+  );
+
+  const debtFreeDate = plan.debtFreeDate ? parseISO(plan.debtFreeDate) : null;
+  const timeUntilDebtFree = debtFreeDate ? formatTimeUntil(debtFreeDate) : null;
+
+  // Get categories with balances
+  const categories = useMemo(() => {
+    return Object.entries(summary.debtsByCategory)
+      .filter(([, balance]) => balance > 0)
+      .map(([category, balance]) => ({
+        category,
+        balance,
+        ...CATEGORY_INFO[category as keyof typeof CATEGORY_INFO],
+      }))
+      .sort((a, b) => b.balance - a.balance);
+  }, [summary.debtsByCategory]);
+
+  if (debts.length === 0) {
+    return (
+      <div className="min-h-screen">
+        {/* Header */}
+        <header className="bg-gradient-to-b from-primary-200 to-primary-100/50 px-4 pt-12 pb-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                Hi{settings.userName ? ` ${settings.userName}` : ''}!
+              </h1>
+              <p className="text-gray-600">Plan, track and achieve your payoff goal</p>
+            </div>
+            <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm">
+              <User size={20} className="text-gray-400" />
+            </div>
+          </div>
+        </header>
+
+        {/* Empty state */}
+        <div className="px-4 py-12 text-center">
+          <div className="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-4xl">🎯</span>
+          </div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            Start Your Debt-Free Journey
+          </h2>
+          <p className="text-gray-600 mb-6 max-w-sm mx-auto">
+            Add your debts to see your personalized payoff plan and track your progress.
+          </p>
+          <a
+            href="/debts"
+            className="inline-flex items-center px-6 py-3 bg-primary-500 text-white font-medium rounded-xl hover:bg-primary-600 transition-colors"
+          >
+            Add Your First Debt
+          </a>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen">
+      {/* Header */}
+      <header className="bg-gradient-to-b from-primary-200 to-primary-100/50 px-4 pt-12 pb-6">
+        <div className="flex justify-between items-center mb-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Hi{settings.userName ? ` ${settings.userName}` : ''}!
+            </h1>
+            <p className="text-gray-600">Plan, track and achieve your payoff goal</p>
+          </div>
+          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm">
+            <User size={20} className="text-gray-400" />
+          </div>
+        </div>
+
+        {/* Debt-Free Countdown */}
+        {debtFreeDate && (
+          <div className="bg-gradient-to-r from-primary-600 to-primary-500 rounded-2xl p-4 text-white">
+            <p className="text-primary-100 text-sm font-medium">DEBT-FREE COUNTDOWN</p>
+            <p className="text-xl font-bold mt-1">
+              {format(debtFreeDate, 'MMMM yyyy').toUpperCase()}
+            </p>
+            <div className="flex gap-4 mt-2">
+              {timeUntilDebtFree && (
+                <p className="text-primary-100">{timeUntilDebtFree}</p>
+              )}
+            </div>
+          </div>
+        )}
+      </header>
+
+      {/* Main Content */}
+      <div className="px-4 py-6 space-y-6">
+        {/* Payoff Progress Card */}
+        <div className="card">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-xl">🦋</span>
+            <div>
+              <p className="text-xs text-gray-500">Debt Payoff</p>
+              <p className="font-semibold">Planner</p>
+            </div>
+          </div>
+
+          <h2 className="text-lg font-semibold mb-4">Payoff progress</h2>
+
+          <div className="flex items-center gap-6">
+            <ProgressRing
+              percentage={summary.percentPaid}
+              size={100}
+              strokeWidth={10}
+            />
+            <div>
+              <p className="text-sm text-gray-500">Principal paid</p>
+              <p className="text-xl font-bold text-primary-500">
+                {formatCurrency(summary.principalPaid)}
+              </p>
+              <p className="text-sm text-gray-500 mt-2">Balance</p>
+              <p className="text-xl font-bold text-gray-900">
+                {formatCurrency(summary.totalBalance)}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Categories */}
+        {categories.length > 0 && (
+          <div className="card">
+            <h3 className="text-sm text-gray-500 mb-4">CATEGORIES</h3>
+            <div className="grid grid-cols-2 gap-4">
+              {categories.slice(0, 4).map((cat) => {
+                const categoryDebts = debts.filter((d) => d.category === cat.category);
+                const originalTotal = categoryDebts.reduce((sum, d) => sum + d.originalBalance, 0);
+                const percentPaid = originalTotal > 0
+                  ? ((originalTotal - cat.balance) / originalTotal) * 100
+                  : 0;
+
+                return (
+                  <div key={cat.category} className="text-center">
+                    <p className="text-sm font-medium" style={{ color: cat.color }}>
+                      {cat.label}
+                    </p>
+                    <ProgressRing
+                      percentage={percentPaid}
+                      size={60}
+                      strokeWidth={6}
+                      color={cat.color}
+                      className="mx-auto my-2"
+                    />
+                    <p className="text-xs text-gray-500">Balance</p>
+                    <p className="font-semibold">{formatCurrency(cat.balance)}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Credit Utilization */}
+        {summary.totalCreditLimit > 0 && (
+          <div className="card">
+            <h2 className="text-lg font-semibold mb-2">Overall credit utilization</h2>
+            <p className="text-sm text-gray-500 mb-4">
+              This only includes debts that have a credit limit.
+            </p>
+            <div className="flex justify-center">
+              <div className="relative">
+                <ProgressRing
+                  percentage={summary.creditUtilization}
+                  size={120}
+                  strokeWidth={12}
+                  color={summary.creditUtilization > 30 ? '#ef4444' : '#22c55e'}
+                />
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-2xl font-bold">
+                    {formatPercent(summary.creditUtilization, 0)}
+                  </span>
+                  <span className="text-xs text-gray-500">credit utilized</span>
+                </div>
+              </div>
+            </div>
+            <p className="text-center text-sm text-gray-600 mt-2">
+              {formatCurrency(summary.totalBalance - (summary.totalBalance - debts
+                .filter(d => d.creditLimit)
+                .reduce((sum, d) => sum + d.balance, 0)))} / {formatCurrency(summary.totalCreditLimit)}
+            </p>
+          </div>
+        )}
+
+        {/* Quick Stats */}
+        <div className="card">
+          <h2 className="text-lg font-semibold mb-4">Summary</h2>
+          <div className="space-y-3">
+            <div className="flex justify-between">
+              <span className="text-gray-600">Total Debt</span>
+              <span className="font-semibold">{formatCurrency(summary.totalBalance)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600">Monthly Minimums</span>
+              <span className="font-semibold">{formatCurrency(summary.totalMinimumPayments)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600">Total Interest</span>
+              <span className="font-semibold text-danger-500">
+                {formatCurrency(plan.totalInterest)}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600">Number of Debts</span>
+              <span className="font-semibold">{debts.length}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
