@@ -296,9 +296,9 @@ export interface CategoryInfo {
 
 export const CATEGORY_INFO: Record<DebtCategory, { label: string; color: string }> = {
   credit_card: { label: 'Credit Card', color: '#8b5cf6' },
-  student_loan: { label: 'Student Loan', color: '#22c55e' },
-  personal_loan: { label: 'Personal Loan', color: '#f59e0b' },
-  auto_loan: { label: 'Auto Loan', color: '#06b6d4' },
+  student_loan: { label: 'Student Loan', color: '#f59e0b' },
+  personal_loan: { label: 'Personal Loan', color: '#22c55e' },
+  auto_loan: { label: 'Auto Loan', color: '#3b82f6' },
   mortgage: { label: 'Mortgage', color: '#ec4899' },
   medical: { label: 'Medical', color: '#ef4444' },
   other: { label: 'Other', color: '#6b7280' },

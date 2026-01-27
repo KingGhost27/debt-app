@@ -98,19 +98,24 @@ export function DebtsPage() {
       .sort((a, b) => b.balance - a.balance);
   }, [debts, settings.categoryColors, customCategories]);
 
-  // Individual debt chart data with unique colors
+  // Individual debt chart data grouped by category, with unique colors per debt
   const debtTotals = useMemo(() => {
     return debts
       .map((d) => ({
         id: d.id,
         name: d.name,
         balance: d.balance,
-        color: '', // Will be assigned after sorting
+        category: d.category,
+        color: '', // assigned after sorting
       }))
-      .sort((a, b) => b.balance - a.balance)
+      .sort((a, b) => {
+        // Group by category first, then by balance within category
+        if (a.category !== b.category) return a.category.localeCompare(b.category);
+        return b.balance - a.balance;
+      })
       .map((d, index) => ({
         ...d,
-        color: DEBT_COLORS[index % DEBT_COLORS.length], // Assign unique color based on sorted position
+        color: DEBT_COLORS[index % DEBT_COLORS.length],
       }));
   }, [debts]);
 
@@ -221,28 +226,32 @@ export function DebtsPage() {
               {/* Donut chart - larger size */}
               <div className="relative w-32 h-32 flex-shrink-0">
                 <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-                  {chartData.reduce(
-                    (acc, item) => {
-                      const percentage = (item.balance / totalBalance) * 100;
-                      const strokeDasharray = `${percentage} ${100 - percentage}`;
-                      acc.elements.push(
-                        <circle
-                          key={'id' in item ? item.id : item.category}
-                          cx="50"
-                          cy="50"
-                          r="40"
-                          fill="none"
-                          stroke={item.color}
-                          strokeWidth="20"
-                          strokeDasharray={strokeDasharray}
-                          strokeDashoffset={-acc.offset}
-                        />
-                      );
-                      acc.offset += percentage;
-                      return acc;
-                    },
-                    { elements: [] as React.ReactElement[], offset: 0 }
-                  ).elements}
+                  {(() => {
+                    const radius = 40;
+                    const circumference = 2 * Math.PI * radius;
+                    return chartData.reduce(
+                      (acc, item) => {
+                        const fraction = item.balance / totalBalance;
+                        const arcLength = fraction * circumference;
+                        acc.elements.push(
+                          <circle
+                            key={'id' in item ? item.id : item.category}
+                            cx="50"
+                            cy="50"
+                            r={radius}
+                            fill="none"
+                            stroke={item.color}
+                            strokeWidth="20"
+                            strokeDasharray={`${arcLength} ${circumference - arcLength}`}
+                            strokeDashoffset={-acc.offset}
+                          />
+                        );
+                        acc.offset += arcLength;
+                        return acc;
+                      },
+                      { elements: [] as React.ReactElement[], offset: 0 }
+                    ).elements;
+                  })()}
                 </svg>
                 <div className="absolute inset-0 flex items-center justify-center">
                   <span className="text-sm font-bold">{formatCompactCurrency(totalBalance)}</span>
