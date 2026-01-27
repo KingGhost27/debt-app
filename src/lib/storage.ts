@@ -6,7 +6,7 @@
  */
 
 import type { AppData } from '../types';
-import { DEFAULT_APP_DATA } from '../types';
+import { DEFAULT_APP_DATA, DEFAULT_BUDGET, DEFAULT_THEME } from '../types';
 
 const STORAGE_KEY = 'debt-payoff-app-data';
 
@@ -148,11 +148,48 @@ function migrateData(data: AppData): AppData {
     migrated.strategy = DEFAULT_APP_DATA.strategy;
   }
 
-  // Future migrations would go here:
-  // if (migrated.version === '1.0.0') {
-  //   // migrate to 1.1.0
-  //   migrated.version = '1.1.0';
-  // }
+  // Migration: v1.0.0 -> v1.1.0
+  // Adds: theme settings, category colors, custom categories, budget
+  if (migrated.version === '1.0.0') {
+    // Add theme settings if not present
+    if (!migrated.settings.theme) {
+      migrated.settings = {
+        ...migrated.settings,
+        theme: DEFAULT_THEME,
+        categoryColors: {},
+      };
+    }
+
+    // Add custom categories array
+    if (!migrated.customCategories) {
+      migrated.customCategories = [];
+    }
+
+    // Add budget settings, migrating from recurringFunding if available
+    if (!migrated.budget) {
+      migrated.budget = {
+        ...DEFAULT_BUDGET,
+        // Preserve existing debt allocation amount from recurringFunding
+        debtAllocationAmount: migrated.strategy?.recurringFunding?.amount || 0,
+      };
+    }
+
+    migrated.version = '1.1.0';
+  }
+
+  // Ensure new fields exist even for fresh 1.1.0 installs
+  if (!migrated.customCategories) {
+    migrated.customCategories = [];
+  }
+  if (!migrated.budget) {
+    migrated.budget = DEFAULT_BUDGET;
+  }
+  if (!migrated.settings.theme) {
+    migrated.settings.theme = DEFAULT_THEME;
+  }
+  if (!migrated.settings.categoryColors) {
+    migrated.settings.categoryColors = {};
+  }
 
   return migrated;
 }

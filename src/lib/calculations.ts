@@ -14,7 +14,8 @@ import type {
   PayoffStep,
   MonthlyPayment,
   StrategySettings,
-  DebtCategory,
+  IncomeSource,
+  BudgetSettings,
 } from '../types';
 
 // ============================================
@@ -72,13 +73,13 @@ export function calculateDebtSummary(debts: Debt[]): DebtSummary {
   const totalCreditUsed = debtsWithLimits.reduce((sum, d) => sum + d.balance, 0);
   const creditUtilization = totalCreditLimit > 0 ? (totalCreditUsed / totalCreditLimit) * 100 : 0;
 
-  // Group by category
+  // Group by category (supports both built-in and custom categories)
   const debtsByCategory = debts.reduce(
     (acc, d) => {
       acc[d.category] = (acc[d.category] || 0) + d.balance;
       return acc;
     },
-    {} as Record<DebtCategory, number>
+    {} as Record<string, number>
   );
 
   // Progress tracking
@@ -401,8 +402,74 @@ export function formatCurrency(amount: number, currency: string = 'USD'): string
 }
 
 /**
+ * Format currency in compact notation for large amounts
+ * e.g., $1,234,567 -> $1.2M
+ */
+export function formatCompactCurrency(amount: number, currency: string = 'USD'): string {
+  if (amount >= 100000) {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency,
+      notation: 'compact',
+      maximumFractionDigits: 1,
+    }).format(amount);
+  }
+  // For amounts under 100k, show full format but with fewer decimals for display
+  if (amount >= 10000) {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  }
+  return formatCurrency(amount, currency);
+}
+
+/**
  * Format percentage
  */
 export function formatPercent(value: number, decimals: number = 1): string {
   return `${value.toFixed(decimals)}%`;
+}
+
+// ============================================
+// INCOME CALCULATIONS
+// ============================================
+
+/**
+ * Calculate monthly income from a single income source
+ */
+export function calculateMonthlyIncome(source: IncomeSource): number {
+  if (source.type === 'salary' && source.amount) {
+    switch (source.payFrequency) {
+      case 'weekly':
+        return (source.amount * 52) / 12;
+      case 'bi-weekly':
+        return (source.amount * 26) / 12;
+      case 'semi-monthly':
+        return source.amount * 2;
+      case 'monthly':
+        return source.amount;
+    }
+  } else if (source.type === 'hourly' && source.hourlyRate && source.hoursPerWeek) {
+    const weeklyPay = source.hourlyRate * source.hoursPerWeek;
+    return (weeklyPay * 52) / 12;
+  }
+  return 0;
+}
+
+/**
+ * Calculate total monthly income from all sources
+ */
+export function calculateTotalMonthlyIncome(sources: IncomeSource[]): number {
+  return sources.reduce((sum, source) => sum + calculateMonthlyIncome(source), 0);
+}
+
+/**
+ * Calculate available amount for debt payoff
+ */
+export function calculateAvailableForDebt(budget: BudgetSettings): number {
+  const totalIncome = calculateTotalMonthlyIncome(budget.incomeSources);
+  const available = totalIncome - budget.monthlyExpenses;
+  return Math.max(0, available);
 }

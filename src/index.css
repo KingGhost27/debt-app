@@ -1,18 +1,26 @@
 @import "tailwindcss";
 
-/* Custom theme colors matching the app design */
+/*
+ * Dynamic Theme System
+ * Colors use var(--theme-*, fallback) pattern to allow runtime overrides
+ * The JS theme system sets --theme-* variables on :root
+ */
 @theme {
-  /* Primary teal/cyan colors from the screenshots */
-  --color-primary-50: #ecfeff;
-  --color-primary-100: #cffafe;
-  --color-primary-200: #a5f3fc;
-  --color-primary-300: #67e8f9;
-  --color-primary-400: #22d3ee;
-  --color-primary-500: #06b6d4;
-  --color-primary-600: #0891b2;
-  --color-primary-700: #0e7490;
-  --color-primary-800: #155e75;
-  --color-primary-900: #164e63;
+  /* Primary colors - dynamically themeable */
+  --color-primary-50: var(--theme-primary-50, #ecfeff);
+  --color-primary-100: var(--theme-primary-100, #cffafe);
+  --color-primary-200: var(--theme-primary-200, #a5f3fc);
+  --color-primary-300: var(--theme-primary-300, #67e8f9);
+  --color-primary-400: var(--theme-primary-400, #22d3ee);
+  --color-primary-500: var(--theme-primary-500, #06b6d4);
+  --color-primary-600: var(--theme-primary-600, #0891b2);
+  --color-primary-700: var(--theme-primary-700, #0e7490);
+  --color-primary-800: var(--theme-primary-800, #155e75);
+  --color-primary-900: var(--theme-primary-900, #164e63);
+
+  /* Accent colors - dynamically themeable */
+  --color-accent: var(--theme-accent, #22d3ee);
+  --color-accent-light: var(--theme-accent-light, #a5f3fc);
 
   /* Success green for progress */
   --color-success-500: #22c55e;
@@ -27,6 +35,12 @@
   --color-student-loan: #22c55e;
   --color-personal-loan: #f59e0b;
   --color-auto-loan: #06b6d4;
+}
+
+/* Theme gradient variables for header backgrounds */
+:root {
+  --gradient-from: var(--theme-gradient-from, #a5f3fc);
+  --gradient-to: var(--theme-gradient-to, #ecfeff);
 }
 
 /* Base styles */

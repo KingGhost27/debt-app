@@ -2,10 +2,11 @@
  * Debt Modal Component
  *
  * Modal for adding/editing debts with form validation.
+ * Supports both built-in and custom categories.
  */
 
 import { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, Plus } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import type { Debt, DebtCategory } from '../../types';
 import { CATEGORY_INFO } from '../../types';
@@ -18,7 +19,7 @@ interface DebtModalProps {
 
 interface FormData {
   name: string;
-  category: DebtCategory;
+  category: string; // Can be DebtCategory or custom category ID
   balance: string;
   originalBalance: string;
   apr: string;
@@ -39,9 +40,12 @@ const initialFormData: FormData = {
 };
 
 export function DebtModal({ isOpen, onClose, debt }: DebtModalProps) {
-  const { addDebt, updateDebt } = useApp();
+  const { addDebt, updateDebt, customCategories, addCustomCategory } = useApp();
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
+  const [showNewCategory, setShowNewCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [newCategoryColor, setNewCategoryColor] = useState('#8b5cf6');
 
   const isEditing = !!debt;
 
@@ -62,7 +66,25 @@ export function DebtModal({ isOpen, onClose, debt }: DebtModalProps) {
       setFormData(initialFormData);
     }
     setErrors({});
+    setShowNewCategory(false);
+    setNewCategoryName('');
   }, [debt, isOpen]);
+
+  // Handle creating a new category
+  const handleCreateCategory = () => {
+    if (!newCategoryName.trim()) return;
+
+    addCustomCategory({
+      name: newCategoryName.trim(),
+      color: newCategoryColor,
+    });
+
+    // Find the newly created category and select it
+    // The category will be available after state updates
+    setFormData((prev) => ({ ...prev, category: 'new_custom' }));
+    setShowNewCategory(false);
+    setNewCategoryName('');
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -124,9 +146,15 @@ export function DebtModal({ isOpen, onClose, debt }: DebtModalProps) {
       ? parseFloat(formData.originalBalance)
       : balance;
 
+    // Get the final category - check if we need to use the most recently added custom category
+    let finalCategory = formData.category;
+    if (finalCategory === 'new_custom' && customCategories.length > 0) {
+      finalCategory = customCategories[customCategories.length - 1].id;
+    }
+
     const debtData = {
       name: formData.name.trim(),
-      category: formData.category,
+      category: finalCategory as DebtCategory,
       balance,
       originalBalance: isEditing ? parseFloat(formData.originalBalance) || balance : originalBalance,
       apr: parseFloat(formData.apr),
@@ -199,15 +227,81 @@ export function DebtModal({ isOpen, onClose, debt }: DebtModalProps) {
             <select
               name="category"
               value={formData.category}
-              onChange={handleChange}
+              onChange={(e) => {
+                if (e.target.value === '__new__') {
+                  setShowNewCategory(true);
+                } else {
+                  handleChange(e);
+                  setShowNewCategory(false);
+                }
+              }}
               className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
             >
+              {/* Built-in categories */}
               {Object.entries(CATEGORY_INFO).map(([key, info]) => (
                 <option key={key} value={key}>
                   {info.label}
                 </option>
               ))}
+              {/* Custom categories */}
+              {customCategories.length > 0 && (
+                <>
+                  <option disabled>──────────</option>
+                  {customCategories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </>
+              )}
+              {/* Add new option */}
+              <option disabled>──────────</option>
+              <option value="__new__">+ Add new category...</option>
             </select>
+
+            {/* New category form */}
+            {showNewCategory && (
+              <div className="mt-3 p-3 bg-primary-50 rounded-xl border border-primary-200">
+                <p className="text-sm font-medium text-gray-700 mb-2">Create new category</p>
+                <div className="flex gap-2 mb-2">
+                  <input
+                    type="color"
+                    value={newCategoryColor}
+                    onChange={(e) => setNewCategoryColor(e.target.value)}
+                    className="w-10 h-10 rounded cursor-pointer border border-gray-200"
+                  />
+                  <input
+                    type="text"
+                    value={newCategoryName}
+                    onChange={(e) => setNewCategoryName(e.target.value)}
+                    placeholder="Category name"
+                    className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                    autoFocus
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowNewCategory(false);
+                      setNewCategoryName('');
+                    }}
+                    className="flex-1 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800 border border-gray-200 rounded-lg"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCreateCategory}
+                    disabled={!newCategoryName.trim()}
+                    className="flex-1 px-3 py-1.5 text-sm bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1"
+                  >
+                    <Plus size={14} />
+                    Create
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Balance & Original Balance */}

@@ -6,6 +6,46 @@
  */
 
 // ============================================
+// THEME TYPES
+// ============================================
+
+export type ThemePreset = 'default' | 'my-melody' | 'kuromi' | 'custom';
+
+export interface ThemeColors {
+  primary50: string;
+  primary100: string;
+  primary200: string;
+  primary300: string;
+  primary400: string;
+  primary500: string;
+  primary600: string;
+  primary700: string;
+  primary800: string;
+  primary900: string;
+  accent: string;
+  accentLight: string;
+  gradientFrom: string;
+  gradientTo: string;
+}
+
+export interface ThemeSettings {
+  preset: ThemePreset;
+  customColors?: ThemeColors;
+}
+
+// ============================================
+// CUSTOM CATEGORY TYPES
+// ============================================
+
+export interface CustomCategory {
+  id: string;
+  name: string;
+  color: string;
+  icon?: string;                   // Optional emoji
+  createdAt: string;
+}
+
+// ============================================
 // DEBT TYPES
 // ============================================
 
@@ -18,10 +58,13 @@ export type DebtCategory =
   | 'medical'
   | 'other';
 
+// Extended to support custom categories (custom category ID as string)
+export type DebtCategoryExtended = DebtCategory | string;
+
 export interface Debt {
   id: string;
   name: string;                    // e.g., "Chase", "Ally", "Mohela"
-  category: DebtCategory;
+  category: DebtCategoryExtended;  // Built-in or custom category
   balance: number;                 // Current balance owed
   originalBalance: number;         // Starting balance (for progress tracking)
   apr: number;                     // Annual Percentage Rate (e.g., 15.99)
@@ -81,6 +124,36 @@ export interface StrategySettings {
   strategy: PayoffStrategy;
   recurringFunding: RecurringFunding;
   oneTimeFundings: OneTimeFunding[];
+}
+
+// ============================================
+// INCOME & BUDGET TYPES
+// ============================================
+
+export type PayFrequency = 'weekly' | 'bi-weekly' | 'semi-monthly' | 'monthly';
+export type EmploymentType = 'salary' | 'hourly';
+
+export interface IncomeSource {
+  id: string;
+  name: string;                    // e.g., "Primary Job", "Side Gig"
+  type: EmploymentType;
+  payFrequency: PayFrequency;
+  // For salary/fixed income
+  amount?: number;                 // Per-period amount
+  // For hourly income
+  hourlyRate?: number;
+  hoursPerWeek?: number;
+  isPartTime?: boolean;
+  // Metadata
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BudgetSettings {
+  incomeSources: IncomeSource[];
+  monthlyExpenses: number;         // Total monthly expenses
+  debtAllocationAmount: number;    // Fixed amount to allocate to debt
+  debtAllocationPercent?: number;  // Alternative: percentage of available
 }
 
 // ============================================
@@ -147,6 +220,8 @@ export interface UserSettings {
   userName: string;
   currency: string;                // e.g., "USD"
   dateFormat: string;              // e.g., "MM/DD/YYYY"
+  theme: ThemeSettings;            // Theme preference
+  categoryColors: Record<string, string>; // Override colors for categories
 }
 
 export interface AppData {
@@ -155,6 +230,8 @@ export interface AppData {
   payments: Payment[];             // Historical and upcoming
   strategy: StrategySettings;
   settings: UserSettings;
+  customCategories: CustomCategory[]; // User-defined categories
+  budget: BudgetSettings;          // Income & budget settings
   exportedAt?: string;             // For import/export
 }
 
@@ -169,18 +246,32 @@ export const DEFAULT_STRATEGY: StrategySettings = {
   oneTimeFundings: [],
 };
 
+export const DEFAULT_THEME: ThemeSettings = {
+  preset: 'default',
+};
+
 export const DEFAULT_SETTINGS: UserSettings = {
   userName: '',
   currency: 'USD',
   dateFormat: 'MM/DD/YYYY',
+  theme: DEFAULT_THEME,
+  categoryColors: {},
+};
+
+export const DEFAULT_BUDGET: BudgetSettings = {
+  incomeSources: [],
+  monthlyExpenses: 0,
+  debtAllocationAmount: 0,
 };
 
 export const DEFAULT_APP_DATA: AppData = {
-  version: '1.0.0',
+  version: '1.1.0',
   debts: [],
   payments: [],
   strategy: DEFAULT_STRATEGY,
   settings: DEFAULT_SETTINGS,
+  customCategories: [],
+  budget: DEFAULT_BUDGET,
 };
 
 // ============================================
@@ -192,7 +283,7 @@ export interface DebtSummary {
   totalMinimumPayments: number;
   totalCreditLimit: number;
   creditUtilization: number;       // Percentage
-  debtsByCategory: Record<DebtCategory, number>;
+  debtsByCategory: Record<string, number>; // Supports both built-in and custom categories
   principalPaid: number;
   percentPaid: number;
 }

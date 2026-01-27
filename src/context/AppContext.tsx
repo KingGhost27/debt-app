@@ -13,8 +13,12 @@ import type {
   Payment,
   StrategySettings,
   UserSettings,
+  CustomCategory,
+  BudgetSettings,
+  IncomeSource,
+  ThemeSettings,
 } from '../types';
-import { DEFAULT_APP_DATA, DEFAULT_STRATEGY } from '../types';
+import { DEFAULT_APP_DATA, DEFAULT_STRATEGY, DEFAULT_BUDGET } from '../types';
 import { saveData, loadData, exportData, importData } from '../lib/storage';
 
 // ============================================
@@ -27,6 +31,8 @@ interface AppContextType {
   payments: Payment[];
   strategy: StrategySettings;
   settings: UserSettings;
+  customCategories: CustomCategory[];
+  budget: BudgetSettings;
   isLoading: boolean;
 
   // Debt operations
@@ -44,6 +50,19 @@ interface AppContextType {
 
   // Settings operations
   updateSettings: (updates: Partial<UserSettings>) => void;
+  updateTheme: (theme: ThemeSettings) => void;
+  updateCategoryColor: (categoryId: string, color: string) => void;
+
+  // Custom category operations
+  addCustomCategory: (category: Omit<CustomCategory, 'id' | 'createdAt'>) => void;
+  updateCustomCategory: (id: string, updates: Partial<CustomCategory>) => void;
+  deleteCustomCategory: (id: string) => void;
+
+  // Budget operations
+  updateBudget: (updates: Partial<BudgetSettings>) => void;
+  addIncomeSource: (source: Omit<IncomeSource, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  updateIncomeSource: (id: string, updates: Partial<IncomeSource>) => void;
+  deleteIncomeSource: (id: string) => void;
 
   // Import/Export
   exportAppData: () => void;
@@ -175,6 +194,113 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // ==========================================
+  // THEME OPERATIONS
+  // ==========================================
+
+  const updateTheme = useCallback((theme: ThemeSettings) => {
+    setData((prev) => ({
+      ...prev,
+      settings: { ...prev.settings, theme },
+    }));
+  }, []);
+
+  const updateCategoryColor = useCallback((categoryId: string, color: string) => {
+    setData((prev) => ({
+      ...prev,
+      settings: {
+        ...prev.settings,
+        categoryColors: { ...prev.settings.categoryColors, [categoryId]: color },
+      },
+    }));
+  }, []);
+
+  // ==========================================
+  // CUSTOM CATEGORY OPERATIONS
+  // ==========================================
+
+  const addCustomCategory = useCallback((categoryData: Omit<CustomCategory, 'id' | 'createdAt'>) => {
+    const newCategory: CustomCategory = {
+      ...categoryData,
+      id: uuidv4(),
+      createdAt: new Date().toISOString(),
+    };
+
+    setData((prev) => ({
+      ...prev,
+      customCategories: [...prev.customCategories, newCategory],
+    }));
+  }, []);
+
+  const updateCustomCategory = useCallback((id: string, updates: Partial<CustomCategory>) => {
+    setData((prev) => ({
+      ...prev,
+      customCategories: prev.customCategories.map((cat) =>
+        cat.id === id ? { ...cat, ...updates } : cat
+      ),
+    }));
+  }, []);
+
+  const deleteCustomCategory = useCallback((id: string) => {
+    setData((prev) => ({
+      ...prev,
+      customCategories: prev.customCategories.filter((cat) => cat.id !== id),
+    }));
+  }, []);
+
+  // ==========================================
+  // BUDGET OPERATIONS
+  // ==========================================
+
+  const updateBudget = useCallback((updates: Partial<BudgetSettings>) => {
+    setData((prev) => ({
+      ...prev,
+      budget: { ...prev.budget, ...updates },
+    }));
+  }, []);
+
+  const addIncomeSource = useCallback((sourceData: Omit<IncomeSource, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const now = new Date().toISOString();
+    const newSource: IncomeSource = {
+      ...sourceData,
+      id: uuidv4(),
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    setData((prev) => ({
+      ...prev,
+      budget: {
+        ...prev.budget,
+        incomeSources: [...prev.budget.incomeSources, newSource],
+      },
+    }));
+  }, []);
+
+  const updateIncomeSource = useCallback((id: string, updates: Partial<IncomeSource>) => {
+    setData((prev) => ({
+      ...prev,
+      budget: {
+        ...prev.budget,
+        incomeSources: prev.budget.incomeSources.map((source) =>
+          source.id === id
+            ? { ...source, ...updates, updatedAt: new Date().toISOString() }
+            : source
+        ),
+      },
+    }));
+  }, []);
+
+  const deleteIncomeSource = useCallback((id: string) => {
+    setData((prev) => ({
+      ...prev,
+      budget: {
+        ...prev.budget,
+        incomeSources: prev.budget.incomeSources.filter((source) => source.id !== id),
+      },
+    }));
+  }, []);
+
+  // ==========================================
   // IMPORT/EXPORT
   // ==========================================
 
@@ -192,6 +318,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setData({
         ...DEFAULT_APP_DATA,
         strategy: { ...DEFAULT_STRATEGY },
+        budget: { ...DEFAULT_BUDGET },
       });
     }
   }, []);
@@ -205,6 +332,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     payments: data.payments,
     strategy: data.strategy,
     settings: data.settings,
+    customCategories: data.customCategories,
+    budget: data.budget,
     isLoading,
 
     addDebt,
@@ -217,6 +346,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     updateStrategy,
     updateSettings,
+    updateTheme,
+    updateCategoryColor,
+
+    addCustomCategory,
+    updateCustomCategory,
+    deleteCustomCategory,
+
+    updateBudget,
+    addIncomeSource,
+    updateIncomeSource,
+    deleteIncomeSource,
 
     exportAppData,
     importAppData,

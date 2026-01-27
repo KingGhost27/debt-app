@@ -8,7 +8,8 @@
 
 import { useMemo } from 'react';
 import { format, parseISO } from 'date-fns';
-import { User } from 'lucide-react';
+import { Settings } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import {
   calculateDebtSummary,
@@ -59,9 +60,12 @@ export function HomePage() {
               </h1>
               <p className="text-gray-600">Plan, track and achieve your payoff goal</p>
             </div>
-            <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm">
-              <User size={20} className="text-gray-400" />
-            </div>
+            <Link
+              to="/settings"
+              className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm hover:bg-gray-50 transition-colors"
+            >
+              <Settings size={20} className="text-gray-500" />
+            </Link>
           </div>
         </header>
 
@@ -98,9 +102,12 @@ export function HomePage() {
             </h1>
             <p className="text-gray-600">Plan, track and achieve your payoff goal</p>
           </div>
-          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm">
-            <User size={20} className="text-gray-400" />
-          </div>
+          <Link
+            to="/settings"
+            className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm hover:bg-gray-50 transition-colors"
+          >
+            <Settings size={20} className="text-gray-400" />
+          </Link>
         </div>
 
         {/* Debt-Free Countdown */}
@@ -199,9 +206,10 @@ export function HomePage() {
                   size={120}
                   strokeWidth={12}
                   color={summary.creditUtilization > 30 ? '#ef4444' : '#22c55e'}
+                  showLabel={false}
                 />
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-2xl font-bold">
+                  <span className={`text-2xl font-bold ${summary.creditUtilization > 100 ? 'text-red-600' : 'text-gray-900'}`}>
                     {formatPercent(summary.creditUtilization, 0)}
                   </span>
                   <span className="text-xs text-gray-500">credit utilized</span>
@@ -218,25 +226,25 @@ export function HomePage() {
 
         {/* Quick Stats */}
         <div className="card">
-          <h2 className="text-lg font-semibold mb-4">Summary</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Summary</h2>
           <div className="space-y-3">
             <div className="flex justify-between">
               <span className="text-gray-600">Total Debt</span>
-              <span className="font-semibold">{formatCurrency(summary.totalBalance)}</span>
+              <span className="font-semibold text-gray-900">{formatCurrency(summary.totalBalance)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Monthly Minimums</span>
-              <span className="font-semibold">{formatCurrency(summary.totalMinimumPayments)}</span>
+              <span className="font-semibold text-gray-900">{formatCurrency(summary.totalMinimumPayments)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Total Interest</span>
-              <span className="font-semibold text-danger-500">
+              <span className="font-semibold text-red-500">
                 {formatCurrency(plan.totalInterest)}
               </span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Number of Debts</span>
-              <span className="font-semibold">{debts.length}</span>
+              <span className="font-semibold text-gray-900">{debts.length}</span>
             </div>
           </div>
         </div>

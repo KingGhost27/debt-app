@@ -8,6 +8,50 @@ React-based debt payoff dashboard for tracking debts, comparing payoff strategie
 
 **Status:** Active development
 
+---
+
+## MANDATORY Git Workflow - DO NOT SKIP
+
+Before writing ANY code, you MUST:
+1. Create a feature branch: `git checkout -b feature/[name]`
+2. Commit changes FREQUENTLY (every file/component)
+3. NEVER work on main branch directly
+
+**If you complete a task without proper Git commits = TASK INCOMPLETE**
+
+        ---
+
+## Critical: Git Workflow Requirements
+
+**IMPORTANT**: You MUST follow the Git workflow for ALL code changes:
+
+1. **ALWAYS create a feature branch BEFORE making changes**
+        ```bash
+        git checkout -b feature/[feature-name] # or fix/[bug-name]
+        ```
+
+2. **Commit changes REGULARLY during development**
+ - After completing each major step
+ - When switching between different files/features
+ - Before running build tests
+ - Use meaningful commit messages with [Type] prefix
+
+3. **NEVER work directly on main branch**
+ - All changes must go through feature branches
+ - Create pull requests for review
+
+4. **Commit message format**:
+        ```bash
+        git commit -m "[Type] Brief description
+
+        Generated with [Claude Code](https://claude.ai/code)
+
+        Co-Authored-By: Claude <noreply@anthropic.com>"
+        ```
+
+**Failure to follow Git workflow = Incomplete task**
+
+
 ## Commands
 
 ```bash
@@ -92,3 +136,4 @@ PayoffPlan      // debtFreeDate, totalPayments, totalInterest, steps, monthlyBre
 - Avalanche = highest APR first (saves money), Snowball = lowest balance first (quick wins)
 - `DEFAULT_APP_DATA` in `types/index.ts` provides initial state structure
 - Version field in AppData supports future data migrations
+- Remember how to read screenshots. you are running in wsl so if a path is C:\Users\forel\Pictures\Screenshots\screenshot_name.png you need to read /mnt/c/Users\forel\Pictures\Screenshots\screenshot_name.png
