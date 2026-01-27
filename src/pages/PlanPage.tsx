@@ -4,9 +4,9 @@
  * Shows the step-by-step payoff plan based on current debts and strategy.
  */
 
-import { useMemo } from 'react';
+import { useMemo, useState, useRef } from 'react';
 import { format, parseISO } from 'date-fns';
-import { Trophy, TrendingDown, DollarSign } from 'lucide-react';
+import { Trophy, TrendingDown, DollarSign, Pencil, Check } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { PageHeader } from '../components/layout/PageHeader';
 import {
@@ -17,7 +17,10 @@ import {
 } from '../lib/calculations';
 
 export function PlanPage() {
-  const { debts, strategy } = useApp();
+  const { debts, strategy, updateStrategy } = useApp();
+  const [isEditingFunding, setIsEditingFunding] = useState(false);
+  const [fundingInput, setFundingInput] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const plan = useMemo(
     () => generatePayoffPlan(debts, strategy),
@@ -82,6 +85,60 @@ export function PlanPage() {
       <PageHeader title="Payoff Plan" subtitle="The step-by-step plan to your debt-free future" />
 
       <div className="px-4 py-6 space-y-6">
+        {/* Monthly Contribution */}
+        <div className="card">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs text-gray-500">Extra monthly contribution</p>
+              {isEditingFunding ? (
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    const val = parseFloat(fundingInput) || 0;
+                    updateStrategy({
+                      recurringFunding: { ...strategy.recurringFunding, amount: val },
+                    });
+                    setIsEditingFunding(false);
+                  }}
+                  className="flex items-center gap-2 mt-1"
+                >
+                  <span className="text-lg font-bold">$</span>
+                  <input
+                    ref={inputRef}
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={fundingInput}
+                    onChange={(e) => setFundingInput(e.target.value)}
+                    className="w-28 text-lg font-bold border-b-2 border-primary-500 outline-none bg-transparent"
+                    autoFocus
+                  />
+                  <button type="submit" className="p-1 text-green-600 hover:text-green-800">
+                    <Check size={20} />
+                  </button>
+                </form>
+              ) : (
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-xl font-bold">{formatCurrency(strategy.recurringFunding.amount)}</span>
+                  <button
+                    onClick={() => {
+                      setFundingInput(String(strategy.recurringFunding.amount || ''));
+                      setIsEditingFunding(true);
+                    }}
+                    className="p-1 text-gray-400 hover:text-gray-600"
+                  >
+                    <Pencil size={16} />
+                  </button>
+                </div>
+              )}
+            </div>
+            <div className="text-right">
+              <p className="text-xs text-gray-500">Strategy</p>
+              <p className="text-sm font-semibold mt-1 capitalize">{strategy.strategy}</p>
+            </div>
+          </div>
+        </div>
+
         {/* Plan Summary */}
         <div className="card">
           <h2 className="text-lg font-semibold mb-4">Plan summary</h2>
