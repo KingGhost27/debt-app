@@ -9,7 +9,6 @@ import { NavLink } from 'react-router-dom';
 import {
   Home,
   CreditCard,
-  Wallet,
   ClipboardList,
   CalendarCheck,
 } from 'lucide-react';
@@ -23,7 +22,6 @@ interface NavItem {
 const navItems: NavItem[] = [
   { to: '/', label: 'Home', icon: <Home size={24} /> },
   { to: '/debts', label: 'Debts', icon: <CreditCard size={24} /> },
-  { to: '/budget', label: 'Budget', icon: <Wallet size={24} /> },
   { to: '/plan', label: 'Plan', icon: <ClipboardList size={24} /> },
   { to: '/track', label: 'Track', icon: <CalendarCheck size={24} /> },
 ];
