@@ -259,7 +259,7 @@ export function DebtsPage() {
               </div>
 
               {/* Enhanced Legend with amounts and progress bars */}
-              <div className="flex-1 space-y-2 overflow-y-auto max-h-40">
+              <div className="flex-1 space-y-2 overflow-y-auto max-h-40 pr-4">
                 {(chartView === 'category' ? categoryTotals : debtTotals).map((item) => {
                   const percent = totalBalance > 0 ? (item.balance / totalBalance) * 100 : 0;
                   const key = 'id' in item ? item.id : item.category;
