@@ -437,9 +437,9 @@ export function formatPercent(value: number, decimals: number = 1): string {
 // ============================================
 
 /**
- * Calculate monthly income from a single income source
+ * Calculate gross monthly income from a single income source
  */
-export function calculateMonthlyIncome(source: IncomeSource): number {
+export function calculateGrossMonthlyIncome(source: IncomeSource): number {
   if (source.type === 'salary' && source.amount) {
     switch (source.payFrequency) {
       case 'weekly':
@@ -459,10 +459,53 @@ export function calculateMonthlyIncome(source: IncomeSource): number {
 }
 
 /**
- * Calculate total monthly income from all sources
+ * Calculate total deduction percentage from an income source
+ */
+export function calculateTotalDeductionPercent(source: IncomeSource): number {
+  if (!source.deductions) return 0;
+
+  const d = source.deductions;
+  return (
+    d.federalTax +
+    d.stateTax +
+    d.medicare +
+    d.socialSecurity +
+    d.retirement401k +
+    d.other
+  );
+}
+
+/**
+ * Calculate net (take-home) monthly income from a single income source
+ * Applies all deductions to the gross income
+ */
+export function calculateNetMonthlyIncome(source: IncomeSource): number {
+  const gross = calculateGrossMonthlyIncome(source);
+  const deductionPercent = calculateTotalDeductionPercent(source);
+  const deductionAmount = gross * (deductionPercent / 100);
+  return Math.max(0, gross - deductionAmount);
+}
+
+/**
+ * Calculate monthly income from a single income source
+ * @deprecated Use calculateNetMonthlyIncome for accurate take-home pay
+ */
+export function calculateMonthlyIncome(source: IncomeSource): number {
+  return calculateNetMonthlyIncome(source);
+}
+
+/**
+ * Calculate total gross monthly income from all sources
+ */
+export function calculateTotalGrossMonthlyIncome(sources: IncomeSource[]): number {
+  return sources.reduce((sum, source) => sum + calculateGrossMonthlyIncome(source), 0);
+}
+
+/**
+ * Calculate total net (take-home) monthly income from all sources
  */
 export function calculateTotalMonthlyIncome(sources: IncomeSource[]): number {
-  return sources.reduce((sum, source) => sum + calculateMonthlyIncome(source), 0);
+  return sources.reduce((sum, source) => sum + calculateNetMonthlyIncome(source), 0);
 }
 
 /**
