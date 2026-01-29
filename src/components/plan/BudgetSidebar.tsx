@@ -30,6 +30,7 @@ interface BudgetSidebarProps {
   totalMinimums: number;
   onExpenseChange: (value: string) => void;
   onAllocationChange: (value: string) => void;
+  onExtraChange: (value: string) => void;
 }
 
 export function BudgetSidebar({
@@ -39,6 +40,7 @@ export function BudgetSidebar({
   totalMinimums,
   onExpenseChange,
   onAllocationChange,
+  onExtraChange,
 }: BudgetSidebarProps) {
   const { deleteIncomeSource } = useApp();
   const [isIncomeModalOpen, setIsIncomeModalOpen] = useState(false);
@@ -211,20 +213,32 @@ export function BudgetSidebar({
           />
         </div>
 
-        {budget.debtAllocationAmount > 0 && (
-          <div className="mt-3 space-y-1 text-sm">
-            <div className="flex justify-between text-gray-500">
-              <span>Minimum payments</span>
-              <span>{formatCurrency(totalMinimums)}</span>
-            </div>
-            <div className="flex justify-between text-primary-600 font-medium">
-              <span>Extra for payoff</span>
-              <span>
-                {formatCurrency(Math.max(0, budget.debtAllocationAmount - totalMinimums))}
-              </span>
+        <div className="mt-3 space-y-3 text-sm">
+          <div className="flex justify-between text-gray-500">
+            <span>Minimum payments</span>
+            <span>{formatCurrency(totalMinimums)}</span>
+          </div>
+          <div>
+            <label className="block text-sm text-primary-600 font-medium mb-1">
+              Extra for payoff
+            </label>
+            <div className="relative">
+              <DollarSign
+                size={14}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              />
+              <input
+                type="number"
+                value={Math.max(0, budget.debtAllocationAmount - totalMinimums) || ''}
+                onChange={(e) => onExtraChange(e.target.value)}
+                placeholder="0.00"
+                step="0.01"
+                min="0"
+                className="w-full pl-7 pr-3 py-1.5 text-sm border border-primary-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-primary-600 font-medium"
+              />
             </div>
           </div>
-        )}
+        </div>
       </div>
 
       {/* One-time Fundings */}

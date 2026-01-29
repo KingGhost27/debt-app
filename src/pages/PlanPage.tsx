@@ -59,6 +59,15 @@ export function PlanPage() {
     });
   };
 
+  const handleExtraChange = (value: string) => {
+    const extra = parseFloat(value) || 0;
+    const total = totalMinimums + extra;
+    updateBudget({ debtAllocationAmount: total });
+    updateStrategy({
+      recurringFunding: { ...strategy.recurringFunding, amount: total },
+    });
+  };
+
   // No debts empty state
   if (debts.length === 0) {
     return (
@@ -108,6 +117,7 @@ export function PlanPage() {
             totalMinimums={totalMinimums}
             onExpenseChange={handleExpenseChange}
             onAllocationChange={handleAllocationChange}
+            onExtraChange={handleExtraChange}
           />
         </div>
       </div>
@@ -160,6 +170,7 @@ export function PlanPage() {
               totalMinimums={totalMinimums}
               onExpenseChange={handleExpenseChange}
               onAllocationChange={handleAllocationChange}
+              onExtraChange={handleExtraChange}
             />
           </div>
         </div>
