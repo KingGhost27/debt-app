@@ -21,10 +21,19 @@ import type { PayoffStrategy } from '../types';
 export function PlanPage() {
   const { debts, strategy, budget, updateStrategy, updateBudget } = useApp();
 
-  const plan = useMemo(
-    () => generatePayoffPlan(debts, strategy),
-    [debts, strategy]
+  // Generate both plans for comparison
+  const avalanchePlan = useMemo(
+    () => generatePayoffPlan(debts, { ...strategy, strategy: 'avalanche' }),
+    [debts, strategy.recurringFunding, strategy.oneTimeFundings]
   );
+
+  const snowballPlan = useMemo(
+    () => generatePayoffPlan(debts, { ...strategy, strategy: 'snowball' }),
+    [debts, strategy.recurringFunding, strategy.oneTimeFundings]
+  );
+
+  // Use the selected strategy's plan for the step-by-step view
+  const plan = strategy.strategy === 'avalanche' ? avalanchePlan : snowballPlan;
 
   const sortedDebts = useMemo(
     () => sortDebtsByStrategy(debts, strategy.strategy),
@@ -129,12 +138,12 @@ export function PlanPage() {
       <PageHeader title="Payoff Plan" subtitle="Your debt-free roadmap" />
 
       <div className="px-4 py-6">
-        {/* Plan Summary - always at top */}
+        {/* Plan Summary with comparison - always at top */}
         <div className="mb-6">
           <PlanSummary
-            plan={plan}
+            avalanchePlan={avalanchePlan}
+            snowballPlan={snowballPlan}
             strategy={strategy.strategy}
-            debtFreeDate={debtFreeDate}
             onStrategyChange={handleStrategyChange}
           />
         </div>

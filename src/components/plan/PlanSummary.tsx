@@ -1,83 +1,220 @@
 /**
  * Plan Summary Component
  *
- * Displays payoff plan statistics and strategy toggle.
+ * Displays payoff plan statistics with strategy comparison.
  */
 
-import { Trophy, TrendingDown, DollarSign } from 'lucide-react';
+import { parseISO } from 'date-fns';
+import { Trophy, TrendingDown, DollarSign, Check } from 'lucide-react';
 import { formatCurrency, formatTimeUntil } from '../../lib/calculations';
 import type { PayoffPlan, PayoffStrategy } from '../../types';
 
 interface PlanSummaryProps {
-  plan: PayoffPlan;
+  avalanchePlan: PayoffPlan;
+  snowballPlan: PayoffPlan;
   strategy: PayoffStrategy;
-  debtFreeDate: Date | null;
   onStrategyChange: (strategy: PayoffStrategy) => void;
 }
 
 export function PlanSummary({
-  plan,
+  avalanchePlan,
+  snowballPlan,
   strategy,
-  debtFreeDate,
   onStrategyChange,
 }: PlanSummaryProps) {
+  const avalancheDate = avalanchePlan.debtFreeDate
+    ? parseISO(avalanchePlan.debtFreeDate)
+    : null;
+  const snowballDate = snowballPlan.debtFreeDate
+    ? parseISO(snowballPlan.debtFreeDate)
+    : null;
+
+  // Determine which is better for each metric (lower is better)
+  const betterTime =
+    avalanchePlan.debtFreeDate <= snowballPlan.debtFreeDate ? 'avalanche' : 'snowball';
+  const betterInterest =
+    avalanchePlan.totalInterest <= snowballPlan.totalInterest ? 'avalanche' : 'snowball';
+  const betterTotal =
+    avalanchePlan.totalPayments <= snowballPlan.totalPayments ? 'avalanche' : 'snowball';
+
+  // Calculate savings
+  const interestSavings = Math.abs(
+    avalanchePlan.totalInterest - snowballPlan.totalInterest
+  );
+
   return (
     <div className="card">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">Plan Summary</h2>
-        <div className="flex gap-1">
-          <button
-            onClick={() => onStrategyChange('avalanche')}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-              strategy === 'avalanche'
-                ? 'bg-primary-500 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
-          >
-            Avalanche
-          </button>
-          <button
-            onClick={() => onStrategyChange('snowball')}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-              strategy === 'snowball'
-                ? 'bg-primary-500 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
-          >
-            Snowball
-          </button>
-        </div>
+        <h2 className="text-lg font-semibold">Strategy Comparison</h2>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
-        <div className="text-center">
-          <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-2">
-            <Trophy size={20} className="text-primary-600" />
-          </div>
-          <p className="text-xs text-gray-500">Debt-Free</p>
-          <p className="font-semibold text-sm">
-            {debtFreeDate ? formatTimeUntil(debtFreeDate) : 'N/A'}
-          </p>
-        </div>
+      {/* Comparison Table */}
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-gray-200">
+              <th className="text-left py-2 pr-2 font-medium text-gray-500"></th>
+              <th className="text-center py-2 px-2">
+                <button
+                  onClick={() => onStrategyChange('avalanche')}
+                  className={`w-full px-3 py-1.5 rounded-lg font-medium transition-colors ${
+                    strategy === 'avalanche'
+                      ? 'bg-primary-500 text-white'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  Avalanche
+                </button>
+              </th>
+              <th className="text-center py-2 px-2">
+                <button
+                  onClick={() => onStrategyChange('snowball')}
+                  className={`w-full px-3 py-1.5 rounded-lg font-medium transition-colors ${
+                    strategy === 'snowball'
+                      ? 'bg-primary-500 text-white'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  Snowball
+                </button>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {/* Debt-Free Date */}
+            <tr className="border-b border-gray-100">
+              <td className="py-3 pr-2">
+                <div className="flex items-center gap-2">
+                  <Trophy size={16} className="text-primary-500" />
+                  <span className="text-gray-600">Debt-Free</span>
+                </div>
+              </td>
+              <td className="py-3 px-2 text-center">
+                <div className="flex items-center justify-center gap-1">
+                  <span
+                    className={
+                      betterTime === 'avalanche' ? 'font-semibold text-green-600' : ''
+                    }
+                  >
+                    {avalancheDate ? formatTimeUntil(avalancheDate) : 'N/A'}
+                  </span>
+                  {betterTime === 'avalanche' && (
+                    <Check size={14} className="text-green-600" />
+                  )}
+                </div>
+              </td>
+              <td className="py-3 px-2 text-center">
+                <div className="flex items-center justify-center gap-1">
+                  <span
+                    className={
+                      betterTime === 'snowball' ? 'font-semibold text-green-600' : ''
+                    }
+                  >
+                    {snowballDate ? formatTimeUntil(snowballDate) : 'N/A'}
+                  </span>
+                  {betterTime === 'snowball' && (
+                    <Check size={14} className="text-green-600" />
+                  )}
+                </div>
+              </td>
+            </tr>
 
-        <div className="text-center">
-          <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-2">
-            <TrendingDown size={20} className="text-red-600" />
-          </div>
-          <p className="text-xs text-gray-500">Total Interest</p>
-          <p className="font-semibold text-sm text-red-600">
-            {formatCurrency(plan.totalInterest)}
-          </p>
-        </div>
+            {/* Total Interest */}
+            <tr className="border-b border-gray-100">
+              <td className="py-3 pr-2">
+                <div className="flex items-center gap-2">
+                  <TrendingDown size={16} className="text-red-500" />
+                  <span className="text-gray-600">Interest</span>
+                </div>
+              </td>
+              <td className="py-3 px-2 text-center">
+                <div className="flex items-center justify-center gap-1">
+                  <span
+                    className={
+                      betterInterest === 'avalanche'
+                        ? 'font-semibold text-green-600'
+                        : 'text-red-500'
+                    }
+                  >
+                    {formatCurrency(avalanchePlan.totalInterest)}
+                  </span>
+                  {betterInterest === 'avalanche' && (
+                    <Check size={14} className="text-green-600" />
+                  )}
+                </div>
+              </td>
+              <td className="py-3 px-2 text-center">
+                <div className="flex items-center justify-center gap-1">
+                  <span
+                    className={
+                      betterInterest === 'snowball'
+                        ? 'font-semibold text-green-600'
+                        : 'text-red-500'
+                    }
+                  >
+                    {formatCurrency(snowballPlan.totalInterest)}
+                  </span>
+                  {betterInterest === 'snowball' && (
+                    <Check size={14} className="text-green-600" />
+                  )}
+                </div>
+              </td>
+            </tr>
 
-        <div className="text-center">
-          <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
-            <DollarSign size={20} className="text-green-600" />
-          </div>
-          <p className="text-xs text-gray-500">Total Payments</p>
-          <p className="font-semibold text-sm">{formatCurrency(plan.totalPayments)}</p>
-        </div>
+            {/* Total Payments */}
+            <tr>
+              <td className="py-3 pr-2">
+                <div className="flex items-center gap-2">
+                  <DollarSign size={16} className="text-gray-500" />
+                  <span className="text-gray-600">Total Paid</span>
+                </div>
+              </td>
+              <td className="py-3 px-2 text-center">
+                <div className="flex items-center justify-center gap-1">
+                  <span
+                    className={
+                      betterTotal === 'avalanche' ? 'font-semibold text-green-600' : ''
+                    }
+                  >
+                    {formatCurrency(avalanchePlan.totalPayments)}
+                  </span>
+                  {betterTotal === 'avalanche' && (
+                    <Check size={14} className="text-green-600" />
+                  )}
+                </div>
+              </td>
+              <td className="py-3 px-2 text-center">
+                <div className="flex items-center justify-center gap-1">
+                  <span
+                    className={
+                      betterTotal === 'snowball' ? 'font-semibold text-green-600' : ''
+                    }
+                  >
+                    {formatCurrency(snowballPlan.totalPayments)}
+                  </span>
+                  {betterTotal === 'snowball' && (
+                    <Check size={14} className="text-green-600" />
+                  )}
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
+
+      {/* Savings callout */}
+      {interestSavings > 0 && (
+        <div className="mt-4 p-3 bg-green-50 rounded-lg text-center">
+          <p className="text-sm text-green-800">
+            <span className="font-semibold">
+              {betterInterest === 'avalanche' ? 'Avalanche' : 'Snowball'}
+            </span>{' '}
+            saves you{' '}
+            <span className="font-semibold">{formatCurrency(interestSavings)}</span> in
+            interest
+          </p>
+        </div>
+      )}
     </div>
   );
 }
