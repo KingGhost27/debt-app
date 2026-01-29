@@ -133,17 +133,37 @@ export interface StrategySettings {
 export type PayFrequency = 'weekly' | 'bi-weekly' | 'semi-monthly' | 'monthly';
 export type EmploymentType = 'salary' | 'hourly';
 
+export interface PaycheckDeductions {
+  federalTax: number;      // Federal income tax withholding (%)
+  stateTax: number;        // State income tax (%)
+  medicare: number;        // Medicare tax, typically 1.45% (FICA)
+  socialSecurity: number;  // Social Security tax, typically 6.2% (FICA)
+  retirement401k: number;  // 401k/retirement contribution (%)
+  other: number;           // Other deductions: HSA, insurance, union dues, etc.
+}
+
+export const DEFAULT_DEDUCTIONS: PaycheckDeductions = {
+  federalTax: 0,
+  stateTax: 0,
+  medicare: 1.45,
+  socialSecurity: 6.2,
+  retirement401k: 0,
+  other: 0,
+};
+
 export interface IncomeSource {
   id: string;
   name: string;                    // e.g., "Primary Job", "Side Gig"
   type: EmploymentType;
   payFrequency: PayFrequency;
   // For salary/fixed income
-  amount?: number;                 // Per-period amount
+  amount?: number;                 // Per-period amount (gross)
   // For hourly income
   hourlyRate?: number;
   hoursPerWeek?: number;
   isPartTime?: boolean;
+  // Paycheck deductions (percentages)
+  deductions?: PaycheckDeductions;
   // Metadata
   createdAt: string;
   updatedAt: string;
