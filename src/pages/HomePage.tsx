@@ -141,24 +141,33 @@ export function HomePage() {
       {/* Main Content */}
       <div className="px-4 py-6 space-y-6">
         {/* Up Next - First Debt to Pay Off */}
-        {payoffMilestones.length > 0 && (
-          <div className="card bg-gradient-to-r from-primary-50 to-white border border-primary-100">
-            <div className="flex items-center gap-3">
-              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary-500 text-white flex items-center justify-center">
-                <Target size={24} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-medium text-primary-600 uppercase tracking-wide">Up Next</p>
-                <p className="font-semibold text-gray-900 truncate">
-                  {payoffMilestones[0].debtName}
-                </p>
-                <p className="text-sm text-gray-500">
-                  Paid off by {format(parseISO(payoffMilestones[0].payoffDate), 'MMMM yyyy')}
-                </p>
+        {payoffMilestones.length > 0 && (() => {
+          const nextDebt = debts.find(d => d.id === payoffMilestones[0].debtId);
+          return (
+            <div className="card bg-gradient-to-r from-primary-50 to-white border border-primary-100">
+              <div className="flex items-center gap-3">
+                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary-500 text-white flex items-center justify-center">
+                  <Target size={24} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium text-primary-600 uppercase tracking-wide">Up Next</p>
+                  <p className="font-semibold text-gray-900 truncate">
+                    {payoffMilestones[0].debtName}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    Paid off by {format(parseISO(payoffMilestones[0].payoffDate), 'MMMM yyyy')}
+                  </p>
+                </div>
+                {nextDebt && (
+                  <div className="text-right flex-shrink-0">
+                    <p className="text-xs text-gray-500">Balance</p>
+                    <p className="font-bold text-primary-600">{formatCurrency(nextDebt.balance)}</p>
+                  </div>
+                )}
               </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Payoff Progress Card */}
         <div className="card">
