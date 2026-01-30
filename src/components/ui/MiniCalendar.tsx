@@ -3,6 +3,7 @@
  *
  * Visual monthly calendar showing bill due dates and paydays.
  * Highlights days with bills (pink) and paydays (green $).
+ * Supports navigation to previous/future months.
  */
 
 import { useMemo, useState } from 'react';
@@ -15,7 +16,10 @@ import {
   isSameMonth,
   isSameDay,
   format,
+  addMonths,
+  subMonths,
 } from 'date-fns';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Debt, IncomeSource } from '../../types';
 import { CATEGORY_INFO } from '../../types';
 import { getPaydaysInMonth } from '../../lib/calculations';
@@ -28,8 +32,24 @@ interface MiniCalendarProps {
 
 export function MiniCalendar({ debts, incomeSources = [], customCategories = [] }: MiniCalendarProps) {
   const [hoveredDay, setHoveredDay] = useState<Date | null>(null);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+
+  // Today's date (for highlighting current day)
+  const today = useMemo(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }, []);
+
+  // Displayed month (can be navigated)
+  const [displayedMonth, setDisplayedMonth] = useState<Date>(today);
+
+  // Navigation handlers
+  const goToPreviousMonth = () => setDisplayedMonth((prev) => subMonths(prev, 1));
+  const goToNextMonth = () => setDisplayedMonth((prev) => addMonths(prev, 1));
+  const goToCurrentMonth = () => setDisplayedMonth(today);
+
+  // Check if we're viewing the current month
+  const isCurrentMonth = isSameMonth(displayedMonth, today);
 
   // Build a map of day -> debts due that day
   const dueDateMap = useMemo(() => {
@@ -44,11 +64,11 @@ export function MiniCalendar({ debts, incomeSources = [], customCategories = [] 
     return map;
   }, [debts]);
 
-  // Build a map of day -> income sources with paydays that day
+  // Build a map of day -> income sources with paydays that day (for displayed month)
   const paydayMap = useMemo(() => {
     const map = new Map<number, IncomeSource[]>();
     incomeSources.forEach((source) => {
-      const paydays = getPaydaysInMonth(source, today);
+      const paydays = getPaydaysInMonth(source, displayedMonth);
       paydays.forEach((payday) => {
         const day = payday.getDate();
         if (!map.has(day)) {
@@ -58,27 +78,27 @@ export function MiniCalendar({ debts, incomeSources = [], customCategories = [] 
       });
     });
     return map;
-  }, [incomeSources, today]);
+  }, [incomeSources, displayedMonth]);
 
-  // Get calendar days for current month
+  // Get calendar days for displayed month
   const calendarDays = useMemo(() => {
-    const monthStart = startOfMonth(today);
-    const monthEnd = endOfMonth(today);
+    const monthStart = startOfMonth(displayedMonth);
+    const monthEnd = endOfMonth(displayedMonth);
     const calendarStart = startOfWeek(monthStart, { weekStartsOn: 0 }); // Sunday start
     const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 0 });
 
     return eachDayOfInterval({ start: calendarStart, end: calendarEnd });
-  }, [today]);
+  }, [displayedMonth]);
 
   // Get debts due on a specific day of month
   const getDebtsForDay = (date: Date): Debt[] => {
-    if (!isSameMonth(date, today)) return [];
+    if (!isSameMonth(date, displayedMonth)) return [];
     return dueDateMap.get(date.getDate()) || [];
   };
 
   // Get paydays for a specific day of month
   const getPaydaysForDay = (date: Date): IncomeSource[] => {
-    if (!isSameMonth(date, today)) return [];
+    if (!isSameMonth(date, displayedMonth)) return [];
     return paydayMap.get(date.getDate()) || [];
   };
 
@@ -113,9 +133,37 @@ export function MiniCalendar({ debts, incomeSources = [], customCategories = [] 
     <div className="card py-3 px-4">
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-xs text-gray-500">BILL CALENDAR</h3>
-        <p className="text-sm font-semibold text-gray-900">
-          {format(today, 'MMM yyyy')}
-        </p>
+
+        {/* Month navigation */}
+        <div className="flex items-center gap-1">
+          <button
+            onClick={goToPreviousMonth}
+            className="p-1 rounded hover:bg-gray-100 transition-colors"
+            aria-label="Previous month"
+          >
+            <ChevronLeft size={16} className="text-gray-500" />
+          </button>
+
+          <button
+            onClick={goToCurrentMonth}
+            className={`text-sm font-semibold px-2 py-0.5 rounded transition-colors ${
+              isCurrentMonth
+                ? 'text-gray-900'
+                : 'text-primary-600 hover:bg-primary-50'
+            }`}
+            title={isCurrentMonth ? undefined : 'Click to return to current month'}
+          >
+            {format(displayedMonth, 'MMM yyyy')}
+          </button>
+
+          <button
+            onClick={goToNextMonth}
+            className="p-1 rounded hover:bg-gray-100 transition-colors"
+            aria-label="Next month"
+          >
+            <ChevronRight size={16} className="text-gray-500" />
+          </button>
+        </div>
       </div>
 
       {/* Calendar container - constrained width and centered */}
@@ -132,7 +180,7 @@ export function MiniCalendar({ debts, incomeSources = [], customCategories = [] 
         {/* Calendar grid */}
         <div className="grid grid-cols-7 gap-1 justify-items-center">
         {calendarDays.map((date) => {
-          const isCurrentMonth = isSameMonth(date, today);
+          const isInDisplayedMonth = isSameMonth(date, displayedMonth);
           const isToday = isSameDay(date, today);
           const debtsOnDay = getDebtsForDay(date);
           const paydaysOnDay = getPaydaysForDay(date);
@@ -152,8 +200,8 @@ export function MiniCalendar({ debts, incomeSources = [], customCategories = [] 
                 className={`
                   w-9 h-9 flex items-center justify-center text-sm rounded-md
                   transition-all duration-150
-                  ${!isCurrentMonth ? 'text-gray-300' : ''}
-                  ${isCurrentMonth && !hasBills && !hasPayday && !isToday ? 'text-gray-600' : ''}
+                  ${!isInDisplayedMonth ? 'text-gray-300' : ''}
+                  ${isInDisplayedMonth && !hasBills && !hasPayday && !isToday ? 'text-gray-600' : ''}
                   ${isToday && !hasBills ? 'ring-1 ring-primary-500 text-gray-900 font-semibold' : ''}
                   ${hasBills && !isToday ? 'bg-primary-500 text-white font-semibold' : ''}
                   ${hasBills && isToday ? 'bg-primary-600 text-white font-bold ring-1 ring-primary-300' : ''}
