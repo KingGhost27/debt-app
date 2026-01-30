@@ -22,7 +22,7 @@ import {
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Debt, IncomeSource } from '../../types';
 import { CATEGORY_INFO } from '../../types';
-import { getPaydaysInMonth } from '../../lib/calculations';
+import { getPaydaysInMonth, getPayCycleEndsInMonth } from '../../lib/calculations';
 
 interface MiniCalendarProps {
   debts: Debt[];
@@ -80,6 +80,22 @@ export function MiniCalendar({ debts, incomeSources = [], customCategories = [] 
     return map;
   }, [incomeSources, displayedMonth]);
 
+  // Build a map of day -> income sources with pay cycle ends that day
+  const cycleEndMap = useMemo(() => {
+    const map = new Map<number, IncomeSource[]>();
+    incomeSources.forEach((source) => {
+      const cycleEnds = getPayCycleEndsInMonth(source, displayedMonth);
+      cycleEnds.forEach((cycleEnd) => {
+        const day = cycleEnd.getDate();
+        if (!map.has(day)) {
+          map.set(day, []);
+        }
+        map.get(day)!.push(source);
+      });
+    });
+    return map;
+  }, [incomeSources, displayedMonth]);
+
   // Get calendar days for displayed month
   const calendarDays = useMemo(() => {
     const monthStart = startOfMonth(displayedMonth);
@@ -102,6 +118,12 @@ export function MiniCalendar({ debts, incomeSources = [], customCategories = [] 
     return paydayMap.get(date.getDate()) || [];
   };
 
+  // Get pay cycle ends for a specific day of month
+  const getCycleEndsForDay = (date: Date): IncomeSource[] => {
+    if (!isSameMonth(date, displayedMonth)) return [];
+    return cycleEndMap.get(date.getDate()) || [];
+  };
+
   // Get category color for a debt
   const getCategoryColor = (debt: Debt): string => {
     // Check built-in categories
@@ -115,10 +137,11 @@ export function MiniCalendar({ debts, incomeSources = [], customCategories = [] 
 
   const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-  // Show calendar even if no debts, as long as there are income sources with paydays
+  // Show calendar even if no debts, as long as there are income sources with paydays or cycle ends
   const hasPaydays = incomeSources.some((s) => s.nextPayDate);
+  const hasCycleEnds = incomeSources.some((s) => s.payCycleEndDate);
 
-  if (debts.length === 0 && !hasPaydays) {
+  if (debts.length === 0 && !hasPaydays && !hasCycleEnds) {
     return (
       <div className="card">
         <h3 className="text-sm text-gray-500 mb-3">BILL CALENDAR</h3>
@@ -184,10 +207,12 @@ export function MiniCalendar({ debts, incomeSources = [], customCategories = [] 
           const isToday = isSameDay(date, today);
           const debtsOnDay = getDebtsForDay(date);
           const paydaysOnDay = getPaydaysForDay(date);
+          const cycleEndsOnDay = getCycleEndsForDay(date);
           const hasBills = debtsOnDay.length > 0;
           const hasPayday = paydaysOnDay.length > 0;
+          const hasCycleEnd = cycleEndsOnDay.length > 0;
           const isHovered = hoveredDay && isSameDay(date, hoveredDay);
-          const hasContent = hasBills || hasPayday;
+          const hasContent = hasBills || hasPayday || hasCycleEnd;
 
           return (
             <div
@@ -201,7 +226,7 @@ export function MiniCalendar({ debts, incomeSources = [], customCategories = [] 
                   w-9 h-9 flex items-center justify-center text-sm rounded-md
                   transition-all duration-150
                   ${!isInDisplayedMonth ? 'text-gray-300' : ''}
-                  ${isInDisplayedMonth && !hasBills && !hasPayday && !isToday ? 'text-gray-600' : ''}
+                  ${isInDisplayedMonth && !hasBills && !hasPayday && !hasCycleEnd && !isToday ? 'text-gray-600' : ''}
                   ${isToday && !hasBills ? 'ring-1 ring-primary-500 text-gray-900 font-semibold' : ''}
                   ${hasBills && !isToday ? 'bg-primary-500 text-white font-semibold' : ''}
                   ${hasBills && isToday ? 'bg-primary-600 text-white font-bold ring-1 ring-primary-300' : ''}
@@ -215,7 +240,13 @@ export function MiniCalendar({ debts, incomeSources = [], customCategories = [] 
                     {debtsOnDay.length}
                   </span>
                 )}
-                {/* Payday indicator */}
+                {/* Pay cycle end indicator - left side */}
+                {hasCycleEnd && (
+                  <span className="absolute -bottom-0.5 -left-0.5 bg-blue-500 text-white text-[8px] w-3 h-3 rounded-full flex items-center justify-center font-bold">
+                    |
+                  </span>
+                )}
+                {/* Payday indicator - right side */}
                 {hasPayday && (
                   <span className="absolute -bottom-0.5 -right-0.5 bg-green-500 text-white text-[9px] w-3.5 h-3.5 rounded-full flex items-center justify-center font-bold">
                     $
@@ -258,6 +289,21 @@ export function MiniCalendar({ debts, incomeSources = [], customCategories = [] 
                       ))}
                     </>
                   )}
+                  {/* Pay cycle ends section */}
+                  {hasCycleEnd && (
+                    <>
+                      {(hasBills || hasPayday) && <div className="border-t border-gray-700 my-1" />}
+                      <div className="font-semibold mb-0.5 text-blue-400">
+                        Pay cycle ends:
+                      </div>
+                      {cycleEndsOnDay.map((source) => (
+                        <div key={source.id} className="flex items-center gap-1.5">
+                          <span className="text-blue-400">|</span>
+                          <span>{source.name}</span>
+                        </div>
+                      ))}
+                    </>
+                  )}
                   <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900" />
                 </div>
               )}
@@ -268,7 +314,7 @@ export function MiniCalendar({ debts, incomeSources = [], customCategories = [] 
       </div>
 
       {/* Legend */}
-      <div className="mt-2 pt-2 border-t border-gray-100 flex items-center justify-center gap-3 text-[10px] text-gray-500">
+      <div className="mt-2 pt-2 border-t border-gray-100 flex items-center justify-center flex-wrap gap-x-3 gap-y-1 text-[10px] text-gray-500">
         <div className="flex items-center gap-1">
           <div className="w-2 h-2 rounded bg-primary-500" />
           <span>Bill due</span>
@@ -281,6 +327,12 @@ export function MiniCalendar({ debts, incomeSources = [], customCategories = [] 
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 rounded-full bg-green-500 text-white text-[8px] flex items-center justify-center font-bold">$</div>
             <span>Payday</span>
+          </div>
+        )}
+        {hasCycleEnds && (
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 rounded-full bg-blue-500 text-white text-[8px] flex items-center justify-center font-bold">|</div>
+            <span>Cycle ends</span>
           </div>
         )}
       </div>

@@ -32,6 +32,7 @@ interface FormData {
   hoursPerWeek: string;
   isPartTime: boolean;
   nextPayDate: string;
+  payCycleEndDate: string;
   deductions: {
     federalTax: string;
     stateTax: string;
@@ -51,6 +52,7 @@ const initialFormData: FormData = {
   hoursPerWeek: '40',
   isPartTime: false,
   nextPayDate: '',
+  payCycleEndDate: '',
   deductions: {
     federalTax: '',
     stateTax: '',
@@ -117,6 +119,9 @@ export function IncomeSourceModal({ isOpen, onClose, source }: IncomeSourceModal
       const nextPayDateValue = source.nextPayDate
         ? source.nextPayDate.split('T')[0]
         : '';
+      const payCycleEndDateValue = source.payCycleEndDate
+        ? source.payCycleEndDate.split('T')[0]
+        : '';
       setFormData({
         name: source.name,
         type: source.type,
@@ -126,6 +131,7 @@ export function IncomeSourceModal({ isOpen, onClose, source }: IncomeSourceModal
         hoursPerWeek: source.hoursPerWeek?.toString() || '40',
         isPartTime: source.isPartTime || false,
         nextPayDate: nextPayDateValue,
+        payCycleEndDate: payCycleEndDateValue,
         deductions: {
           federalTax: d.federalTax?.toString() || '',
           stateTax: d.stateTax?.toString() || '',
@@ -214,6 +220,7 @@ export function IncomeSourceModal({ isOpen, onClose, source }: IncomeSourceModal
       hoursPerWeek: formData.type === 'hourly' ? parseFloat(formData.hoursPerWeek) : undefined,
       isPartTime: formData.type === 'hourly' ? formData.isPartTime : undefined,
       nextPayDate: formData.nextPayDate || undefined,
+      payCycleEndDate: formData.payCycleEndDate || undefined,
       deductions,
     };
 
@@ -441,6 +448,23 @@ export function IncomeSourceModal({ isOpen, onClose, source }: IncomeSourceModal
             />
             <p className="text-xs text-gray-500 mt-1">
               Used to show paydays on your calendar
+            </p>
+          </div>
+
+          {/* Pay Cycle End */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Pay Cycle Ends
+            </label>
+            <input
+              type="date"
+              name="payCycleEndDate"
+              value={formData.payCycleEndDate}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              When does your current pay period end?
             </p>
           </div>
 

@@ -668,3 +668,79 @@ export function getPaydaysInMonth(source: IncomeSource, monthDate: Date): Date[]
 
   return paydays;
 }
+
+/**
+ * Get all pay cycle end dates for an income source within a given month
+ * Uses payCycleEndDate and payFrequency to calculate recurring cycle ends
+ */
+export function getPayCycleEndsInMonth(source: IncomeSource, monthDate: Date): Date[] {
+  if (!source.payCycleEndDate) return [];
+
+  const cycleEnds: Date[] = [];
+  const monthStart = startOfMonth(monthDate);
+  const monthEnd = endOfMonth(monthDate);
+  const nextCycleEnd = parseISO(source.payCycleEndDate);
+
+  // For semi-monthly, we need special handling
+  if (source.payFrequency === 'semi-monthly') {
+    const cycleDay = nextCycleEnd.getDate();
+
+    let cycleDay1: number;
+    let cycleDay2: number;
+
+    if (cycleDay <= 15) {
+      cycleDay1 = cycleDay;
+      cycleDay2 = cycleDay + 14;
+      if (cycleDay2 > 28) cycleDay2 = 28;
+    } else {
+      cycleDay1 = cycleDay - 14;
+      if (cycleDay1 < 1) cycleDay1 = 1;
+      cycleDay2 = cycleDay;
+    }
+
+    const year = monthDate.getFullYear();
+    const month = monthDate.getMonth();
+    const lastDay = endOfMonth(monthDate).getDate();
+
+    const date1 = new Date(year, month, Math.min(cycleDay1, lastDay));
+    const date2 = new Date(year, month, Math.min(cycleDay2, lastDay));
+
+    cycleEnds.push(date1, date2);
+    return cycleEnds;
+  }
+
+  // For weekly, bi-weekly, monthly
+  const intervalDays =
+    source.payFrequency === 'weekly' ? 7 :
+    source.payFrequency === 'bi-weekly' ? 14 :
+    0;
+
+  if (source.payFrequency === 'monthly') {
+    const cycleDay = nextCycleEnd.getDate();
+    const year = monthDate.getFullYear();
+    const month = monthDate.getMonth();
+    const lastDay = endOfMonth(monthDate).getDate();
+    const date = new Date(year, month, Math.min(cycleDay, lastDay));
+    return [date];
+  }
+
+  // Weekly or bi-weekly
+  let currentCycleEnd = new Date(nextCycleEnd);
+
+  while (currentCycleEnd > monthStart) {
+    currentCycleEnd = addDays(currentCycleEnd, -intervalDays);
+  }
+
+  const maxIterations = 10;
+  let iterations = 0;
+
+  while (currentCycleEnd <= monthEnd && iterations < maxIterations) {
+    if (isWithinInterval(currentCycleEnd, { start: monthStart, end: monthEnd })) {
+      cycleEnds.push(new Date(currentCycleEnd));
+    }
+    currentCycleEnd = addDays(currentCycleEnd, intervalDays);
+    iterations++;
+  }
+
+  return cycleEnds;
+}

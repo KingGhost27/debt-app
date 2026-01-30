@@ -166,6 +166,7 @@ export interface IncomeSource {
   deductions?: PaycheckDeductions;
   // Payday configuration
   nextPayDate?: string;            // ISO date of next expected payday
+  payCycleEndDate?: string;        // ISO date of next pay cycle end
   // Metadata
   createdAt: string;
   updatedAt: string;
