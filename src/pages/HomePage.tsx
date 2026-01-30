@@ -212,7 +212,7 @@ export function HomePage() {
         {categories.length > 0 && (
           <div className="card">
             <h3 className="text-sm text-gray-500 mb-4">CATEGORIES</h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-4">
               {categories.slice(0, 4).map((cat) => {
                 const categoryDebts = debts.filter((d) => d.category === cat.category);
                 const originalTotal = categoryDebts.reduce((sum, d) => sum + d.originalBalance, 0);
@@ -221,19 +221,30 @@ export function HomePage() {
                   : 0;
 
                 return (
-                  <div key={cat.category} className="text-center">
-                    <p className="text-sm font-medium" style={{ color: cat.color }}>
-                      {cat.label}
-                    </p>
+                  <div key={cat.category} className="flex items-center gap-4 p-3 rounded-xl bg-gray-50">
                     <ProgressRing
                       percentage={percentPaid}
-                      size={60}
+                      size={56}
                       strokeWidth={6}
                       color={cat.color}
-                      className="mx-auto my-2"
+                      className="flex-shrink-0"
                     />
-                    <p className="text-xs text-gray-500">Balance</p>
-                    <p className="font-semibold">{formatCurrency(cat.balance)}</p>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold" style={{ color: cat.color }}>
+                        {cat.label}
+                      </p>
+                      <div className="mt-1 space-y-0.5">
+                        {categoryDebts.map((debt) => (
+                          <p key={debt.id} className="text-xs text-gray-600 truncate">
+                            {debt.name}
+                          </p>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <p className="text-xs text-gray-500">Balance</p>
+                      <p className="font-semibold">{formatCurrency(cat.balance)}</p>
+                    </div>
                   </div>
                 );
               })}
