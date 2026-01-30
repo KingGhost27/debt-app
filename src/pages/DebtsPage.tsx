@@ -18,6 +18,7 @@ import {
   formatPercent,
   calculateUtilization,
   calculatePayoffDate,
+  generatePayoffPlan,
 } from '../lib/calculations';
 import type { Debt, DebtCategory } from '../types';
 import { CATEGORY_INFO } from '../types';
@@ -45,7 +46,7 @@ const DEBT_COLORS = [
 ];
 
 export function DebtsPage() {
-  const { debts, deleteDebt, settings, customCategories } = useApp();
+  const { debts, deleteDebt, settings, customCategories, strategy } = useApp();
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('balance');
   const [sortAscending, setSortAscending] = useState(false);
@@ -122,6 +123,59 @@ export function DebtsPage() {
   // Chart data based on view
   const chartData = chartView === 'category' ? categoryTotals : debtTotals;
 
+  // Calculate monthly interest cost across all debts
+  const monthlyInterestCost = useMemo(() => {
+    return debts.reduce((sum, debt) => {
+      return sum + (debt.balance * (debt.apr / 100) / 12);
+    }, 0);
+  }, [debts]);
+
+  // Get debts sorted by APR for comparison chart
+  const debtsByAPR = useMemo(() => {
+    return [...debts]
+      .sort((a, b) => b.apr - a.apr)
+      .map((debt) => ({
+        id: debt.id,
+        name: debt.name,
+        apr: debt.apr,
+      }));
+  }, [debts]);
+
+  // Find max APR for scaling the bar chart
+  const maxAPR = useMemo(() => {
+    if (debts.length === 0) return 30; // Default scale
+    return Math.max(...debts.map(d => d.apr), 30); // At least 30% for scale
+  }, [debts]);
+
+  // Generate payoff plan for timeline milestones
+  const payoffMilestones = useMemo(() => {
+    if (debts.length === 0 || strategy.recurringFunding.amount <= 0) return [];
+
+    const plan = generatePayoffPlan(debts, strategy);
+    if (!plan) return [];
+
+    // Extract all milestones from steps
+    const milestones: { debtId: string; debtName: string; payoffDate: string }[] = [];
+    plan.steps.forEach(step => {
+      step.milestonesInStep.forEach(milestone => {
+        milestones.push({
+          debtId: milestone.debtId,
+          debtName: milestone.debtName,
+          payoffDate: milestone.payoffDate,
+        });
+      });
+    });
+
+    return milestones;
+  }, [debts, strategy]);
+
+  // Get APR color based on risk level
+  const getAPRColor = (apr: number): string => {
+    if (apr >= 20) return '#ef4444'; // red - high risk
+    if (apr >= 10) return '#f59e0b'; // amber - medium risk
+    return '#22c55e'; // green - low risk
+  };
+
   // Filter and sort debts
   const filteredDebts = useMemo(() => {
     let result = [...debts];
@@ -192,105 +246,240 @@ export function DebtsPage() {
       />
 
       <div className="px-4 py-6 space-y-6">
-        {/* Balance Chart */}
+        {/* Balance Chart & Monthly Interest */}
         {debts.length > 0 && (
-          <div className="card">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm text-gray-500">
-                Balance by {chartView === 'category' ? 'category' : 'debt'}
-              </h2>
-              <div className="flex bg-gray-100 rounded-lg p-0.5">
-                <button
-                  onClick={() => setChartView('category')}
-                  className={`px-3 py-1 text-xs rounded-md transition-colors ${
-                    chartView === 'category'
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-500'
-                  }`}
-                >
-                  Category
-                </button>
-                <button
-                  onClick={() => setChartView('debt')}
-                  className={`px-3 py-1 text-xs rounded-md transition-colors ${
-                    chartView === 'debt'
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-500'
-                  }`}
-                >
-                  By Debt
-                </button>
-              </div>
-            </div>
-            <div className="flex items-center gap-6">
-              {/* Donut chart - larger size */}
-              <div className="relative w-32 h-32 flex-shrink-0">
-                <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-                  {(() => {
-                    const radius = 40;
-                    const circumference = 2 * Math.PI * radius;
-                    return chartData.reduce(
-                      (acc, item) => {
-                        const fraction = item.balance / totalBalance;
-                        const arcLength = fraction * circumference;
-                        acc.elements.push(
-                          <circle
-                            key={'id' in item ? item.id : item.category}
-                            cx="50"
-                            cy="50"
-                            r={radius}
-                            fill="none"
-                            stroke={item.color}
-                            strokeWidth="20"
-                            strokeDasharray={`${arcLength} ${circumference - arcLength}`}
-                            strokeDashoffset={-acc.offset}
-                          />
-                        );
-                        acc.offset += arcLength;
-                        return acc;
-                      },
-                      { elements: [] as React.ReactElement[], offset: 0 }
-                    ).elements;
-                  })()}
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-sm font-bold">{formatCompactCurrency(totalBalance)}</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Balance Chart Card */}
+            <div className="card">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-sm text-gray-500">
+                  Balance by {chartView === 'category' ? 'category' : 'debt'}
+                </h2>
+                <div className="flex bg-gray-100 rounded-lg p-0.5">
+                  <button
+                    onClick={() => setChartView('category')}
+                    className={`px-3 py-1 text-xs rounded-md transition-colors ${
+                      chartView === 'category'
+                        ? 'bg-white text-gray-900 shadow-sm'
+                        : 'text-gray-500'
+                    }`}
+                  >
+                    Category
+                  </button>
+                  <button
+                    onClick={() => setChartView('debt')}
+                    className={`px-3 py-1 text-xs rounded-md transition-colors ${
+                      chartView === 'debt'
+                        ? 'bg-white text-gray-900 shadow-sm'
+                        : 'text-gray-500'
+                    }`}
+                  >
+                    By Debt
+                  </button>
                 </div>
               </div>
+              <div className="flex items-center gap-6">
+                {/* Donut chart - larger size */}
+                <div className="relative w-32 h-32 flex-shrink-0">
+                  <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
+                    {(() => {
+                      const radius = 40;
+                      const circumference = 2 * Math.PI * radius;
+                      return chartData.reduce(
+                        (acc, item) => {
+                          const fraction = item.balance / totalBalance;
+                          const arcLength = fraction * circumference;
+                          acc.elements.push(
+                            <circle
+                              key={'id' in item ? item.id : item.category}
+                              cx="50"
+                              cy="50"
+                              r={radius}
+                              fill="none"
+                              stroke={item.color}
+                              strokeWidth="20"
+                              strokeDasharray={`${arcLength} ${circumference - arcLength}`}
+                              strokeDashoffset={-acc.offset}
+                            />
+                          );
+                          acc.offset += arcLength;
+                          return acc;
+                        },
+                        { elements: [] as React.ReactElement[], offset: 0 }
+                      ).elements;
+                    })()}
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-sm font-bold">{formatCompactCurrency(totalBalance)}</span>
+                  </div>
+                </div>
 
-              {/* Enhanced Legend with amounts and progress bars */}
-              <div className="flex-1 space-y-2 overflow-y-auto max-h-40 pr-4">
-                {(chartView === 'category' ? categoryTotals : debtTotals).map((item) => {
-                  const percent = totalBalance > 0 ? (item.balance / totalBalance) * 100 : 0;
-                  const key = 'id' in item ? item.id : item.category;
-                  const label = 'name' in item ? item.name : item.label;
+                {/* Enhanced Legend with amounts and progress bars */}
+                <div className="flex-1 space-y-2 overflow-y-auto max-h-40 pr-4">
+                  {(chartView === 'category' ? categoryTotals : debtTotals).map((item) => {
+                    const percent = totalBalance > 0 ? (item.balance / totalBalance) * 100 : 0;
+                    const key = 'id' in item ? item.id : item.category;
+                    const label = 'name' in item ? item.name : item.label;
 
-                  return (
-                    <div key={key} className="flex items-center gap-2">
-                      <div
-                        className="w-3 h-3 rounded-full flex-shrink-0"
-                        style={{ backgroundColor: item.color }}
-                      />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-700 truncate">{label}</span>
-                          <span className="font-medium text-gray-900 ml-2 flex-shrink-0">
-                            {formatCurrency(item.balance)}
-                          </span>
-                        </div>
-                        <div className="h-1.5 bg-gray-100 rounded-full mt-1">
-                          <div
-                            className="h-full rounded-full transition-all"
-                            style={{
-                              width: `${percent}%`,
-                              backgroundColor: item.color,
-                            }}
-                          />
+                    return (
+                      <div key={key} className="flex items-center gap-2">
+                        <div
+                          className="w-3 h-3 rounded-full flex-shrink-0"
+                          style={{ backgroundColor: item.color }}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex justify-between text-sm">
+                            <span className="text-gray-700 truncate">{label}</span>
+                            <span className="font-medium text-gray-900 ml-2 flex-shrink-0">
+                              {formatCurrency(item.balance)}
+                            </span>
+                          </div>
+                          <div className="h-1.5 bg-gray-100 rounded-full mt-1">
+                            <div
+                              className="h-full rounded-full transition-all"
+                              style={{
+                                width: `${percent}%`,
+                                backgroundColor: item.color,
+                              }}
+                            />
+                          </div>
                         </div>
                       </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* Monthly Interest Cost Card */}
+            <div className="card flex flex-col justify-center">
+              <h2 className="text-sm text-gray-500 mb-2">Monthly Interest Cost</h2>
+              <p className="text-3xl font-bold text-red-500">
+                {formatCurrency(monthlyInterestCost)}
+                <span className="text-lg font-normal text-gray-400">/mo</span>
+              </p>
+              <p className="text-sm text-gray-500 mt-2">
+                This is how much your debt costs you every month in interest alone.
+              </p>
+              <div className="mt-4 pt-4 border-t border-gray-100">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-500">Daily cost</span>
+                  <span className="font-medium">{formatCurrency(monthlyInterestCost / 30)}/day</span>
+                </div>
+                <div className="flex justify-between text-sm mt-1">
+                  <span className="text-gray-500">Yearly cost</span>
+                  <span className="font-medium">{formatCurrency(monthlyInterestCost * 12)}/yr</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* APR Comparison Chart */}
+        {debts.length > 0 && (
+          <div className="card">
+            <h2 className="text-sm text-gray-500 mb-4">APR Comparison</h2>
+            <div className="space-y-3">
+              {debtsByAPR.map((debt) => {
+                const barWidth = (debt.apr / maxAPR) * 100;
+                const color = getAPRColor(debt.apr);
+
+                return (
+                  <div key={debt.id} className="flex items-center gap-3">
+                    <span className="w-24 text-sm text-gray-700 truncate flex-shrink-0">
+                      {debt.name}
+                    </span>
+                    <div className="flex-1 h-6 bg-gray-100 rounded-full overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all flex items-center justify-end pr-2"
+                        style={{
+                          width: `${Math.max(barWidth, 10)}%`,
+                          backgroundColor: color,
+                        }}
+                      >
+                        {barWidth > 20 && (
+                          <span className="text-xs font-medium text-white">
+                            {debt.apr.toFixed(1)}%
+                          </span>
+                        )}
+                      </div>
                     </div>
-                  );
-                })}
+                    {barWidth <= 20 && (
+                      <span className="text-sm font-medium text-gray-700 w-14 text-right">
+                        {debt.apr.toFixed(1)}%
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            {/* Legend */}
+            <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-center gap-4 text-xs text-gray-500">
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-3 rounded-full bg-green-500" />
+                <span>&lt;10%</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-3 rounded-full bg-amber-500" />
+                <span>10-20%</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-3 rounded-full bg-red-500" />
+                <span>&gt;20%</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Payoff Timeline */}
+        {payoffMilestones.length > 0 && (
+          <div className="card">
+            <h2 className="text-sm text-gray-500 mb-4">Payoff Timeline</h2>
+            <div className="relative">
+              {/* Timeline line */}
+              <div className="absolute top-4 left-0 right-0 h-0.5 bg-gray-200" />
+
+              {/* Timeline markers */}
+              <div className="relative flex justify-between">
+                {payoffMilestones.map((milestone, index) => (
+                  <div
+                    key={milestone.debtId}
+                    className="flex flex-col items-center"
+                    style={{ flex: 1 }}
+                  >
+                    {/* Dot */}
+                    <div
+                      className="w-8 h-8 rounded-full bg-primary-500 flex items-center justify-center text-white text-xs font-bold z-10"
+                    >
+                      {index + 1}
+                    </div>
+                    {/* Debt name */}
+                    <span className="mt-2 text-xs font-medium text-gray-700 text-center max-w-[80px] truncate">
+                      {milestone.debtName}
+                    </span>
+                    {/* Date */}
+                    <span className="text-[10px] text-gray-400">
+                      {format(new Date(milestone.payoffDate), 'MMM yyyy')}
+                    </span>
+                  </div>
+                ))}
+
+                {/* Debt Free marker */}
+                <div className="flex flex-col items-center" style={{ flex: 1 }}>
+                  <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center z-10">
+                    <span className="text-white text-sm">✓</span>
+                  </div>
+                  <span className="mt-2 text-xs font-bold text-green-600 text-center">
+                    Debt Free!
+                  </span>
+                  <span className="text-[10px] text-gray-400">
+                    {payoffMilestones.length > 0 &&
+                      format(
+                        new Date(payoffMilestones[payoffMilestones.length - 1].payoffDate),
+                        'MMM yyyy'
+                      )}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
