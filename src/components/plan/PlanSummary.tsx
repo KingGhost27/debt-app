@@ -41,6 +41,9 @@ export function PlanSummary({
   const interestSavings = Math.abs(
     avalanchePlan.totalInterest - snowballPlan.totalInterest
   );
+  const totalSavings = Math.abs(
+    avalanchePlan.totalPayments - snowballPlan.totalPayments
+  );
 
   return (
     <div className="card">
@@ -202,19 +205,52 @@ export function PlanSummary({
         </table>
       </div>
 
-      {/* Savings callout */}
-      {interestSavings > 0 && (
-        <div className="mt-4 p-3 bg-green-50 rounded-lg text-center">
-          <p className="text-sm text-green-800">
-            <span className="font-semibold">
-              {betterInterest === 'avalanche' ? 'Avalanche' : 'Snowball'}
-            </span>{' '}
-            saves you{' '}
-            <span className="font-semibold">{formatCurrency(interestSavings)}</span> in
-            interest
-          </p>
-        </div>
-      )}
+      {/* Strategy info callout - describes the selected strategy */}
+      <div
+        className={`mt-4 p-3 rounded-lg text-center ${
+          strategy === 'avalanche' ? 'bg-blue-50' : 'bg-purple-50'
+        }`}
+      >
+        <p
+          className={`text-sm ${
+            strategy === 'avalanche' ? 'text-blue-800' : 'text-purple-800'
+          }`}
+        >
+          {strategy === 'avalanche' ? (
+            <>
+              <span className="font-semibold">Avalanche</span> pays off highest interest debts first, saving you the most money.
+              {interestSavings > 0 && betterInterest === 'avalanche' && (
+                <> You'll save <span className="font-semibold">{formatCurrency(interestSavings)}</span> in interest vs Snowball.</>
+              )}
+              {interestSavings > 0 && betterInterest === 'snowball' && (
+                <> You'll pay <span className="font-semibold">{formatCurrency(interestSavings)}</span> more in interest vs Snowball.</>
+              )}
+              {totalSavings > 0 && betterTotal === 'avalanche' && (
+                <> Total paid: <span className="font-semibold">{formatCurrency(avalanchePlan.totalPayments)}</span> (<span className="font-semibold">{formatCurrency(totalSavings)}</span> less).</>
+              )}
+              {totalSavings > 0 && betterTotal === 'snowball' && (
+                <> Total paid: <span className="font-semibold">{formatCurrency(avalanchePlan.totalPayments)}</span> (<span className="font-semibold">{formatCurrency(totalSavings)}</span> more).</>
+              )}
+            </>
+          ) : (
+            <>
+              <span className="font-semibold">Snowball</span> pays off smallest balances first, giving you quick wins to stay motivated.
+              {interestSavings > 0 && betterInterest === 'avalanche' && (
+                <> You'll pay <span className="font-semibold">{formatCurrency(interestSavings)}</span> more in interest vs Avalanche.</>
+              )}
+              {interestSavings > 0 && betterInterest === 'snowball' && (
+                <> You'll save <span className="font-semibold">{formatCurrency(interestSavings)}</span> in interest vs Avalanche.</>
+              )}
+              {totalSavings > 0 && betterTotal === 'avalanche' && (
+                <> Total paid: <span className="font-semibold">{formatCurrency(snowballPlan.totalPayments)}</span> (<span className="font-semibold">{formatCurrency(totalSavings)}</span> more).</>
+              )}
+              {totalSavings > 0 && betterTotal === 'snowball' && (
+                <> Total paid: <span className="font-semibold">{formatCurrency(snowballPlan.totalPayments)}</span> (<span className="font-semibold">{formatCurrency(totalSavings)}</span> less).</>
+              )}
+            </>
+          )}
+        </p>
+      </div>
     </div>
   );
 }

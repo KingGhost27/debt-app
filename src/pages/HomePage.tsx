@@ -8,7 +8,7 @@
 
 import { useMemo } from 'react';
 import { format, parseISO } from 'date-fns';
-import { Settings } from 'lucide-react';
+import { Settings, Target } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import {
@@ -19,6 +19,7 @@ import {
   formatPercent,
 } from '../lib/calculations';
 import { ProgressRing } from '../components/ui/ProgressRing';
+import { DebtOverTimeChart } from '../components/ui/DebtOverTimeChart';
 import { CATEGORY_INFO } from '../types';
 
 export function HomePage() {
@@ -35,6 +36,17 @@ export function HomePage() {
 
   const debtFreeDate = plan.debtFreeDate ? parseISO(plan.debtFreeDate) : null;
   const timeUntilDebtFree = debtFreeDate ? formatTimeUntil(debtFreeDate) : null;
+
+  // Get payoff milestones in order
+  const payoffMilestones = useMemo(() => {
+    const milestones: { debtId: string; debtName: string; payoffDate: string; totalPaid: number }[] = [];
+    plan.steps.forEach((step) => {
+      step.milestonesInStep.forEach((milestone) => {
+        milestones.push(milestone);
+      });
+    });
+    return milestones;
+  }, [plan.steps]);
 
   // Get categories with balances
   const categories = useMemo(() => {
@@ -128,6 +140,26 @@ export function HomePage() {
 
       {/* Main Content */}
       <div className="px-4 py-6 space-y-6">
+        {/* Up Next - First Debt to Pay Off */}
+        {payoffMilestones.length > 0 && (
+          <div className="card bg-gradient-to-r from-primary-50 to-white border border-primary-100">
+            <div className="flex items-center gap-3">
+              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary-500 text-white flex items-center justify-center">
+                <Target size={24} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium text-primary-600 uppercase tracking-wide">Up Next</p>
+                <p className="font-semibold text-gray-900 truncate">
+                  {payoffMilestones[0].debtName}
+                </p>
+                <p className="text-sm text-gray-500">
+                  Paid off by {format(parseISO(payoffMilestones[0].payoffDate), 'MMMM yyyy')}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Payoff Progress Card */}
         <div className="card">
           <div className="flex items-center gap-2 mb-4">
@@ -158,6 +190,14 @@ export function HomePage() {
             </div>
           </div>
         </div>
+
+        {/* Debt Over Time Chart */}
+        {plan.monthlyBreakdown && plan.monthlyBreakdown.length > 0 && (
+          <div className="card">
+            <h2 className="text-lg font-semibold mb-4">Debt Over Time</h2>
+            <DebtOverTimeChart plan={plan} startingBalance={summary.totalBalance} />
+          </div>
+        )}
 
         {/* Categories */}
         {categories.length > 0 && (
