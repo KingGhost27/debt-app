@@ -5,7 +5,17 @@
  * and strategy comparisons.
  */
 
-import { addMonths, format, differenceInMonths, differenceInDays } from 'date-fns';
+import {
+  addMonths,
+  addDays,
+  format,
+  differenceInMonths,
+  differenceInDays,
+  startOfMonth,
+  endOfMonth,
+  parseISO,
+  isWithinInterval,
+} from 'date-fns';
 import type {
   Debt,
   DebtSummary,
@@ -515,4 +525,146 @@ export function calculateAvailableForDebt(budget: BudgetSettings): number {
   const totalIncome = calculateTotalMonthlyIncome(budget.incomeSources);
   const available = totalIncome - budget.monthlyExpenses;
   return Math.max(0, available);
+}
+
+// ============================================
+// BILL DUE DATE HELPERS
+// ============================================
+
+/**
+ * Format a day number as an ordinal string
+ * e.g., 1 → "1st", 2 → "2nd", 3 → "3rd", 4 → "4th"
+ */
+export function formatOrdinal(day: number): string {
+  const suffixes = ['th', 'st', 'nd', 'rd'];
+  const v = day % 100;
+  return day + (suffixes[(v - 20) % 10] || suffixes[v] || suffixes[0]);
+}
+
+/**
+ * Get the next due date for a bill based on its due day
+ * Handles month rollovers and shorter months (clamps to last day of month)
+ */
+export function getNextDueDate(dueDay: number, fromDate: Date = new Date()): Date {
+  const today = new Date(fromDate);
+  today.setHours(0, 0, 0, 0);
+
+  const currentDay = today.getDate();
+  const currentMonth = today.getMonth();
+  const currentYear = today.getFullYear();
+
+  // Helper to clamp day to valid day in given month/year
+  const clampDay = (year: number, month: number, day: number): number => {
+    const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
+    return Math.min(day, lastDayOfMonth);
+  };
+
+  // If due day is today or later this month, use current month
+  if (dueDay >= currentDay) {
+    const clampedDay = clampDay(currentYear, currentMonth, dueDay);
+    const dueDate = new Date(currentYear, currentMonth, clampedDay);
+    if (dueDate >= today) {
+      return dueDate;
+    }
+  }
+
+  // Otherwise, use next month
+  let nextMonth = currentMonth + 1;
+  let nextYear = currentYear;
+  if (nextMonth > 11) {
+    nextMonth = 0;
+    nextYear++;
+  }
+
+  const clampedDay = clampDay(nextYear, nextMonth, dueDay);
+  return new Date(nextYear, nextMonth, clampedDay);
+}
+
+// ============================================
+// PAYDAY CALCULATIONS
+// ============================================
+
+/**
+ * Get all paydays for an income source within a given month
+ * Uses nextPayDate and payFrequency to calculate recurring paydays
+ */
+export function getPaydaysInMonth(source: IncomeSource, monthDate: Date): Date[] {
+  if (!source.nextPayDate) return [];
+
+  const paydays: Date[] = [];
+  const monthStart = startOfMonth(monthDate);
+  const monthEnd = endOfMonth(monthDate);
+  const nextPay = parseISO(source.nextPayDate);
+
+  // For semi-monthly, we need special handling (1st & 15th or 15th & last)
+  if (source.payFrequency === 'semi-monthly') {
+    // Get the day of month from nextPayDate
+    const payDay = nextPay.getDate();
+
+    // Determine the two pay days based on the reference date
+    let payDay1: number;
+    let payDay2: number;
+
+    if (payDay <= 15) {
+      // First half reference means 1st & 15th pattern (or similar)
+      payDay1 = payDay;
+      payDay2 = payDay + 14; // Roughly 2 weeks later
+      if (payDay2 > 28) payDay2 = 28; // Clamp to avoid month-end issues
+    } else {
+      // Second half reference means 15th & end-of-month pattern
+      payDay1 = payDay - 14;
+      if (payDay1 < 1) payDay1 = 1;
+      payDay2 = payDay;
+    }
+
+    // Add both paydays for this month
+    const year = monthDate.getFullYear();
+    const month = monthDate.getMonth();
+    const lastDay = endOfMonth(monthDate).getDate();
+
+    const date1 = new Date(year, month, Math.min(payDay1, lastDay));
+    const date2 = new Date(year, month, Math.min(payDay2, lastDay));
+
+    paydays.push(date1, date2);
+    return paydays;
+  }
+
+  // For weekly, bi-weekly, monthly - iterate from first occurrence
+  const intervalDays =
+    source.payFrequency === 'weekly' ? 7 :
+    source.payFrequency === 'bi-weekly' ? 14 :
+    0; // monthly handled separately
+
+  if (source.payFrequency === 'monthly') {
+    // Monthly: same day each month
+    const payDay = nextPay.getDate();
+    const year = monthDate.getFullYear();
+    const month = monthDate.getMonth();
+    const lastDay = endOfMonth(monthDate).getDate();
+    const date = new Date(year, month, Math.min(payDay, lastDay));
+    return [date];
+  }
+
+  // Weekly or bi-weekly: find all occurrences in the month
+  // Start from a date well before the month and iterate forward
+  let currentPayday = new Date(nextPay);
+
+  // Go backwards to find a starting point before or at month start
+  while (currentPayday > monthStart) {
+    currentPayday = addDays(currentPayday, -intervalDays);
+  }
+
+  // Now iterate forward and collect all paydays in the month
+  const maxIterations = 10; // Safety limit
+  let iterations = 0;
+
+  while (currentPayday <= monthEnd && iterations < maxIterations) {
+    if (isWithinInterval(currentPayday, { start: monthStart, end: monthEnd })) {
+      paydays.push(new Date(currentPayday));
+    }
+    currentPayday = addDays(currentPayday, intervalDays);
+    iterations++;
+  }
+
+  return paydays;
 }

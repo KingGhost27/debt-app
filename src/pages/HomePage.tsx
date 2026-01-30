@@ -20,10 +20,12 @@ import {
 } from '../lib/calculations';
 import { ProgressRing } from '../components/ui/ProgressRing';
 import { DebtOverTimeChart } from '../components/ui/DebtOverTimeChart';
+import { UpcomingBills } from '../components/ui/UpcomingBills';
+import { MiniCalendar } from '../components/ui/MiniCalendar';
 import { CATEGORY_INFO } from '../types';
 
 export function HomePage() {
-  const { debts, strategy, settings } = useApp();
+  const { debts, strategy, settings, customCategories, budget } = useApp();
 
   // Calculate summary stats
   const summary = useMemo(() => calculateDebtSummary(debts), [debts]);
@@ -168,6 +170,12 @@ export function HomePage() {
             </div>
           );
         })()}
+
+        {/* Upcoming Bills */}
+        <UpcomingBills debts={debts} customCategories={customCategories} />
+
+        {/* Mini Calendar */}
+        <MiniCalendar debts={debts} incomeSources={budget.incomeSources} customCategories={customCategories} />
 
         {/* Payoff Progress Card */}
         <div className="card">

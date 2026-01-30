@@ -31,6 +31,7 @@ interface FormData {
   hourlyRate: string;
   hoursPerWeek: string;
   isPartTime: boolean;
+  nextPayDate: string;
   deductions: {
     federalTax: string;
     stateTax: string;
@@ -49,6 +50,7 @@ const initialFormData: FormData = {
   hourlyRate: '',
   hoursPerWeek: '40',
   isPartTime: false,
+  nextPayDate: '',
   deductions: {
     federalTax: '',
     stateTax: '',
@@ -111,6 +113,10 @@ export function IncomeSourceModal({ isOpen, onClose, source }: IncomeSourceModal
   useEffect(() => {
     if (source) {
       const d = source.deductions || DEFAULT_DEDUCTIONS;
+      // Convert ISO date to yyyy-MM-dd format for date input
+      const nextPayDateValue = source.nextPayDate
+        ? source.nextPayDate.split('T')[0]
+        : '';
       setFormData({
         name: source.name,
         type: source.type,
@@ -119,6 +125,7 @@ export function IncomeSourceModal({ isOpen, onClose, source }: IncomeSourceModal
         hourlyRate: source.hourlyRate?.toString() || '',
         hoursPerWeek: source.hoursPerWeek?.toString() || '40',
         isPartTime: source.isPartTime || false,
+        nextPayDate: nextPayDateValue,
         deductions: {
           federalTax: d.federalTax?.toString() || '',
           stateTax: d.stateTax?.toString() || '',
@@ -206,6 +213,7 @@ export function IncomeSourceModal({ isOpen, onClose, source }: IncomeSourceModal
       hourlyRate: formData.type === 'hourly' ? parseFloat(formData.hourlyRate) : undefined,
       hoursPerWeek: formData.type === 'hourly' ? parseFloat(formData.hoursPerWeek) : undefined,
       isPartTime: formData.type === 'hourly' ? formData.isPartTime : undefined,
+      nextPayDate: formData.nextPayDate || undefined,
       deductions,
     };
 
@@ -418,6 +426,23 @@ export function IncomeSourceModal({ isOpen, onClose, source }: IncomeSourceModal
               </label>
             </>
           )}
+
+          {/* Next Payday */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Next Payday
+            </label>
+            <input
+              type="date"
+              name="nextPayDate"
+              value={formData.nextPayDate}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Used to show paydays on your calendar
+            </p>
+          </div>
 
           {/* Deductions Section */}
           <div className="border border-gray-200 rounded-xl overflow-hidden">

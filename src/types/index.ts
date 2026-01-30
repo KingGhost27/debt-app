@@ -164,6 +164,8 @@ export interface IncomeSource {
   isPartTime?: boolean;
   // Paycheck deductions (percentages)
   deductions?: PaycheckDeductions;
+  // Payday configuration
+  nextPayDate?: string;            // ISO date of next expected payday
   // Metadata
   createdAt: string;
   updatedAt: string;
