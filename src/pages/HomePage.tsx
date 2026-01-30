@@ -177,7 +177,7 @@ export function HomePage() {
         {/* Mini Calendar */}
         <MiniCalendar debts={debts} incomeSources={budget.incomeSources} customCategories={customCategories} />
 
-        {/* Payoff Progress Card */}
+        {/* Payoff Progress Card - Enhanced */}
         <div className="card">
           <div className="flex items-center gap-2 mb-4">
             <span className="text-xl">🦋</span>
@@ -189,7 +189,8 @@ export function HomePage() {
 
           <h2 className="text-lg font-semibold mb-4">Payoff progress</h2>
 
-          <div className="flex items-center gap-6">
+          {/* Progress Ring + Principal/Balance */}
+          <div className="flex items-center gap-6 mb-6">
             <ProgressRing
               percentage={summary.percentPaid}
               size={100}
@@ -206,6 +207,124 @@ export function HomePage() {
               </p>
             </div>
           </div>
+
+          {/* Quick Stats Grid */}
+          <div className="grid grid-cols-2 gap-3 mb-6">
+            <div className="bg-red-50 rounded-xl p-3 text-center">
+              <p className="text-xs text-gray-500 mb-1">Total Interest</p>
+              <p className="text-lg font-bold text-red-600">
+                {formatCurrency(plan.totalInterest)}
+              </p>
+            </div>
+            <div className="bg-primary-50 rounded-xl p-3 text-center">
+              <p className="text-xs text-gray-500 mb-1">Monthly Payment</p>
+              <p className="text-lg font-bold text-primary-600">
+                {formatCurrency(strategy.recurringFunding.amount)}
+              </p>
+            </div>
+            <div className="bg-gray-50 rounded-xl p-3 text-center">
+              <p className="text-xs text-gray-500 mb-1"># of Debts</p>
+              <p className="text-lg font-bold text-gray-900">{debts.length}</p>
+            </div>
+            <div className="bg-green-50 rounded-xl p-3 text-center">
+              <p className="text-xs text-gray-500 mb-1">Time Left</p>
+              <p className="text-lg font-bold text-green-600">
+                {timeUntilDebtFree || 'N/A'}
+              </p>
+            </div>
+          </div>
+
+          {/* Payment Breakdown + Interest vs Principal */}
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            {/* Payment Breakdown */}
+            <div>
+              <p className="text-xs text-gray-500 mb-2">Payment Breakdown</p>
+              {(() => {
+                const minimums = summary.totalMinimumPayments;
+                const extra = Math.max(0, strategy.recurringFunding.amount - minimums);
+                const total = minimums + extra;
+                const minPercent = total > 0 ? (minimums / total) * 100 : 0;
+                return (
+                  <>
+                    <div className="h-3 bg-gray-200 rounded-full overflow-hidden flex">
+                      <div
+                        className="bg-gray-400 h-full"
+                        style={{ width: `${minPercent}%` }}
+                      />
+                      <div
+                        className="bg-primary-500 h-full"
+                        style={{ width: `${100 - minPercent}%` }}
+                      />
+                    </div>
+                    <div className="flex justify-between text-xs mt-1">
+                      <span className="text-gray-500">Min: {formatCurrency(minimums)}</span>
+                      <span className="text-primary-600">Extra: {formatCurrency(extra)}</span>
+                    </div>
+                  </>
+                );
+              })()}
+            </div>
+
+            {/* Interest vs Principal */}
+            <div>
+              <p className="text-xs text-gray-500 mb-2">Interest vs Principal</p>
+              {(() => {
+                const firstMonth = plan.monthlyBreakdown?.[0];
+                const interest = firstMonth?.totalInterest || 0;
+                const principal = firstMonth?.totalPrincipal || 0;
+                const total = interest + principal;
+                const interestPercent = total > 0 ? (interest / total) * 100 : 0;
+                return (
+                  <>
+                    <div className="h-3 bg-gray-200 rounded-full overflow-hidden flex">
+                      <div
+                        className="bg-red-400 h-full"
+                        style={{ width: `${interestPercent}%` }}
+                      />
+                      <div
+                        className="bg-green-500 h-full"
+                        style={{ width: `${100 - interestPercent}%` }}
+                      />
+                    </div>
+                    <div className="flex justify-between text-xs mt-1">
+                      <span className="text-red-500">Int: {formatCurrency(interest)}</span>
+                      <span className="text-green-600">Prin: {formatCurrency(principal)}</span>
+                    </div>
+                  </>
+                );
+              })()}
+            </div>
+          </div>
+
+          {/* Strategy Savings */}
+          {(() => {
+            // Calculate minimum-only plan to compare savings
+            const minOnlyPlan = generatePayoffPlan(debts, {
+              ...strategy,
+              recurringFunding: { ...strategy.recurringFunding, amount: summary.totalMinimumPayments },
+            });
+            const savings = minOnlyPlan.totalInterest - plan.totalInterest;
+            const strategyName = strategy.strategy === 'avalanche' ? 'Avalanche' : 'Snowball';
+
+            if (savings > 0) {
+              return (
+                <div className="bg-gradient-to-r from-green-50 to-primary-50 rounded-xl p-4 border border-green-100">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">💡</span>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">
+                        You're saving <span className="text-green-600 font-bold">{formatCurrency(savings)}</span> in interest!
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        By paying extra with the {strategyName} strategy
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+            return null;
+          })()}
         </div>
 
         {/* Debt Over Time Chart */}
