@@ -28,9 +28,11 @@ interface MiniCalendarProps {
   debts: Debt[];
   incomeSources?: IncomeSource[];
   customCategories?: { id: string; name: string; color: string }[];
+  size?: 'small' | 'large';
 }
 
-export function MiniCalendar({ debts, incomeSources = [], customCategories = [] }: MiniCalendarProps) {
+export function MiniCalendar({ debts, incomeSources = [], customCategories = [], size = 'small' }: MiniCalendarProps) {
+  const isLarge = size === 'large';
   const [hoveredDay, setHoveredDay] = useState<Date | null>(null);
 
   // Today's date (for highlighting current day)
@@ -190,18 +192,18 @@ export function MiniCalendar({ debts, incomeSources = [], customCategories = [] 
       </div>
 
       {/* Calendar container - constrained width and centered */}
-      <div className="max-w-[280px] mx-auto">
+      <div className={isLarge ? 'max-w-[380px] mx-auto' : 'max-w-[280px] mx-auto'}>
         {/* Week day headers */}
-        <div className="grid grid-cols-7 gap-1 mb-1">
+        <div className={`grid grid-cols-7 ${isLarge ? 'gap-2' : 'gap-1'} mb-1`}>
           {weekDays.map((day) => (
-            <div key={day} className="text-center text-[10px] text-gray-400 font-medium">
-              {day.charAt(0)}
+            <div key={day} className={`text-center ${isLarge ? 'text-xs' : 'text-[10px]'} text-gray-400 font-medium`}>
+              {isLarge ? day : day.charAt(0)}
             </div>
           ))}
         </div>
 
         {/* Calendar grid */}
-        <div className="grid grid-cols-7 gap-1 justify-items-center">
+        <div className={`grid grid-cols-7 ${isLarge ? 'gap-2' : 'gap-1'} justify-items-center`}>
         {calendarDays.map((date) => {
           const isInDisplayedMonth = isSameMonth(date, displayedMonth);
           const isToday = isSameDay(date, today);
@@ -223,7 +225,7 @@ export function MiniCalendar({ debts, incomeSources = [], customCategories = [] 
             >
               <div
                 className={`
-                  w-9 h-9 flex items-center justify-center text-sm rounded-md
+                  ${isLarge ? 'w-12 h-12 text-base' : 'w-9 h-9 text-sm'} flex items-center justify-center rounded-md
                   transition-all duration-150
                   ${!isInDisplayedMonth ? 'text-gray-300' : ''}
                   ${isInDisplayedMonth && !hasBills && !hasPayday && !hasCycleEnd && !isToday ? 'text-gray-600' : ''}
