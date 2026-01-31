@@ -19,7 +19,7 @@ import { useApp } from '../context/AppContext';
 import { PageHeader } from '../components/layout/PageHeader';
 import { MiniCalendar } from '../components/ui/MiniCalendar';
 import { PaymentModal } from '../components/ui/PaymentModal';
-import { formatCurrency, generatePayoffPlan, formatOrdinal } from '../lib/calculations';
+import { formatCurrency, generatePayoffPlan } from '../lib/calculations';
 import type { Debt, PaymentType } from '../types';
 
 type TabType = 'upcoming' | 'complete' | 'calendar';
@@ -565,39 +565,6 @@ export function TrackPage() {
               customCategories={customCategories}
               size="large"
             />
-
-            {/* Bills Due List */}
-            {debts.length > 0 && (
-              <div className="card">
-                <h3 className="text-sm text-gray-500 mb-3">BILLS DUE DATES</h3>
-                <div className="space-y-2">
-                  {[...debts]
-                    .sort((a, b) => a.dueDay - b.dueDay)
-                    .map((debt) => (
-                      <div
-                        key={debt.id}
-                        className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 font-bold text-sm">
-                            {debt.dueDay}
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-900">{debt.name}</p>
-                            <p className="text-xs text-gray-500">
-                              Due on the {formatOrdinal(debt.dueDay)} of each month
-                            </p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-semibold">{formatCurrency(debt.minimumPayment)}</p>
-                          <p className="text-xs text-gray-400">minimum</p>
-                        </div>
-                      </div>
-                    ))}
-                </div>
-              </div>
-            )}
           </div>
         )}
       </div>

@@ -192,7 +192,7 @@ export function MiniCalendar({ debts, incomeSources = [], customCategories = [],
       </div>
 
       {/* Calendar container - constrained width and centered */}
-      <div className={isLarge ? 'max-w-[380px] mx-auto' : 'max-w-[280px] mx-auto'}>
+      <div className={isLarge ? 'w-full' : 'max-w-[280px] mx-auto'}>
         {/* Week day headers */}
         <div className={`grid grid-cols-7 ${isLarge ? 'gap-2' : 'gap-1'} mb-1`}>
           {weekDays.map((day) => (
@@ -219,42 +219,90 @@ export function MiniCalendar({ debts, incomeSources = [], customCategories = [],
           return (
             <div
               key={date.toISOString()}
-              className="relative"
+              className={`relative ${isLarge ? 'w-full' : ''}`}
               onMouseEnter={() => hasContent && setHoveredDay(date)}
               onMouseLeave={() => setHoveredDay(null)}
             >
-              <div
-                className={`
-                  ${isLarge ? 'w-12 h-12 text-base' : 'w-9 h-9 text-sm'} flex items-center justify-center rounded-md
-                  transition-all duration-150
-                  ${!isInDisplayedMonth ? 'text-gray-300' : ''}
-                  ${isInDisplayedMonth && !hasBills && !hasPayday && !hasCycleEnd && !isToday ? 'text-gray-600' : ''}
-                  ${isToday && !hasBills ? 'ring-1 ring-primary-500 text-gray-900 font-semibold' : ''}
-                  ${hasBills && !isToday ? 'bg-primary-500 text-white font-semibold' : ''}
-                  ${hasBills && isToday ? 'bg-primary-600 text-white font-bold ring-1 ring-primary-300' : ''}
-                  ${hasContent ? 'cursor-pointer hover:opacity-90' : ''}
-                `}
-              >
-                {date.getDate()}
-                {/* Bill count badge */}
-                {debtsOnDay.length > 1 && (
-                  <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] w-3 h-3 rounded-full flex items-center justify-center font-bold">
-                    {debtsOnDay.length}
-                  </span>
-                )}
-                {/* Pay cycle end indicator - left side */}
-                {hasCycleEnd && (
-                  <span className="absolute -bottom-0.5 -left-0.5 bg-blue-500 text-white text-[8px] w-3 h-3 rounded-full flex items-center justify-center font-bold">
-                    |
-                  </span>
-                )}
-                {/* Payday indicator - right side */}
-                {hasPayday && (
-                  <span className="absolute -bottom-0.5 -right-0.5 bg-green-500 text-white text-[9px] w-3.5 h-3.5 rounded-full flex items-center justify-center font-bold">
-                    $
-                  </span>
-                )}
-              </div>
+              {/* Large calendar - show bills inline */}
+              {isLarge ? (
+                <div
+                  className={`
+                    w-full min-h-[70px] p-1 rounded-lg border transition-all duration-150
+                    ${!isInDisplayedMonth ? 'bg-gray-50 border-gray-100' : 'border-gray-200'}
+                    ${isToday ? 'ring-2 ring-primary-500 border-primary-300' : ''}
+                    ${hasContent ? 'cursor-pointer hover:border-primary-300' : ''}
+                  `}
+                >
+                  {/* Date number */}
+                  <div className={`text-sm font-medium mb-1 ${!isInDisplayedMonth ? 'text-gray-300' : isToday ? 'text-primary-600' : 'text-gray-700'}`}>
+                    {date.getDate()}
+                  </div>
+                  {/* Bills on this day */}
+                  {isInDisplayedMonth && debtsOnDay.length > 0 && (
+                    <div className="space-y-0.5">
+                      {debtsOnDay.slice(0, 2).map((debt) => (
+                        <div
+                          key={debt.id}
+                          className="text-[10px] px-1 py-0.5 rounded bg-primary-100 text-primary-700 truncate"
+                        >
+                          {debt.name}
+                        </div>
+                      ))}
+                      {debtsOnDay.length > 2 && (
+                        <div className="text-[9px] text-gray-400 px-1">
+                          +{debtsOnDay.length - 2} more
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {/* Payday indicator */}
+                  {isInDisplayedMonth && hasPayday && (
+                    <div className="text-[10px] px-1 py-0.5 rounded bg-green-100 text-green-700 truncate mt-0.5">
+                      💰 Payday
+                    </div>
+                  )}
+                  {/* Pay cycle end */}
+                  {isInDisplayedMonth && hasCycleEnd && (
+                    <div className="text-[10px] px-1 py-0.5 rounded bg-blue-100 text-blue-700 truncate mt-0.5">
+                      📅 Cycle ends
+                    </div>
+                  )}
+                </div>
+              ) : (
+                /* Small calendar - original compact view */
+                <div
+                  className={`
+                    w-9 h-9 flex items-center justify-center text-sm rounded-md
+                    transition-all duration-150
+                    ${!isInDisplayedMonth ? 'text-gray-300' : ''}
+                    ${isInDisplayedMonth && !hasBills && !hasPayday && !hasCycleEnd && !isToday ? 'text-gray-600' : ''}
+                    ${isToday && !hasBills ? 'ring-1 ring-primary-500 text-gray-900 font-semibold' : ''}
+                    ${hasBills && !isToday ? 'bg-primary-500 text-white font-semibold' : ''}
+                    ${hasBills && isToday ? 'bg-primary-600 text-white font-bold ring-1 ring-primary-300' : ''}
+                    ${hasContent ? 'cursor-pointer hover:opacity-90' : ''}
+                  `}
+                >
+                  {date.getDate()}
+                  {/* Bill count badge */}
+                  {debtsOnDay.length > 1 && (
+                    <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] w-3 h-3 rounded-full flex items-center justify-center font-bold">
+                      {debtsOnDay.length}
+                    </span>
+                  )}
+                  {/* Pay cycle end indicator - left side */}
+                  {hasCycleEnd && (
+                    <span className="absolute -bottom-0.5 -left-0.5 bg-blue-500 text-white text-[8px] w-3 h-3 rounded-full flex items-center justify-center font-bold">
+                      |
+                    </span>
+                  )}
+                  {/* Payday indicator - right side */}
+                  {hasPayday && (
+                    <span className="absolute -bottom-0.5 -right-0.5 bg-green-500 text-white text-[9px] w-3.5 h-3.5 rounded-full flex items-center justify-center font-bold">
+                      $
+                    </span>
+                  )}
+                </div>
+              )}
 
               {/* Tooltip */}
               {isHovered && hasContent && (
