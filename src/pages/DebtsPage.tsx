@@ -6,7 +6,7 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { Plus, Search, Pencil, Trash2, ChevronDown, ArrowUpDown, Calendar } from 'lucide-react';
+import { Plus, Search, Pencil, Trash2, ChevronDown, ArrowUpDown, Calendar, HelpCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { useApp } from '../context/AppContext';
 import { PageHeader } from '../components/layout/PageHeader';
@@ -53,6 +53,7 @@ export function DebtsPage() {
   const [chartView, setChartView] = useState<ChartView>('category');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingDebt, setEditingDebt] = useState<Debt | null>(null);
+  const [showAPRTooltip, setShowAPRTooltip] = useState(false);
 
   // Helper to get category info (supports custom categories)
   const getCategoryInfo = (categoryId: string) => {
@@ -378,7 +379,34 @@ export function DebtsPage() {
         {/* APR Comparison Chart */}
         {debts.length > 0 && (
           <div className="card">
-            <h2 className="text-sm text-gray-500 mb-4">APR Comparison</h2>
+            <div className="flex items-center gap-1.5 mb-4">
+              <h2 className="text-sm text-gray-500">APR Comparison</h2>
+              <div className="relative">
+                <button
+                  onMouseEnter={() => setShowAPRTooltip(true)}
+                  onMouseLeave={() => setShowAPRTooltip(false)}
+                  onClick={() => setShowAPRTooltip(!showAPRTooltip)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <HelpCircle size={14} />
+                </button>
+                {showAPRTooltip && (
+                  <div className="absolute z-20 left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-lg">
+                    <p className="font-semibold mb-1">What is APR?</p>
+                    <p className="text-gray-300">
+                      APR (Annual Percentage Rate) is the yearly interest rate you pay on your debt.
+                      Higher APR means more money going to interest instead of paying down your balance.
+                    </p>
+                    <p className="mt-2 text-gray-300">
+                      <span className="text-green-400">Green</span> = Low risk (&lt;10%),
+                      <span className="text-amber-400"> Amber</span> = Medium (10-20%),
+                      <span className="text-red-400"> Red</span> = High (&gt;20%)
+                    </p>
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900" />
+                  </div>
+                )}
+              </div>
+            </div>
             <div className="space-y-3">
               {debtsByAPR.map((debt) => {
                 const barWidth = (debt.apr / maxAPR) * 100;
