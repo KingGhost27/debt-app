@@ -19,6 +19,7 @@ import { useApp } from '../context/AppContext';
 import { PageHeader } from '../components/layout/PageHeader';
 import { MiniCalendar } from '../components/ui/MiniCalendar';
 import { PaymentModal } from '../components/ui/PaymentModal';
+import { BillDistributionPanel } from '../components/ui/BillDistributionPanel';
 import { formatCurrency, generatePayoffPlan } from '../lib/calculations';
 import type { Debt, PaymentType } from '../types';
 
@@ -564,6 +565,12 @@ export function TrackPage() {
               incomeSources={budget.incomeSources}
               customCategories={customCategories}
               size="large"
+            />
+
+            {/* Bill Distribution Analysis */}
+            <BillDistributionPanel
+              debts={debts}
+              incomeSources={budget.incomeSources}
             />
           </div>
         )}
