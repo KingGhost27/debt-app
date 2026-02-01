@@ -248,7 +248,14 @@ export function DebtsPage() {
   const saveRecalibration = (debtId: string) => {
     const newBalance = parseFloat(newBalanceInput);
     if (!isNaN(newBalance) && newBalance >= 0) {
-      updateDebt(debtId, { balance: newBalance });
+      const debt = debts.find(d => d.id === debtId);
+      // If new balance is higher than original, update original too
+      // This keeps the progress ring working correctly
+      if (debt && newBalance > debt.originalBalance) {
+        updateDebt(debtId, { balance: newBalance, originalBalance: newBalance });
+      } else {
+        updateDebt(debtId, { balance: newBalance });
+      }
     }
     cancelRecalibration();
   };
@@ -711,7 +718,7 @@ export function DebtsPage() {
                       </div>
                       <div>
                         <p className="text-xs text-gray-500">APR</p>
-                        <p className="font-semibold">{formatPercent(debt.apr)}</p>
+                        <p className="font-semibold">{formatPercent(debt.apr, 2)}</p>
                       </div>
                       <div>
                         <p className="text-xs text-gray-500 flex items-center gap-1">
