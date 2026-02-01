@@ -2,13 +2,14 @@
  * Payment Modal Component
  *
  * Modal for logging manual payments (extra, one-time, or minimum payments).
+ * Supports both creating new payments and editing existing ones.
  */
 
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { formatCurrency } from '../../lib/calculations';
-import type { Debt, PaymentType } from '../../types';
+import type { Debt, PaymentType, Payment } from '../../types';
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -16,6 +17,7 @@ interface PaymentModalProps {
   preselectedDebt?: Debt;
   preselectedAmount?: number;
   preselectedType?: PaymentType;
+  editingPayment?: Payment; // If provided, modal is in edit mode
 }
 
 interface FormData {
@@ -31,15 +33,30 @@ export function PaymentModal({
   preselectedDebt,
   preselectedAmount,
   preselectedType,
+  editingPayment,
 }: PaymentModalProps) {
-  const { debts, addPayment, updateDebt } = useApp();
+  const { debts, addPayment, updatePayment, updateDebt } = useApp();
 
-  const getInitialFormData = (): FormData => ({
-    debtId: preselectedDebt?.id || (debts.length > 0 ? debts[0].id : ''),
-    amount: preselectedAmount?.toString() || '',
-    date: new Date().toISOString().split('T')[0],
-    type: preselectedType || 'extra',
-  });
+  const isEditMode = !!editingPayment;
+
+  const getInitialFormData = (): FormData => {
+    if (editingPayment) {
+      // Edit mode: populate from existing payment
+      return {
+        debtId: editingPayment.debtId,
+        amount: editingPayment.amount.toString(),
+        date: editingPayment.date,
+        type: editingPayment.type,
+      };
+    }
+    // New payment mode
+    return {
+      debtId: preselectedDebt?.id || (debts.length > 0 ? debts[0].id : ''),
+      amount: preselectedAmount?.toString() || '',
+      date: new Date().toISOString().split('T')[0],
+      type: preselectedType || 'extra',
+    };
+  };
 
   const [formData, setFormData] = useState<FormData>(getInitialFormData());
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
@@ -50,7 +67,7 @@ export function PaymentModal({
       setFormData(getInitialFormData());
       setErrors({});
     }
-  }, [isOpen, preselectedDebt, preselectedAmount, preselectedType]);
+  }, [isOpen, preselectedDebt, preselectedAmount, preselectedType, editingPayment]);
 
   if (!isOpen) return null;
 
@@ -86,27 +103,60 @@ export function PaymentModal({
     // Calculate principal and interest split
     // Simple approximation: monthly interest = balance * (apr/100/12)
     const monthlyInterestRate = selectedDebt.apr / 100 / 12;
-    const interestPortion = Math.min(
-      selectedDebt.balance * monthlyInterestRate,
-      amount
-    );
-    const principalPortion = amount - interestPortion;
 
-    addPayment({
-      debtId: formData.debtId,
-      amount,
-      principal: Math.max(0, principalPortion),
-      interest: Math.max(0, interestPortion),
-      date: formData.date,
-      type: formData.type,
-      isCompleted: true,
-      completedAt: new Date().toISOString(),
-    });
+    if (isEditMode && editingPayment) {
+      // Edit mode: calculate the difference and adjust balance
+      const oldPrincipal = editingPayment.principal;
 
-    // Update debt balance (reduce by principal amount)
-    updateDebt(selectedDebt.id, {
-      balance: Math.max(0, selectedDebt.balance - principalPortion),
-    });
+      // For edit, we need to calculate interest based on what the balance would be
+      // after restoring the old principal (to get accurate new split)
+      const restoredBalance = selectedDebt.balance + oldPrincipal;
+      const interestPortion = Math.min(
+        restoredBalance * monthlyInterestRate,
+        amount
+      );
+      const newPrincipal = Math.max(0, amount - interestPortion);
+
+      // Calculate balance adjustment: restore old principal, then subtract new principal
+      const balanceAdjustment = oldPrincipal - newPrincipal;
+
+      // Update the payment record
+      updatePayment(editingPayment.id, {
+        amount,
+        principal: newPrincipal,
+        interest: Math.max(0, interestPortion),
+        date: formData.date,
+        type: formData.type,
+      });
+
+      // Adjust debt balance by the difference
+      updateDebt(selectedDebt.id, {
+        balance: Math.max(0, selectedDebt.balance + balanceAdjustment),
+      });
+    } else {
+      // New payment mode
+      const interestPortion = Math.min(
+        selectedDebt.balance * monthlyInterestRate,
+        amount
+      );
+      const principalPortion = amount - interestPortion;
+
+      addPayment({
+        debtId: formData.debtId,
+        amount,
+        principal: Math.max(0, principalPortion),
+        interest: Math.max(0, interestPortion),
+        date: formData.date,
+        type: formData.type,
+        isCompleted: true,
+        completedAt: new Date().toISOString(),
+      });
+
+      // Update debt balance (reduce by principal amount)
+      updateDebt(selectedDebt.id, {
+        balance: Math.max(0, selectedDebt.balance - principalPortion),
+      });
+    }
 
     onClose();
   };
@@ -144,7 +194,9 @@ export function PaymentModal({
       <div className="relative w-full max-w-md bg-white rounded-2xl shadow-xl">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-lg font-semibold">Log Payment</h2>
+          <h2 className="text-lg font-semibold">
+            {isEditMode ? 'Edit Payment' : 'Log Payment'}
+          </h2>
           <button
             onClick={onClose}
             className="p-2 text-gray-400 hover:text-gray-600 rounded-lg transition-colors"
@@ -276,7 +328,7 @@ export function PaymentModal({
             type="submit"
             className="w-full py-3 bg-primary-500 text-white font-medium rounded-xl hover:bg-primary-600 transition-colors"
           >
-            Log Payment
+            {isEditMode ? 'Update Payment' : 'Log Payment'}
           </button>
         </form>
       </div>

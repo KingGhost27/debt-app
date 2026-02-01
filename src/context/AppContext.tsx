@@ -42,6 +42,7 @@ interface AppContextType {
 
   // Payment operations
   addPayment: (payment: Omit<Payment, 'id'>) => void;
+  updatePayment: (id: string, updates: Partial<Payment>) => void;
   markPaymentComplete: (id: string) => void;
   deletePayment: (id: string) => void;
 
@@ -150,6 +151,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setData((prev) => ({
       ...prev,
       payments: [...prev.payments, newPayment],
+    }));
+  }, []);
+
+  const updatePayment = useCallback((id: string, updates: Partial<Payment>) => {
+    setData((prev) => ({
+      ...prev,
+      payments: prev.payments.map((payment) =>
+        payment.id === id ? { ...payment, ...updates } : payment
+      ),
     }));
   }, []);
 
@@ -341,6 +351,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     deleteDebt,
 
     addPayment,
+    updatePayment,
     markPaymentComplete,
     deletePayment,
 

@@ -14,24 +14,25 @@ import {
   isSameMonth,
   subMonths,
 } from 'date-fns';
-import { Check, Plus, Flame, CheckCircle, AlertCircle, X, Undo2 } from 'lucide-react';
+import { Check, Plus, Flame, CheckCircle, AlertCircle, X, Undo2, Pencil } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { PageHeader } from '../components/layout/PageHeader';
 import { MiniCalendar } from '../components/ui/MiniCalendar';
 import { PaymentModal } from '../components/ui/PaymentModal';
 import { BillDistributionPanel } from '../components/ui/BillDistributionPanel';
 import { formatCurrency, generatePayoffPlan } from '../lib/calculations';
-import type { Debt, PaymentType } from '../types';
+import type { Debt, PaymentType, Payment } from '../types';
 
 type TabType = 'upcoming' | 'complete' | 'calendar';
 
 export function TrackPage() {
-  const { debts, strategy, payments, budget, addPayment, deletePayment, updateDebt, customCategories } = useApp();
+  const { debts, strategy, payments, budget, deletePayment, updateDebt, customCategories } = useApp();
   const [activeTab, setActiveTab] = useState<TabType>('upcoming');
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [preselectedDebt, setPreselectedDebt] = useState<Debt | undefined>();
   const [preselectedAmount, setPreselectedAmount] = useState<number | undefined>();
   const [preselectedType, setPreselectedType] = useState<PaymentType | undefined>();
+  const [editingPayment, setEditingPayment] = useState<Payment | undefined>();
 
   // Generate upcoming payments from payoff plan
   const plan = useMemo(
@@ -152,34 +153,6 @@ export function TrackPage() {
     };
   }, [payments, debts]);
 
-  // Handle marking a payment as paid
-  const handleMarkAsPaid = (
-    debt: Debt,
-    amount: number,
-    type: 'minimum' | 'extra'
-  ) => {
-    // Calculate principal and interest split
-    const monthlyInterestRate = debt.apr / 100 / 12;
-    const interestPortion = Math.min(debt.balance * monthlyInterestRate, amount);
-    const principalPortion = amount - interestPortion;
-
-    addPayment({
-      debtId: debt.id,
-      amount,
-      principal: Math.max(0, principalPortion),
-      interest: Math.max(0, interestPortion),
-      date: new Date().toISOString().split('T')[0],
-      type,
-      isCompleted: true,
-      completedAt: new Date().toISOString(),
-    });
-
-    // Update debt balance (reduce by principal amount)
-    updateDebt(debt.id, {
-      balance: Math.max(0, debt.balance - principalPortion),
-    });
-  };
-
   // Handle undoing/deleting a payment (restore balance)
   const handleDeletePayment = (paymentId: string, debtId: string, principal: number) => {
     const debt = debts.find(d => d.id === debtId);
@@ -192,11 +165,12 @@ export function TrackPage() {
     deletePayment(paymentId);
   };
 
-  // Open payment modal with preselected values
-  const openPaymentModal = (debt?: Debt, amount?: number, type?: PaymentType) => {
+  // Open payment modal with preselected values or for editing
+  const openPaymentModal = (debt?: Debt, amount?: number, type?: PaymentType, payment?: Payment) => {
     setPreselectedDebt(debt);
     setPreselectedAmount(amount);
     setPreselectedType(type);
+    setEditingPayment(payment);
     setIsPaymentModalOpen(true);
   };
 
@@ -457,25 +431,34 @@ export function TrackPage() {
                             {!alreadyPaid ? (
                               <button
                                 onClick={() =>
-                                  handleMarkAsPaid(
+                                  openPaymentModal(
                                     debt,
                                     payment.amount,
-                                    payment.type as 'minimum' | 'extra'
+                                    payment.type as PaymentType
                                   )
                                 }
                                 className="p-2 bg-green-100 text-green-600 rounded-full hover:bg-green-200 transition-colors"
-                                title="Mark as paid"
+                                title="Mark as paid (click to edit amount)"
                               >
                                 <Check size={18} />
                               </button>
                             ) : (
-                              <button
-                                onClick={() => paidPayment && handleDeletePayment(paidPayment.id, paidPayment.debtId, paidPayment.principal)}
-                                className="p-2 bg-gray-100 text-gray-500 rounded-full hover:bg-red-100 hover:text-red-500 transition-colors"
-                                title="Undo payment"
-                              >
-                                <Undo2 size={18} />
-                              </button>
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={() => paidPayment && openPaymentModal(debt, undefined, undefined, paidPayment)}
+                                  className="p-2 bg-gray-100 text-gray-500 rounded-full hover:bg-primary-100 hover:text-primary-600 transition-colors"
+                                  title="Edit payment"
+                                >
+                                  <Pencil size={16} />
+                                </button>
+                                <button
+                                  onClick={() => paidPayment && handleDeletePayment(paidPayment.id, paidPayment.debtId, paidPayment.principal)}
+                                  className="p-2 bg-gray-100 text-gray-500 rounded-full hover:bg-red-100 hover:text-red-500 transition-colors"
+                                  title="Undo payment"
+                                >
+                                  <Undo2 size={18} />
+                                </button>
+                              </div>
                             )}
                           </div>
                         </div>
@@ -549,6 +532,13 @@ export function TrackPage() {
                         </span>
                       </div>
                       <button
+                        onClick={() => debt && openPaymentModal(debt, undefined, undefined, payment)}
+                        className="p-2 text-gray-400 hover:text-primary-500 hover:bg-primary-50 rounded-full transition-colors"
+                        title="Edit payment"
+                      >
+                        <Pencil size={16} />
+                      </button>
+                      <button
                         onClick={() => handleDeletePayment(payment.id, payment.debtId, payment.principal)}
                         className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
                         title="Delete payment"
@@ -590,10 +580,12 @@ export function TrackPage() {
           setPreselectedDebt(undefined);
           setPreselectedAmount(undefined);
           setPreselectedType(undefined);
+          setEditingPayment(undefined);
         }}
         preselectedDebt={preselectedDebt}
         preselectedAmount={preselectedAmount}
         preselectedType={preselectedType}
+        editingPayment={editingPayment}
       />
     </div>
   );
