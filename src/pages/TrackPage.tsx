@@ -339,31 +339,6 @@ export function TrackPage() {
                   </h3>
 
                   <div className="space-y-3">
-                    {/* Recurring funding entry */}
-                    {strategy.recurringFunding.amount > 0 && (
-                      <div className="card flex items-center gap-4">
-                        <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                          <span className="text-lg">💵</span>
-                        </div>
-                        <div className="flex-1">
-                          <p className="font-medium">Recurring funding</p>
-                          <p className="text-sm text-gray-500">
-                            {format(monthDate, 'MMM')}{' '}
-                            {strategy.recurringFunding.dayOfMonth},{' '}
-                            {format(monthDate, 'yyyy')}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-semibold text-green-600">
-                            {formatCurrency(strategy.recurringFunding.amount)}
-                          </p>
-                          <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">
-                            Fund
-                          </span>
-                        </div>
-                      </div>
-                    )}
-
                     {/* Individual debt payments - sorted by due date */}
                     {[...monthPayments]
                       .sort((a, b) => {
