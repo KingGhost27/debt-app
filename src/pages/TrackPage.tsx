@@ -415,17 +415,23 @@ export function TrackPage() {
                           </div>
                           <div className="text-right flex items-center gap-3">
                             <div>
-                              <p className="font-semibold">
-                                {formatCurrency(payment.amount)}
+                              <p className={`font-semibold ${alreadyPaid ? 'text-green-600' : ''}`}>
+                                {formatCurrency(alreadyPaid && paidPayment ? paidPayment.amount : payment.amount)}
                               </p>
                               <span
                                 className={`text-xs px-2 py-1 rounded-full ${
-                                  payment.type === 'extra'
+                                  (alreadyPaid && paidPayment ? paidPayment.type : payment.type) === 'extra'
                                     ? 'bg-primary-100 text-primary-700'
+                                    : (alreadyPaid && paidPayment ? paidPayment.type : payment.type) === 'one_time'
+                                    ? 'bg-purple-100 text-purple-700'
                                     : 'bg-gray-100 text-gray-600'
                                 }`}
                               >
-                                {payment.type === 'extra' ? 'Extra' : 'Minimum'}
+                                {(alreadyPaid && paidPayment ? paidPayment.type : payment.type) === 'extra'
+                                  ? 'Extra'
+                                  : (alreadyPaid && paidPayment ? paidPayment.type : payment.type) === 'one_time'
+                                  ? 'One-time'
+                                  : 'Minimum'}
                               </span>
                             </div>
                             {!alreadyPaid ? (
