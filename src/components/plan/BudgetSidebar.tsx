@@ -6,15 +6,17 @@
  */
 
 import { useState } from 'react';
-import { Plus, Pencil, Trash2, DollarSign, Gift, ChevronRight } from 'lucide-react';
+import { Plus, Pencil, Trash2, DollarSign, Gift, Calendar } from 'lucide-react';
+import { format, parseISO } from 'date-fns';
 import { useApp } from '../../context/AppContext';
 import { IncomeSourceModal } from '../ui/IncomeSourceModal';
+import { OneTimeFundingModal } from '../ui/OneTimeFundingModal';
 import {
   formatCurrency,
   calculateNetMonthlyIncome,
   calculateGrossMonthlyIncome,
 } from '../../lib/calculations';
-import type { IncomeSource, BudgetSettings, StrategySettings } from '../../types';
+import type { IncomeSource, BudgetSettings, StrategySettings, OneTimeFunding } from '../../types';
 
 const PAY_FREQUENCY_SHORT: Record<string, string> = {
   weekly: 'Weekly',
@@ -41,11 +43,18 @@ export function BudgetSidebar({
   onExpenseChange,
   onExtraChange,
 }: BudgetSidebarProps) {
-  const { deleteIncomeSource } = useApp();
+  const { deleteIncomeSource, addOneTimeFunding, updateOneTimeFunding, deleteOneTimeFunding } = useApp();
   const [isIncomeModalOpen, setIsIncomeModalOpen] = useState(false);
   const [editingSource, setEditingSource] = useState<IncomeSource | null>(null);
+  const [isFundingModalOpen, setIsFundingModalOpen] = useState(false);
+  const [editingFunding, setEditingFunding] = useState<OneTimeFunding | null>(null);
 
   const availableForDebt = Math.max(0, totalMonthlyIncome - budget.monthlyExpenses);
+
+  // Calculate total upcoming fundings
+  const totalUpcomingFundings = strategy.oneTimeFundings
+    .filter((f) => !f.isApplied)
+    .reduce((sum, f) => sum + f.amount, 0);
 
   const handleEditSource = (source: IncomeSource) => {
     setEditingSource(source);
@@ -61,6 +70,26 @@ export function BudgetSidebar({
   const handleCloseModal = () => {
     setIsIncomeModalOpen(false);
     setEditingSource(null);
+  };
+
+  const handleEditFunding = (funding: OneTimeFunding) => {
+    setEditingFunding(funding);
+    setIsFundingModalOpen(true);
+  };
+
+  const handleDeleteFunding = (funding: OneTimeFunding) => {
+    if (window.confirm(`Delete "${funding.name}"?`)) {
+      deleteOneTimeFunding(funding.id);
+    }
+  };
+
+  const handleCloseFundingModal = () => {
+    setIsFundingModalOpen(false);
+    setEditingFunding(null);
+  };
+
+  const handleSaveFunding = (fundingData: Omit<OneTimeFunding, 'id' | 'isApplied'>) => {
+    addOneTimeFunding(fundingData);
   };
 
   return (
@@ -240,17 +269,85 @@ export function BudgetSidebar({
 
       {/* One-time Fundings */}
       <div className="card">
-        <div className="flex items-center gap-2 mb-2">
-          <Gift size={18} className="text-amber-500" />
-          <h3 className="font-semibold text-gray-900">One-time Fundings</h3>
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <Gift size={18} className="text-amber-500" />
+            <h3 className="font-semibold text-gray-900">One-time Fundings</h3>
+          </div>
+          <button
+            onClick={() => setIsFundingModalOpen(true)}
+            className="flex items-center gap-1 text-sm text-amber-600 hover:text-amber-700"
+          >
+            <Plus size={16} />
+            Add
+          </button>
         </div>
-        <p className="text-xs text-gray-500 mb-2">
-          Tax refunds, bonuses, etc.
-        </p>
-        <button className="w-full flex justify-between items-center py-2 text-gray-600 text-sm">
-          <span>{strategy.oneTimeFundings.length} planned</span>
-          <ChevronRight size={18} className="text-gray-400" />
-        </button>
+
+        {strategy.oneTimeFundings.length === 0 ? (
+          <div className="text-center py-4">
+            <p className="text-gray-500 text-sm mb-2">No fundings planned</p>
+            <p className="text-xs text-gray-400">
+              Add tax refunds, bonuses, or other windfalls
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {strategy.oneTimeFundings.map((funding) => (
+              <div
+                key={funding.id}
+                className={`flex items-center justify-between p-2 rounded-lg ${
+                  funding.isApplied ? 'bg-gray-100 opacity-60' : 'bg-amber-50'
+                }`}
+              >
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium text-sm truncate">{funding.name}</span>
+                    {funding.isApplied && (
+                      <span className="text-xs px-1.5 py-0.5 bg-green-100 text-green-700 rounded">
+                        Applied
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-gray-500">
+                    <Calendar size={12} />
+                    <span>{format(parseISO(funding.date), 'MMM d, yyyy')}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold text-amber-600">
+                    {formatCurrency(funding.amount)}
+                  </span>
+                  {!funding.isApplied && (
+                    <div className="flex gap-1">
+                      <button
+                        onClick={() => handleEditFunding(funding)}
+                        className="p-1 text-gray-400 hover:text-gray-600"
+                      >
+                        <Pencil size={14} />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteFunding(funding)}
+                        className="p-1 text-gray-400 hover:text-red-500"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+
+            {/* Total upcoming */}
+            {totalUpcomingFundings > 0 && (
+              <div className="flex justify-between items-center pt-2 border-t border-gray-200">
+                <span className="text-sm text-gray-600">Total upcoming</span>
+                <span className="font-semibold text-amber-600">
+                  {formatCurrency(totalUpcomingFundings)}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Income Source Modal */}
@@ -258,6 +355,15 @@ export function BudgetSidebar({
         isOpen={isIncomeModalOpen}
         onClose={handleCloseModal}
         source={editingSource}
+      />
+
+      {/* One-time Funding Modal */}
+      <OneTimeFundingModal
+        isOpen={isFundingModalOpen}
+        onClose={handleCloseFundingModal}
+        onSave={handleSaveFunding}
+        onUpdate={updateOneTimeFunding}
+        funding={editingFunding}
       />
     </div>
   );

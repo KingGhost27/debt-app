@@ -252,12 +252,26 @@ export function generatePayoffPlan(
   const maxMonths = 360;
   let monthCount = 0;
 
+  // Track which one-time fundings have been applied
+  const appliedFundingIds = new Set<string>();
+
   while (activeDebts.length > 0 && monthCount < maxMonths) {
     const monthPayments: MonthlyPayment['payments'] = [];
+    const currentMonthStr = format(currentDate, 'yyyy-MM');
 
     // Calculate extra payment (funding minus all minimums)
     const currentMinimums = activeDebts.reduce((sum, d) => sum + d.minimumPayment, 0);
-    const extraPayment = Math.max(0, monthlyFunding - currentMinimums);
+    let extraPayment = Math.max(0, monthlyFunding - currentMinimums);
+
+    // Add any one-time fundings that fall in this month
+    for (const funding of settings.oneTimeFundings) {
+      if (appliedFundingIds.has(funding.id)) continue;
+      const fundingMonth = funding.date.slice(0, 7); // Extract 'yyyy-MM'
+      if (fundingMonth === currentMonthStr) {
+        extraPayment += funding.amount;
+        appliedFundingIds.add(funding.id);
+      }
+    }
 
     // Find the debt getting extra payments (highest priority that's still active)
     const priorityDebt = sortedPriority.find((p) => activeDebts.some((a) => a.id === p.id));

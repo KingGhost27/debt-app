@@ -17,6 +17,7 @@ import type {
   BudgetSettings,
   IncomeSource,
   ThemeSettings,
+  OneTimeFunding,
 } from '../types';
 import { DEFAULT_APP_DATA, DEFAULT_STRATEGY, DEFAULT_BUDGET } from '../types';
 import { saveData, loadData, exportData, importData } from '../lib/storage';
@@ -64,6 +65,11 @@ interface AppContextType {
   addIncomeSource: (source: Omit<IncomeSource, 'id' | 'createdAt' | 'updatedAt'>) => void;
   updateIncomeSource: (id: string, updates: Partial<IncomeSource>) => void;
   deleteIncomeSource: (id: string) => void;
+
+  // One-time funding operations
+  addOneTimeFunding: (funding: Omit<OneTimeFunding, 'id' | 'isApplied'>) => void;
+  updateOneTimeFunding: (id: string, updates: Partial<OneTimeFunding>) => void;
+  deleteOneTimeFunding: (id: string) => void;
 
   // Import/Export
   exportAppData: () => void;
@@ -311,6 +317,48 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // ==========================================
+  // ONE-TIME FUNDING OPERATIONS
+  // ==========================================
+
+  const addOneTimeFunding = useCallback((fundingData: Omit<OneTimeFunding, 'id' | 'isApplied'>) => {
+    const newFunding: OneTimeFunding = {
+      ...fundingData,
+      id: uuidv4(),
+      isApplied: false,
+    };
+
+    setData((prev) => ({
+      ...prev,
+      strategy: {
+        ...prev.strategy,
+        oneTimeFundings: [...prev.strategy.oneTimeFundings, newFunding],
+      },
+    }));
+  }, []);
+
+  const updateOneTimeFunding = useCallback((id: string, updates: Partial<OneTimeFunding>) => {
+    setData((prev) => ({
+      ...prev,
+      strategy: {
+        ...prev.strategy,
+        oneTimeFundings: prev.strategy.oneTimeFundings.map((funding) =>
+          funding.id === id ? { ...funding, ...updates } : funding
+        ),
+      },
+    }));
+  }, []);
+
+  const deleteOneTimeFunding = useCallback((id: string) => {
+    setData((prev) => ({
+      ...prev,
+      strategy: {
+        ...prev.strategy,
+        oneTimeFundings: prev.strategy.oneTimeFundings.filter((funding) => funding.id !== id),
+      },
+    }));
+  }, []);
+
+  // ==========================================
   // IMPORT/EXPORT
   // ==========================================
 
@@ -368,6 +416,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     addIncomeSource,
     updateIncomeSource,
     deleteIncomeSource,
+
+    addOneTimeFunding,
+    updateOneTimeFunding,
+    deleteOneTimeFunding,
 
     exportAppData,
     importAppData,
