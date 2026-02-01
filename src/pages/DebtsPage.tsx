@@ -660,6 +660,16 @@ export function DebtsPage() {
                     </div>
                   </div>
 
+                  {/* Estimated Interest Fee */}
+                  <div className="mt-3 pt-3 border-t border-gray-100">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-gray-500">Est. monthly interest</span>
+                      <span className="text-sm font-semibold text-red-500">
+                        {formatCurrency(debt.balance * (debt.apr / 100) / 12)}/mo
+                      </span>
+                    </div>
+                  </div>
+
                   {/* Utilization bar */}
                   {utilization !== null && (
                     <div className="mt-3 pt-3 border-t border-gray-100">
