@@ -17,13 +17,12 @@ import {
   formatCompactCurrency,
   formatPercent,
   calculateUtilization,
-  calculatePayoffDate,
   generatePayoffPlan,
 } from '../lib/calculations';
 import type { Debt, DebtCategory } from '../types';
 import { CATEGORY_INFO } from '../types';
 
-type SortOption = 'balance' | 'apr' | 'name' | 'minimum';
+type SortOption = 'balance' | 'apr' | 'name' | 'minimum' | 'dueDay';
 type ChartView = 'category' | 'debt';
 
 // Distinct color palette for individual debts in "By Debt" view
@@ -206,6 +205,9 @@ export function DebtsPage() {
           break;
         case 'name':
           comparison = a.name.localeCompare(b.name);
+          break;
+        case 'dueDay':
+          comparison = a.dueDay - b.dueDay;
           break;
       }
       return sortAscending ? -comparison : comparison;
@@ -542,6 +544,7 @@ export function DebtsPage() {
               <option value="balance">Balance</option>
               <option value="apr">APR</option>
               <option value="minimum">Minimum</option>
+              <option value="dueDay">Due Date</option>
               <option value="name">Name</option>
             </select>
             <ChevronDown
@@ -591,11 +594,6 @@ export function DebtsPage() {
                 ? calculateUtilization(debt.balance, debt.creditLimit)
                 : null;
               const categoryInfo = getCategoryInfo(debt.category);
-
-              // Calculate payoff estimate (minimum payment only)
-              const payoffEstimate = debt.minimumPayment > 0
-                ? calculatePayoffDate(debt, debt.minimumPayment)
-                : null;
 
               return (
                 <div
@@ -650,17 +648,15 @@ export function DebtsPage() {
                         <p className="text-xs text-gray-500">APR</p>
                         <p className="font-semibold">{formatPercent(debt.apr)}</p>
                       </div>
-                      {payoffEstimate && (
-                        <div>
-                          <p className="text-xs text-gray-500 flex items-center gap-1">
-                            <Calendar size={10} />
-                            Est. payoff
-                          </p>
-                          <p className="font-semibold text-primary-600">
-                            {format(payoffEstimate.date, 'MMM yyyy')}
-                          </p>
-                        </div>
-                      )}
+                      <div>
+                        <p className="text-xs text-gray-500 flex items-center gap-1">
+                          <Calendar size={10} />
+                          Due
+                        </p>
+                        <p className="font-semibold">
+                          {debt.dueDay}{debt.dueDay === 1 ? 'st' : debt.dueDay === 2 ? 'nd' : debt.dueDay === 3 ? 'rd' : 'th'}
+                        </p>
+                      </div>
                     </div>
                   </div>
 
