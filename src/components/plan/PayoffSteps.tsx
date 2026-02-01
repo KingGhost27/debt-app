@@ -125,12 +125,7 @@ export function PayoffSteps({ plan, sortedDebts }: PayoffStepsProps) {
               : 0;
 
           return (
-            <div key={step.stepNumber} className="relative">
-              {/* Timeline connector */}
-              {!isLast && (
-                <div className="absolute left-6 top-14 bottom-0 w-0.5 bg-gray-200" />
-              )}
-
+            <div key={step.stepNumber}>
               <div className="card">
                 <div className="flex items-start gap-3 mb-4">
                   <div
