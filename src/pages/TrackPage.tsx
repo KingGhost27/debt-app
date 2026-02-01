@@ -69,6 +69,7 @@ export function TrackPage() {
   // This month stats
   const thisMonthStats = useMemo(() => {
     const now = new Date();
+    const currentDay = now.getDate();
     const monthStart = startOfMonth(now);
     const monthEnd = endOfMonth(now);
 
@@ -96,8 +97,20 @@ export function TrackPage() {
       return isSameMonth(date, now);
     }).length;
 
-    // Determine if on track (simplified: paid >= expected or all bills paid)
-    const onTrack = paidThisMonth >= expectedThisMonth || billsPaidThisMonth >= billsDueThisMonth;
+    // Check for actually overdue bills (due date has passed and not paid this month)
+    const overdueCount = debts.filter((debt) => {
+      // Bill is overdue if: due day has passed AND not paid this month
+      const isPastDue = debt.dueDay < currentDay;
+      const isPaidThisMonth = payments.some((p) => {
+        if (!p.isCompleted || !p.completedAt || p.debtId !== debt.id) return false;
+        const paidDate = parseISO(p.completedAt);
+        return isSameMonth(paidDate, now);
+      });
+      return isPastDue && !isPaidThisMonth;
+    }).length;
+
+    // Only "behind" if there are actually overdue bills
+    const onTrack = overdueCount === 0;
 
     return {
       paid: paidThisMonth,
@@ -106,6 +119,7 @@ export function TrackPage() {
       onTrack,
       billsDue: billsDueThisMonth,
       billsPaid: billsPaidThisMonth,
+      overdueCount,
     };
   }, [payments, plan, debts]);
 
@@ -238,9 +252,11 @@ export function TrackPage() {
               ) : (
                 <>
                   <div className="flex justify-center">
-                    <AlertCircle size={28} className="text-amber-500" />
+                    <AlertCircle size={28} className="text-red-500" />
                   </div>
-                  <p className="text-xs text-amber-600 font-medium">Behind</p>
+                  <p className="text-xs text-red-600 font-medium">
+                    {thisMonthStats.overdueCount} Overdue
+                  </p>
                 </>
               )}
             </div>
