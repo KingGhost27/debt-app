@@ -81,20 +81,24 @@ User Action → useApp() context → localStorage sync → Re-render → useMemo
 
 | Module | Purpose |
 |--------|---------|
-| `types/index.ts` | All TypeScript interfaces (Debt, Payment, Strategy, PayoffPlan, etc.) |
+| `types/index.ts` | All TypeScript interfaces (Debt, Payment, Strategy, Theme, Budget, etc.) |
 | `context/AppContext.tsx` | Global state + CRUD operations via `useApp()` hook |
-| `lib/calculations.ts` | Financial engine: amortization, payoff plan generation |
-| `lib/storage.ts` | localStorage persistence, import/export JSON |
-| `pages/` | 5 views: Home, Debts, Strategy, Plan, Track |
+| `lib/calculations.ts` | Financial engine: amortization, payoff plan, income calculations |
+| `lib/storage.ts` | localStorage persistence, data migrations, import/export JSON |
+| `lib/themes.ts` | Theme presets (My Melody, Kuromi) and applyTheme() function |
+| `hooks/useTheme.ts` | Theme management hook for components |
+| `pages/` | 7 views: Home, Debts, Budget, Plan, Track, Settings, Strategy |
 | `components/layout/` | Layout wrapper, BottomNav, PageHeader |
-| `components/ui/` | DebtModal, ProgressRing |
+| `components/ui/` | DebtModal, ProgressRing, ThemeSelector, CategoryManager, IncomeSourceModal |
 
 **Routes (defined in App.tsx):**
 - `/` → HomePage (dashboard overview)
-- `/debts` → DebtsPage (add/edit/delete debts)
-- `/strategy` → StrategyPage (choose Avalanche/Snowball, set funding)
+- `/debts` → DebtsPage (add/edit/delete debts, pie chart with legend)
+- `/budget` → BudgetPage (income sources, expenses, debt allocation, strategy)
 - `/plan` → PlanPage (view generated payoff schedule)
 - `/track` → TrackPage (mark payments, view history)
+- `/settings` → SettingsPage (themes, categories, data management)
+- `/strategy` → StrategyPage (legacy, Budget page preferred)
 
 ## Key Patterns
 
@@ -111,10 +115,13 @@ User Action → useApp() context → localStorage sync → Re-render → useMemo
 |------|-------|
 | Add debt field | `types/index.ts`, `DebtModal.tsx`, `DebtsPage.tsx` |
 | Modify payoff calculations | `lib/calculations.ts` |
-| Change theme/colors | `src/index.css` (@theme section) |
+| Change theme colors | `lib/themes.ts` (presets), `index.css` (CSS variables) |
+| Add new theme preset | `lib/themes.ts` (THEME_PRESETS + THEME_METADATA) |
 | Add new page | `pages/NewPage.tsx`, `App.tsx` (route), `BottomNav.tsx` (nav item) |
-| Change state shape | `types/index.ts`, `AppContext.tsx`, `storage.ts` (add migration if needed) |
+| Change state shape | `types/index.ts`, `AppContext.tsx`, `storage.ts` (add migration) |
 | Add new context operation | `AppContext.tsx` (add to interface + implement) |
+| Add custom category feature | `CategoryManager.tsx`, `DebtModal.tsx`, `types/index.ts` |
+| Modify income calculations | `lib/calculations.ts`, `BudgetPage.tsx` |
 
 ## Data Types Quick Reference
 
@@ -126,6 +133,20 @@ Payment     // id, debtId, amount, principal, interest, date, type, isCompleted
 // Strategy
 PayoffStrategy  // 'avalanche' | 'snowball'
 StrategySettings // strategy + recurringFunding + oneTimeFundings
+
+// Theme
+ThemePreset     // 'default' | 'my-melody' | 'kuromi' | 'custom'
+ThemeColors     // primary50-900, accent, accentLight, gradientFrom, gradientTo
+ThemeSettings   // preset + customColors?
+
+// Budget & Income
+PayFrequency    // 'weekly' | 'bi-weekly' | 'semi-monthly' | 'monthly'
+EmploymentType  // 'salary' | 'hourly'
+IncomeSource    // id, name, type, payFrequency, amount?, hourlyRate?, hoursPerWeek?
+BudgetSettings  // incomeSources[], monthlyExpenses, debtAllocationAmount
+
+// Custom Categories
+CustomCategory  // id, name, color, createdAt
 
 // Generated plans
 PayoffPlan      // debtFreeDate, totalPayments, totalInterest, steps, monthlyBreakdown
