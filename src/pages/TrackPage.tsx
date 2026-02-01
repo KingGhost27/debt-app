@@ -390,8 +390,14 @@ export function TrackPage() {
                       </div>
                     )}
 
-                    {/* Individual debt payments */}
-                    {monthPayments.map((payment) => {
+                    {/* Individual debt payments - sorted by due date */}
+                    {[...monthPayments]
+                      .sort((a, b) => {
+                        const debtA = debts.find((d) => d.id === a.debtId);
+                        const debtB = debts.find((d) => d.id === b.debtId);
+                        return (debtA?.dueDay || 0) - (debtB?.dueDay || 0);
+                      })
+                      .map((payment) => {
                       const debt = debts.find((d) => d.id === payment.debtId);
                       if (!debt) return null;
 
