@@ -1,12 +1,11 @@
 /**
  * Payoff Steps Component
  *
- * Displays the step-by-step payoff timeline with collapsible monthly details.
+ * Displays the step-by-step payoff timeline with visual progress indicators.
  */
 
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { format, parseISO } from 'date-fns';
-import { ChevronDown, Calendar } from 'lucide-react';
 import { formatTimeUntil, formatCurrency } from '../../lib/calculations';
 import type { PayoffPlan, PayoffStep, MonthlyPayment, Debt } from '../../types';
 
@@ -15,59 +14,93 @@ interface PayoffStepsProps {
   sortedDebts: Debt[];
 }
 
+interface StepProgressData {
+  stepNumber: number;
+  startingBalance: number;
+  endingBalance: number;
+  paidThisStep: number;
+  percentComplete: number;
+  monthCount: number;
+}
+
 /**
- * Get the months that belong to a specific step based on date ranges
+ * Calculate progress data for a specific step
  */
-function getMonthsForStep(
+function calculateStepProgress(
   stepIndex: number,
   steps: PayoffStep[],
-  monthlyBreakdown: MonthlyPayment[]
-): MonthlyPayment[] {
-  if (monthlyBreakdown.length === 0) return [];
-
+  monthlyBreakdown: MonthlyPayment[],
+  initialTotalBalance: number
+): StepProgressData {
   const currentStep = steps[stepIndex];
   const previousStep = stepIndex > 0 ? steps[stepIndex - 1] : null;
 
-  // Step starts after previous step's completion month (or from beginning)
+  // Find months in this step
   const stepStartMonth = previousStep
     ? format(parseISO(previousStep.completionDate), 'yyyy-MM')
-    : monthlyBreakdown[0]?.month;
-
-  // Step ends at its completion month
+    : null;
   const stepEndMonth = format(parseISO(currentStep.completionDate), 'yyyy-MM');
 
-  // Filter months: after previous step's end month, up to and including this step's end month
-  return monthlyBreakdown.filter(m => {
-    if (previousStep) {
+  const stepMonths = monthlyBreakdown.filter((m) => {
+    if (previousStep && stepStartMonth) {
       return m.month > stepStartMonth && m.month <= stepEndMonth;
     }
     return m.month <= stepEndMonth;
   });
+
+  // Get ending balance (sum of remaining balances in final month of this step)
+  const lastMonth = stepMonths[stepMonths.length - 1];
+  const endingBalance = lastMonth
+    ? lastMonth.payments.reduce((sum, p) => sum + p.remainingBalance, 0)
+    : 0;
+
+  // Get starting balance
+  let startingBalance: number;
+  if (previousStep && stepIndex > 0) {
+    const prevStepEndMonth = format(parseISO(previousStep.completionDate), 'yyyy-MM');
+    const prevMonth = monthlyBreakdown.find((m) => m.month === prevStepEndMonth);
+    startingBalance = prevMonth
+      ? prevMonth.payments.reduce((sum, p) => sum + p.remainingBalance, 0)
+      : initialTotalBalance;
+  } else {
+    startingBalance = initialTotalBalance;
+  }
+
+  const paidThisStep = startingBalance - endingBalance;
+  const percentComplete =
+    initialTotalBalance > 0
+      ? ((initialTotalBalance - endingBalance) / initialTotalBalance) * 100
+      : 0;
+
+  return {
+    stepNumber: currentStep.stepNumber,
+    startingBalance,
+    endingBalance,
+    paidThisStep,
+    percentComplete,
+    monthCount: stepMonths.length,
+  };
 }
 
 export function PayoffSteps({ plan, sortedDebts }: PayoffStepsProps) {
-  const [expandedSteps, setExpandedSteps] = useState<Set<number>>(new Set());
+  // Calculate initial total balance from debts
+  const initialTotalBalance = useMemo(
+    () => sortedDebts.reduce((sum, d) => sum + d.originalBalance, 0),
+    [sortedDebts]
+  );
 
-  const toggleStep = (stepNumber: number) => {
-    setExpandedSteps(prev => {
-      const next = new Set(prev);
-      if (next.has(stepNumber)) {
-        next.delete(stepNumber);
-      } else {
-        next.add(stepNumber);
-      }
-      return next;
-    });
-  };
-
-  // Pre-compute months for each step
-  const stepMonthsMap = useMemo(() => {
-    const map = new Map<number, MonthlyPayment[]>();
+  // Pre-compute progress data for each step
+  const stepProgressMap = useMemo(() => {
+    const map = new Map<number, StepProgressData>();
     plan.steps.forEach((step, index) => {
-      map.set(step.stepNumber, getMonthsForStep(index, plan.steps, plan.monthlyBreakdown));
+      map.set(
+        step.stepNumber,
+        calculateStepProgress(index, plan.steps, plan.monthlyBreakdown, initialTotalBalance)
+      );
     });
     return map;
-  }, [plan.steps, plan.monthlyBreakdown]);
+  }, [plan.steps, plan.monthlyBreakdown, initialTotalBalance]);
+
   if (plan.steps.length === 0) {
     return null;
   }
@@ -83,7 +116,13 @@ export function PayoffSteps({ plan, sortedDebts }: PayoffStepsProps) {
           const debtGettingExtra = sortedDebts.find(
             (d) => d.id === step.debtReceivingExtra
           );
-          const stepMonths = stepMonthsMap.get(step.stepNumber) || [];
+          const stepProgress = stepProgressMap.get(step.stepNumber)!;
+
+          // Calculate what percent of THIS step's paydown this represents
+          const stepPaydownPercent =
+            stepProgress.startingBalance > 0
+              ? (stepProgress.paidThisStep / stepProgress.startingBalance) * 100
+              : 0;
 
           return (
             <div key={step.stepNumber} className="relative">
@@ -153,87 +192,48 @@ export function PayoffSteps({ plan, sortedDebts }: PayoffStepsProps) {
                   </div>
                 )}
 
-                {/* Collapsible Monthly Details */}
-                {stepMonths.length > 0 && (
-                  <div className="mt-4">
-                    <button
-                      onClick={() => toggleStep(step.stepNumber)}
-                      className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
-                    >
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <Calendar size={16} className="text-gray-400" />
-                        <span>
-                          {stepMonths.length} month{stepMonths.length !== 1 ? 's' : ''} · {formatCurrency(stepMonths.reduce((sum, m) => sum + m.totalPayment, 0))} total
-                        </span>
-                      </div>
-                      <ChevronDown
-                        size={18}
-                        className={`text-gray-400 transition-transform duration-200 ${
-                          expandedSteps.has(step.stepNumber) ? 'rotate-180' : ''
-                        }`}
-                      />
-                    </button>
-
-                    {/* Expanded Monthly Details */}
-                    {expandedSteps.has(step.stepNumber) && (
-                      <div className="mt-3 space-y-3">
-                        {stepMonths.map((month) => {
-                          const monthDate = parseISO(`${month.month}-01`);
-                          return (
-                            <div key={month.month} className="bg-gray-100 rounded-xl overflow-hidden">
-                              {/* Month Header */}
-                              <div className="flex justify-between items-center px-4 py-2 bg-gray-200">
-                                <span className="font-medium text-sm text-gray-800">
-                                  {format(monthDate, 'MMMM yyyy')}
-                                </span>
-                                <span className="text-sm font-semibold text-gray-700">
-                                  {formatCurrency(month.totalPayment)}
-                                </span>
-                              </div>
-
-                              {/* Payment Rows */}
-                              <div className="divide-y divide-gray-200">
-                                {month.payments.map((payment) => (
-                                  <div key={payment.debtId} className="p-3 bg-white">
-                                    <div className="flex items-center justify-between mb-2">
-                                      <div className="flex items-center gap-2">
-                                        <span className="font-medium text-sm truncate">{payment.debtName}</span>
-                                        <span className={`text-xs px-2 py-0.5 rounded-full ${
-                                          payment.type === 'extra'
-                                            ? 'bg-primary-100 text-primary-700'
-                                            : 'bg-gray-100 text-gray-600'
-                                        }`}>
-                                          {payment.type === 'extra' ? 'Extra' : 'Min'}
-                                        </span>
-                                      </div>
-                                      <span className="font-semibold text-sm">{formatCurrency(payment.amount)}</span>
-                                    </div>
-
-                                    {/* Principal/Interest/Balance breakdown */}
-                                    <div className="grid grid-cols-3 gap-2 text-xs">
-                                      <div>
-                                        <span className="text-gray-500">Principal</span>
-                                        <span className="block text-gray-900 font-medium">{formatCurrency(payment.principal)}</span>
-                                      </div>
-                                      <div>
-                                        <span className="text-gray-500">Interest</span>
-                                        <span className="block text-red-500 font-medium">{formatCurrency(payment.interest)}</span>
-                                      </div>
-                                      <div>
-                                        <span className="text-gray-500">Balance</span>
-                                        <span className="block text-gray-900 font-medium">{formatCurrency(payment.remainingBalance)}</span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
+                {/* Progress visualization */}
+                <div className="mt-4 pt-4 border-t border-gray-100">
+                  {/* Balance decrease summary */}
+                  <div className="flex items-center justify-between text-sm mb-2">
+                    <span className="text-gray-600">Paid this step</span>
+                    <span className="font-semibold text-gray-900">
+                      {formatCurrency(stepProgress.paidThisStep)}
+                    </span>
                   </div>
-                )}
+
+                  {/* Progress bar showing step completion */}
+                  <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-500 ease-out ${
+                        isLast ? 'bg-green-500' : 'bg-primary-500'
+                      }`}
+                      style={{ width: `${Math.min(100, stepPaydownPercent)}%` }}
+                    />
+                  </div>
+
+                  {/* Journey progress indicator */}
+                  <div className="flex items-center justify-between mt-2">
+                    <span className="text-xs text-gray-500">
+                      {formatCurrency(stepProgress.endingBalance)} remaining
+                    </span>
+                    <span
+                      className={`text-xs font-medium ${
+                        isLast ? 'text-green-600' : 'text-primary-600'
+                      }`}
+                    >
+                      {stepProgress.percentComplete.toFixed(0)}% of journey
+                    </span>
+                  </div>
+
+                  {/* Step duration */}
+                  {stepProgress.monthCount > 0 && (
+                    <div className="mt-2 text-xs text-gray-500">
+                      {stepProgress.monthCount} month
+                      {stepProgress.monthCount !== 1 ? 's' : ''} in this step
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           );
