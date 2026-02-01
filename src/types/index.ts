@@ -31,6 +31,7 @@ export interface ThemeColors {
 export interface ThemeSettings {
   preset: ThemePreset;
   customColors?: ThemeColors;
+  darkMode?: boolean;
 }
 
 // ============================================
@@ -271,6 +272,7 @@ export const DEFAULT_STRATEGY: StrategySettings = {
 
 export const DEFAULT_THEME: ThemeSettings = {
   preset: 'default',
+  darkMode: false,
 };
 
 export const DEFAULT_SETTINGS: UserSettings = {

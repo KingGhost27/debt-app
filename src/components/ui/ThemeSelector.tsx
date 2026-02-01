@@ -3,15 +3,16 @@
  *
  * Displays theme presets as visual cards for selection.
  * Includes custom color picker for advanced customization.
+ * Now includes dark mode toggle.
  */
 
 import { useState } from 'react';
-import { Check, Palette } from 'lucide-react';
+import { Check, Palette, Moon, Sun } from 'lucide-react';
 import { useTheme, THEME_PRESETS, THEME_METADATA } from '../../hooks/useTheme';
 import type { ThemePreset } from '../../types';
 
 export function ThemeSelector() {
-  const { currentPreset, setPreset, setCustomFromColor, theme } = useTheme();
+  const { currentPreset, setPreset, setCustomFromColor, theme, isDarkMode, toggleDarkMode } = useTheme();
   const [showCustom, setShowCustom] = useState(currentPreset === 'custom');
   const [customColor, setCustomColor] = useState(
     theme?.customColors?.primary500 || '#8b5cf6'
@@ -35,6 +36,35 @@ export function ThemeSelector() {
         <Palette size={20} />
         Theme
       </h3>
+
+      {/* Dark Mode Toggle */}
+      <div className="flex items-center justify-between p-4 rounded-xl border-2 border-gray-200 bg-gray-50">
+        <div className="flex items-center gap-3">
+          {isDarkMode ? (
+            <Moon size={24} className="text-primary-500" />
+          ) : (
+            <Sun size={24} className="text-amber-500" />
+          )}
+          <div>
+            <p className="font-medium">Dark Mode</p>
+            <p className="text-sm text-gray-500">
+              {isDarkMode ? 'Easier on the eyes at night' : 'Switch to dark theme'}
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={toggleDarkMode}
+          className={`relative w-14 h-8 rounded-full transition-colors ${
+            isDarkMode ? 'bg-primary-500' : 'bg-gray-300'
+          }`}
+        >
+          <span
+            className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow transition-transform ${
+              isDarkMode ? 'translate-x-7' : 'translate-x-1'
+            }`}
+          />
+        </button>
+      </div>
 
       {/* Preset themes */}
       <div className="grid grid-cols-1 gap-3">

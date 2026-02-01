@@ -119,6 +119,19 @@ export function applyTheme(theme: ThemeSettings): void {
   root.style.setProperty('--theme-accent-light', colors.accentLight);
   root.style.setProperty('--theme-gradient-from', colors.gradientFrom);
   root.style.setProperty('--theme-gradient-to', colors.gradientTo);
+
+  // Apply dark mode class and gradient adjustments
+  if (theme.darkMode) {
+    root.classList.add('dark');
+    // Override gradient colors for dark mode (darker versions)
+    root.style.setProperty('--theme-gradient-from', colors.primary800);
+    root.style.setProperty('--theme-gradient-to', colors.primary900);
+  } else {
+    root.classList.remove('dark');
+    // Restore light mode gradients
+    root.style.setProperty('--theme-gradient-from', colors.gradientFrom);
+    root.style.setProperty('--theme-gradient-to', colors.gradientTo);
+  }
 }
 
 /**
