@@ -25,7 +25,7 @@ import { MiniCalendar } from '../components/ui/MiniCalendar';
 import { CATEGORY_INFO } from '../types';
 
 export function HomePage() {
-  const { debts, strategy, settings, customCategories, budget } = useApp();
+  const { debts, strategy, settings, customCategories, budget, payments } = useApp();
 
   // Calculate summary stats
   const summary = useMemo(() => calculateDebtSummary(debts), [debts]);
@@ -172,7 +172,7 @@ export function HomePage() {
         })()}
 
         {/* Upcoming Bills */}
-        <UpcomingBills debts={debts} customCategories={customCategories} />
+        <UpcomingBills debts={debts} customCategories={customCategories} payments={payments} />
 
         {/* Mini Calendar */}
         <MiniCalendar debts={debts} incomeSources={budget.incomeSources} customCategories={customCategories} />

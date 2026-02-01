@@ -3,11 +3,13 @@
  *
  * Displays a sorted list of bills by next due date with urgency indicators.
  * Shows today, within 7 days, or normal styling based on urgency.
+ * Shows paid status for bills that have been paid this month.
  */
 
 import { useMemo } from 'react';
-import { differenceInDays } from 'date-fns';
-import type { Debt } from '../../types';
+import { differenceInDays, isSameMonth, parseISO } from 'date-fns';
+import { Check } from 'lucide-react';
+import type { Debt, Payment } from '../../types';
 import { CATEGORY_INFO } from '../../types';
 import {
   formatCurrency,
@@ -18,6 +20,7 @@ import {
 interface UpcomingBillsProps {
   debts: Debt[];
   customCategories?: { id: string; name: string; color: string }[];
+  payments?: Payment[];
 }
 
 interface BillWithDueDate extends Debt {
@@ -25,12 +28,21 @@ interface BillWithDueDate extends Debt {
   daysUntil: number;
 }
 
-export function UpcomingBills({ debts, customCategories = [] }: UpcomingBillsProps) {
+export function UpcomingBills({ debts, customCategories = [], payments = [] }: UpcomingBillsProps) {
   const today = useMemo(() => {
     const d = new Date();
     d.setHours(0, 0, 0, 0);
     return d;
   }, []);
+
+  // Check if a debt has been paid this month
+  const isPaidThisMonth = (debtId: string): Payment | undefined => {
+    return payments.find((p) => {
+      if (!p.isCompleted || !p.completedAt || p.debtId !== debtId) return false;
+      const paidDate = parseISO(p.completedAt);
+      return isSameMonth(paidDate, today);
+    });
+  };
 
   // Calculate next due dates and sort by urgency
   const sortedBills = useMemo((): BillWithDueDate[] => {
@@ -91,37 +103,56 @@ export function UpcomingBills({ debts, customCategories = [] }: UpcomingBillsPro
         {sortedBills.map((bill) => {
           const urgency = getUrgencyStyles(bill.daysUntil);
           const categoryColor = getCategoryColor(bill);
+          const paidPayment = isPaidThisMonth(bill.id);
+          const isPaid = !!paidPayment;
 
           return (
             <div
               key={bill.id}
               className={`
-                flex items-center gap-3 p-3 rounded-xl border
-                ${urgency.bg}
+                flex items-center gap-3 p-3 rounded-xl border transition-all
+                ${isPaid
+                  ? 'bg-green-50 border-green-200'
+                  : urgency.bg
+                }
               `}
             >
-              {/* Category color dot */}
-              <div
-                className="w-3 h-3 rounded-full flex-shrink-0"
-                style={{ backgroundColor: categoryColor }}
-              />
+              {/* Category color dot or paid checkmark */}
+              {isPaid ? (
+                <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0 shadow-sm">
+                  <Check size={16} className="text-white" strokeWidth={3} />
+                </div>
+              ) : (
+                <div
+                  className="w-3 h-3 rounded-full flex-shrink-0"
+                  style={{ backgroundColor: categoryColor }}
+                />
+              )}
 
               {/* Bill info */}
               <div className="flex-1 min-w-0">
-                <p className="font-medium text-gray-900 truncate">
+                <p className={`font-medium truncate ${isPaid ? 'text-green-700' : 'text-gray-900'}`}>
                   {bill.name}
+                  {isPaid && (
+                    <span className="ml-2 text-xs bg-green-100 text-green-600 px-2 py-0.5 rounded-full">
+                      Paid
+                    </span>
+                  )}
                 </p>
                 <p className="text-sm text-gray-500">
-                  Due {formatOrdinal(bill.dueDay)} of each month
+                  {isPaid
+                    ? `Paid ${formatCurrency(paidPayment.amount)} this month`
+                    : `Due ${formatOrdinal(bill.dueDay)} of each month`
+                  }
                 </p>
               </div>
 
               {/* Amount and urgency badge */}
               <div className="text-right flex-shrink-0">
-                <p className="font-semibold text-gray-900">
-                  {formatCurrency(bill.minimumPayment)}
+                <p className={`font-semibold ${isPaid ? 'text-green-600' : 'text-gray-900'}`}>
+                  {formatCurrency(isPaid && paidPayment ? paidPayment.amount : bill.minimumPayment)}
                 </p>
-                {urgency.badge && (
+                {!isPaid && urgency.badge && (
                   <span
                     className={`
                       inline-block text-xs font-medium px-2 py-0.5 rounded-full mt-1
