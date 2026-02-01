@@ -7,7 +7,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { Plus, Search, Pencil, Trash2, ChevronDown, ArrowUpDown, Calendar, HelpCircle, RefreshCw, Check, X } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { useApp } from '../context/AppContext';
 import { PageHeader } from '../components/layout/PageHeader';
 import { ProgressRing } from '../components/ui/ProgressRing';
@@ -18,6 +18,7 @@ import {
   formatPercent,
   calculateUtilization,
   generatePayoffPlan,
+  formatTimeUntil,
 } from '../lib/calculations';
 import type { Debt, DebtCategory } from '../types';
 import { CATEGORY_INFO } from '../types';
@@ -171,6 +172,22 @@ export function DebtsPage() {
     return milestones;
   }, [debts, strategy]);
 
+  // Calculate debt-free date and countdown
+  const { debtFreeDate, timeUntilDebtFree } = useMemo(() => {
+    if (debts.length === 0 || strategy.recurringFunding.amount <= 0) {
+      return { debtFreeDate: null, timeUntilDebtFree: null };
+    }
+    const plan = generatePayoffPlan(debts, strategy);
+    if (!plan?.debtFreeDate) {
+      return { debtFreeDate: null, timeUntilDebtFree: null };
+    }
+    const date = parseISO(plan.debtFreeDate);
+    return {
+      debtFreeDate: date,
+      timeUntilDebtFree: formatTimeUntil(date),
+    };
+  }, [debts, strategy]);
+
   // Get APR color based on risk level
   const getAPRColor = (apr: number): string => {
     if (apr >= 20) return '#ef4444'; // red - high risk
@@ -277,6 +294,19 @@ export function DebtsPage() {
       />
 
       <div className="px-4 py-6 space-y-6">
+        {/* Debt-Free Countdown */}
+        {debtFreeDate && (
+          <div className="bg-gradient-to-r from-primary-600 to-primary-500 rounded-2xl p-4 text-white">
+            <p className="text-primary-100 text-sm font-medium">DEBT-FREE COUNTDOWN</p>
+            <p className="text-xl font-bold mt-1">
+              {format(debtFreeDate, 'MMMM yyyy').toUpperCase()}
+            </p>
+            {timeUntilDebtFree && (
+              <p className="text-primary-100 mt-1">{timeUntilDebtFree}</p>
+            )}
+          </div>
+        )}
+
         {/* Balance Chart & Monthly Interest */}
         {debts.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
