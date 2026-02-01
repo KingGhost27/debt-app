@@ -29,7 +29,7 @@ interface BudgetSidebarProps {
   totalMonthlyIncome: number;
   totalMinimums: number;
   onExpenseChange: (value: string) => void;
-  onAllocationChange: (value: string) => void;
+  onAllocationChange?: (value: string) => void; // kept for compatibility
   onExtraChange: (value: string) => void;
 }
 
@@ -39,7 +39,6 @@ export function BudgetSidebar({
   totalMonthlyIncome,
   totalMinimums,
   onExpenseChange,
-  onAllocationChange,
   onExtraChange,
 }: BudgetSidebarProps) {
   const { deleteIncomeSource } = useApp();
@@ -171,73 +170,71 @@ export function BudgetSidebar({
         </div>
       </div>
 
-      {/* Available for Debt */}
+      {/* Debt Payment Calculator */}
       <div className="card bg-gradient-to-br from-primary-50 to-white">
-        <h3 className="font-semibold text-gray-900 mb-3">Debt Budget</h3>
+        <h3 className="font-semibold text-gray-900 mb-3">Debt Payment</h3>
 
-        <div className="space-y-2 mb-4 text-sm">
-          <div className="flex justify-between">
-            <span className="text-gray-600">Take-home income</span>
-            <span>{formatCurrency(totalMonthlyIncome)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-600">Monthly expenses</span>
-            <span className="text-red-500">-{formatCurrency(budget.monthlyExpenses)}</span>
-          </div>
-          <div className="flex justify-between pt-2 border-t border-gray-200 font-medium">
-            <span>Available</span>
-            <span className={availableForDebt > 0 ? 'text-green-600' : 'text-red-500'}>
-              {formatCurrency(availableForDebt)}
-            </span>
-          </div>
-        </div>
-
-        {/* Debt allocation input */}
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Monthly debt payment
-        </label>
-        <div className="relative">
-          <DollarSign
-            size={16}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-          />
-          <input
-            type="number"
-            value={budget.debtAllocationAmount || ''}
-            onChange={(e) => onAllocationChange(e.target.value)}
-            placeholder="0.00"
-            step="0.01"
-            min="0"
-            max={availableForDebt}
-            className="w-full pl-8 pr-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 font-semibold"
-          />
-        </div>
-
-        <div className="mt-3 space-y-3 text-sm">
-          <div className="flex justify-between text-gray-500">
-            <span>Minimum payments</span>
-            <span>{formatCurrency(totalMinimums)}</span>
-          </div>
-          <div>
-            <label className="block text-sm text-primary-600 font-medium mb-1">
-              Extra for payoff
-            </label>
-            <div className="relative">
-              <DollarSign
-                size={14}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-              />
-              <input
-                type="number"
-                value={Math.max(0, budget.debtAllocationAmount - totalMinimums) || ''}
-                onChange={(e) => onExtraChange(e.target.value)}
-                placeholder="0.00"
-                step="0.01"
-                min="0"
-                className="w-full pl-7 pr-3 py-1.5 text-sm border border-primary-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-primary-600 font-medium"
-              />
+        {/* Step 1: What's available */}
+        <div className="p-3 bg-white rounded-xl border border-gray-200 mb-4">
+          <div className="text-xs text-gray-500 uppercase tracking-wide mb-2">What you have</div>
+          <div className="space-y-1 text-sm">
+            <div className="flex justify-between">
+              <span className="text-gray-600">Income</span>
+              <span className="text-gray-900">{formatCurrency(totalMonthlyIncome)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600">Expenses</span>
+              <span className="text-gray-500">-{formatCurrency(budget.monthlyExpenses)}</span>
+            </div>
+            <div className="flex justify-between pt-1 border-t border-gray-100 font-medium">
+              <span className="text-gray-700">Available</span>
+              <span className={availableForDebt > 0 ? 'text-green-600' : 'text-red-500'}>
+                {formatCurrency(availableForDebt)}
+              </span>
             </div>
           </div>
+        </div>
+
+        {/* Step 2: Required minimums (not editable) */}
+        <div className="flex justify-between items-center py-2 px-3 bg-gray-100 rounded-lg mb-3">
+          <div>
+            <span className="text-sm text-gray-700">Minimum payments</span>
+            <p className="text-xs text-gray-500">Required each month</p>
+          </div>
+          <span className="font-semibold text-gray-900">{formatCurrency(totalMinimums)}</span>
+        </div>
+
+        {/* Step 3: Extra payment input (the ONE thing user controls) */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-primary-700 mb-1">
+            Extra payment (accelerates payoff)
+          </label>
+          <div className="relative">
+            <DollarSign
+              size={16}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-primary-400"
+            />
+            <input
+              type="number"
+              value={Math.max(0, budget.debtAllocationAmount - totalMinimums) || ''}
+              onChange={(e) => onExtraChange(e.target.value)}
+              placeholder="0.00"
+              step="0.01"
+              min="0"
+              className="w-full pl-8 pr-4 py-2.5 border-2 border-primary-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 font-semibold text-primary-700 bg-white"
+            />
+          </div>
+          <p className="text-xs text-gray-500 mt-1">
+            This goes to your focus debt each month
+          </p>
+        </div>
+
+        {/* Step 4: Total result */}
+        <div className="flex justify-between items-center p-3 bg-primary-100 rounded-xl">
+          <span className="font-medium text-primary-800">Total monthly payment</span>
+          <span className="text-xl font-bold text-primary-700">
+            {formatCurrency(budget.debtAllocationAmount || totalMinimums)}
+          </span>
         </div>
       </div>
 

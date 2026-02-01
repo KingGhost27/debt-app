@@ -7,7 +7,8 @@
 
 import { useMemo } from 'react';
 import { parseISO, format } from 'date-fns';
-import { Trophy, DollarSign } from 'lucide-react';
+import { Trophy, DollarSign, Clock } from 'lucide-react';
+import { formatTimeUntil, formatCurrency } from '../lib/calculations';
 import { useApp } from '../context/AppContext';
 import { PageHeader } from '../components/layout/PageHeader';
 import { PlanSummary, PayoffSteps, BudgetSidebar } from '../components/plan';
@@ -147,6 +148,26 @@ export function PlanPage() {
             onStrategyChange={handleStrategyChange}
           />
         </div>
+
+        {/* Debt-Free Countdown */}
+        {debtFreeDate && (
+          <div className="card bg-gradient-to-r from-primary-600 to-primary-500 text-white mb-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                <Clock size={24} />
+              </div>
+              <div className="flex-1">
+                <p className="text-primary-100 text-sm font-medium">DEBT-FREE COUNTDOWN</p>
+                <p className="text-2xl font-bold">{formatTimeUntil(debtFreeDate)}</p>
+                <p className="text-primary-100 text-sm">{format(debtFreeDate, 'MMMM d, yyyy')}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-primary-100 text-xs">Total Interest</p>
+                <p className="text-lg font-semibold">{formatCurrency(plan.totalInterest)}</p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Main content: Plan + Budget sidebar */}
         {/* On mobile: stacked (plan first, then budget) */}
