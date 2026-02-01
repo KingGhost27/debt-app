@@ -6,7 +6,7 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { Plus, Search, Pencil, Trash2, ChevronDown, ArrowUpDown, Calendar, HelpCircle } from 'lucide-react';
+import { Plus, Search, Pencil, Trash2, ChevronDown, ArrowUpDown, Calendar, HelpCircle, RefreshCw, Check, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { useApp } from '../context/AppContext';
 import { PageHeader } from '../components/layout/PageHeader';
@@ -45,7 +45,7 @@ const DEBT_COLORS = [
 ];
 
 export function DebtsPage() {
-  const { debts, deleteDebt, settings, customCategories, strategy } = useApp();
+  const { debts, deleteDebt, updateDebt, settings, customCategories, strategy } = useApp();
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('balance');
   const [sortAscending, setSortAscending] = useState(false);
@@ -53,6 +53,8 @@ export function DebtsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingDebt, setEditingDebt] = useState<Debt | null>(null);
   const [showAPRTooltip, setShowAPRTooltip] = useState(false);
+  const [recalibratingDebtId, setRecalibratingDebtId] = useState<string | null>(null);
+  const [newBalanceInput, setNewBalanceInput] = useState('');
 
   // Helper to get category info (supports custom categories)
   const getCategoryInfo = (categoryId: string) => {
@@ -230,6 +232,25 @@ export function DebtsPage() {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setEditingDebt(null);
+  };
+
+  // Recalibration handlers
+  const startRecalibration = (debt: Debt) => {
+    setRecalibratingDebtId(debt.id);
+    setNewBalanceInput(debt.balance.toFixed(2));
+  };
+
+  const cancelRecalibration = () => {
+    setRecalibratingDebtId(null);
+    setNewBalanceInput('');
+  };
+
+  const saveRecalibration = (debtId: string) => {
+    const newBalance = parseFloat(newBalanceInput);
+    if (!isNaN(newBalance) && newBalance >= 0) {
+      updateDebt(debtId, { balance: newBalance });
+    }
+    cancelRecalibration();
   };
 
   return (
@@ -637,8 +658,52 @@ export function DebtsPage() {
 
                     <div className="flex-1 grid grid-cols-2 gap-x-4 gap-y-2">
                       <div>
-                        <p className="text-xs text-gray-500">Balance</p>
-                        <p className="text-xl font-bold">{formatCurrency(debt.balance)}</p>
+                        <p className="text-xs text-gray-500 flex items-center gap-1">
+                          Balance
+                          {recalibratingDebtId !== debt.id && (
+                            <button
+                              onClick={() => startRecalibration(debt)}
+                              className="text-primary-500 hover:text-primary-600 transition-colors"
+                              title="Update balance from statement"
+                            >
+                              <RefreshCw size={10} />
+                            </button>
+                          )}
+                        </p>
+                        {recalibratingDebtId === debt.id ? (
+                          <div className="flex items-center gap-1">
+                            <span className="text-gray-400">$</span>
+                            <input
+                              type="number"
+                              value={newBalanceInput}
+                              onChange={(e) => setNewBalanceInput(e.target.value)}
+                              className="w-24 text-lg font-bold border-b-2 border-primary-500 focus:outline-none bg-transparent"
+                              autoFocus
+                              step="0.01"
+                              min="0"
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') saveRecalibration(debt.id);
+                                if (e.key === 'Escape') cancelRecalibration();
+                              }}
+                            />
+                            <button
+                              onClick={() => saveRecalibration(debt.id)}
+                              className="p-1 text-green-600 hover:bg-green-50 rounded"
+                              title="Save"
+                            >
+                              <Check size={14} />
+                            </button>
+                            <button
+                              onClick={cancelRecalibration}
+                              className="p-1 text-gray-400 hover:bg-gray-100 rounded"
+                              title="Cancel"
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
+                        ) : (
+                          <p className="text-xl font-bold">{formatCurrency(debt.balance)}</p>
+                        )}
                       </div>
                       <div>
                         <p className="text-xs text-gray-500">Minimum</p>
