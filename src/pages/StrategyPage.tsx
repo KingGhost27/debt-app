@@ -55,10 +55,9 @@ export function StrategyPage() {
           {/* Frequency */}
           <div className="mb-4">
             <p className="text-sm text-gray-500 mb-1">FREQUENCY</p>
-            <button className="w-full flex justify-between items-center py-3 border-b border-gray-100">
-              <span>Once per month on the {getOrdinal(strategy.recurringFunding.dayOfMonth)}</span>
-              <ChevronRight size={20} className="text-gray-400" />
-            </button>
+            <div className="py-3 border-b border-gray-100 text-gray-700">
+              Once per month on the {getOrdinal(strategy.recurringFunding.dayOfMonth)}
+            </div>
           </div>
 
           {/* Amount */}
@@ -113,10 +112,13 @@ export function StrategyPage() {
             Bonus amounts for making payments
           </p>
 
-          <button className="w-full flex justify-between items-center py-3">
-            <span>{strategy.oneTimeFundings.length} upcoming</span>
-            <ChevronRight size={20} className="text-gray-400" />
-          </button>
+          <a
+            href="/plan"
+            className="w-full flex justify-between items-center py-3 text-primary-600 hover:text-primary-700"
+          >
+            <span>{strategy.oneTimeFundings.length} planned → Manage in Plan</span>
+            <ChevronRight size={20} />
+          </a>
         </div>
 
         {/* Extra Payment Priority */}
