@@ -8,6 +8,7 @@
 import { useState } from 'react';
 import { Plus, Pencil, Trash2, X, Check, Tag } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { useToast } from './Toast';
 import { CATEGORY_INFO } from '../../types';
 import type { DebtCategory, CustomCategory } from '../../types';
 
@@ -21,6 +22,7 @@ export function CategoryManager() {
     deleteCustomCategory,
     updateCategoryColor,
   } = useApp();
+  const { showToast } = useToast();
 
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -65,7 +67,7 @@ export function CategoryManager() {
     // Check if any debts use this category
     const debtsUsingCategory = debts.filter((d) => d.category === id);
     if (debtsUsingCategory.length > 0) {
-      alert(`Cannot delete "${name}" - ${debtsUsingCategory.length} debt(s) are using this category.`);
+      showToast(`Cannot delete "${name}" - ${debtsUsingCategory.length} debt(s) are using this category.`, 'warning');
       return;
     }
 

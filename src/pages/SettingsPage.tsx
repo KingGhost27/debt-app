@@ -9,6 +9,7 @@ import { useRef } from 'react';
 import { Settings, Download, Upload, Trash2, ChevronLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
+import { useToast } from '../components/ui/Toast';
 import { PageHeader } from '../components/layout/PageHeader';
 import { ThemeSelector } from '../components/ui/ThemeSelector';
 import { CategoryManager } from '../components/ui/CategoryManager';
@@ -16,6 +17,7 @@ import { CategoryManager } from '../components/ui/CategoryManager';
 export function SettingsPage() {
   const navigate = useNavigate();
   const { exportAppData, importAppData, clearAllData } = useApp();
+  const { showToast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImportClick = () => {
@@ -28,9 +30,9 @@ export function SettingsPage() {
 
     try {
       await importAppData(file);
-      alert('Data imported successfully!');
+      showToast('Data imported successfully!', 'success');
     } catch (error) {
-      alert(error instanceof Error ? error.message : 'Failed to import data');
+      showToast(error instanceof Error ? error.message : 'Failed to import data', 'error');
     }
 
     // Reset input

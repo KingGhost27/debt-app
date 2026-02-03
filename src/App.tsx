@@ -6,6 +6,7 @@
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AppProvider } from './context/AppContext';
+import { ToastProvider } from './components/ui/Toast';
 import { Layout } from './components/layout/Layout';
 import { HomePage } from './pages/HomePage';
 import { DebtsPage } from './pages/DebtsPage';
@@ -17,6 +18,7 @@ import { SettingsPage } from './pages/SettingsPage';
 function App() {
   return (
     <AppProvider>
+      <ToastProvider>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Layout />}>
@@ -29,6 +31,7 @@ function App() {
           </Route>
         </Routes>
       </BrowserRouter>
+      </ToastProvider>
     </AppProvider>
   );
 }
