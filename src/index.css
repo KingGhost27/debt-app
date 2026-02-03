@@ -1,26 +1,31 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Quicksand:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 /*
- * Dynamic Theme System
- * Colors use var(--theme-*, fallback) pattern to allow runtime overrides
- * The JS theme system sets --theme-* variables on :root
+ * Kawaii Design System
+ * A delightful, cute, and customizable theme for making finance fun!
+ * Features: Soft pastels, playful animations, decorative patterns
  */
+
+/* ============================================
+   THEME VARIABLES
+   ============================================ */
 @theme {
   /* Primary colors - dynamically themeable */
-  --color-primary-50: var(--theme-primary-50, #ecfeff);
-  --color-primary-100: var(--theme-primary-100, #cffafe);
-  --color-primary-200: var(--theme-primary-200, #a5f3fc);
-  --color-primary-300: var(--theme-primary-300, #67e8f9);
-  --color-primary-400: var(--theme-primary-400, #22d3ee);
-  --color-primary-500: var(--theme-primary-500, #06b6d4);
-  --color-primary-600: var(--theme-primary-600, #0891b2);
-  --color-primary-700: var(--theme-primary-700, #0e7490);
-  --color-primary-800: var(--theme-primary-800, #155e75);
-  --color-primary-900: var(--theme-primary-900, #164e63);
+  --color-primary-50: var(--theme-primary-50, #faf5ff);
+  --color-primary-100: var(--theme-primary-100, #f3e8ff);
+  --color-primary-200: var(--theme-primary-200, #e9d5ff);
+  --color-primary-300: var(--theme-primary-300, #d8b4fe);
+  --color-primary-400: var(--theme-primary-400, #c084fc);
+  --color-primary-500: var(--theme-primary-500, #a855f7);
+  --color-primary-600: var(--theme-primary-600, #9333ea);
+  --color-primary-700: var(--theme-primary-700, #7e22ce);
+  --color-primary-800: var(--theme-primary-800, #6b21a8);
+  --color-primary-900: var(--theme-primary-900, #581c87);
 
   /* Accent colors - dynamically themeable */
-  --color-accent: var(--theme-accent, #22d3ee);
-  --color-accent-light: var(--theme-accent-light, #a5f3fc);
+  --color-accent: var(--theme-accent, #f0abfc);
+  --color-accent-light: var(--theme-accent-light, #fae8ff);
 
   /* Success green for progress */
   --color-success-500: #22c55e;
@@ -35,24 +40,38 @@
   --color-student-loan: #22c55e;
   --color-personal-loan: #f59e0b;
   --color-auto-loan: #06b6d4;
+
+  /* Font families */
+  --font-sans: 'Nunito', 'Quicksand', system-ui, sans-serif;
+  --font-display: 'Quicksand', 'Nunito', system-ui, sans-serif;
 }
 
 /* Theme gradient variables for header backgrounds */
 :root {
-  --gradient-from: var(--theme-gradient-from, #a5f3fc);
-  --gradient-to: var(--theme-gradient-to, #ecfeff);
+  --gradient-from: var(--theme-gradient-from, #e9d5ff);
+  --gradient-to: var(--theme-gradient-to, #faf5ff);
 }
 
-/* Base styles */
+/* ============================================
+   BASE STYLES
+   ============================================ */
 body {
-  @apply bg-gray-50 text-gray-900 font-sans antialiased;
+  @apply bg-gray-50 text-gray-900 antialiased;
+  font-family: 'Nunito', 'Quicksand', system-ui, sans-serif;
   margin: 0;
   min-height: 100vh;
+  background-image:
+    radial-gradient(circle at 20% 80%, var(--theme-primary-100, #f3e8ff) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, var(--theme-accent-light, #fae8ff) 0%, transparent 50%);
+  background-attachment: fixed;
 }
 
 /* Dark mode body */
 .dark body {
   @apply bg-gray-900 text-gray-100;
+  background-image:
+    radial-gradient(circle at 20% 80%, var(--theme-primary-900, #581c87) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, var(--theme-primary-800, #6b21a8) 0%, transparent 50%);
 }
 
 #root {
@@ -61,7 +80,44 @@ body {
   flex-direction: column;
 }
 
-/* Toast animation */
+/* ============================================
+   KAWAII ANIMATIONS
+   ============================================ */
+
+/* Bounce animation for interactive elements */
+@keyframes kawaii-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+/* Soft pulse for highlights */
+@keyframes kawaii-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.02); }
+}
+
+/* Wiggle animation for playful elements */
+@keyframes kawaii-wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-3deg); }
+  75% { transform: rotate(3deg); }
+}
+
+/* Float animation for decorative elements */
+@keyframes kawaii-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-10px) rotate(5deg); }
+  50% { transform: translateY(-5px) rotate(0deg); }
+  75% { transform: translateY(-15px) rotate(-5deg); }
+}
+
+/* Sparkle animation */
+@keyframes kawaii-sparkle {
+  0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1) rotate(180deg); }
+}
+
+/* Slide up for toasts and modals */
 @keyframes slide-up {
   from {
     opacity: 0;
@@ -73,18 +129,641 @@ body {
   }
 }
 
-.animate-slide-up {
-  animation: slide-up 0.2s ease-out;
+/* Pop in animation */
+@keyframes pop-in {
+  0% { transform: scale(0.8); opacity: 0; }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); opacity: 1; }
 }
 
-/* Card styles used throughout the app */
+/* Shimmer effect for loading states */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Heart beat for special moments */
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  14% { transform: scale(1.1); }
+  28% { transform: scale(1); }
+  42% { transform: scale(1.1); }
+  70% { transform: scale(1); }
+}
+
+/* Animation utility classes */
+.animate-slide-up {
+  animation: slide-up 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.animate-pop-in {
+  animation: pop-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.animate-kawaii-bounce {
+  animation: kawaii-bounce 0.6s ease-in-out;
+}
+
+.animate-kawaii-wiggle {
+  animation: kawaii-wiggle 0.5s ease-in-out;
+}
+
+.animate-kawaii-float {
+  animation: kawaii-float 4s ease-in-out infinite;
+}
+
+.animate-kawaii-pulse {
+  animation: kawaii-pulse 2s ease-in-out infinite;
+}
+
+.animate-heartbeat {
+  animation: heartbeat 1.5s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--theme-primary-100) 25%,
+    var(--theme-primary-200) 50%,
+    var(--theme-primary-100) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Hover animations */
+.hover-bounce:hover {
+  animation: kawaii-bounce 0.6s ease-in-out;
+}
+
+.hover-wiggle:hover {
+  animation: kawaii-wiggle 0.5s ease-in-out;
+}
+
+.hover-grow {
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.hover-grow:hover {
+  transform: scale(1.05);
+}
+
+.hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* ============================================
+   CARD STYLES - Kawaii Edition
+   ============================================ */
 .card {
-  @apply bg-white rounded-2xl shadow-sm border border-gray-100 p-4;
+  @apply bg-white rounded-3xl shadow-sm border border-gray-100/50 p-5;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--theme-primary-400), var(--theme-accent), var(--theme-primary-400));
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.card:hover::before {
+  opacity: 1;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -10px rgba(0, 0, 0, 0.08), 0 4px 10px -5px rgba(0, 0, 0, 0.02);
 }
 
 /* Dark mode card */
 .dark .card {
-  @apply bg-gray-800 border-gray-700;
+  @apply bg-gray-800 border-gray-700/50;
+}
+
+.dark .card::before {
+  background: linear-gradient(90deg, var(--theme-primary-600), var(--theme-accent), var(--theme-primary-600));
+}
+
+/* Card variants */
+.card-highlight {
+  @apply bg-white rounded-3xl shadow-sm border border-gray-100/50 p-5;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background: linear-gradient(135deg, var(--theme-primary-50) 0%, white 100%);
+  border-color: var(--theme-primary-200);
+}
+
+.card-accent {
+  @apply bg-white rounded-3xl shadow-sm border border-gray-100/50 p-5;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background: linear-gradient(135deg, var(--theme-accent-light) 0%, white 100%);
+}
+
+/* ============================================
+   BUTTONS - Kawaii Edition
+   ============================================ */
+.btn {
+  @apply px-5 py-2.5 font-semibold rounded-2xl transition-all duration-200;
+  font-family: 'Quicksand', sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.2) 50%, transparent 60%);
+  transform: translateX(-100%);
+  transition: transform 0.5s ease;
+}
+
+.btn:hover::after {
+  transform: translateX(100%);
+}
+
+.btn-primary {
+  @apply px-5 py-2.5 font-semibold rounded-2xl transition-all duration-200 bg-primary-500 text-white;
+  font-family: 'Quicksand', sans-serif;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 14px -3px var(--theme-primary-400);
+}
+
+.btn-primary:hover {
+  @apply bg-primary-600;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px -3px var(--theme-primary-500);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  @apply px-5 py-2.5 font-semibold rounded-2xl transition-all duration-200 bg-white text-primary-600 border-2 border-primary-200;
+  font-family: 'Quicksand', sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-secondary:hover {
+  @apply bg-primary-50 border-primary-300;
+}
+
+.btn-ghost {
+  @apply px-5 py-2.5 font-semibold rounded-2xl transition-all duration-200 bg-transparent text-primary-600;
+  font-family: 'Quicksand', sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-ghost:hover {
+  @apply bg-primary-50;
+}
+
+/* Cute icon button */
+.btn-icon {
+  @apply w-11 h-11 rounded-full flex items-center justify-center transition-all duration-200;
+  background: linear-gradient(135deg, white 0%, var(--theme-primary-50) 100%);
+  border: 2px solid var(--theme-primary-100);
+  box-shadow: 0 2px 8px -2px rgba(0,0,0,0.08);
+}
+
+.btn-icon:hover {
+  transform: scale(1.08);
+  border-color: var(--theme-primary-300);
+  box-shadow: 0 4px 12px -2px var(--theme-primary-200);
+}
+
+.btn-icon:active {
+  transform: scale(0.95);
+}
+
+/* ============================================
+   INPUT STYLES - Kawaii Edition
+   ============================================ */
+.input {
+  @apply w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-2xl text-gray-900;
+  @apply focus:outline-none focus:border-primary-400 focus:ring-4 focus:ring-primary-100;
+  font-family: 'Nunito', sans-serif;
+  transition: all 0.2s ease;
+}
+
+.input:hover {
+  border-color: var(--theme-primary-200);
+}
+
+.input::placeholder {
+  @apply text-gray-400;
+}
+
+.dark .input {
+  @apply bg-gray-700 border-gray-600 text-gray-100;
+  @apply focus:border-primary-500 focus:ring-primary-900/30;
+}
+
+/* Select styles */
+select.input {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1.25rem;
+  padding-right: 2.5rem;
+}
+
+/* ============================================
+   NAVIGATION - Kawaii Edition
+   ============================================ */
+.nav-item {
+  @apply flex flex-col items-center justify-center px-3 py-2 rounded-2xl transition-all duration-200;
+  position: relative;
+}
+
+.nav-item::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  background: var(--theme-primary-500);
+  border-radius: 50%;
+  transform: translateX(-50%) scale(0);
+  transition: transform 0.2s ease;
+}
+
+.nav-item.active::before {
+  transform: translateX(-50%) scale(1);
+}
+
+.nav-item:hover {
+  background: var(--theme-primary-50);
+}
+
+.nav-item.active {
+  color: var(--theme-primary-600);
+}
+
+.nav-item.active .nav-icon {
+  animation: kawaii-bounce 0.4s ease;
+}
+
+/* ============================================
+   PROGRESS RING - Enhanced
+   ============================================ */
+.progress-ring {
+  transform: rotate(-90deg);
+}
+
+.progress-ring-bg {
+  stroke: var(--theme-primary-100);
+}
+
+.progress-ring-progress {
+  stroke: var(--theme-primary-500);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ============================================
+   BADGES & TAGS - Kawaii Edition
+   ============================================ */
+.badge {
+  @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
+  font-family: 'Quicksand', sans-serif;
+}
+
+.badge-primary {
+  @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-100 text-primary-700;
+  font-family: 'Quicksand', sans-serif;
+}
+
+.badge-success {
+  @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700;
+  font-family: 'Quicksand', sans-serif;
+}
+
+.badge-warning {
+  @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-amber-100 text-amber-700;
+  font-family: 'Quicksand', sans-serif;
+}
+
+.badge-danger {
+  @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-700;
+  font-family: 'Quicksand', sans-serif;
+}
+
+/* Cute tag with icon */
+.tag {
+  @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-sm font-medium;
+  background: linear-gradient(135deg, var(--theme-primary-50) 0%, white 100%);
+  border: 1px solid var(--theme-primary-200);
+}
+
+/* ============================================
+   DECORATIVE ELEMENTS
+   ============================================ */
+
+/* Floating decoration container */
+.decorations {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.decoration {
+  position: absolute;
+  font-size: 1.5rem;
+  opacity: 0.15;
+  animation: kawaii-float 6s ease-in-out infinite;
+}
+
+.decoration:nth-child(1) { top: 10%; left: 5%; animation-delay: 0s; }
+.decoration:nth-child(2) { top: 20%; right: 10%; animation-delay: 1s; }
+.decoration:nth-child(3) { top: 60%; left: 8%; animation-delay: 2s; }
+.decoration:nth-child(4) { top: 70%; right: 5%; animation-delay: 3s; }
+.decoration:nth-child(5) { top: 40%; left: 3%; animation-delay: 4s; }
+
+/* Sparkle decoration */
+.sparkle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: var(--theme-primary-400);
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  animation: kawaii-sparkle 2s ease-in-out infinite;
+}
+
+/* Pattern backgrounds */
+[data-pattern="hearts"]::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffc0cb' opacity='0.1'%3E%3Cpath d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3C/svg%3E");
+  background-size: 30px 30px;
+  opacity: 0.3;
+  z-index: 0;
+}
+
+[data-pattern="stars"]::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23c084fc'%3E%3Cpath d='M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z'/%3E%3C/svg%3E");
+  background-size: 40px 40px;
+  opacity: 0.08;
+  z-index: 0;
+}
+
+[data-pattern="clouds"]::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2387ceeb'%3E%3Cpath d='M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z'/%3E%3C/svg%3E");
+  background-size: 60px 40px;
+  opacity: 0.1;
+  z-index: 0;
+}
+
+[data-pattern="flowers"]::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffc0cb'%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3Ccircle cx='12' cy='5' r='3'/%3E%3Ccircle cx='12' cy='19' r='3'/%3E%3Ccircle cx='5' cy='12' r='3'/%3E%3Ccircle cx='19' cy='12' r='3'/%3E%3C/svg%3E");
+  background-size: 35px 35px;
+  opacity: 0.12;
+  z-index: 0;
+}
+
+[data-pattern="dots"]::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle, var(--theme-primary-300) 2px, transparent 2px);
+  background-size: 24px 24px;
+  opacity: 0.3;
+  z-index: 0;
+}
+
+[data-pattern="sparkles"]::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23c084fc'%3E%3Cpath d='M12 2L9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2z'/%3E%3C/svg%3E");
+  background-size: 50px 50px;
+  opacity: 0.08;
+  z-index: 0;
+}
+
+[data-pattern="leaves"]::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2322c55e'%3E%3Cpath d='M17 8C8 10 5.9 16.17 3.82 21.34l1.89.66.95-2.3c.48.17.98.3 1.34.3C19 20 22 3 22 3c-1 2-8 2.25-13 3.25S2 11.5 2 13.5s1.75 3.75 1.75 3.75C7 8 17 8 17 8z'/%3E%3C/svg%3E");
+  background-size: 45px 45px;
+  opacity: 0.1;
+  z-index: 0;
+}
+
+[data-pattern="beans"]::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(ellipse 8px 12px at center, var(--theme-primary-400) 0%, transparent 100%);
+  background-size: 30px 30px;
+  opacity: 0.15;
+  z-index: 0;
+}
+
+/* ============================================
+   HEADER STYLES - Kawaii Edition
+   ============================================ */
+.page-header {
+  background: linear-gradient(180deg, var(--theme-gradient-from) 0%, var(--theme-gradient-to) 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.page-header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 60%;
+  height: 200%;
+  background: radial-gradient(circle, var(--theme-accent) 0%, transparent 70%);
+  opacity: 0.1;
+  pointer-events: none;
+}
+
+.page-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: linear-gradient(180deg, transparent 0%, var(--theme-gradient-to) 100%);
+}
+
+/* ============================================
+   MODAL STYLES - Kawaii Edition
+   ============================================ */
+.modal-backdrop {
+  @apply fixed inset-0 bg-black/40 backdrop-blur-sm z-50;
+  animation: fade-in 0.2s ease;
+}
+
+.modal-content {
+  @apply bg-white rounded-3xl shadow-2xl max-w-md w-full mx-4 overflow-hidden;
+  animation: pop-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.modal-header {
+  @apply px-6 py-4 border-b border-gray-100;
+  background: linear-gradient(135deg, var(--theme-primary-50) 0%, white 100%);
+}
+
+.modal-body {
+  @apply px-6 py-5;
+}
+
+.modal-footer {
+  @apply px-6 py-4 bg-gray-50 flex justify-end gap-3;
+}
+
+.dark .modal-content {
+  @apply bg-gray-800;
+}
+
+.dark .modal-header {
+  @apply border-gray-700;
+  background: linear-gradient(135deg, var(--theme-primary-900) 0%, var(--theme-primary-800) 100%);
+}
+
+.dark .modal-footer {
+  @apply bg-gray-900;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ============================================
+   TOOLTIP STYLES
+   ============================================ */
+.tooltip {
+  @apply absolute z-50 px-3 py-2 text-sm bg-gray-900 text-white rounded-xl shadow-lg;
+  animation: pop-in 0.2s ease;
+}
+
+.tooltip::before {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: inherit;
+  transform: rotate(45deg);
+}
+
+/* ============================================
+   SPECIAL COMPONENTS
+   ============================================ */
+
+/* Cute stat box */
+.stat-box {
+  @apply rounded-2xl p-4 text-center relative overflow-hidden;
+  background: linear-gradient(135deg, var(--theme-primary-50) 0%, white 100%);
+  border: 1px solid var(--theme-primary-100);
+}
+
+.stat-box::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 40px;
+  height: 40px;
+  background: var(--theme-primary-200);
+  border-radius: 50%;
+  opacity: 0.3;
+}
+
+/* Celebration confetti effect */
+.confetti {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  pointer-events: none;
+  z-index: 100;
+}
+
+/* Progress bar with cute styling */
+.progress-bar {
+  @apply h-3 bg-gray-200 rounded-full overflow-hidden;
+}
+
+.progress-bar-fill {
+  @apply h-full rounded-full transition-all duration-500;
+  background: linear-gradient(90deg, var(--theme-primary-400), var(--theme-primary-600));
+  position: relative;
+}
+
+.progress-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
+  animation: shimmer 2s infinite;
+}
+
+/* Cute divider */
+.divider-cute {
+  @apply flex items-center gap-4 my-6;
+}
+
+.divider-cute::before,
+.divider-cute::after {
+  content: '';
+  flex: 1;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--theme-primary-200), transparent);
+}
+
+.divider-cute span {
+  @apply text-primary-400 text-lg;
 }
 
 /* ============================================
@@ -93,80 +772,80 @@ body {
 
 /* Dark mode background colors */
 .dark .bg-white {
-  background-color: #1f2937 !important; /* gray-800 */
+  background-color: #1f2937 !important;
 }
 
 .dark .bg-gray-50 {
-  background-color: #111827 !important; /* gray-900 */
+  background-color: #111827 !important;
 }
 
 .dark .bg-gray-100 {
-  background-color: #1f2937 !important; /* gray-800 */
+  background-color: #1f2937 !important;
 }
 
 /* Dark mode text colors */
 .dark .text-gray-900 {
-  color: #f9fafb !important; /* gray-50 */
+  color: #f9fafb !important;
 }
 
 .dark .text-gray-800 {
-  color: #f3f4f6 !important; /* gray-100 */
+  color: #f3f4f6 !important;
 }
 
 .dark .text-gray-700 {
-  color: #e5e7eb !important; /* gray-200 */
+  color: #e5e7eb !important;
 }
 
 .dark .text-gray-600 {
-  color: #d1d5db !important; /* gray-300 */
+  color: #d1d5db !important;
 }
 
 .dark .text-gray-500 {
-  color: #9ca3af !important; /* gray-400 */
+  color: #9ca3af !important;
 }
 
 .dark .text-gray-400 {
-  color: #9ca3af !important; /* gray-400 */
+  color: #9ca3af !important;
 }
 
 /* Dark mode border colors */
 .dark .border-gray-100 {
-  border-color: #374151 !important; /* gray-700 */
+  border-color: #374151 !important;
 }
 
 .dark .border-gray-200 {
-  border-color: #4b5563 !important; /* gray-600 */
+  border-color: #4b5563 !important;
 }
 
 .dark .border-gray-300 {
-  border-color: #6b7280 !important; /* gray-500 */
+  border-color: #6b7280 !important;
 }
 
 /* Dark mode hover states */
 .dark .hover\:bg-gray-50:hover {
-  background-color: #374151 !important; /* gray-700 */
+  background-color: #374151 !important;
 }
 
 .dark .hover\:bg-gray-100:hover {
-  background-color: #374151 !important; /* gray-700 */
+  background-color: #374151 !important;
 }
 
 .dark .hover\:text-gray-800:hover {
-  color: #f3f4f6 !important; /* gray-100 */
+  color: #f3f4f6 !important;
 }
 
 /* Dark mode input/form elements */
 .dark input,
 .dark select,
 .dark textarea {
-  background-color: #374151 !important; /* gray-700 */
-  border-color: #4b5563 !important; /* gray-600 */
-  color: #f9fafb !important; /* gray-50 */
+  background-color: #374151 !important;
+  border-color: #4b5563 !important;
+  color: #f9fafb !important;
 }
 
 .dark input::placeholder,
 .dark textarea::placeholder {
-  color: #9ca3af !important; /* gray-400 */
+  color: #9ca3af !important;
 }
 
 .dark input:focus,
@@ -175,12 +854,12 @@ body {
   border-color: var(--theme-primary-500) !important;
 }
 
-/* Dark mode for specific background utilities - uses dark theme primary colors */
+/* Dark mode for specific background utilities */
 .dark .bg-primary-50 {
   background-color: color-mix(in srgb, var(--theme-primary-900) 30%, #1f2937) !important;
 }
 
-/* Dark mode shadows - make them darker */
+/* Dark mode shadows */
 .dark .shadow-sm {
   box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.2) !important;
 }
@@ -197,7 +876,7 @@ body {
   box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.4) !important;
 }
 
-/* Dark mode gradient header - uses themed dark colors */
+/* Dark mode gradient header */
 .dark .bg-gradient-to-b.from-primary-200 {
   --tw-gradient-from: var(--theme-primary-800) !important;
   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
@@ -213,13 +892,13 @@ body {
   --tw-gradient-to: #111827 !important;
 }
 
-/* Dark mode for colored backgrounds (keeping colors but adjusting opacity) */
+/* Dark mode for colored backgrounds */
 .dark .bg-red-50 {
-  background-color: rgba(127, 29, 29, 0.3) !important; /* red-900 with opacity */
+  background-color: rgba(127, 29, 29, 0.3) !important;
 }
 
 .dark .bg-green-50 {
-  background-color: rgba(20, 83, 45, 0.3) !important; /* green-900 with opacity */
+  background-color: rgba(20, 83, 45, 0.3) !important;
 }
 
 .dark .bg-green-100 {
@@ -227,70 +906,70 @@ body {
 }
 
 .dark .bg-amber-50 {
-  background-color: rgba(120, 53, 15, 0.3) !important; /* amber-900 with opacity */
+  background-color: rgba(120, 53, 15, 0.3) !important;
 }
 
 .dark .bg-blue-50 {
-  background-color: rgba(30, 58, 138, 0.3) !important; /* blue-900 with opacity */
+  background-color: rgba(30, 58, 138, 0.3) !important;
 }
 
 .dark .bg-purple-50 {
-  background-color: rgba(88, 28, 135, 0.3) !important; /* purple-900 with opacity */
+  background-color: rgba(88, 28, 135, 0.3) !important;
 }
 
-/* Dark mode text colors for strategy comparison callout */
+/* Dark mode text colors for strategy comparison */
 .dark .text-blue-800 {
-  color: #93c5fd !important; /* blue-300 - lighter for dark mode */
+  color: #93c5fd !important;
 }
 
 .dark .text-purple-800 {
-  color: #d8b4fe !important; /* purple-300 - lighter for dark mode */
+  color: #d8b4fe !important;
 }
 
-/* Additional dark mode background colors */
+/* Additional dark mode backgrounds */
 .dark .bg-gray-200 {
-  background-color: #374151 !important; /* gray-700 */
+  background-color: #374151 !important;
 }
 
 .dark .bg-gray-300 {
-  background-color: #4b5563 !important; /* gray-600 */
+  background-color: #4b5563 !important;
 }
 
 /* Dark mode hover states for colored backgrounds */
 .dark .hover\:bg-red-100:hover {
-  background-color: rgba(127, 29, 29, 0.4) !important; /* red-900 with opacity */
+  background-color: rgba(127, 29, 29, 0.4) !important;
 }
 
 .dark .hover\:bg-green-100:hover {
-  background-color: rgba(20, 83, 45, 0.4) !important; /* green-900 with opacity */
+  background-color: rgba(20, 83, 45, 0.4) !important;
 }
 
 .dark .hover\:bg-primary-50:hover {
   background-color: color-mix(in srgb, var(--theme-primary-800) 40%, #1f2937) !important;
 }
 
-/* Dark mode for text colors used in components */
+/* Dark mode text colors */
 .dark .text-red-700 {
-  color: #fca5a5 !important; /* red-300 */
+  color: #fca5a5 !important;
 }
 
 .dark .text-red-600 {
-  color: #f87171 !important; /* red-400 */
+  color: #f87171 !important;
 }
 
 .dark .text-red-500 {
-  color: #ef4444 !important; /* stays vibrant */
+  color: #ef4444 !important;
 }
 
 .dark .text-green-600 {
-  color: #4ade80 !important; /* green-400 */
+  color: #4ade80 !important;
 }
 
 .dark .text-amber-500 {
-  color: #fbbf24 !important; /* stays vibrant */
+  color: #fbbf24 !important;
 }
 
-/* Dark mode for primary colored backgrounds in UI */
+/* Dark mode for primary backgrounds */
 .dark .bg-primary-100 {
   background-color: color-mix(in srgb, var(--theme-primary-700) 40%, #1f2937) !important;
 }
@@ -299,23 +978,23 @@ body {
   background-color: color-mix(in srgb, var(--theme-primary-700) 50%, #1f2937) !important;
 }
 
-/* Dark mode for colored indicator dots */
+/* Dark mode indicator dots */
 .dark .bg-red-100 {
   background-color: rgba(127, 29, 29, 0.4) !important;
 }
 
 /* Dark mode dividers */
 .dark .divide-gray-100 > :not([hidden]) ~ :not([hidden]) {
-  border-color: #374151 !important; /* gray-700 */
+  border-color: #374151 !important;
 }
 
 .dark .divide-gray-200 > :not([hidden]) ~ :not([hidden]) {
-  border-color: #4b5563 !important; /* gray-600 */
+  border-color: #4b5563 !important;
 }
 
 /* Dark mode ring colors */
 .dark .ring-gray-200 {
-  --tw-ring-color: #4b5563 !important; /* gray-600 */
+  --tw-ring-color: #4b5563 !important;
 }
 
 /* Dark mode bottom nav */
@@ -324,12 +1003,69 @@ body {
   border-color: #374151 !important;
 }
 
-/* Progress ring base */
-.progress-ring {
-  transform: rotate(-90deg);
+/* Dark mode stat boxes */
+.dark .stat-box {
+  background: linear-gradient(135deg, var(--theme-primary-900) 0%, #1f2937 100%);
+  border-color: var(--theme-primary-800);
 }
 
-/* Smooth transitions */
+/* ============================================
+   SMOOTH TRANSITIONS
+   ============================================ */
 * {
   @apply transition-colors duration-200;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================
+   SCROLLBAR STYLING
+   ============================================ */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--theme-primary-50);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--theme-primary-300), var(--theme-primary-400));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--theme-primary-400), var(--theme-primary-500));
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--theme-primary-700), var(--theme-primary-600));
+}
+
+/* ============================================
+   SELECTION STYLING
+   ============================================ */
+::selection {
+  background: var(--theme-primary-200);
+  color: var(--theme-primary-900);
+}
+
+.dark ::selection {
+  background: var(--theme-primary-700);
+  color: var(--theme-primary-100);
 }

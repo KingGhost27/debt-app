@@ -1,14 +1,13 @@
 /**
- * Home Page
+ * Home Page - Kawaii Edition
  *
- * Dashboard showing overall debt payoff progress.
- * Features: Debt-free countdown, progress overview, category breakdown,
- * payoff timeline chart, credit utilization, daily inspiration.
+ * Delightful dashboard showing overall debt payoff progress.
+ * Features: Cute animations, encouraging messages, progress celebration.
  */
 
 import { useMemo } from 'react';
 import { format, parseISO } from 'date-fns';
-import { Settings, Target } from 'lucide-react';
+import { Settings, Target, Sparkles, TrendingDown, Calendar, Wallet } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import {
@@ -22,7 +21,18 @@ import { ProgressRing } from '../components/ui/ProgressRing';
 import { DebtOverTimeChart } from '../components/ui/DebtOverTimeChart';
 import { UpcomingBills } from '../components/ui/UpcomingBills';
 import { MiniCalendar } from '../components/ui/MiniCalendar';
+import { EmptyState } from '../components/ui/EmptyState';
 import { CATEGORY_INFO } from '../types';
+
+// Encouraging messages based on progress
+const getEncouragement = (percentPaid: number) => {
+  if (percentPaid >= 100) return "You did it! You're debt-free!";
+  if (percentPaid >= 75) return "Almost there! You're doing amazing!";
+  if (percentPaid >= 50) return "Halfway there! Keep going!";
+  if (percentPaid >= 25) return "Great progress! You've got this!";
+  if (percentPaid > 0) return "Every payment counts!";
+  return "Let's start your journey!";
+};
 
 export function HomePage() {
   const { debts, strategy, settings, customCategories, budget, payments } = useApp();
@@ -38,6 +48,7 @@ export function HomePage() {
 
   const debtFreeDate = plan.debtFreeDate ? parseISO(plan.debtFreeDate) : null;
   const timeUntilDebtFree = debtFreeDate ? formatTimeUntil(debtFreeDate) : null;
+  const encouragement = getEncouragement(summary.percentPaid);
 
   // Get payoff milestones in order
   const payoffMilestones = useMemo(() => {
@@ -66,40 +77,47 @@ export function HomePage() {
     return (
       <div className="min-h-screen">
         {/* Header */}
-        <header className="bg-gradient-to-b from-primary-200 to-primary-100/50 px-4 pt-12 pb-6">
-          <div className="flex justify-between items-center">
+        <header className="page-header bg-gradient-to-b from-primary-200 to-primary-100/50 px-4 pt-12 pb-8 relative overflow-hidden">
+          {/* Decorative elements */}
+          <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary-300/20 rounded-full blur-2xl" />
+          <div className="absolute top-1/2 -left-10 w-24 h-24 bg-accent/20 rounded-full blur-xl" />
+          <Sparkles size={16} className="absolute top-8 right-12 text-primary-400/40 animate-kawaii-pulse" />
+
+          <div className="flex justify-between items-center relative z-10">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
                 Hi{settings.userName ? ` ${settings.userName}` : ''}!
+                <span className="text-2xl animate-kawaii-float" style={{ animationDuration: '2s' }}>
+                  {settings.theme.preset === 'my-melody' ? '🎀' : settings.theme.preset === 'kuromi' ? '💜' : '✨'}
+                </span>
               </h1>
-              <p className="text-gray-600">Plan, track and achieve your payoff goal</p>
+              <p className="text-gray-600 text-sm">Ready to start your debt-free journey?</p>
             </div>
             <Link
               to="/settings"
-              className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm hover:bg-gray-50 transition-colors"
+              className="btn-icon"
             >
               <Settings size={20} className="text-gray-500" />
             </Link>
           </div>
+
+          {/* Wave decoration */}
+          <div className="absolute bottom-0 left-0 right-0 h-4 overflow-hidden">
+            <svg viewBox="0 0 1200 30" className="w-full h-full" preserveAspectRatio="none">
+              <path d="M0,15 Q300,30 600,15 T1200,15 L1200,30 L0,30 Z" fill="currentColor" className="text-gray-50" />
+            </svg>
+          </div>
         </header>
 
         {/* Empty state */}
-        <div className="px-4 py-12 text-center">
-          <div className="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-4xl">🎯</span>
-          </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            Start Your Debt-Free Journey
-          </h2>
-          <p className="text-gray-600 mb-6 max-w-sm mx-auto">
-            Add your debts to see your personalized payoff plan and track your progress.
-          </p>
-          <a
-            href="/debts"
-            className="inline-flex items-center px-6 py-3 bg-primary-500 text-white font-medium rounded-xl hover:bg-primary-600 transition-colors"
-          >
-            Add Your First Debt
-          </a>
+        <div className="px-4">
+          <EmptyState
+            icon="🎯"
+            title="Start Your Debt-Free Journey"
+            description="Add your debts to see your personalized payoff plan and track your progress toward financial freedom!"
+            action={{ label: "Add Your First Debt", href: "/debts" }}
+            encouragement="You've got this!"
+          />
         </div>
       </div>
     );
@@ -108,52 +126,80 @@ export function HomePage() {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <header className="bg-gradient-to-b from-primary-200 to-primary-100/50 px-4 pt-12 pb-6">
-        <div className="flex justify-between items-center mb-4">
+      <header className="page-header bg-gradient-to-b from-primary-200 to-primary-100/50 px-4 pt-12 pb-8 relative overflow-hidden">
+        {/* Decorative elements */}
+        <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary-300/20 rounded-full blur-2xl" />
+        <div className="absolute top-1/2 -left-10 w-24 h-24 bg-accent/20 rounded-full blur-xl" />
+        <Sparkles size={16} className="absolute top-8 right-12 text-primary-400/40 animate-kawaii-pulse" />
+
+        <div className="flex justify-between items-center mb-4 relative z-10">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
               Hi{settings.userName ? ` ${settings.userName}` : ''}!
+              <span className="text-2xl animate-kawaii-float" style={{ animationDuration: '2s' }}>
+                {settings.theme.preset === 'my-melody' ? '🎀' : settings.theme.preset === 'kuromi' ? '💜' : '✨'}
+              </span>
             </h1>
-            <p className="text-gray-600">Plan, track and achieve your payoff goal</p>
+            <p className="text-gray-600 text-sm">{encouragement}</p>
           </div>
           <Link
             to="/settings"
-            className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm hover:bg-gray-50 transition-colors"
+            className="btn-icon"
           >
-            <Settings size={20} className="text-gray-400" />
+            <Settings size={20} className="text-gray-500" />
           </Link>
         </div>
 
-        {/* Debt-Free Countdown */}
+        {/* Debt-Free Countdown Card */}
         {debtFreeDate && (
-          <div className="bg-gradient-to-r from-primary-600 to-primary-500 rounded-2xl p-4 text-white">
-            <p className="text-primary-100 text-sm font-medium">DEBT-FREE COUNTDOWN</p>
-            <p className="text-xl font-bold mt-1">
-              {format(debtFreeDate, 'MMMM yyyy').toUpperCase()}
-            </p>
-            <div className="flex gap-4 mt-2">
+          <div className="relative bg-gradient-to-r from-primary-600 to-primary-500 rounded-3xl p-5 text-white overflow-hidden shadow-lg shadow-primary-400/30">
+            {/* Background decoration */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/4" />
+            <div className="absolute bottom-0 left-0 w-20 h-20 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/4" />
+
+            <div className="relative z-10">
+              <div className="flex items-center gap-2 mb-2">
+                <Calendar size={16} className="text-primary-200" />
+                <p className="text-primary-200 text-xs font-semibold tracking-wider uppercase">Debt-Free Countdown</p>
+              </div>
+              <p className="text-2xl font-bold tracking-tight">
+                {format(debtFreeDate, 'MMMM yyyy')}
+              </p>
               {timeUntilDebtFree && (
-                <p className="text-primary-100">{timeUntilDebtFree}</p>
+                <p className="text-primary-200 text-sm mt-1 flex items-center gap-1">
+                  <Sparkles size={12} className="animate-kawaii-pulse" />
+                  {timeUntilDebtFree} to go!
+                </p>
               )}
             </div>
           </div>
         )}
+
+        {/* Wave decoration */}
+        <div className="absolute bottom-0 left-0 right-0 h-4 overflow-hidden">
+          <svg viewBox="0 0 1200 30" className="w-full h-full" preserveAspectRatio="none">
+            <path d="M0,15 Q300,30 600,15 T1200,15 L1200,30 L0,30 Z" fill="currentColor" className="text-gray-50" />
+          </svg>
+        </div>
       </header>
 
       {/* Main Content */}
-      <div className="px-4 py-6 space-y-6">
+      <div className="px-4 py-6 space-y-5">
         {/* Up Next - First Debt to Pay Off */}
         {payoffMilestones.length > 0 && (() => {
           const nextDebt = debts.find(d => d.id === payoffMilestones[0].debtId);
           return (
-            <div className="card bg-gradient-to-r from-primary-50 to-white border border-primary-100">
-              <div className="flex items-center gap-3">
-                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary-500 text-white flex items-center justify-center">
-                  <Target size={24} />
+            <div className="card bg-gradient-to-r from-primary-50/80 to-white border border-primary-100/50 hover:shadow-lg transition-all">
+              <div className="flex items-center gap-4">
+                <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 text-white flex items-center justify-center shadow-lg shadow-primary-300/40">
+                  <Target size={26} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium text-primary-600 uppercase tracking-wide">Up Next</p>
-                  <p className="font-semibold text-gray-900 truncate">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Sparkles size={12} className="text-primary-400" />
+                    <p className="text-xs font-semibold text-primary-600 uppercase tracking-wide">Up Next</p>
+                  </div>
+                  <p className="font-bold text-gray-900 truncate">
                     {payoffMilestones[0].debtName}
                   </p>
                   <p className="text-sm text-gray-500">
@@ -162,8 +208,8 @@ export function HomePage() {
                 </div>
                 {nextDebt && (
                   <div className="text-right flex-shrink-0">
-                    <p className="text-xs text-gray-500">Balance</p>
-                    <p className="font-bold text-primary-600">{formatCurrency(nextDebt.balance)}</p>
+                    <p className="text-xs text-gray-400 mb-1">Balance</p>
+                    <p className="text-lg font-bold text-primary-600">{formatCurrency(nextDebt.balance)}</p>
                   </div>
                 )}
               </div>
@@ -171,62 +217,61 @@ export function HomePage() {
           );
         })()}
 
-        {/* Upcoming Bills */}
-        <UpcomingBills debts={debts} customCategories={customCategories} payments={payments} />
-
-        {/* Mini Calendar */}
-        <MiniCalendar debts={debts} incomeSources={budget.incomeSources} customCategories={customCategories} />
-
-        {/* Payoff Progress Card - Enhanced */}
+        {/* Progress Overview Card */}
         <div className="card">
-          <div className="flex items-center gap-2 mb-4">
-            <span className="text-xl">🦋</span>
+          <div className="flex items-center gap-3 mb-5">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center">
+              <TrendingDown size={20} className="text-white" />
+            </div>
             <div>
-              <p className="text-xs text-gray-500">Debt Payoff</p>
-              <p className="font-semibold">Planner</p>
+              <h2 className="font-bold text-gray-900">Payoff Progress</h2>
+              <p className="text-xs text-gray-500">You're doing great!</p>
             </div>
           </div>
 
-          <h2 className="text-lg font-semibold mb-4">Payoff progress</h2>
-
-          {/* Progress Ring + Principal/Balance */}
+          {/* Progress Ring + Stats */}
           <div className="flex items-center gap-6 mb-6">
             <ProgressRing
               percentage={summary.percentPaid}
-              size={100}
-              strokeWidth={10}
+              size={110}
+              strokeWidth={12}
+              showSparkle
             />
-            <div>
-              <p className="text-sm text-gray-500">Principal paid</p>
-              <p className="text-xl font-bold text-primary-500">
-                {formatCurrency(summary.principalPaid)}
-              </p>
-              <p className="text-sm text-gray-500 mt-2">Balance</p>
-              <p className="text-xl font-bold text-gray-900">
-                {formatCurrency(summary.totalBalance)}
-              </p>
+            <div className="flex-1 space-y-3">
+              <div>
+                <p className="text-xs text-gray-500 mb-0.5">Paid Off</p>
+                <p className="text-xl font-bold text-primary-600">
+                  {formatCurrency(summary.principalPaid)}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 mb-0.5">Remaining</p>
+                <p className="text-xl font-bold text-gray-900">
+                  {formatCurrency(summary.totalBalance)}
+                </p>
+              </div>
             </div>
           </div>
 
           {/* Quick Stats Grid */}
-          <div className="grid grid-cols-2 gap-3 mb-6">
-            <div className="bg-red-50 rounded-xl p-3 text-center">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="stat-box">
               <p className="text-xs text-gray-500 mb-1">Total Interest</p>
-              <p className="text-lg font-bold text-red-600">
+              <p className="text-lg font-bold text-red-500">
                 {formatCurrency(plan.totalInterest)}
               </p>
             </div>
-            <div className="bg-primary-50 rounded-xl p-3 text-center">
+            <div className="stat-box">
               <p className="text-xs text-gray-500 mb-1">Monthly Payment</p>
               <p className="text-lg font-bold text-primary-600">
                 {formatCurrency(strategy.recurringFunding.amount)}
               </p>
             </div>
-            <div className="bg-gray-50 rounded-xl p-3 text-center">
+            <div className="stat-box">
               <p className="text-xs text-gray-500 mb-1"># of Debts</p>
               <p className="text-lg font-bold text-gray-900">{debts.length}</p>
             </div>
-            <div className="bg-green-50 rounded-xl p-3 text-center">
+            <div className="stat-box">
               <p className="text-xs text-gray-500 mb-1">Time Left</p>
               <p className="text-lg font-bold text-green-600">
                 {timeUntilDebtFree || 'N/A'}
@@ -234,71 +279,8 @@ export function HomePage() {
             </div>
           </div>
 
-          {/* Payment Breakdown + Interest vs Principal */}
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            {/* Payment Breakdown */}
-            <div>
-              <p className="text-xs text-gray-500 mb-2">Payment Breakdown</p>
-              {(() => {
-                const minimums = summary.totalMinimumPayments;
-                const extra = Math.max(0, strategy.recurringFunding.amount - minimums);
-                const total = minimums + extra;
-                const minPercent = total > 0 ? (minimums / total) * 100 : 0;
-                return (
-                  <>
-                    <div className="h-3 bg-gray-200 rounded-full overflow-hidden flex">
-                      <div
-                        className="bg-gray-400 h-full"
-                        style={{ width: `${minPercent}%` }}
-                      />
-                      <div
-                        className="bg-primary-500 h-full"
-                        style={{ width: `${100 - minPercent}%` }}
-                      />
-                    </div>
-                    <div className="flex justify-between text-xs mt-1">
-                      <span className="text-gray-500">Min: {formatCurrency(minimums)}</span>
-                      <span className="text-primary-600">Extra: {formatCurrency(extra)}</span>
-                    </div>
-                  </>
-                );
-              })()}
-            </div>
-
-            {/* Interest vs Principal */}
-            <div>
-              <p className="text-xs text-gray-500 mb-2">Interest vs Principal</p>
-              {(() => {
-                const firstMonth = plan.monthlyBreakdown?.[0];
-                const interest = firstMonth?.totalInterest || 0;
-                const principal = firstMonth?.totalPrincipal || 0;
-                const total = interest + principal;
-                const interestPercent = total > 0 ? (interest / total) * 100 : 0;
-                return (
-                  <>
-                    <div className="h-3 bg-gray-200 rounded-full overflow-hidden flex">
-                      <div
-                        className="bg-red-400 h-full"
-                        style={{ width: `${interestPercent}%` }}
-                      />
-                      <div
-                        className="bg-green-500 h-full"
-                        style={{ width: `${100 - interestPercent}%` }}
-                      />
-                    </div>
-                    <div className="flex justify-between text-xs mt-1">
-                      <span className="text-red-500">Int: {formatCurrency(interest)}</span>
-                      <span className="text-green-600">Prin: {formatCurrency(principal)}</span>
-                    </div>
-                  </>
-                );
-              })()}
-            </div>
-          </div>
-
-          {/* Strategy Savings */}
+          {/* Strategy Savings Callout */}
           {(() => {
-            // Calculate minimum-only plan to compare savings
             const minOnlyPlan = generatePayoffPlan(debts, {
               ...strategy,
               recurringFunding: { ...strategy.recurringFunding, amount: summary.totalMinimumPayments },
@@ -308,15 +290,17 @@ export function HomePage() {
 
             if (savings > 0) {
               return (
-                <div className="bg-gradient-to-r from-green-50 to-primary-50 rounded-xl p-4 border border-green-100">
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">💡</span>
+                <div className="mt-4 bg-gradient-to-r from-green-50 to-primary-50 rounded-2xl p-4 border border-green-100/50">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-400 to-green-500 flex items-center justify-center">
+                      <Wallet size={20} className="text-white" />
+                    </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-900">
-                        You're saving <span className="text-green-600 font-bold">{formatCurrency(savings)}</span> in interest!
+                      <p className="text-sm font-semibold text-gray-900">
+                        Saving <span className="text-green-600">{formatCurrency(savings)}</span> in interest!
                       </p>
                       <p className="text-xs text-gray-500">
-                        By paying extra with the {strategyName} strategy
+                        By paying extra with {strategyName}
                       </p>
                     </div>
                   </div>
@@ -327,10 +311,21 @@ export function HomePage() {
           })()}
         </div>
 
+        {/* Upcoming Bills */}
+        <UpcomingBills debts={debts} customCategories={customCategories} payments={payments} />
+
+        {/* Mini Calendar */}
+        <MiniCalendar debts={debts} incomeSources={budget.incomeSources} customCategories={customCategories} />
+
         {/* Debt Over Time Chart */}
         {plan.monthlyBreakdown && plan.monthlyBreakdown.length > 0 && (
           <div className="card">
-            <h2 className="text-lg font-semibold mb-4">Debt Over Time</h2>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center">
+                <TrendingDown size={20} className="text-white" />
+              </div>
+              <h2 className="font-bold text-gray-900">Debt Over Time</h2>
+            </div>
             <DebtOverTimeChart plan={plan} startingBalance={summary.totalBalance} />
           </div>
         )}
@@ -338,8 +333,11 @@ export function HomePage() {
         {/* Categories */}
         {categories.length > 0 && (
           <div className="card">
-            <h3 className="text-sm text-gray-500 mb-4">CATEGORIES</h3>
-            <div className="space-y-4">
+            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4 flex items-center gap-2">
+              <Sparkles size={12} />
+              Categories
+            </h3>
+            <div className="space-y-3">
               {categories.slice(0, 4).map((cat) => {
                 const categoryDebts = debts.filter((d) => d.category === cat.category);
                 const originalTotal = categoryDebts.reduce((sum, d) => sum + d.originalBalance, 0);
@@ -348,7 +346,7 @@ export function HomePage() {
                   : 0;
 
                 return (
-                  <div key={cat.category} className="flex items-center gap-4 p-3 rounded-xl bg-gray-50">
+                  <div key={cat.category} className="flex items-center gap-4 p-3 rounded-2xl bg-gray-50/80 hover:bg-gray-100/80 transition-colors">
                     <ProgressRing
                       percentage={percentPaid}
                       size={56}
@@ -362,15 +360,15 @@ export function HomePage() {
                       </p>
                       <div className="mt-1 space-y-0.5">
                         {categoryDebts.map((debt) => (
-                          <p key={debt.id} className="text-xs text-gray-600 truncate">
+                          <p key={debt.id} className="text-xs text-gray-500 truncate">
                             {debt.name}
                           </p>
                         ))}
                       </div>
                     </div>
                     <div className="text-right flex-shrink-0">
-                      <p className="text-xs text-gray-500">Balance</p>
-                      <p className="font-semibold">{formatCurrency(cat.balance)}</p>
+                      <p className="text-xs text-gray-400 mb-0.5">Balance</p>
+                      <p className="font-bold text-gray-900">{formatCurrency(cat.balance)}</p>
                     </div>
                   </div>
                 );
@@ -382,9 +380,9 @@ export function HomePage() {
         {/* Credit Utilization */}
         {summary.totalCreditLimit > 0 && (
           <div className="card">
-            <h2 className="text-lg font-semibold mb-2">Overall credit utilization</h2>
+            <h2 className="font-bold text-gray-900 mb-2">Credit Utilization</h2>
             <p className="text-sm text-gray-500 mb-4">
-              This only includes debts that have a credit limit.
+              Only includes debts with a credit limit
             </p>
             <div className="flex justify-center">
               <div className="relative">
@@ -399,39 +397,38 @@ export function HomePage() {
                   <span className={`text-2xl font-bold ${summary.creditUtilization > 100 ? 'text-red-600' : 'text-gray-900'}`}>
                     {formatPercent(summary.creditUtilization, 0)}
                   </span>
-                  <span className="text-xs text-gray-500">credit utilized</span>
+                  <span className="text-xs text-gray-500">utilized</span>
                 </div>
               </div>
             </div>
-            <p className="text-center text-sm text-gray-600 mt-2">
-              {formatCurrency(summary.totalBalance - (summary.totalBalance - debts
-                .filter(d => d.creditLimit)
-                .reduce((sum, d) => sum + d.balance, 0)))} / {formatCurrency(summary.totalCreditLimit)}
+            <p className="text-center text-sm text-gray-600 mt-3">
+              {formatCurrency(debts.filter(d => d.creditLimit).reduce((sum, d) => sum + d.balance, 0))} / {formatCurrency(summary.totalCreditLimit)}
             </p>
           </div>
         )}
 
-        {/* Quick Stats */}
+        {/* Summary Card */}
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Summary</h2>
+          <h2 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <Sparkles size={16} className="text-primary-400" />
+            Summary
+          </h2>
           <div className="space-y-3">
-            <div className="flex justify-between">
+            <div className="flex justify-between items-center py-2 border-b border-gray-100">
               <span className="text-gray-600">Total Debt</span>
-              <span className="font-semibold text-gray-900">{formatCurrency(summary.totalBalance)}</span>
+              <span className="font-bold text-gray-900">{formatCurrency(summary.totalBalance)}</span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between items-center py-2 border-b border-gray-100">
               <span className="text-gray-600">Monthly Minimums</span>
-              <span className="font-semibold text-gray-900">{formatCurrency(summary.totalMinimumPayments)}</span>
+              <span className="font-bold text-gray-900">{formatCurrency(summary.totalMinimumPayments)}</span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between items-center py-2 border-b border-gray-100">
               <span className="text-gray-600">Total Interest</span>
-              <span className="font-semibold text-red-500">
-                {formatCurrency(plan.totalInterest)}
-              </span>
+              <span className="font-bold text-red-500">{formatCurrency(plan.totalInterest)}</span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between items-center py-2">
               <span className="text-gray-600">Number of Debts</span>
-              <span className="font-semibold text-gray-900">{debts.length}</span>
+              <span className="font-bold text-gray-900">{debts.length}</span>
             </div>
           </div>
         </div>

@@ -9,7 +9,16 @@
 // THEME TYPES
 // ============================================
 
-export type ThemePreset = 'default' | 'my-melody' | 'kuromi' | 'custom';
+export type ThemePreset =
+  | 'default'
+  | 'my-melody'
+  | 'kuromi'
+  | 'cinnamoroll'
+  | 'pompompurin'
+  | 'hello-kitty'
+  | 'keroppi'
+  | 'chococat'
+  | 'custom';
 
 export interface ThemeColors {
   primary50: string;

@@ -1,69 +1,159 @@
 /**
- * Theme System
+ * Kawaii Theme System
  *
- * Preset theme definitions and utilities for applying themes dynamically.
- * Supports My Melody (pink), Kuromi (purple), and custom themes.
+ * Delightful, cute theme presets with customizable options.
+ * Features soft pastels, playful accents, and dreamy gradients.
  */
 
 import type { ThemeColors, ThemePreset, ThemeSettings } from '../types';
 
 // ============================================
-// THEME PRESETS
+// THEME PRESETS - Expanded Kawaii Collection
 // ============================================
 
 export const THEME_PRESETS: Record<Exclude<ThemePreset, 'custom'>, ThemeColors> = {
-  // Default: Teal/Cyan (current theme)
+  // Default: Soft Lavender Dream
   default: {
-    primary50: '#ecfeff',
-    primary100: '#cffafe',
-    primary200: '#a5f3fc',
-    primary300: '#67e8f9',
-    primary400: '#22d3ee',
-    primary500: '#06b6d4',
-    primary600: '#0891b2',
-    primary700: '#0e7490',
-    primary800: '#155e75',
-    primary900: '#164e63',
-    accent: '#22d3ee',
-    accentLight: '#a5f3fc',
-    gradientFrom: '#a5f3fc',
-    gradientTo: '#ecfeff',
+    primary50: '#faf5ff',
+    primary100: '#f3e8ff',
+    primary200: '#e9d5ff',
+    primary300: '#d8b4fe',
+    primary400: '#c084fc',
+    primary500: '#a855f7',
+    primary600: '#9333ea',
+    primary700: '#7e22ce',
+    primary800: '#6b21a8',
+    primary900: '#581c87',
+    accent: '#f0abfc',
+    accentLight: '#fae8ff',
+    gradientFrom: '#e9d5ff',
+    gradientTo: '#faf5ff',
   },
 
-  // My Melody: Soft Pink/White (cute, dreamy)
+  // My Melody: Strawberry Milk Pink
   'my-melody': {
-    primary50: '#fff5f7',
-    primary100: '#ffe0e6',
-    primary200: '#ffb8c6',
-    primary300: '#ff8fa8',
-    primary400: '#ff6b8a',
-    primary500: '#ff4d6d',
-    primary600: '#e63950',
-    primary700: '#cc2d42',
-    primary800: '#b32236',
-    primary900: '#99172a',
-    accent: '#ffd6e0',
+    primary50: '#fff0f3',
+    primary100: '#ffe4e9',
+    primary200: '#ffccd7',
+    primary300: '#ffa3b8',
+    primary400: '#ff7096',
+    primary500: '#ff4778',
+    primary600: '#ed1c5a',
+    primary700: '#c80d48',
+    primary800: '#a70f41',
+    primary900: '#8c113c',
+    accent: '#ffb7c5',
     accentLight: '#fff0f3',
-    gradientFrom: '#ffb8c6',
-    gradientTo: '#fff5f7',
+    gradientFrom: '#ffccd7',
+    gradientTo: '#fff0f3',
   },
 
-  // Kuromi: Purple/Dark (edgy, cool)
+  // Kuromi: Mystical Purple Night
   kuromi: {
-    primary50: '#f5f3ff',
-    primary100: '#ede9fe',
-    primary200: '#ddd6fe',
-    primary300: '#c4b5fd',
-    primary400: '#a78bfa',
-    primary500: '#8b5cf6',
-    primary600: '#7c3aed',
-    primary700: '#6d28d9',
-    primary800: '#5b21b6',
-    primary900: '#4c1d95',
-    accent: '#c4b5fd',
-    accentLight: '#ede9fe',
-    gradientFrom: '#c4b5fd',
-    gradientTo: '#f5f3ff',
+    primary50: '#faf5ff',
+    primary100: '#f3e8ff',
+    primary200: '#e9d5ff',
+    primary300: '#d8b4fe',
+    primary400: '#c084fc',
+    primary500: '#a855f7',
+    primary600: '#9333ea',
+    primary700: '#7e22ce',
+    primary800: '#6b21a8',
+    primary900: '#581c87',
+    accent: '#e879f9',
+    accentLight: '#f5d0fe',
+    gradientFrom: '#d8b4fe',
+    gradientTo: '#faf5ff',
+  },
+
+  // Cinnamoroll: Sky Blue Cloud
+  cinnamoroll: {
+    primary50: '#f0f9ff',
+    primary100: '#e0f2fe',
+    primary200: '#bae6fd',
+    primary300: '#7dd3fc',
+    primary400: '#38bdf8',
+    primary500: '#0ea5e9',
+    primary600: '#0284c7',
+    primary700: '#0369a1',
+    primary800: '#075985',
+    primary900: '#0c4a6e',
+    accent: '#7dd3fc',
+    accentLight: '#e0f2fe',
+    gradientFrom: '#bae6fd',
+    gradientTo: '#f0f9ff',
+  },
+
+  // Pompompurin: Golden Pudding
+  pompompurin: {
+    primary50: '#fffbeb',
+    primary100: '#fef3c7',
+    primary200: '#fde68a',
+    primary300: '#fcd34d',
+    primary400: '#fbbf24',
+    primary500: '#f59e0b',
+    primary600: '#d97706',
+    primary700: '#b45309',
+    primary800: '#92400e',
+    primary900: '#78350f',
+    accent: '#fcd34d',
+    accentLight: '#fef3c7',
+    gradientFrom: '#fde68a',
+    gradientTo: '#fffbeb',
+  },
+
+  // Hello Kitty: Cherry Blossom
+  'hello-kitty': {
+    primary50: '#fdf2f8',
+    primary100: '#fce7f3',
+    primary200: '#fbcfe8',
+    primary300: '#f9a8d4',
+    primary400: '#f472b6',
+    primary500: '#ec4899',
+    primary600: '#db2777',
+    primary700: '#be185d',
+    primary800: '#9d174d',
+    primary900: '#831843',
+    accent: '#f9a8d4',
+    accentLight: '#fce7f3',
+    gradientFrom: '#fbcfe8',
+    gradientTo: '#fdf2f8',
+  },
+
+  // Keroppi: Mint Lily Pad
+  keroppi: {
+    primary50: '#ecfdf5',
+    primary100: '#d1fae5',
+    primary200: '#a7f3d0',
+    primary300: '#6ee7b7',
+    primary400: '#34d399',
+    primary500: '#10b981',
+    primary600: '#059669',
+    primary700: '#047857',
+    primary800: '#065f46',
+    primary900: '#064e3b',
+    accent: '#6ee7b7',
+    accentLight: '#d1fae5',
+    gradientFrom: '#a7f3d0',
+    gradientTo: '#ecfdf5',
+  },
+
+  // Chococat: Mocha Latte
+  chococat: {
+    primary50: '#fdf8f6',
+    primary100: '#f2e8e5',
+    primary200: '#eaddd7',
+    primary300: '#e0cec7',
+    primary400: '#d2bab0',
+    primary500: '#c69f94',
+    primary600: '#a47c6d',
+    primary700: '#8c6458',
+    primary800: '#755248',
+    primary900: '#5f443c',
+    accent: '#e0cec7',
+    accentLight: '#f2e8e5',
+    gradientFrom: '#eaddd7',
+    gradientTo: '#fdf8f6',
   },
 };
 
@@ -75,21 +165,97 @@ export const THEME_METADATA: Record<Exclude<ThemePreset, 'custom'>, {
   name: string;
   description: string;
   emoji: string;
+  mascot?: string;
 }> = {
   default: {
-    name: 'Ocean Breeze',
-    description: 'Clean teal & cyan tones',
-    emoji: '🌊',
+    name: 'Lavender Dream',
+    description: 'Soft purple & violet vibes',
+    emoji: '💜',
+    mascot: '✨',
   },
   'my-melody': {
     name: 'My Melody',
-    description: 'Soft pink & white, sweet & dreamy',
+    description: 'Sweet strawberry milk pink',
     emoji: '🎀',
+    mascot: '🐰',
   },
   kuromi: {
     name: 'Kuromi',
-    description: 'Purple & lavender, cool & edgy',
+    description: 'Mystical purple magic',
     emoji: '💜',
+    mascot: '🖤',
+  },
+  cinnamoroll: {
+    name: 'Cinnamoroll',
+    description: 'Fluffy sky blue clouds',
+    emoji: '☁️',
+    mascot: '🐕',
+  },
+  pompompurin: {
+    name: 'Pompompurin',
+    description: 'Golden pudding sunshine',
+    emoji: '🍮',
+    mascot: '🐕',
+  },
+  'hello-kitty': {
+    name: 'Hello Kitty',
+    description: 'Cherry blossom dreams',
+    emoji: '🌸',
+    mascot: '🎀',
+  },
+  keroppi: {
+    name: 'Keroppi',
+    description: 'Fresh mint lily pad',
+    emoji: '🐸',
+    mascot: '🌿',
+  },
+  chococat: {
+    name: 'Chococat',
+    description: 'Cozy mocha latte',
+    emoji: '☕',
+    mascot: '🐱',
+  },
+};
+
+// ============================================
+// DECORATIVE ELEMENTS
+// ============================================
+
+export const THEME_DECORATIONS: Record<Exclude<ThemePreset, 'custom'>, {
+  pattern: 'stars' | 'hearts' | 'clouds' | 'flowers' | 'dots' | 'sparkles' | 'leaves' | 'beans';
+  floatingEmojis: string[];
+}> = {
+  default: {
+    pattern: 'sparkles',
+    floatingEmojis: ['✨', '💫', '⭐'],
+  },
+  'my-melody': {
+    pattern: 'hearts',
+    floatingEmojis: ['🎀', '💕', '🌸', '💗'],
+  },
+  kuromi: {
+    pattern: 'stars',
+    floatingEmojis: ['💜', '🖤', '⭐', '✨'],
+  },
+  cinnamoroll: {
+    pattern: 'clouds',
+    floatingEmojis: ['☁️', '⭐', '💙', '🌟'],
+  },
+  pompompurin: {
+    pattern: 'dots',
+    floatingEmojis: ['🍮', '⭐', '💛', '🌟'],
+  },
+  'hello-kitty': {
+    pattern: 'flowers',
+    floatingEmojis: ['🌸', '🎀', '💕', '✨'],
+  },
+  keroppi: {
+    pattern: 'leaves',
+    floatingEmojis: ['🐸', '🌿', '💚', '🍀'],
+  },
+  chococat: {
+    pattern: 'beans',
+    floatingEmojis: ['☕', '🐱', '🤎', '✨'],
   },
 };
 
@@ -132,6 +298,12 @@ export function applyTheme(theme: ThemeSettings): void {
     root.style.setProperty('--theme-gradient-from', colors.gradientFrom);
     root.style.setProperty('--theme-gradient-to', colors.gradientTo);
   }
+
+  // Set decoration pattern as data attribute
+  const decorations = theme.preset !== 'custom'
+    ? THEME_DECORATIONS[theme.preset as Exclude<ThemePreset, 'custom'>]
+    : THEME_DECORATIONS.default;
+  root.dataset.pattern = decorations.pattern;
 }
 
 /**
@@ -145,12 +317,20 @@ export function getThemeColors(theme: ThemeSettings): ThemeColors {
 }
 
 /**
+ * Get decorations for a theme
+ */
+export function getThemeDecorations(theme: ThemeSettings) {
+  if (theme.preset === 'custom') {
+    return THEME_DECORATIONS.default;
+  }
+  return THEME_DECORATIONS[theme.preset as Exclude<ThemePreset, 'custom'>] || THEME_DECORATIONS.default;
+}
+
+/**
  * Generate a complete ThemeColors object from a base color
  * Useful for custom theme creation with a single primary color
  */
 export function generateThemeFromColor(baseColor: string): ThemeColors {
-  // This is a simplified version - in production you might want
-  // a more sophisticated color palette generator
   const hex = baseColor.replace('#', '');
   const r = parseInt(hex.slice(0, 2), 16);
   const g = parseInt(hex.slice(2, 4), 16);
