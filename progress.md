@@ -1,5 +1,69 @@
 # Progress Log
 
+## Session: February 2, 2026
+
+### Branch: `feature/polish-items`
+
+---
+
+### Changes Made
+
+#### 1. StrategyPage Cleanup
+- Removed non-functional frequency button (now plain text)
+- Changed one-time fundings section to link to Plan page
+
+#### 2. Toast Notification System
+- **New Component**: `src/components/ui/Toast.tsx`
+  - Success (green), error (red), warning (amber), info (blue) variants
+  - Auto-dismiss after 4 seconds
+  - Slide-up animation
+- **ToastProvider**: Wraps app for global access via `useToast()` hook
+- Replaced all `alert()` calls:
+  - SettingsPage: import success/error
+  - CategoryManager: deletion warning
+
+#### 3. Improved Empty States
+- **New Component**: `src/components/ui/EmptyState.tsx`
+  - Reusable with icon, title, description, action props
+- **DebtsPage**: CreditCard icon, better messaging
+- **TrackPage**:
+  - No debts: CreditCard icon
+  - No upcoming: Calendar icon with "Set Up Budget" CTA
+  - No completed: Receipt icon
+
+---
+
+### Files Created
+- `src/components/ui/Toast.tsx` - Toast notification system
+- `src/components/ui/EmptyState.tsx` - Reusable empty state component
+
+### Files Modified
+- `src/pages/StrategyPage.tsx` - Removed dead buttons
+- `src/App.tsx` - Added ToastProvider
+- `src/index.css` - Added slide-up animation
+- `src/pages/SettingsPage.tsx` - Uses toast instead of alert
+- `src/components/ui/CategoryManager.tsx` - Uses toast instead of alert
+- `src/pages/DebtsPage.tsx` - Uses EmptyState component
+- `src/pages/TrackPage.tsx` - Uses EmptyState component
+
+---
+
+### Git Commits (this session)
+1. `[UI] Remove dead buttons from StrategyPage`
+2. `[Feature] Add toast notification system`
+3. `[UI] Improve empty states with consistent styling`
+
+---
+
+### Polish Items Status
+- [x] Toast notifications (replaced all alert() calls)
+- [x] Remove dead buttons in StrategyPage
+- [x] Improve empty states
+
+---
+
+---
+
 ## Session: February 1, 2026
 
 ### Branch: `main` (merged from `feature/plan-page-restructure`)
