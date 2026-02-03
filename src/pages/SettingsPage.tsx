@@ -1,22 +1,21 @@
 /**
- * Settings Page
+ * Settings Page - Kawaii Edition
  *
- * App customization including theme selection, category management,
- * and data import/export.
+ * Cute app customization including theme selection, category management,
+ * and data import/export with delightful styling.
  */
 
 import { useRef } from 'react';
-import { Settings, Download, Upload, Trash2, ChevronLeft } from 'lucide-react';
+import { Download, Upload, Trash2, ChevronLeft, Sparkles, Database, Heart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useToast } from '../components/ui/Toast';
-import { PageHeader } from '../components/layout/PageHeader';
 import { ThemeSelector } from '../components/ui/ThemeSelector';
 import { CategoryManager } from '../components/ui/CategoryManager';
 
 export function SettingsPage() {
   const navigate = useNavigate();
-  const { exportAppData, importAppData, clearAllData } = useApp();
+  const { exportAppData, importAppData, clearAllData, settings } = useApp();
   const { showToast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -41,23 +40,57 @@ export function SettingsPage() {
     }
   };
 
+  // Get theme-appropriate emoji
+  const getThemeEmoji = () => {
+    const emojiMap: Record<string, string> = {
+      'my-melody': '🎀',
+      'kuromi': '💜',
+      'cinnamoroll': '☁️',
+      'pompompurin': '🍮',
+      'hello-kitty': '🌸',
+      'keroppi': '🐸',
+      'chococat': '☕',
+      'default': '✨',
+    };
+    return emojiMap[settings.theme.preset] || '✨';
+  };
+
   return (
     <div className="min-h-screen">
-      <PageHeader
-        title="Settings"
-        subtitle="Customize your experience"
-        action={
+      {/* Header */}
+      <header className="page-header bg-gradient-to-b from-primary-200 to-primary-100/50 px-4 pt-12 pb-8 relative overflow-hidden">
+        {/* Decorative elements */}
+        <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary-300/20 rounded-full blur-2xl" />
+        <div className="absolute top-1/2 -left-10 w-24 h-24 bg-accent/20 rounded-full blur-xl" />
+        <Sparkles size={16} className="absolute top-8 right-12 text-primary-400/40 animate-kawaii-pulse" />
+
+        <div className="flex justify-between items-start relative z-10">
+          <div className="flex items-center gap-3">
+            <span className="text-3xl animate-kawaii-float" style={{ animationDuration: '3s' }}>
+              {getThemeEmoji()}
+            </span>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
+              <p className="text-gray-600 text-sm">Make it yours!</p>
+            </div>
+          </div>
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center gap-1 px-3 py-2 text-gray-600 hover:text-gray-800"
+            className="btn-icon"
           >
-            <ChevronLeft size={20} />
-            Back
+            <ChevronLeft size={20} className="text-gray-500" />
           </button>
-        }
-      />
+        </div>
 
-      <div className="px-4 py-6 space-y-6">
+        {/* Wave decoration */}
+        <div className="absolute bottom-0 left-0 right-0 h-4 overflow-hidden">
+          <svg viewBox="0 0 1200 30" className="w-full h-full" preserveAspectRatio="none">
+            <path d="M0,15 Q300,30 600,15 T1200,15 L1200,30 L0,30 Z" fill="currentColor" className="text-gray-50" />
+          </svg>
+        </div>
+      </header>
+
+      <div className="px-4 py-6 space-y-5">
         {/* Theme Section */}
         <div className="card">
           <ThemeSelector />
@@ -70,38 +103,45 @@ export function SettingsPage() {
 
         {/* Data Management Section */}
         <div className="card">
-          <h3 className="text-lg font-semibold flex items-center gap-2 mb-4">
-            <Settings size={20} />
-            Data Management
-          </h3>
+          <div className="flex items-center gap-3 mb-5">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-gray-400 to-gray-600 flex items-center justify-center">
+              <Database size={20} className="text-white" />
+            </div>
+            <div>
+              <h3 className="font-bold text-gray-900">Data Management</h3>
+              <p className="text-sm text-gray-500">Backup & restore</p>
+            </div>
+          </div>
 
           <div className="space-y-3">
             {/* Export */}
             <button
               onClick={exportAppData}
-              className="w-full flex items-center gap-3 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors text-left"
+              className="w-full flex items-center gap-4 p-4 bg-gradient-to-r from-primary-50 to-white rounded-2xl border border-primary-100/50 hover:shadow-md hover:-translate-y-0.5 transition-all text-left group"
             >
-              <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
-                <Download size={20} className="text-primary-600" />
+              <div className="w-12 h-12 bg-gradient-to-br from-primary-400 to-primary-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary-300/30 group-hover:scale-105 transition-transform">
+                <Download size={22} className="text-white" />
               </div>
-              <div>
-                <p className="font-medium">Export Data</p>
-                <p className="text-sm text-gray-500">Download your data as a JSON backup file</p>
+              <div className="flex-1">
+                <p className="font-semibold text-gray-900">Export Data</p>
+                <p className="text-sm text-gray-500">Download your data as a backup</p>
               </div>
+              <Sparkles size={16} className="text-primary-300 opacity-0 group-hover:opacity-100 transition-opacity" />
             </button>
 
             {/* Import */}
             <button
               onClick={handleImportClick}
-              className="w-full flex items-center gap-3 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors text-left"
+              className="w-full flex items-center gap-4 p-4 bg-gradient-to-r from-green-50 to-white rounded-2xl border border-green-100/50 hover:shadow-md hover:-translate-y-0.5 transition-all text-left group"
             >
-              <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                <Upload size={20} className="text-green-600" />
+              <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-300/30 group-hover:scale-105 transition-transform">
+                <Upload size={22} className="text-white" />
               </div>
-              <div>
-                <p className="font-medium">Import Data</p>
+              <div className="flex-1">
+                <p className="font-semibold text-gray-900">Import Data</p>
                 <p className="text-sm text-gray-500">Restore from a backup file</p>
               </div>
+              <Sparkles size={16} className="text-green-300 opacity-0 group-hover:opacity-100 transition-opacity" />
             </button>
             <input
               ref={fileInputRef}
@@ -114,23 +154,28 @@ export function SettingsPage() {
             {/* Clear Data */}
             <button
               onClick={clearAllData}
-              className="w-full flex items-center gap-3 p-4 bg-red-50 rounded-xl hover:bg-red-100 transition-colors text-left"
+              className="w-full flex items-center gap-4 p-4 bg-gradient-to-r from-red-50 to-white rounded-2xl border border-red-100/50 hover:shadow-md hover:-translate-y-0.5 transition-all text-left group"
             >
-              <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                <Trash2 size={20} className="text-red-600" />
+              <div className="w-12 h-12 bg-gradient-to-br from-red-400 to-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-300/30 group-hover:scale-105 transition-transform">
+                <Trash2 size={22} className="text-white" />
               </div>
-              <div>
-                <p className="font-medium text-red-700">Clear All Data</p>
-                <p className="text-sm text-red-500">Delete everything and start fresh</p>
+              <div className="flex-1">
+                <p className="font-semibold text-red-700">Clear All Data</p>
+                <p className="text-sm text-red-400">Delete everything and start fresh</p>
               </div>
             </button>
           </div>
         </div>
 
         {/* App Info */}
-        <div className="text-center text-sm text-gray-400 py-4">
-          <p>Debt Payoff App v1.1.0</p>
-          <p className="mt-1">Made with 💖</p>
+        <div className="text-center py-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary-50/50 rounded-full mb-3">
+            <span className="text-lg">{getThemeEmoji()}</span>
+            <span className="text-sm font-medium text-primary-600">Debt Payoff App v1.2.0</span>
+          </div>
+          <p className="text-sm text-gray-400 flex items-center justify-center gap-1">
+            Made with <Heart size={14} className="text-red-400 animate-heartbeat" fill="currentColor" /> for your financial freedom
+          </p>
         </div>
       </div>
     </div>
