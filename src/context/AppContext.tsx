@@ -18,6 +18,7 @@ import type {
   IncomeSource,
   ThemeSettings,
   OneTimeFunding,
+  Asset,
 } from '../types';
 import { DEFAULT_APP_DATA, DEFAULT_STRATEGY, DEFAULT_BUDGET } from '../types';
 import { saveData, loadData, exportData, importData } from '../lib/storage';
@@ -34,6 +35,7 @@ interface AppContextType {
   settings: UserSettings;
   customCategories: CustomCategory[];
   budget: BudgetSettings;
+  assets: Asset[];
   isLoading: boolean;
 
   // Debt operations
@@ -70,6 +72,12 @@ interface AppContextType {
   addOneTimeFunding: (funding: Omit<OneTimeFunding, 'id' | 'isApplied'>) => void;
   updateOneTimeFunding: (id: string, updates: Partial<OneTimeFunding>) => void;
   deleteOneTimeFunding: (id: string) => void;
+
+  // Asset operations
+  addAsset: (asset: Omit<Asset, 'id' | 'createdAt' | 'updatedAt' | 'balanceHistory'>) => void;
+  updateAsset: (id: string, updates: Partial<Asset>) => void;
+  deleteAsset: (id: string) => void;
+  updateAssetBalance: (id: string, newBalance: number, note?: string) => void;
 
   // Import/Export
   exportAppData: () => void;
@@ -359,6 +367,73 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // ==========================================
+  // ASSET OPERATIONS
+  // ==========================================
+
+  const addAsset = useCallback((assetData: Omit<Asset, 'id' | 'createdAt' | 'updatedAt' | 'balanceHistory'>) => {
+    const now = new Date().toISOString();
+    const newAsset: Asset = {
+      ...assetData,
+      id: uuidv4(),
+      balanceHistory: [{
+        id: uuidv4(),
+        date: now,
+        balance: assetData.balance,
+        note: 'Initial balance',
+      }],
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    setData((prev) => ({
+      ...prev,
+      assets: [...prev.assets, newAsset],
+    }));
+  }, []);
+
+  const updateAsset = useCallback((id: string, updates: Partial<Asset>) => {
+    setData((prev) => ({
+      ...prev,
+      assets: prev.assets.map((asset) =>
+        asset.id === id
+          ? { ...asset, ...updates, updatedAt: new Date().toISOString() }
+          : asset
+      ),
+    }));
+  }, []);
+
+  const deleteAsset = useCallback((id: string) => {
+    setData((prev) => ({
+      ...prev,
+      assets: prev.assets.filter((asset) => asset.id !== id),
+    }));
+  }, []);
+
+  const updateAssetBalance = useCallback((id: string, newBalance: number, note?: string) => {
+    const now = new Date().toISOString();
+    setData((prev) => ({
+      ...prev,
+      assets: prev.assets.map((asset) => {
+        if (asset.id !== id) return asset;
+        return {
+          ...asset,
+          balance: newBalance,
+          balanceHistory: [
+            ...asset.balanceHistory,
+            {
+              id: uuidv4(),
+              date: now,
+              balance: newBalance,
+              note,
+            },
+          ],
+          updatedAt: now,
+        };
+      }),
+    }));
+  }, []);
+
+  // ==========================================
   // IMPORT/EXPORT
   // ==========================================
 
@@ -392,6 +467,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     settings: data.settings,
     customCategories: data.customCategories,
     budget: data.budget,
+    assets: data.assets,
     isLoading,
 
     addDebt,
@@ -420,6 +496,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     addOneTimeFunding,
     updateOneTimeFunding,
     deleteOneTimeFunding,
+
+    addAsset,
+    updateAsset,
+    deleteAsset,
+    updateAssetBalance,
 
     exportAppData,
     importAppData,

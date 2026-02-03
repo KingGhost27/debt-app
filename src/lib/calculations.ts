@@ -26,6 +26,8 @@ import type {
   StrategySettings,
   IncomeSource,
   BudgetSettings,
+  Asset,
+  AssetType,
 } from '../types';
 
 // ============================================
@@ -757,4 +759,77 @@ export function getPayCycleEndsInMonth(source: IncomeSource, monthDate: Date): D
   }
 
   return cycleEnds;
+}
+
+// ============================================
+// NET WORTH CALCULATIONS
+// ============================================
+
+/**
+ * Calculate total assets value
+ */
+export function calculateTotalAssets(assets: Asset[]): number {
+  return assets.reduce((sum, asset) => sum + asset.balance, 0);
+}
+
+/**
+ * Calculate total debt value
+ */
+export function calculateTotalDebt(debts: Debt[]): number {
+  return debts.reduce((sum, debt) => sum + debt.balance, 0);
+}
+
+/**
+ * Calculate net worth (assets minus debts)
+ */
+export function calculateNetWorth(assets: Asset[], debts: Debt[]): number {
+  return calculateTotalAssets(assets) - calculateTotalDebt(debts);
+}
+
+/**
+ * Group assets by type with totals
+ */
+export function calculateAssetsByType(assets: Asset[]): Record<AssetType, number> {
+  return assets.reduce((acc, asset) => {
+    acc[asset.type] = (acc[asset.type] || 0) + asset.balance;
+    return acc;
+  }, {} as Record<AssetType, number>);
+}
+
+/**
+ * Calculate total balance history over time
+ * Returns an array of {date, totalBalance} sorted by date
+ */
+export function calculateAssetBalanceHistory(
+  assets: Asset[]
+): { date: string; totalBalance: number }[] {
+  if (assets.length === 0) return [];
+
+  // Collect all history entries with asset reference
+  const allEntries: { date: string; assetId: string; balance: number }[] = [];
+
+  for (const asset of assets) {
+    for (const entry of asset.balanceHistory) {
+      allEntries.push({
+        date: entry.date,
+        assetId: asset.id,
+        balance: entry.balance,
+      });
+    }
+  }
+
+  // Sort by date
+  allEntries.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+  // Build running totals
+  const assetBalances: Record<string, number> = {};
+  const result: { date: string; totalBalance: number }[] = [];
+
+  for (const entry of allEntries) {
+    assetBalances[entry.assetId] = entry.balance;
+    const totalBalance = Object.values(assetBalances).reduce((sum, bal) => sum + bal, 0);
+    result.push({ date: entry.date, totalBalance });
+  }
+
+  return result;
 }

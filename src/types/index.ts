@@ -256,6 +256,7 @@ export interface AppData {
   settings: UserSettings;
   customCategories: CustomCategory[]; // User-defined categories
   budget: BudgetSettings;          // Income & budget settings
+  assets: Asset[];                 // Savings and investment accounts
   exportedAt?: string;             // For import/export
 }
 
@@ -290,13 +291,14 @@ export const DEFAULT_BUDGET: BudgetSettings = {
 };
 
 export const DEFAULT_APP_DATA: AppData = {
-  version: '1.1.0',
+  version: '1.2.0',
   debts: [],
   payments: [],
   strategy: DEFAULT_STRATEGY,
   settings: DEFAULT_SETTINGS,
   customCategories: [],
   budget: DEFAULT_BUDGET,
+  assets: [],
 };
 
 // ============================================
@@ -326,5 +328,51 @@ export const CATEGORY_INFO: Record<DebtCategory, { label: string; color: string 
   auto_loan: { label: 'Auto Loan', color: '#3b82f6' },
   mortgage: { label: 'Mortgage', color: '#ec4899' },
   medical: { label: 'Medical', color: '#ef4444' },
+  other: { label: 'Other', color: '#6b7280' },
+};
+
+// ============================================
+// ASSET TYPES
+// ============================================
+
+export type AssetType =
+  | 'savings'
+  | 'checking'
+  | 'roth_ira'
+  | '401k'
+  | 'brokerage'
+  | 'hsa'
+  | 'money_market'
+  | 'cd'
+  | 'other';
+
+export interface BalanceHistoryEntry {
+  id: string;
+  date: string;                    // ISO date string
+  balance: number;
+  note?: string;                   // Optional note (e.g., "After bonus deposit")
+}
+
+export interface Asset {
+  id: string;
+  name: string;                    // e.g., "Chase Savings", "Fidelity 401k"
+  type: AssetType;
+  balance: number;                 // Current balance
+  balanceHistory: BalanceHistoryEntry[];
+  institution?: string;            // e.g., "Fidelity", "Chase"
+  interestRate?: number;           // APY for savings accounts
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const ASSET_TYPE_INFO: Record<AssetType, { label: string; color: string }> = {
+  savings: { label: 'Savings', color: '#22c55e' },
+  checking: { label: 'Checking', color: '#3b82f6' },
+  roth_ira: { label: 'Roth IRA', color: '#8b5cf6' },
+  '401k': { label: '401(k)', color: '#f59e0b' },
+  brokerage: { label: 'Brokerage', color: '#ec4899' },
+  hsa: { label: 'HSA', color: '#14b8a6' },
+  money_market: { label: 'Money Market', color: '#6366f1' },
+  cd: { label: 'CD', color: '#f97316' },
   other: { label: 'Other', color: '#6b7280' },
 };

@@ -177,7 +177,16 @@ function migrateData(data: AppData): AppData {
     migrated.version = '1.1.0';
   }
 
-  // Ensure new fields exist even for fresh 1.1.0 installs
+  // Migration: v1.1.0 -> v1.2.0
+  // Adds: assets array for savings/investment tracking
+  if (migrated.version === '1.1.0') {
+    if (!migrated.assets) {
+      migrated.assets = [];
+    }
+    migrated.version = '1.2.0';
+  }
+
+  // Ensure new fields exist even for fresh installs
   if (!migrated.customCategories) {
     migrated.customCategories = [];
   }
@@ -189,6 +198,9 @@ function migrateData(data: AppData): AppData {
   }
   if (!migrated.settings.categoryColors) {
     migrated.settings.categoryColors = {};
+  }
+  if (!migrated.assets) {
+    migrated.assets = [];
   }
 
   return migrated;
