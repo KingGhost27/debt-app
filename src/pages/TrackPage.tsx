@@ -1,8 +1,9 @@
 /**
- * Track Page
+ * Track Page - Kawaii Edition
  *
  * Track upcoming and completed payments with monthly summary,
  * payment streaks, and calendar view.
+ * Features cute animations, soft gradients, and delightful interactions.
  */
 
 import { useState, useMemo } from 'react';
@@ -14,7 +15,7 @@ import {
   isSameMonth,
   subMonths,
 } from 'date-fns';
-import { Check, Plus, Flame, CheckCircle, AlertCircle, X, Undo2, Pencil, Receipt, CreditCard, Calendar } from 'lucide-react';
+import { Check, Plus, Flame, CheckCircle, AlertCircle, X, Undo2, Pencil, Receipt, Calendar, Sparkles, Trophy, Target } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { PageHeader } from '../components/layout/PageHeader';
 import { MiniCalendar } from '../components/ui/MiniCalendar';
@@ -191,14 +192,15 @@ export function TrackPage() {
 
   if (debts.length === 0) {
     return (
-      <div className="min-h-screen">
-        <PageHeader title="Tracking" subtitle="Record your transactions" />
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <PageHeader title="Tracking" subtitle="Record your transactions" emoji="📊" />
         <div className="px-4">
           <EmptyState
-            icon={CreditCard}
+            icon="💳"
             title="No Debts to Track"
             description="Add your debts first to start tracking payments and building your streak."
             action={{ label: 'Add Debts', href: '/debts' }}
+            encouragement="Let's get started!"
           />
         </div>
       </div>
@@ -206,14 +208,15 @@ export function TrackPage() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <PageHeader
         title="Tracking"
         subtitle="Record your transactions"
+        emoji="📊"
         action={
           <button
             onClick={() => openPaymentModal()}
-            className="flex items-center gap-1 px-4 py-2 bg-primary-500 text-white text-sm font-medium rounded-xl hover:bg-primary-600 transition-colors"
+            className="flex items-center gap-1.5 px-4 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white text-sm font-semibold rounded-2xl hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg shadow-primary-500/30 hover:shadow-primary-500/40 hover:scale-105 active:scale-95"
           >
             <Plus size={18} />
             Log Payment
@@ -223,71 +226,92 @@ export function TrackPage() {
 
       <div className="px-4 py-6 space-y-4">
         {/* This Month Summary Card */}
-        <div className="card">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm text-gray-500">THIS MONTH</h2>
-            <span className="text-sm text-gray-400">{format(new Date(), 'MMMM yyyy')}</span>
+        <div className="card bg-white dark:bg-gray-800 rounded-3xl shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center">
+                <Target size={16} className="text-white" />
+              </div>
+              <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">This Month</h2>
+            </div>
+            <span className="text-sm text-gray-400 dark:text-gray-500 font-medium">{format(new Date(), 'MMMM yyyy')}</span>
           </div>
           <div className="grid grid-cols-3 gap-4">
-            <div className="text-center">
-              <p className="text-2xl font-bold text-green-600">
+            <div className="text-center p-3 bg-green-50 dark:bg-green-900/30 rounded-2xl">
+              <p className="text-2xl font-bold text-green-600 dark:text-green-400">
                 {formatCurrency(thisMonthStats.paid)}
               </p>
-              <p className="text-xs text-gray-500">Paid</p>
+              <p className="text-xs text-green-600/70 dark:text-green-400/70 font-medium mt-1">Paid</p>
             </div>
-            <div className="text-center">
-              <p className="text-2xl font-bold text-gray-700">
+            <div className="text-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-2xl">
+              <p className="text-2xl font-bold text-gray-700 dark:text-gray-200">
                 {formatCurrency(thisMonthStats.remaining)}
               </p>
-              <p className="text-xs text-gray-500">Remaining</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mt-1">Remaining</p>
             </div>
-            <div className="text-center">
+            <div className="text-center p-3 rounded-2xl">
               {thisMonthStats.onTrack ? (
-                <>
+                <div className="bg-green-50 dark:bg-green-900/30 rounded-2xl p-3 -m-3">
                   <div className="flex justify-center">
-                    <CheckCircle size={28} className="text-green-500" />
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-lg shadow-green-300/40 dark:shadow-green-900/40">
+                      <CheckCircle size={22} className="text-white" />
+                    </div>
                   </div>
-                  <p className="text-xs text-green-600 font-medium">On Track</p>
-                </>
+                  <p className="text-xs text-green-600 dark:text-green-400 font-semibold mt-2">On Track</p>
+                </div>
               ) : (
-                <>
+                <div className="bg-red-50 dark:bg-red-900/30 rounded-2xl p-3 -m-3">
                   <div className="flex justify-center">
-                    <AlertCircle size={28} className="text-red-500" />
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-400 to-red-500 flex items-center justify-center shadow-lg shadow-red-300/40 dark:shadow-red-900/40">
+                      <AlertCircle size={22} className="text-white" />
+                    </div>
                   </div>
-                  <p className="text-xs text-red-600 font-medium">
+                  <p className="text-xs text-red-600 dark:text-red-400 font-semibold mt-2">
                     {thisMonthStats.overdueCount} Overdue
                   </p>
-                </>
+                </div>
               )}
             </div>
           </div>
         </div>
 
         {/* Payment Streak Card */}
-        <div className="card">
-          <div className="flex items-center gap-2 mb-2">
-            <Flame size={20} className={paymentStreak.months > 0 ? 'text-orange-500' : 'text-gray-300'} />
-            <h2 className="text-sm font-medium">Payment Streak</h2>
+        <div className="card bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/30 dark:to-amber-900/30 border border-orange-100 dark:border-orange-800/50 rounded-3xl relative overflow-hidden">
+          {/* Decorative element */}
+          <Sparkles size={14} className="absolute top-4 right-4 text-orange-300 dark:text-orange-700 animate-kawaii-pulse" />
+
+          <div className="flex items-center gap-3 mb-3">
+            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg ${
+              paymentStreak.months > 0
+                ? 'bg-gradient-to-br from-orange-400 to-amber-500 shadow-orange-300/40 dark:shadow-orange-900/40'
+                : 'bg-gray-200 dark:bg-gray-700'
+            }`}>
+              <Flame size={24} className={paymentStreak.months > 0 ? 'text-white' : 'text-gray-400 dark:text-gray-500'} />
+            </div>
+            <div>
+              <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Payment Streak</h2>
+              {paymentStreak.months > 0 ? (
+                <p className="text-xl font-bold text-orange-600 dark:text-orange-400">
+                  {paymentStreak.months} month{paymentStreak.months !== 1 ? 's' : ''}!
+                </p>
+              ) : (
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Make your first payment to start!
+                </p>
+              )}
+            </div>
           </div>
-          {paymentStreak.months > 0 ? (
-            <p className="text-lg font-bold text-gray-900">
-              {paymentStreak.months} month{paymentStreak.months !== 1 ? 's' : ''} of payments!
-            </p>
-          ) : (
-            <p className="text-sm text-gray-500">
-              Make your first payment to start a streak!
-            </p>
-          )}
-          <div className="mt-3">
-            <div className="flex justify-between text-xs text-gray-500 mb-1">
-              <span>This month's progress</span>
-              <span>
+
+          <div className="mt-4">
+            <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mb-2">
+              <span className="font-medium">This month's progress</span>
+              <span className="font-semibold">
                 {paymentStreak.totalPayments}/{paymentStreak.expectedPayments} payments
               </span>
             </div>
-            <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+            <div className="h-3 bg-white/60 dark:bg-gray-800/60 rounded-full overflow-hidden">
               <div
-                className="h-full bg-primary-500 rounded-full transition-all"
+                className="h-full bg-gradient-to-r from-orange-400 to-amber-500 rounded-full transition-all duration-500"
                 style={{
                   width: `${
                     paymentStreak.expectedPayments > 0
@@ -298,26 +322,31 @@ export function TrackPage() {
               />
             </div>
           </div>
+
           {/* Milestone badges */}
           {paymentStreak.months >= 1 && (
-            <div className="flex gap-2 mt-3 flex-wrap">
+            <div className="flex gap-2 mt-4 flex-wrap">
               {paymentStreak.months >= 1 && (
-                <span className="px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full">
+                <span className="px-3 py-1.5 bg-gradient-to-r from-orange-100 to-amber-100 dark:from-orange-900/50 dark:to-amber-900/50 text-orange-700 dark:text-orange-300 text-xs font-semibold rounded-xl flex items-center gap-1">
+                  <Trophy size={12} />
                   1 Month
                 </span>
               )}
               {paymentStreak.months >= 3 && (
-                <span className="px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full">
+                <span className="px-3 py-1.5 bg-gradient-to-r from-orange-100 to-amber-100 dark:from-orange-900/50 dark:to-amber-900/50 text-orange-700 dark:text-orange-300 text-xs font-semibold rounded-xl flex items-center gap-1">
+                  <Trophy size={12} />
                   3 Months
                 </span>
               )}
               {paymentStreak.months >= 6 && (
-                <span className="px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full">
+                <span className="px-3 py-1.5 bg-gradient-to-r from-orange-100 to-amber-100 dark:from-orange-900/50 dark:to-amber-900/50 text-orange-700 dark:text-orange-300 text-xs font-semibold rounded-xl flex items-center gap-1">
+                  <Trophy size={12} />
                   6 Months
                 </span>
               )}
               {paymentStreak.months >= 12 && (
-                <span className="px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full">
+                <span className="px-3 py-1.5 bg-gradient-to-r from-yellow-100 to-orange-100 dark:from-yellow-900/50 dark:to-orange-900/50 text-yellow-700 dark:text-yellow-300 text-xs font-bold rounded-xl flex items-center gap-1 animate-kawaii-pulse">
+                  <Sparkles size={12} />
                   1 Year!
                 </span>
               )}
@@ -326,15 +355,15 @@ export function TrackPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 p-1 bg-gray-100 rounded-xl">
+        <div className="flex gap-1 p-1.5 bg-gray-100 dark:bg-gray-800 rounded-2xl">
           {(['upcoming', 'complete', 'calendar'] as TabType[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`flex-1 py-2 px-4 rounded-lg font-medium text-sm transition-colors ${
+              className={`flex-1 py-2.5 px-4 rounded-xl font-semibold text-sm transition-all ${
                 activeTab === tab
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
               }`}
             >
               {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -350,7 +379,8 @@ export function TrackPage() {
 
               return (
                 <div key={monthKey}>
-                  <h3 className="text-lg font-semibold mb-3">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                    <Calendar size={18} className="text-primary-500" />
                     {format(monthDate, 'MMMM yyyy')}
                   </h3>
 
@@ -377,45 +407,49 @@ export function TrackPage() {
                       return (
                         <div
                           key={`${monthKey}-${payment.debtId}`}
-                          className={`card flex items-center gap-4 ${
-                            alreadyPaid ? 'opacity-60 bg-green-50' : ''
+                          className={`card rounded-2xl flex items-center gap-4 transition-all ${
+                            alreadyPaid
+                              ? 'bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 border border-green-100 dark:border-green-800/50'
+                              : 'bg-white dark:bg-gray-800 hover:shadow-md'
                           }`}
                         >
                           <div
-                            className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                              alreadyPaid ? 'bg-green-100' : 'bg-gray-100'
+                            className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
+                              alreadyPaid
+                                ? 'bg-gradient-to-br from-green-400 to-emerald-500 shadow-lg shadow-green-300/40 dark:shadow-green-900/40'
+                                : 'bg-gray-100 dark:bg-gray-700'
                             }`}
                           >
                             {alreadyPaid ? (
-                              <Check size={20} className="text-green-600" />
+                              <Check size={22} className="text-white" />
                             ) : (
-                              <span className="text-lg">💳</span>
+                              <span className="text-xl">💳</span>
                             )}
                           </div>
                           <div className="flex-1">
-                            <p className="font-medium">
+                            <p className="font-semibold text-gray-900 dark:text-white">
                               {payment.debtName}
                               {alreadyPaid && (
-                                <span className="ml-2 text-xs text-green-600">Paid</span>
+                                <span className="ml-2 text-xs text-green-600 dark:text-green-400 font-bold">Paid</span>
                               )}
                             </p>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
                               {format(monthDate, 'MMM')} {debt.dueDay},{' '}
                               {format(monthDate, 'yyyy')}
                             </p>
                           </div>
                           <div className="text-right flex items-center gap-3">
                             <div>
-                              <p className={`font-semibold ${alreadyPaid ? 'text-green-600' : ''}`}>
+                              <p className={`font-bold ${alreadyPaid ? 'text-green-600 dark:text-green-400' : 'text-gray-900 dark:text-white'}`}>
                                 {formatCurrency(alreadyPaid && paidPayment ? paidPayment.amount : payment.amount)}
                               </p>
                               <span
-                                className={`text-xs px-2 py-1 rounded-full ${
+                                className={`text-xs px-2.5 py-1 rounded-xl font-medium ${
                                   (alreadyPaid && paidPayment ? paidPayment.type : payment.type) === 'extra'
-                                    ? 'bg-primary-100 text-primary-700'
+                                    ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300'
                                     : (alreadyPaid && paidPayment ? paidPayment.type : payment.type) === 'one_time'
-                                    ? 'bg-purple-100 text-purple-700'
-                                    : 'bg-gray-100 text-gray-600'
+                                    ? 'bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300'
+                                    : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
                                 }`}
                               >
                                 {(alreadyPaid && paidPayment ? paidPayment.type : payment.type) === 'extra'
@@ -434,7 +468,7 @@ export function TrackPage() {
                                     payment.type as PaymentType
                                   )
                                 }
-                                className="p-2 bg-green-100 text-green-600 rounded-full hover:bg-green-200 transition-colors"
+                                className="p-2.5 bg-gradient-to-br from-green-400 to-emerald-500 text-white rounded-xl hover:from-green-500 hover:to-emerald-600 transition-all shadow-lg shadow-green-300/40 hover:scale-105 active:scale-95"
                                 title="Mark as paid (click to edit amount)"
                               >
                                 <Check size={18} />
@@ -443,14 +477,14 @@ export function TrackPage() {
                               <div className="flex gap-1">
                                 <button
                                   onClick={() => paidPayment && openPaymentModal(debt, undefined, undefined, paidPayment)}
-                                  className="p-2 bg-gray-100 text-gray-500 rounded-full hover:bg-primary-100 hover:text-primary-600 transition-colors"
+                                  className="p-2 bg-white/80 dark:bg-gray-800/80 text-gray-500 dark:text-gray-400 rounded-xl hover:bg-primary-100 dark:hover:bg-primary-900/50 hover:text-primary-600 dark:hover:text-primary-400 transition-all"
                                   title="Edit payment"
                                 >
                                   <Pencil size={16} />
                                 </button>
                                 <button
                                   onClick={() => paidPayment && handleDeletePayment(paidPayment.id, paidPayment.debtId, paidPayment.principal)}
-                                  className="p-2 bg-gray-100 text-gray-500 rounded-full hover:bg-red-100 hover:text-red-500 transition-colors"
+                                  className="p-2 bg-white/80 dark:bg-gray-800/80 text-gray-500 dark:text-gray-400 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/50 hover:text-red-500 dark:hover:text-red-400 transition-all"
                                   title="Undo payment"
                                 >
                                   <Undo2 size={18} />
@@ -467,13 +501,16 @@ export function TrackPage() {
             })}
 
             {Object.keys(upcomingByMonth).length === 0 && (
-              <div className="text-center py-8">
-                <Calendar size={32} className="mx-auto text-gray-300 mb-3" />
-                <p className="text-gray-500">Set your monthly budget to see upcoming payments.</p>
+              <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-3xl">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                  <Calendar size={28} className="text-gray-400" />
+                </div>
+                <p className="text-gray-500 dark:text-gray-400 font-medium">Set your monthly budget to see upcoming payments.</p>
                 <a
                   href="/plan"
-                  className="inline-block mt-4 px-6 py-2 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-colors"
+                  className="inline-flex items-center gap-2 mt-4 px-6 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-2xl hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg shadow-primary-500/30"
                 >
+                  <Sparkles size={16} />
                   Set Up Budget
                 </a>
               </div>
@@ -485,16 +522,19 @@ export function TrackPage() {
         {activeTab === 'complete' && (
           <div className="space-y-3">
             {completedPayments.length === 0 ? (
-              <div className="text-center py-8">
-                <Receipt size={32} className="mx-auto text-gray-300 mb-3" />
-                <p className="font-medium text-gray-700 mb-1">No Completed Payments</p>
-                <p className="text-sm text-gray-500 mb-4">
+              <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-3xl">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                  <Receipt size={28} className="text-gray-400" />
+                </div>
+                <p className="font-bold text-gray-700 dark:text-gray-200 mb-1">No Completed Payments</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
                   Mark payments as complete or log them manually.
                 </p>
                 <button
                   onClick={() => openPaymentModal()}
-                  className="px-6 py-2 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-colors"
+                  className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-2xl hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg shadow-primary-500/30"
                 >
+                  <Sparkles size={16} />
                   Log Your First Payment
                 </button>
               </div>
@@ -503,13 +543,13 @@ export function TrackPage() {
                 const debt = debts.find((d) => d.id === payment.debtId);
 
                 return (
-                  <div key={payment.id} className="card flex items-center gap-4">
-                    <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                      <Check size={20} className="text-green-600" />
+                  <div key={payment.id} className="card bg-white dark:bg-gray-800 rounded-2xl flex items-center gap-4 hover:shadow-md transition-all group">
+                    <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-500 rounded-2xl flex items-center justify-center shadow-lg shadow-green-300/40 dark:shadow-green-900/40">
+                      <Check size={22} className="text-white" />
                     </div>
                     <div className="flex-1">
-                      <p className="font-medium">{debt?.name || 'Unknown'}</p>
-                      <p className="text-sm text-gray-500">
+                      <p className="font-semibold text-gray-900 dark:text-white">{debt?.name || 'Unknown'}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
                         {payment.completedAt
                           ? format(parseISO(payment.completedAt), 'MMM d, yyyy')
                           : 'N/A'}
@@ -517,16 +557,16 @@ export function TrackPage() {
                     </div>
                     <div className="text-right flex items-center gap-3">
                       <div>
-                        <p className="font-semibold text-green-600">
+                        <p className="font-bold text-green-600 dark:text-green-400">
                           {formatCurrency(payment.amount)}
                         </p>
                         <span
-                          className={`text-xs px-2 py-1 rounded-full ${
+                          className={`text-xs px-2.5 py-1 rounded-xl font-medium ${
                             payment.type === 'extra'
-                              ? 'bg-primary-100 text-primary-700'
+                              ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300'
                               : payment.type === 'one_time'
-                              ? 'bg-purple-100 text-purple-700'
-                              : 'bg-gray-100 text-gray-600'
+                              ? 'bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300'
+                              : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
                           }`}
                         >
                           {payment.type === 'extra'
@@ -538,14 +578,14 @@ export function TrackPage() {
                       </div>
                       <button
                         onClick={() => debt && openPaymentModal(debt, undefined, undefined, payment)}
-                        className="p-2 text-gray-400 hover:text-primary-500 hover:bg-primary-50 rounded-full transition-colors"
+                        className="p-2 text-gray-400 hover:text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/50 rounded-xl transition-all opacity-0 group-hover:opacity-100"
                         title="Edit payment"
                       >
                         <Pencil size={16} />
                       </button>
                       <button
                         onClick={() => handleDeletePayment(payment.id, payment.debtId, payment.principal)}
-                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/50 rounded-xl transition-all opacity-0 group-hover:opacity-100"
                         title="Delete payment"
                       >
                         <X size={18} />
