@@ -14,12 +14,13 @@ import {
   isSameMonth,
   subMonths,
 } from 'date-fns';
-import { Check, Plus, Flame, CheckCircle, AlertCircle, X, Undo2, Pencil } from 'lucide-react';
+import { Check, Plus, Flame, CheckCircle, AlertCircle, X, Undo2, Pencil, Receipt, CreditCard, Calendar } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { PageHeader } from '../components/layout/PageHeader';
 import { MiniCalendar } from '../components/ui/MiniCalendar';
 import { PaymentModal } from '../components/ui/PaymentModal';
 import { BillDistributionPanel } from '../components/ui/BillDistributionPanel';
+import { EmptyState } from '../components/ui/EmptyState';
 import { formatCurrency, generatePayoffPlan } from '../lib/calculations';
 import type { Debt, PaymentType, Payment } from '../types';
 
@@ -192,14 +193,13 @@ export function TrackPage() {
     return (
       <div className="min-h-screen">
         <PageHeader title="Tracking" subtitle="Record your transactions" />
-        <div className="px-4 py-12 text-center">
-          <p className="text-gray-500">Add debts to start tracking payments.</p>
-          <a
-            href="/debts"
-            className="inline-flex items-center mt-4 px-6 py-3 bg-primary-500 text-white font-medium rounded-xl hover:bg-primary-600 transition-colors"
-          >
-            Add Debts
-          </a>
+        <div className="px-4">
+          <EmptyState
+            icon={CreditCard}
+            title="No Debts to Track"
+            description="Add your debts first to start tracking payments and building your streak."
+            action={{ label: 'Add Debts', href: '/debts' }}
+          />
         </div>
       </div>
     );
@@ -467,8 +467,15 @@ export function TrackPage() {
             })}
 
             {Object.keys(upcomingByMonth).length === 0 && (
-              <div className="text-center py-8 text-gray-500">
-                <p>Set your monthly budget in the Budget page to see upcoming payments.</p>
+              <div className="text-center py-8">
+                <Calendar size={32} className="mx-auto text-gray-300 mb-3" />
+                <p className="text-gray-500">Set your monthly budget to see upcoming payments.</p>
+                <a
+                  href="/plan"
+                  className="inline-block mt-4 px-6 py-2 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-colors"
+                >
+                  Set Up Budget
+                </a>
               </div>
             )}
           </div>
@@ -478,14 +485,15 @@ export function TrackPage() {
         {activeTab === 'complete' && (
           <div className="space-y-3">
             {completedPayments.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
-                <p>No completed payments yet.</p>
-                <p className="text-sm mt-2">
+              <div className="text-center py-8">
+                <Receipt size={32} className="mx-auto text-gray-300 mb-3" />
+                <p className="font-medium text-gray-700 mb-1">No Completed Payments</p>
+                <p className="text-sm text-gray-500 mb-4">
                   Mark payments as complete or log them manually.
                 </p>
                 <button
                   onClick={() => openPaymentModal()}
-                  className="mt-4 px-6 py-2 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-colors"
+                  className="px-6 py-2 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-colors"
                 >
                   Log Your First Payment
                 </button>

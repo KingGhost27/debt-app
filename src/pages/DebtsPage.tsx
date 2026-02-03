@@ -6,12 +6,13 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { Plus, Search, Pencil, Trash2, ChevronDown, ArrowUpDown, Calendar, HelpCircle, RefreshCw, Check, X } from 'lucide-react';
+import { Plus, Search, Pencil, Trash2, ChevronDown, ArrowUpDown, Calendar, HelpCircle, RefreshCw, Check, X, CreditCard } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { useApp } from '../context/AppContext';
 import { PageHeader } from '../components/layout/PageHeader';
 import { ProgressRing } from '../components/ui/ProgressRing';
 import { DebtModal } from '../components/ui/DebtModal';
+import { EmptyState } from '../components/ui/EmptyState';
 import {
   formatCurrency,
   formatCompactCurrency,
@@ -625,22 +626,22 @@ export function DebtsPage() {
 
         {/* Debt Cards */}
         {filteredDebts.length === 0 ? (
-          <div className="text-center py-12">
-            {debts.length === 0 ? (
-              <>
-                <p className="text-gray-500 mb-4">No debts added yet</p>
-                <button
-                  onClick={() => setIsModalOpen(true)}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-primary-500 text-white font-medium rounded-xl hover:bg-primary-600 transition-colors"
-                >
-                  <Plus size={20} />
-                  Add Your First Debt
-                </button>
-              </>
-            ) : (
+          debts.length === 0 ? (
+            <EmptyState
+              icon={CreditCard}
+              title="No Debts Yet"
+              description="Add your debts to start tracking your payoff journey."
+              action={{
+                label: 'Add Your First Debt',
+                onClick: () => setIsModalOpen(true),
+              }}
+            />
+          ) : (
+            <div className="text-center py-8">
+              <Search size={32} className="mx-auto text-gray-300 mb-3" />
               <p className="text-gray-500">No debts match your search</p>
-            )}
-          </div>
+            </div>
+          )
         ) : (
           <div className="space-y-4">
             {filteredDebts.map((debt) => {
