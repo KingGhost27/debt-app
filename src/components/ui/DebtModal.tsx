@@ -1,12 +1,12 @@
 /**
- * Debt Modal Component
+ * Debt Modal Component - Kawaii Edition
  *
- * Modal for adding/editing debts with form validation.
- * Supports both built-in and custom categories.
+ * Cute modal for adding/editing debts with delightful styling.
+ * Features gradient header, rounded inputs, and playful animations.
  */
 
 import { useState, useEffect } from 'react';
-import { X, Plus } from 'lucide-react';
+import { X, Plus, CreditCard, Sparkles } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import type { Debt, DebtCategory } from '../../types';
 import { CATEGORY_INFO } from '../../types';
@@ -14,12 +14,12 @@ import { CATEGORY_INFO } from '../../types';
 interface DebtModalProps {
   isOpen: boolean;
   onClose: () => void;
-  debt?: Debt | null; // If provided, we're editing
+  debt?: Debt | null;
 }
 
 interface FormData {
   name: string;
-  category: string; // Can be DebtCategory or custom category ID
+  category: string;
   balance: string;
   originalBalance: string;
   apr: string;
@@ -45,11 +45,10 @@ export function DebtModal({ isOpen, onClose, debt }: DebtModalProps) {
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
   const [showNewCategory, setShowNewCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
-  const [newCategoryColor, setNewCategoryColor] = useState('#8b5cf6');
+  const [newCategoryColor, setNewCategoryColor] = useState('#a855f7');
 
   const isEditing = !!debt;
 
-  // Populate form when editing
   useEffect(() => {
     if (debt) {
       setFormData({
@@ -70,7 +69,6 @@ export function DebtModal({ isOpen, onClose, debt }: DebtModalProps) {
     setNewCategoryName('');
   }, [debt, isOpen]);
 
-  // Handle creating a new category
   const handleCreateCategory = () => {
     if (!newCategoryName.trim()) return;
 
@@ -79,8 +77,6 @@ export function DebtModal({ isOpen, onClose, debt }: DebtModalProps) {
       color: newCategoryColor,
     });
 
-    // Find the newly created category and select it
-    // The category will be available after state updates
     setFormData((prev) => ({ ...prev, category: 'new_custom' }));
     setShowNewCategory(false);
     setNewCategoryName('');
@@ -92,7 +88,6 @@ export function DebtModal({ isOpen, onClose, debt }: DebtModalProps) {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
 
-    // Clear error when user starts typing
     if (errors[name as keyof FormData]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
@@ -146,7 +141,6 @@ export function DebtModal({ isOpen, onClose, debt }: DebtModalProps) {
       ? parseFloat(formData.originalBalance)
       : balance;
 
-    // Get the final category - check if we need to use the most recently added custom category
     let finalCategory = formData.category;
     if (finalCategory === 'new_custom' && customCategories.length > 0) {
       finalCategory = customCategories[customCategories.length - 1].id;
@@ -178,31 +172,43 @@ export function DebtModal({ isOpen, onClose, debt }: DebtModalProps) {
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/50"
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
         onClick={onClose}
       />
 
       {/* Modal */}
-      <div className="relative bg-white w-full max-w-lg rounded-t-2xl sm:rounded-2xl max-h-[90vh] overflow-y-auto">
+      <div className="relative bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[90vh] overflow-hidden shadow-2xl animate-slide-up">
         {/* Header */}
-        <div className="sticky top-0 bg-white flex justify-between items-center p-4 border-b border-gray-100">
-          <h2 className="text-lg font-semibold">
-            {isEditing ? 'Edit Debt' : 'Add New Debt'}
-          </h2>
-          <button
-            onClick={onClose}
-            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <X size={20} />
-          </button>
+        <div className="sticky top-0 bg-gradient-to-r from-primary-100 to-primary-50 px-5 py-4 border-b border-primary-100/50">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow-lg shadow-primary-300/30">
+                <CreditCard size={20} className="text-white" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-gray-900">
+                  {isEditing ? 'Edit Debt' : 'Add New Debt'}
+                </h2>
+                <p className="text-xs text-gray-500">
+                  {isEditing ? 'Update your debt details' : 'Track a new debt'}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-white/50 rounded-xl transition-colors"
+            >
+              <X size={20} />
+            </button>
+          </div>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-4 space-y-4">
+        <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto max-h-[calc(90vh-80px)]">
           {/* Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Name *
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+              Name <span className="text-primary-400">*</span>
             </label>
             <input
               type="text"
@@ -210,19 +216,19 @@ export function DebtModal({ isOpen, onClose, debt }: DebtModalProps) {
               value={formData.name}
               onChange={handleChange}
               placeholder="e.g., Chase Sapphire"
-              className={`w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
-                errors.name ? 'border-red-500' : 'border-gray-200'
-              }`}
+              className={`input ${errors.name ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : ''}`}
             />
             {errors.name && (
-              <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+              <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                <span>*</span> {errors.name}
+              </p>
             )}
           </div>
 
           {/* Category */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Category *
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+              Category <span className="text-primary-400">*</span>
             </label>
             <select
               name="category"
@@ -235,15 +241,13 @@ export function DebtModal({ isOpen, onClose, debt }: DebtModalProps) {
                   setShowNewCategory(false);
                 }
               }}
-              className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
+              className="input"
             >
-              {/* Built-in categories */}
               {Object.entries(CATEGORY_INFO).map(([key, info]) => (
                 <option key={key} value={key}>
                   {info.label}
                 </option>
               ))}
-              {/* Custom categories */}
               {customCategories.length > 0 && (
                 <>
                   <option disabled>──────────</option>
@@ -254,28 +258,33 @@ export function DebtModal({ isOpen, onClose, debt }: DebtModalProps) {
                   ))}
                 </>
               )}
-              {/* Add new option */}
               <option disabled>──────────</option>
               <option value="__new__">+ Add new category...</option>
             </select>
 
             {/* New category form */}
             {showNewCategory && (
-              <div className="mt-3 p-3 bg-primary-50 rounded-xl border border-primary-200">
-                <p className="text-sm font-medium text-gray-700 mb-2">Create new category</p>
-                <div className="flex gap-2 mb-2">
-                  <input
-                    type="color"
-                    value={newCategoryColor}
-                    onChange={(e) => setNewCategoryColor(e.target.value)}
-                    className="w-10 h-10 rounded cursor-pointer border border-gray-200"
-                  />
+              <div className="mt-3 p-4 bg-gradient-to-r from-primary-50 to-white rounded-2xl border border-primary-200/50 animate-slide-up">
+                <p className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                  <Sparkles size={14} className="text-primary-400" />
+                  Create new category
+                </p>
+                <div className="flex gap-3 mb-3">
+                  <div className="relative">
+                    <input
+                      type="color"
+                      value={newCategoryColor}
+                      onChange={(e) => setNewCategoryColor(e.target.value)}
+                      className="w-12 h-12 rounded-xl cursor-pointer border-2 border-gray-200 hover:border-primary-300 transition-colors"
+                      style={{ padding: '2px' }}
+                    />
+                  </div>
                   <input
                     type="text"
                     value={newCategoryName}
                     onChange={(e) => setNewCategoryName(e.target.value)}
                     placeholder="Category name"
-                    className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                    className="flex-1 px-4 py-2 border-2 border-gray-200 rounded-xl text-sm focus:border-primary-400 focus:outline-none focus:ring-4 focus:ring-primary-100"
                     autoFocus
                   />
                 </div>
@@ -286,7 +295,7 @@ export function DebtModal({ isOpen, onClose, debt }: DebtModalProps) {
                       setShowNewCategory(false);
                       setNewCategoryName('');
                     }}
-                    className="flex-1 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800 border border-gray-200 rounded-lg"
+                    className="flex-1 px-4 py-2 text-sm text-gray-600 hover:text-gray-800 border-2 border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
                   >
                     Cancel
                   </button>
@@ -294,7 +303,7 @@ export function DebtModal({ isOpen, onClose, debt }: DebtModalProps) {
                     type="button"
                     onClick={handleCreateCategory}
                     disabled={!newCategoryName.trim()}
-                    className="flex-1 px-3 py-1.5 text-sm bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1"
+                    className="flex-1 px-4 py-2 text-sm bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl hover:from-primary-600 hover:to-primary-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1 shadow-lg shadow-primary-300/30"
                   >
                     <Plus size={14} />
                     Create
@@ -305,10 +314,10 @@ export function DebtModal({ isOpen, onClose, debt }: DebtModalProps) {
           </div>
 
           {/* Balance & Original Balance */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Current Balance *
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                Balance <span className="text-primary-400">*</span>
               </label>
               <input
                 type="number"
@@ -318,16 +327,14 @@ export function DebtModal({ isOpen, onClose, debt }: DebtModalProps) {
                 placeholder="0.00"
                 step="0.01"
                 min="0"
-                className={`w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
-                  errors.balance ? 'border-red-500' : 'border-gray-200'
-                }`}
+                className={`input ${errors.balance ? 'border-red-400' : ''}`}
               />
               {errors.balance && (
-                <p className="text-red-500 text-sm mt-1">{errors.balance}</p>
+                <p className="text-red-500 text-xs mt-1">{errors.balance}</p>
               )}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
                 Original Balance
               </label>
               <input
@@ -338,16 +345,16 @@ export function DebtModal({ isOpen, onClose, debt }: DebtModalProps) {
                 placeholder="Same as balance"
                 step="0.01"
                 min="0"
-                className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="input"
               />
             </div>
           </div>
 
           {/* APR & Minimum Payment */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                APR (%) *
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                APR (%) <span className="text-primary-400">*</span>
               </label>
               <input
                 type="number"
@@ -358,17 +365,15 @@ export function DebtModal({ isOpen, onClose, debt }: DebtModalProps) {
                 step="0.01"
                 min="0"
                 max="100"
-                className={`w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
-                  errors.apr ? 'border-red-500' : 'border-gray-200'
-                }`}
+                className={`input ${errors.apr ? 'border-red-400' : ''}`}
               />
               {errors.apr && (
-                <p className="text-red-500 text-sm mt-1">{errors.apr}</p>
+                <p className="text-red-500 text-xs mt-1">{errors.apr}</p>
               )}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Minimum Payment *
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                Min. Payment <span className="text-primary-400">*</span>
               </label>
               <input
                 type="number"
@@ -378,21 +383,19 @@ export function DebtModal({ isOpen, onClose, debt }: DebtModalProps) {
                 placeholder="25.00"
                 step="0.01"
                 min="0"
-                className={`w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
-                  errors.minimumPayment ? 'border-red-500' : 'border-gray-200'
-                }`}
+                className={`input ${errors.minimumPayment ? 'border-red-400' : ''}`}
               />
               {errors.minimumPayment && (
-                <p className="text-red-500 text-sm mt-1">{errors.minimumPayment}</p>
+                <p className="text-red-500 text-xs mt-1">{errors.minimumPayment}</p>
               )}
             </div>
           </div>
 
           {/* Due Day & Credit Limit */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Due Day *
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                Due Day <span className="text-primary-400">*</span>
               </label>
               <input
                 type="number"
@@ -402,16 +405,14 @@ export function DebtModal({ isOpen, onClose, debt }: DebtModalProps) {
                 placeholder="15"
                 min="1"
                 max="31"
-                className={`w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
-                  errors.dueDay ? 'border-red-500' : 'border-gray-200'
-                }`}
+                className={`input ${errors.dueDay ? 'border-red-400' : ''}`}
               />
               {errors.dueDay && (
-                <p className="text-red-500 text-sm mt-1">{errors.dueDay}</p>
+                <p className="text-red-500 text-xs mt-1">{errors.dueDay}</p>
               )}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
                 Credit Limit
               </label>
               <input
@@ -422,12 +423,10 @@ export function DebtModal({ isOpen, onClose, debt }: DebtModalProps) {
                 placeholder="Optional"
                 step="0.01"
                 min="0"
-                className={`w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
-                  errors.creditLimit ? 'border-red-500' : 'border-gray-200'
-                }`}
+                className={`input ${errors.creditLimit ? 'border-red-400' : ''}`}
               />
               {errors.creditLimit && (
-                <p className="text-red-500 text-sm mt-1">{errors.creditLimit}</p>
+                <p className="text-red-500 text-xs mt-1">{errors.creditLimit}</p>
               )}
             </div>
           </div>
@@ -436,8 +435,9 @@ export function DebtModal({ isOpen, onClose, debt }: DebtModalProps) {
           <div className="pt-4">
             <button
               type="submit"
-              className="w-full py-3 bg-primary-500 text-white font-semibold rounded-xl hover:bg-primary-600 transition-colors"
+              className="w-full py-3.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-bold rounded-2xl hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg shadow-primary-300/40 hover:shadow-xl hover:shadow-primary-400/40 hover:-translate-y-0.5 flex items-center justify-center gap-2"
             >
+              <Sparkles size={18} />
               {isEditing ? 'Save Changes' : 'Add Debt'}
             </button>
           </div>
