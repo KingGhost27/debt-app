@@ -92,20 +92,6 @@ export function ProgressRing({
             transition: 'stroke-dashoffset 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)',
           }}
         />
-
-        {/* End cap decoration (small circle at progress end) */}
-        {clampedPercentage > 5 && (
-          <circle
-            cx={size / 2 + radius * Math.cos(((clampedPercentage / 100) * 360 - 90) * Math.PI / 180)}
-            cy={size / 2 + radius * Math.sin(((clampedPercentage / 100) * 360 - 90) * Math.PI / 180)}
-            r={strokeWidth / 2 + 1}
-            fill="white"
-            className="transition-all duration-700"
-            style={{
-              filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))',
-            }}
-          />
-        )}
       </svg>
 
       {/* Center content */}
