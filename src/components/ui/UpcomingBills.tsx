@@ -7,8 +7,8 @@
  */
 
 import { useState, useMemo } from 'react';
-import { differenceInDays, isSameMonth, parseISO, addDays, addWeeks, format, isBefore, isAfter } from 'date-fns';
-import { Check, ChevronDown, Calendar, Wallet } from 'lucide-react';
+import { differenceInDays, isSameMonth, parseISO, addDays, addWeeks, format, isBefore } from 'date-fns';
+import { Check, ChevronDown, ChevronLeft, ChevronRight, Calendar, Wallet } from 'lucide-react';
 import type { Debt, Payment, IncomeSource } from '../../types';
 import { CATEGORY_INFO } from '../../types';
 import {
@@ -68,19 +68,100 @@ function getNextPayday(source: IncomeSource, fromDate: Date): Date {
   return nextPay;
 }
 
-// Get pay period interval (from today to next payday)
-function getPayPeriodInterval(source: IncomeSource, today: Date): { start: Date; end: Date } {
+// Get the length of a pay period in days/weeks
+function getPayPeriodLength(frequency: IncomeSource['payFrequency']): { weeks?: number; days?: number } {
+  switch (frequency) {
+    case 'weekly':
+      return { weeks: 1 };
+    case 'bi-weekly':
+      return { weeks: 2 };
+    case 'semi-monthly':
+      return { days: 15 };
+    case 'monthly':
+      return { days: 30 };
+    default:
+      return { weeks: 2 };
+  }
+}
+
+// Get pay period interval (from last payday to next payday)
+// offset: 0 = current period, 1 = next period, -1 = previous period, etc.
+function getPayPeriodInterval(source: IncomeSource, today: Date, offset: number = 0): { start: Date; end: Date } {
   const nextPayday = getNextPayday(source, today);
+  const periodLength = getPayPeriodLength(source.payFrequency);
+
+  // Calculate the base pay period end (next payday)
+  let periodEnd = nextPayday;
+
+  // Apply offset to move forward or backward through pay periods
+  if (offset !== 0) {
+    if (periodLength.weeks) {
+      periodEnd = addWeeks(nextPayday, offset * periodLength.weeks);
+    } else if (periodLength.days) {
+      periodEnd = addDays(nextPayday, offset * periodLength.days);
+    }
+  }
+
+  // Calculate the start of the pay period
+  let periodStart: Date;
+  if (periodLength.weeks) {
+    periodStart = addWeeks(periodEnd, -periodLength.weeks);
+  } else if (periodLength.days) {
+    periodStart = addDays(periodEnd, -periodLength.days);
+  } else {
+    periodStart = today;
+  }
+
   return {
-    start: today,
-    end: nextPayday,
+    start: periodStart,
+    end: periodEnd,
   };
+}
+
+// Find the due date that falls within or near a pay period
+// Returns the due date in the pay period's month range
+function getDueDateInPeriod(dueDay: number, periodStart: Date, periodEnd: Date): Date | null {
+  // Check if due day falls in the start month
+  const startMonth = periodStart.getMonth();
+  const startYear = periodStart.getFullYear();
+  const endMonth = periodEnd.getMonth();
+  const endYear = periodEnd.getFullYear();
+
+  // Get last day of each month to clamp the due day
+  const lastDayOfStartMonth = new Date(startYear, startMonth + 1, 0).getDate();
+  const lastDayOfEndMonth = new Date(endYear, endMonth + 1, 0).getDate();
+
+  // Try due date in start month
+  const clampedDayStart = Math.min(dueDay, lastDayOfStartMonth);
+  const dueDateInStartMonth = new Date(startYear, startMonth, clampedDayStart);
+
+  // Try due date in end month (if different from start month)
+  const clampedDayEnd = Math.min(dueDay, lastDayOfEndMonth);
+  const dueDateInEndMonth = new Date(endYear, endMonth, clampedDayEnd);
+
+  // Check which one falls within the period
+  const dates: Date[] = [];
+
+  if (dueDateInStartMonth >= periodStart && dueDateInStartMonth <= periodEnd) {
+    dates.push(dueDateInStartMonth);
+  }
+
+  if (startMonth !== endMonth || startYear !== endYear) {
+    if (dueDateInEndMonth >= periodStart && dueDateInEndMonth <= periodEnd) {
+      dates.push(dueDateInEndMonth);
+    }
+  }
+
+  // Return the earliest date that falls in the period
+  if (dates.length === 0) return null;
+  return dates.sort((a, b) => a.getTime() - b.getTime())[0];
 }
 
 export function UpcomingBills({ debts, customCategories = [], payments = [], incomeSources = [] }: UpcomingBillsProps) {
   const [activeTab, setActiveTab] = useState<TabType>(incomeSources.length > 0 ? 'pay-period' : 'all');
   const [selectedSourceId, setSelectedSourceId] = useState<string>(incomeSources[0]?.id || '');
   const [showSourcePicker, setShowSourcePicker] = useState(false);
+  const [periodOffset, setPeriodOffset] = useState(0); // 0 = current, -1 = previous, 1 = next
 
   const today = useMemo(() => {
     const d = new Date();
@@ -93,11 +174,27 @@ export function UpcomingBills({ debts, customCategories = [], payments = [], inc
     return incomeSources.find((s) => s.id === selectedSourceId) || incomeSources[0];
   }, [incomeSources, selectedSourceId]);
 
-  // Calculate pay period for selected source
+  // Reset period offset when changing income source
+  const handleSourceChange = (sourceId: string) => {
+    setSelectedSourceId(sourceId);
+    setPeriodOffset(0);
+    setShowSourcePicker(false);
+  };
+
+  // Calculate pay period for selected source with offset
   const payPeriod = useMemo(() => {
     if (!selectedSource) return null;
-    return getPayPeriodInterval(selectedSource, today);
-  }, [selectedSource, today]);
+    return getPayPeriodInterval(selectedSource, today, periodOffset);
+  }, [selectedSource, today, periodOffset]);
+
+  // Get label for the current period
+  const periodLabel = useMemo(() => {
+    if (periodOffset === 0) return 'This pay period';
+    if (periodOffset === -1) return 'Last pay period';
+    if (periodOffset === 1) return 'Next pay period';
+    if (periodOffset < 0) return `${Math.abs(periodOffset)} periods ago`;
+    return `${periodOffset} periods ahead`;
+  }, [periodOffset]);
 
   // Check if a debt has been paid this month
   const isPaidThisMonth = (debtId: string): Payment | undefined => {
@@ -119,14 +216,22 @@ export function UpcomingBills({ debts, customCategories = [], payments = [], inc
       .sort((a, b) => a.daysUntil - b.daysUntil);
   }, [debts, today]);
 
-  // Filter bills by pay period
+  // Filter bills by pay period - find bills where the due day falls within the period
   const payPeriodBills = useMemo((): BillWithDueDate[] => {
     if (!payPeriod) return [];
-    return sortedBills.filter((bill) => {
-      // Include bills due between now and next payday (inclusive)
-      return !isAfter(bill.nextDueDate, payPeriod.end);
-    });
-  }, [sortedBills, payPeriod]);
+
+    return debts
+      .map((debt) => {
+        // Find the due date that falls within this pay period
+        const dueDateInPeriod = getDueDateInPeriod(debt.dueDay, payPeriod.start, payPeriod.end);
+        if (!dueDateInPeriod) return null;
+
+        const daysUntil = differenceInDays(dueDateInPeriod, today);
+        return { ...debt, nextDueDate: dueDateInPeriod, daysUntil };
+      })
+      .filter((bill): bill is BillWithDueDate => bill !== null)
+      .sort((a, b) => a.nextDueDate.getTime() - b.nextDueDate.getTime());
+  }, [debts, payPeriod, today]);
 
   // Get the bills to display based on active tab
   const displayBills = activeTab === 'pay-period' ? payPeriodBills : sortedBills;
@@ -220,7 +325,41 @@ export function UpcomingBills({ debts, customCategories = [], payments = [], inc
 
       {/* Pay Period Info Bar */}
       {activeTab === 'pay-period' && hasIncomeSources && payPeriod && selectedSource && (
-        <div className="mb-4 p-3 bg-gradient-to-r from-primary-50 to-primary-100/50 dark:from-primary-900/30 dark:to-primary-800/20 rounded-2xl border border-primary-100 dark:border-primary-800">
+        <div className="mb-4 p-4 bg-gradient-to-r from-primary-50 to-primary-100/50 dark:from-primary-900/30 dark:to-primary-800/20 rounded-2xl border border-primary-100 dark:border-primary-800">
+          {/* Date Range Header with Navigation */}
+          <div className="flex items-center justify-between mb-3 pb-3 border-b border-primary-200/50 dark:border-primary-700/50">
+            {/* Previous button */}
+            <button
+              onClick={() => setPeriodOffset(periodOffset - 1)}
+              className="p-1.5 rounded-lg hover:bg-primary-200/50 dark:hover:bg-primary-700/50 transition-colors"
+              aria-label="Previous pay period"
+            >
+              <ChevronLeft size={20} className="text-primary-600 dark:text-primary-400" />
+            </button>
+
+            {/* Date range and label */}
+            <div className="text-center">
+              <p className="text-xs text-primary-600 dark:text-primary-400 font-medium mb-0.5">
+                {periodLabel}
+              </p>
+              <div className="flex items-center justify-center gap-2">
+                <Calendar size={14} className="text-primary-500" />
+                <span className="text-sm font-bold text-gray-900 dark:text-white">
+                  {format(payPeriod.start, 'MMM d')} — {format(payPeriod.end, 'MMM d')}
+                </span>
+              </div>
+            </div>
+
+            {/* Next button */}
+            <button
+              onClick={() => setPeriodOffset(periodOffset + 1)}
+              className="p-1.5 rounded-lg hover:bg-primary-200/50 dark:hover:bg-primary-700/50 transition-colors"
+              aria-label="Next pay period"
+            >
+              <ChevronRight size={20} className="text-primary-600 dark:text-primary-400" />
+            </button>
+          </div>
+
           <div className="flex items-center justify-between gap-3">
             {/* Income source picker */}
             <div className="relative flex-1">
@@ -232,7 +371,7 @@ export function UpcomingBills({ debts, customCategories = [], payments = [], inc
                   <Wallet size={16} className="text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs text-primary-600 dark:text-primary-400 font-medium">Until next payday</p>
+                  <p className="text-xs text-primary-600 dark:text-primary-400 font-medium">Next payday</p>
                   <p className="text-sm font-semibold text-gray-900 dark:text-white truncate flex items-center gap-1">
                     {selectedSource.name}
                     {incomeSources.length > 1 && (
@@ -248,10 +387,7 @@ export function UpcomingBills({ debts, customCategories = [], payments = [], inc
                   {incomeSources.map((source) => (
                     <button
                       key={source.id}
-                      onClick={() => {
-                        setSelectedSourceId(source.id);
-                        setShowSourcePicker(false);
-                      }}
+                      onClick={() => handleSourceChange(source.id)}
                       className={`w-full px-3 py-2.5 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2 ${
                         source.id === selectedSourceId ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300' : 'text-gray-700 dark:text-gray-300'
                       }`}
@@ -264,13 +400,10 @@ export function UpcomingBills({ debts, customCategories = [], payments = [], inc
               )}
             </div>
 
-            {/* Pay period date and total */}
+            {/* Total due */}
             <div className="text-right flex-shrink-0">
-              <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1 justify-end">
-                <Calendar size={12} />
-                {format(payPeriod.end, 'MMM d')}
-              </p>
-              <p className="text-lg font-bold text-primary-600 dark:text-primary-400">
+              <p className="text-xs text-gray-500 dark:text-gray-400">Total due</p>
+              <p className="text-xl font-bold text-primary-600 dark:text-primary-400">
                 {formatCurrency(payPeriodTotal)}
               </p>
             </div>
