@@ -1,12 +1,13 @@
 /**
- * Payment Modal Component
+ * Payment Modal Component - Kawaii Edition
  *
  * Modal for logging manual payments (extra, one-time, or minimum payments).
  * Supports both creating new payments and editing existing ones.
+ * Features cute styling, animations, and delightful interactions.
  */
 
 import { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, Sparkles, DollarSign } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { formatCurrency } from '../../lib/calculations';
 import type { Debt, PaymentType, Payment } from '../../types';
@@ -186,38 +187,43 @@ export function PaymentModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/50"
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       />
 
       {/* Modal */}
-      <div className="relative w-full max-w-md bg-white rounded-2xl shadow-xl">
+      <div className="relative w-full max-w-md bg-white dark:bg-gray-800 rounded-3xl shadow-xl animate-slide-up overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-lg font-semibold">
-            {isEditMode ? 'Edit Payment' : 'Log Payment'}
-          </h2>
+        <div className="bg-gradient-to-r from-primary-500 to-primary-600 px-5 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+              <DollarSign size={20} className="text-white" />
+            </div>
+            <h2 className="text-lg font-bold text-white">
+              {isEditMode ? 'Edit Payment' : 'Log Payment'}
+            </h2>
+          </div>
           <button
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-gray-600 rounded-lg transition-colors"
+            className="p-2 text-white/80 hover:text-white hover:bg-white/20 rounded-xl transition-colors"
           >
             <X size={20} />
           </button>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-4 space-y-4">
+        <form onSubmit={handleSubmit} className="p-5 space-y-4">
           {/* Debt Selector */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
               Debt
             </label>
             <select
               name="debtId"
               value={formData.debtId}
               onChange={handleChange}
-              className={`w-full px-3 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-                errors.debtId ? 'border-red-500' : 'border-gray-200'
+              className={`w-full px-4 py-3 border-2 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all ${
+                errors.debtId ? 'border-red-500' : 'border-gray-200 dark:border-gray-600'
               }`}
             >
               {debts.map((debt) => (
@@ -227,17 +233,17 @@ export function PaymentModal({
               ))}
             </select>
             {errors.debtId && (
-              <p className="text-red-500 text-xs mt-1">{errors.debtId}</p>
+              <p className="text-red-500 text-xs mt-1 font-medium">{errors.debtId}</p>
             )}
           </div>
 
           {/* Amount */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
               Amount
             </label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">
                 $
               </span>
               <input
@@ -248,18 +254,18 @@ export function PaymentModal({
                 placeholder="0.00"
                 step="0.01"
                 min="0"
-                className={`w-full pl-7 pr-3 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-                  errors.amount ? 'border-red-500' : 'border-gray-200'
+                className={`w-full pl-8 pr-4 py-3 border-2 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all ${
+                  errors.amount ? 'border-red-500' : 'border-gray-200 dark:border-gray-600'
                 }`}
               />
             </div>
             {errors.amount && (
-              <p className="text-red-500 text-xs mt-1">{errors.amount}</p>
+              <p className="text-red-500 text-xs mt-1 font-medium">{errors.amount}</p>
             )}
 
             {/* Quick amount buttons */}
             {quickAmounts.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-2">
+              <div className="flex flex-wrap gap-2 mt-3">
                 {quickAmounts.map((qa) => (
                   <button
                     key={qa.label}
@@ -270,7 +276,7 @@ export function PaymentModal({
                         amount: qa.value.toFixed(2),
                       }))
                     }
-                    className="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded-full transition-colors"
+                    className="px-3 py-1.5 text-xs font-medium bg-gray-100 dark:bg-gray-700 hover:bg-primary-100 dark:hover:bg-primary-900/50 text-gray-700 dark:text-gray-300 hover:text-primary-700 dark:hover:text-primary-300 rounded-xl transition-all"
                   >
                     {qa.label} ({formatCurrency(qa.value)})
                   </button>
@@ -281,7 +287,7 @@ export function PaymentModal({
 
           {/* Date */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
               Date
             </label>
             <input
@@ -289,18 +295,18 @@ export function PaymentModal({
               name="date"
               value={formData.date}
               onChange={handleChange}
-              className={`w-full px-3 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-                errors.date ? 'border-red-500' : 'border-gray-200'
+              className={`w-full px-4 py-3 border-2 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all ${
+                errors.date ? 'border-red-500' : 'border-gray-200 dark:border-gray-600'
               }`}
             />
             {errors.date && (
-              <p className="text-red-500 text-xs mt-1">{errors.date}</p>
+              <p className="text-red-500 text-xs mt-1 font-medium">{errors.date}</p>
             )}
           </div>
 
           {/* Payment Type */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
               Payment Type
             </label>
             <div className="flex gap-2">
@@ -309,10 +315,10 @@ export function PaymentModal({
                   key={type}
                   type="button"
                   onClick={() => setFormData((prev) => ({ ...prev, type }))}
-                  className={`flex-1 py-2 px-3 text-sm rounded-xl border transition-colors ${
+                  className={`flex-1 py-2.5 px-3 text-sm font-semibold rounded-xl border-2 transition-all ${
                     formData.type === type
-                      ? 'bg-primary-500 text-white border-primary-500'
-                      : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'
+                      ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white border-primary-500 shadow-lg shadow-primary-500/30'
+                      : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:border-primary-300 dark:hover:border-primary-700'
                   }`}
                 >
                   {type === 'minimum' && 'Minimum'}
@@ -326,8 +332,9 @@ export function PaymentModal({
           {/* Submit */}
           <button
             type="submit"
-            className="w-full py-3 bg-primary-500 text-white font-medium rounded-xl hover:bg-primary-600 transition-colors"
+            className="w-full py-3.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-2xl hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg shadow-primary-500/30 hover:shadow-primary-500/40 flex items-center justify-center gap-2"
           >
+            <Sparkles size={18} />
             {isEditMode ? 'Update Payment' : 'Log Payment'}
           </button>
         </form>

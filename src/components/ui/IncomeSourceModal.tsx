@@ -1,12 +1,13 @@
 /**
- * Income Source Modal Component
+ * Income Source Modal Component - Kawaii Edition
  *
  * Modal for adding/editing income sources with support for
  * salary-based or hourly income calculations, including paycheck deductions.
+ * Features cute styling, animations, and delightful interactions.
  */
 
 import { useState, useEffect } from 'react';
-import { X, ChevronDown, ChevronUp } from 'lucide-react';
+import { X, ChevronDown, ChevronUp, Sparkles, Briefcase } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import {
   calculateGrossMonthlyIncome,
@@ -263,50 +264,58 @@ export function IncomeSourceModal({ isOpen, onClose, source }: IncomeSourceModal
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
 
-      <div className="relative bg-white w-full max-w-lg rounded-t-2xl sm:rounded-2xl max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-white flex justify-between items-center p-4 border-b border-gray-100 z-10">
-          <h2 className="text-lg font-semibold">
-            {isEditing ? 'Edit Income Source' : 'Add Income Source'}
-          </h2>
+      {/* Modal */}
+      <div className="relative bg-white dark:bg-gray-800 w-full max-w-lg rounded-3xl shadow-xl animate-slide-up max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="sticky top-0 z-10 bg-gradient-to-r from-primary-500 to-primary-600 px-5 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+              <Briefcase size={20} className="text-white" />
+            </div>
+            <h2 className="text-lg font-bold text-white">
+              {isEditing ? 'Edit Income Source' : 'Add Income Source'}
+            </h2>
+          </div>
           <button
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 text-white/80 hover:text-white hover:bg-white/20 rounded-xl transition-colors"
           >
             <X size={20} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-4 space-y-4">
+        <form onSubmit={handleSubmit} className="p-5 space-y-4">
           {/* Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Name *</label>
             <input
               type="text"
               name="name"
               value={formData.name}
               onChange={handleChange}
               placeholder="e.g., Primary Job, Side Gig"
-              className={`w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-                errors.name ? 'border-red-500' : 'border-gray-200'
+              className={`w-full px-4 py-3 border-2 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all ${
+                errors.name ? 'border-red-500' : 'border-gray-200 dark:border-gray-600'
               }`}
             />
-            {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+            {errors.name && <p className="text-red-500 text-xs mt-1 font-medium">{errors.name}</p>}
           </div>
 
           {/* Income Type Toggle */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Income Type *</label>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Income Type *</label>
             <div className="flex gap-2">
               <button
                 type="button"
                 onClick={() => setFormData((prev) => ({ ...prev, type: 'salary' }))}
-                className={`flex-1 py-2 px-4 rounded-xl border-2 font-medium transition-colors ${
+                className={`flex-1 py-2.5 px-4 rounded-xl border-2 font-semibold transition-all ${
                   formData.type === 'salary'
-                    ? 'border-primary-500 bg-primary-50 text-primary-700'
-                    : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                    ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white border-primary-500 shadow-lg shadow-primary-500/30'
+                    : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:border-primary-300 dark:hover:border-primary-700'
                 }`}
               >
                 Salary / Fixed
@@ -314,10 +323,10 @@ export function IncomeSourceModal({ isOpen, onClose, source }: IncomeSourceModal
               <button
                 type="button"
                 onClick={() => setFormData((prev) => ({ ...prev, type: 'hourly' }))}
-                className={`flex-1 py-2 px-4 rounded-xl border-2 font-medium transition-colors ${
+                className={`flex-1 py-2.5 px-4 rounded-xl border-2 font-semibold transition-all ${
                   formData.type === 'hourly'
-                    ? 'border-primary-500 bg-primary-50 text-primary-700'
-                    : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                    ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white border-primary-500 shadow-lg shadow-primary-500/30'
+                    : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:border-primary-300 dark:hover:border-primary-700'
                 }`}
               >
                 Hourly
@@ -329,14 +338,14 @@ export function IncomeSourceModal({ isOpen, onClose, source }: IncomeSourceModal
           {formData.type === 'salary' && (
             <>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                   Pay Frequency *
                 </label>
                 <select
                   name="payFrequency"
                   value={formData.payFrequency}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
+                  className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all"
                 >
                   {Object.entries(PAY_FREQUENCY_LABELS).map(([key, label]) => (
                     <option key={key} value={key}>
@@ -347,11 +356,11 @@ export function IncomeSourceModal({ isOpen, onClose, source }: IncomeSourceModal
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                   Gross Amount per Paycheck *
                 </label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">$</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">$</span>
                   <input
                     type="number"
                     name="amount"
@@ -360,12 +369,12 @@ export function IncomeSourceModal({ isOpen, onClose, source }: IncomeSourceModal
                     placeholder="0.00"
                     step="0.01"
                     min="0"
-                    className={`w-full pl-8 pr-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-                      errors.amount ? 'border-red-500' : 'border-gray-200'
+                    className={`w-full pl-8 pr-4 py-3 border-2 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all ${
+                      errors.amount ? 'border-red-500' : 'border-gray-200 dark:border-gray-600'
                     }`}
                   />
                 </div>
-                {errors.amount && <p className="text-red-500 text-sm mt-1">{errors.amount}</p>}
+                {errors.amount && <p className="text-red-500 text-xs mt-1 font-medium">{errors.amount}</p>}
               </div>
             </>
           )}
@@ -375,11 +384,11 @@ export function IncomeSourceModal({ isOpen, onClose, source }: IncomeSourceModal
             <>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                     Hourly Rate *
                   </label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">
                       $
                     </span>
                     <input
@@ -390,17 +399,17 @@ export function IncomeSourceModal({ isOpen, onClose, source }: IncomeSourceModal
                       placeholder="0.00"
                       step="0.01"
                       min="0"
-                      className={`w-full pl-8 pr-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-                        errors.hourlyRate ? 'border-red-500' : 'border-gray-200'
+                      className={`w-full pl-8 pr-4 py-3 border-2 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all ${
+                        errors.hourlyRate ? 'border-red-500' : 'border-gray-200 dark:border-gray-600'
                       }`}
                     />
                   </div>
                   {errors.hourlyRate && (
-                    <p className="text-red-500 text-sm mt-1">{errors.hourlyRate}</p>
+                    <p className="text-red-500 text-xs mt-1 font-medium">{errors.hourlyRate}</p>
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                     Hours per Week *
                   </label>
                   <input
@@ -411,32 +420,32 @@ export function IncomeSourceModal({ isOpen, onClose, source }: IncomeSourceModal
                     placeholder="40"
                     min="1"
                     max="168"
-                    className={`w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-                      errors.hoursPerWeek ? 'border-red-500' : 'border-gray-200'
+                    className={`w-full px-4 py-3 border-2 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all ${
+                      errors.hoursPerWeek ? 'border-red-500' : 'border-gray-200 dark:border-gray-600'
                     }`}
                   />
                   {errors.hoursPerWeek && (
-                    <p className="text-red-500 text-sm mt-1">{errors.hoursPerWeek}</p>
+                    <p className="text-red-500 text-xs mt-1 font-medium">{errors.hoursPerWeek}</p>
                   )}
                 </div>
               </div>
 
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="flex items-center gap-3 cursor-pointer p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                 <input
                   type="checkbox"
                   name="isPartTime"
                   checked={formData.isPartTime}
                   onChange={handleChange}
-                  className="w-4 h-4 text-primary-500 rounded focus:ring-primary-500"
+                  className="w-5 h-5 text-primary-500 rounded-lg focus:ring-primary-500 border-2 border-gray-300"
                 />
-                <span className="text-sm text-gray-700">This is a part-time position</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">This is a part-time position</span>
               </label>
             </>
           )}
 
           {/* Next Payday */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
               Next Payday
             </label>
             <input
@@ -444,16 +453,16 @@ export function IncomeSourceModal({ isOpen, onClose, source }: IncomeSourceModal
               name="nextPayDate"
               value={formData.nextPayDate}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all"
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5">
               Used to show paydays on your calendar
             </p>
           </div>
 
           {/* Pay Cycle End */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
               Pay Cycle Ends
             </label>
             <input
@@ -461,39 +470,39 @@ export function IncomeSourceModal({ isOpen, onClose, source }: IncomeSourceModal
               name="payCycleEndDate"
               value={formData.payCycleEndDate}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all"
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5">
               When does your current pay period end?
             </p>
           </div>
 
           {/* Deductions Section */}
-          <div className="border border-gray-200 rounded-xl overflow-hidden">
+          <div className="border-2 border-gray-200 dark:border-gray-600 rounded-2xl overflow-hidden">
             <button
               type="button"
               onClick={() => setShowDeductions(!showDeductions)}
-              className="w-full flex justify-between items-center p-4 bg-gray-50 hover:bg-gray-100 transition-colors"
+              className="w-full flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             >
-              <div>
-                <span className="font-medium text-gray-900">Paycheck Deductions</span>
-                <p className="text-xs text-gray-500 mt-0.5">
+              <div className="text-left">
+                <span className="font-semibold text-gray-900 dark:text-white">Paycheck Deductions</span>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                   Add taxes and deductions for accurate take-home pay
                 </p>
               </div>
               {showDeductions ? (
-                <ChevronUp size={20} className="text-gray-400" />
+                <ChevronUp size={20} className="text-gray-400 dark:text-gray-500" />
               ) : (
-                <ChevronDown size={20} className="text-gray-400" />
+                <ChevronDown size={20} className="text-gray-400 dark:text-gray-500" />
               )}
             </button>
 
             {showDeductions && (
-              <div className="p-4 space-y-4 border-t border-gray-200">
+              <div className="p-4 space-y-4 border-t-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800">
                 {/* Federal Tax */}
                 <div>
-                  <div className="flex items-center gap-1 mb-1">
-                    <label className="text-sm font-medium text-gray-700">Federal Tax</label>
+                  <div className="flex items-center gap-1 mb-2">
+                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Federal Tax</label>
                     <div className="relative">
                       <HelpTooltip
                         title={DEDUCTION_HELP.federalTax.title}
@@ -510,9 +519,9 @@ export function IncomeSourceModal({ isOpen, onClose, source }: IncomeSourceModal
                       step="0.1"
                       min="0"
                       max="100"
-                      className="w-full px-4 py-2 pr-8 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      className="w-full px-4 py-3 pr-10 border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all"
                     />
-                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">
                       %
                     </span>
                   </div>
@@ -520,8 +529,8 @@ export function IncomeSourceModal({ isOpen, onClose, source }: IncomeSourceModal
 
                 {/* State Tax */}
                 <div>
-                  <div className="flex items-center gap-1 mb-1">
-                    <label className="text-sm font-medium text-gray-700">State Tax</label>
+                  <div className="flex items-center gap-1 mb-2">
+                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">State Tax</label>
                     <div className="relative">
                       <HelpTooltip
                         title={DEDUCTION_HELP.stateTax.title}
@@ -538,9 +547,9 @@ export function IncomeSourceModal({ isOpen, onClose, source }: IncomeSourceModal
                       step="0.1"
                       min="0"
                       max="100"
-                      className="w-full px-4 py-2 pr-8 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      className="w-full px-4 py-3 pr-10 border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all"
                     />
-                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">
                       %
                     </span>
                   </div>
@@ -549,8 +558,8 @@ export function IncomeSourceModal({ isOpen, onClose, source }: IncomeSourceModal
                 {/* FICA - Medicare & Social Security */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <div className="flex items-center gap-1 mb-1">
-                      <label className="text-sm font-medium text-gray-700">Medicare</label>
+                    <div className="flex items-center gap-1 mb-2">
+                      <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Medicare</label>
                       <div className="relative">
                         <HelpTooltip
                           title={DEDUCTION_HELP.medicare.title}
@@ -567,16 +576,16 @@ export function IncomeSourceModal({ isOpen, onClose, source }: IncomeSourceModal
                         step="0.01"
                         min="0"
                         max="100"
-                        className="w-full px-4 py-2 pr-8 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        className="w-full px-4 py-3 pr-10 border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all"
                       />
-                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
+                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">
                         %
                       </span>
                     </div>
                   </div>
                   <div>
-                    <div className="flex items-center gap-1 mb-1">
-                      <label className="text-sm font-medium text-gray-700">Social Security</label>
+                    <div className="flex items-center gap-1 mb-2">
+                      <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Social Security</label>
                       <div className="relative">
                         <HelpTooltip
                           title={DEDUCTION_HELP.socialSecurity.title}
@@ -593,9 +602,9 @@ export function IncomeSourceModal({ isOpen, onClose, source }: IncomeSourceModal
                         step="0.01"
                         min="0"
                         max="100"
-                        className="w-full px-4 py-2 pr-8 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        className="w-full px-4 py-3 pr-10 border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all"
                       />
-                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
+                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">
                         %
                       </span>
                     </div>
@@ -604,8 +613,8 @@ export function IncomeSourceModal({ isOpen, onClose, source }: IncomeSourceModal
 
                 {/* 401k */}
                 <div>
-                  <div className="flex items-center gap-1 mb-1">
-                    <label className="text-sm font-medium text-gray-700">401(k) / Retirement</label>
+                  <div className="flex items-center gap-1 mb-2">
+                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">401(k) / Retirement</label>
                     <div className="relative">
                       <HelpTooltip
                         title={DEDUCTION_HELP.retirement401k.title}
@@ -622,9 +631,9 @@ export function IncomeSourceModal({ isOpen, onClose, source }: IncomeSourceModal
                       step="0.1"
                       min="0"
                       max="100"
-                      className="w-full px-4 py-2 pr-8 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      className="w-full px-4 py-3 pr-10 border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all"
                     />
-                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">
                       %
                     </span>
                   </div>
@@ -632,8 +641,8 @@ export function IncomeSourceModal({ isOpen, onClose, source }: IncomeSourceModal
 
                 {/* Other */}
                 <div>
-                  <div className="flex items-center gap-1 mb-1">
-                    <label className="text-sm font-medium text-gray-700">Other Deductions</label>
+                  <div className="flex items-center gap-1 mb-2">
+                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Other Deductions</label>
                     <div className="relative">
                       <HelpTooltip
                         title={DEDUCTION_HELP.other.title}
@@ -650,9 +659,9 @@ export function IncomeSourceModal({ isOpen, onClose, source }: IncomeSourceModal
                       step="0.1"
                       min="0"
                       max="100"
-                      className="w-full px-4 py-2 pr-8 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      className="w-full px-4 py-3 pr-10 border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all"
                     />
-                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">
                       %
                     </span>
                   </div>
@@ -663,20 +672,20 @@ export function IncomeSourceModal({ isOpen, onClose, source }: IncomeSourceModal
 
           {/* Monthly estimate preview */}
           {grossMonthly > 0 && (
-            <div className="p-4 bg-gradient-to-br from-primary-50 to-white rounded-xl space-y-2">
+            <div className="p-4 bg-gradient-to-br from-primary-50 to-white dark:from-primary-900/20 dark:to-gray-800 rounded-2xl space-y-2 border-2 border-primary-100 dark:border-primary-800">
               <div className="flex justify-between items-center text-sm">
-                <span className="text-gray-600">Gross monthly</span>
-                <span className="text-gray-900">{formatCurrency(grossMonthly)}</span>
+                <span className="text-gray-600 dark:text-gray-400">Gross monthly</span>
+                <span className="text-gray-900 dark:text-white font-medium">{formatCurrency(grossMonthly)}</span>
               </div>
               {netMonthly < grossMonthly && (
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-gray-600">Deductions</span>
-                  <span className="text-red-500">-{formatCurrency(grossMonthly - netMonthly)}</span>
+                  <span className="text-gray-600 dark:text-gray-400">Deductions</span>
+                  <span className="text-red-500 font-medium">-{formatCurrency(grossMonthly - netMonthly)}</span>
                 </div>
               )}
-              <div className="flex justify-between items-center pt-2 border-t border-gray-200">
-                <span className="font-medium text-gray-900">Take-home pay</span>
-                <span className="text-xl font-bold text-primary-600">
+              <div className="flex justify-between items-center pt-2 border-t border-primary-200 dark:border-primary-700">
+                <span className="font-semibold text-gray-900 dark:text-white">Take-home pay</span>
+                <span className="text-xl font-bold text-primary-600 dark:text-primary-400">
                   {formatCurrency(netMonthly)}
                 </span>
               </div>
@@ -684,11 +693,12 @@ export function IncomeSourceModal({ isOpen, onClose, source }: IncomeSourceModal
           )}
 
           {/* Submit */}
-          <div className="pt-4">
+          <div className="pt-2">
             <button
               type="submit"
-              className="w-full py-3 bg-primary-500 text-white font-semibold rounded-xl hover:bg-primary-600 transition-colors"
+              className="w-full py-3.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-2xl hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg shadow-primary-500/30 hover:shadow-primary-500/40 flex items-center justify-center gap-2"
             >
+              <Sparkles size={18} />
               {isEditing ? 'Save Changes' : 'Add Income Source'}
             </button>
           </div>
