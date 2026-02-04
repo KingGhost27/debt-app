@@ -13,6 +13,7 @@ import {
   RefreshCw,
   ClipboardList,
   CalendarCheck,
+  Settings,
   Sparkles,
 } from 'lucide-react';
 
@@ -59,6 +60,12 @@ const navItems: NavItem[] = [
     label: 'Track',
     icon: <CalendarCheck size={22} strokeWidth={2} />,
     activeIcon: <CalendarCheck size={22} strokeWidth={2.5} />,
+  },
+  {
+    to: '/settings',
+    label: 'Settings',
+    icon: <Settings size={22} strokeWidth={2} />,
+    activeIcon: <Settings size={22} strokeWidth={2.5} />,
   },
 ];
 
