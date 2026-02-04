@@ -189,27 +189,31 @@ export function HomePage() {
         {payoffMilestones.length > 0 && (() => {
           const nextDebt = debts.find(d => d.id === payoffMilestones[0].debtId);
           return (
-            <div className="card bg-gradient-to-r from-primary-50/80 to-white dark:from-primary-900/40 dark:to-gray-800/60 border border-primary-100/50 dark:border-primary-800/50 hover:shadow-lg transition-all">
-              <div className="flex items-center gap-4">
-                <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 text-white flex items-center justify-center shadow-lg shadow-primary-300/40">
+            <div className="relative bg-gradient-to-r from-primary-600 via-primary-400 to-primary-200 rounded-3xl p-5 text-white overflow-hidden shadow-lg shadow-primary-400/30">
+              {/* Background decoration */}
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/4" />
+              <div className="absolute bottom-0 left-0 w-20 h-20 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/4" />
+
+              <div className="relative z-10 flex items-center gap-4">
+                <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
                   <Target size={26} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <Sparkles size={12} className="text-primary-400" />
-                    <p className="text-xs font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wide">Up Next</p>
+                    <Sparkles size={12} className="text-primary-200" />
+                    <p className="text-xs font-semibold text-primary-200 uppercase tracking-wide">Up Next</p>
                   </div>
-                  <p className="font-bold text-gray-900 dark:text-gray-100 truncate">
+                  <p className="font-bold text-white truncate">
                     {payoffMilestones[0].debtName}
                   </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  <p className="text-sm text-primary-200">
                     Paid off by {format(parseISO(payoffMilestones[0].payoffDate), 'MMMM yyyy')}
                   </p>
                 </div>
                 {nextDebt && (
                   <div className="text-right flex-shrink-0">
-                    <p className="text-xs text-gray-400 mb-1">Balance</p>
-                    <p className="text-lg font-bold text-primary-600 dark:text-primary-400">{formatCurrency(nextDebt.balance)}</p>
+                    <p className="text-xs text-primary-200 mb-1">Balance</p>
+                    <p className="text-lg font-bold text-white">{formatCurrency(nextDebt.balance)}</p>
                   </div>
                 )}
               </div>
@@ -290,16 +294,20 @@ export function HomePage() {
 
             if (savings > 0) {
               return (
-                <div className="mt-4 bg-gradient-to-r from-green-50 to-primary-50 dark:from-green-900/30 dark:to-primary-900/30 rounded-2xl p-4 border border-green-100/50 dark:border-green-800/50">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-400 to-green-500 flex items-center justify-center">
+                <div className="mt-4 relative bg-gradient-to-r from-primary-600 via-primary-400 to-primary-200 rounded-2xl p-4 text-white overflow-hidden shadow-lg shadow-primary-400/30">
+                  {/* Background decoration */}
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/4" />
+                  <div className="absolute bottom-0 left-0 w-16 h-16 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/4" />
+
+                  <div className="relative z-10 flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
                       <Wallet size={20} className="text-white" />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                        Saving <span className="text-green-600 dark:text-green-400">{formatCurrency(savings)}</span> in interest!
+                      <p className="text-sm font-semibold text-white">
+                        Saving <span className="text-primary-100 font-bold">{formatCurrency(savings)}</span> in interest!
                       </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-primary-100">
                         By paying extra with {strategyName}
                       </p>
                     </div>
