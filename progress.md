@@ -1,5 +1,87 @@
 # Progress Log
 
+## Session: February 4, 2026
+
+### Branch: `feature/kawaii-redesign`
+
+---
+
+### Changes Made
+
+#### 1. Subscription Tracking Feature (Complete)
+- **New Page**: `src/pages/SubscriptionsPage.tsx`
+  - Summary card with monthly/annual totals
+  - Subscriptions grouped by category
+  - Pause/resume functionality
+  - Custom billing frequencies (days/weeks/months/years)
+- **New Component**: `src/components/ui/SubscriptionModal.tsx`
+  - Form fields: name, amount, frequency, next billing date, category
+  - Kawaii gradient header styling
+- **New Types**: `Subscription`, `SubscriptionFrequency`, `SubscriptionCategory`
+- **Context Methods**: `addSubscription`, `updateSubscription`, `deleteSubscription`
+- **Storage Migration**: v1.2.0 → v1.3.0 for subscriptions array
+
+#### 2. Pay Period Bills Integration
+- **UpcomingBills Component**: Combined debts and subscriptions in pay period view
+- Pay period navigation (previous/next buttons)
+- Shows date range for each pay period
+- "Sub" badge for subscription items vs debt items
+
+#### 3. Bottom Navigation Updates
+- Added Settings button for quick access
+- Added Subs (Subscriptions) nav item
+
+#### 4. HomePage Light Mode Fixes
+- **Up Next Card**: Updated to use theme gradient (primary-600 → 400 → 200)
+- **Savings Callout**: Matches same gradient style
+- Added decorative circles and frosted glass icons
+- Fixed dark/gray overlay issue in light mode
+
+#### 5. AssetModal Fix
+- Added bottom margin to prevent cutoff by bottom navigation
+- Applied kawaii styling (gradient header, PiggyBank icon)
+
+---
+
+### Files Created
+- `src/pages/SubscriptionsPage.tsx` - Subscription tracking page
+- `src/components/ui/SubscriptionModal.tsx` - Add/edit subscription modal
+
+### Files Modified
+- `src/types/index.ts` - Subscription types and category info
+- `src/context/AppContext.tsx` - Subscription CRUD operations
+- `src/lib/storage.ts` - Migration for subscriptions
+- `src/App.tsx` - Added subscriptions route
+- `src/components/layout/BottomNav.tsx` - Added Settings and Subs nav items
+- `src/components/ui/UpcomingBills.tsx` - Pay period navigation, subscription integration
+- `src/components/ui/AssetModal.tsx` - Bottom margin fix, kawaii styling
+- `src/pages/HomePage.tsx` - Up Next and Savings card gradient styling
+
+---
+
+### Git Commits (this session)
+1. `[Feature] Add pay period view to Upcoming Bills`
+2. `[Feature] Add pay period navigation`
+3. `[Fix] AssetModal cut off by bottom nav + kawaii styling`
+4. `[Feature] Add subscription tracking page`
+5. `[UI] Add Settings to bottom navigation`
+6. `[UI] Update Up Next and Savings cards with theme gradient styling`
+
+---
+
+### Subscription Feature Status
+- [x] Types and data model
+- [x] Context CRUD operations
+- [x] Storage migration
+- [x] SubscriptionModal component
+- [x] SubscriptionsPage with categories
+- [x] Route and navigation
+- [x] Integration with pay period bills view
+
+---
+
+---
+
 ## Session: February 2, 2026
 
 ### Branch: `feature/polish-items`
