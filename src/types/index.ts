@@ -266,6 +266,7 @@ export interface AppData {
   customCategories: CustomCategory[]; // User-defined categories
   budget: BudgetSettings;          // Income & budget settings
   assets: Asset[];                 // Savings and investment accounts
+  subscriptions: Subscription[];   // Recurring subscriptions
   exportedAt?: string;             // For import/export
 }
 
@@ -300,7 +301,7 @@ export const DEFAULT_BUDGET: BudgetSettings = {
 };
 
 export const DEFAULT_APP_DATA: AppData = {
-  version: '1.2.0',
+  version: '1.3.0',
   debts: [],
   payments: [],
   strategy: DEFAULT_STRATEGY,
@@ -308,6 +309,7 @@ export const DEFAULT_APP_DATA: AppData = {
   customCategories: [],
   budget: DEFAULT_BUDGET,
   assets: [],
+  subscriptions: [],
 };
 
 // ============================================
@@ -383,5 +385,45 @@ export const ASSET_TYPE_INFO: Record<AssetType, { label: string; color: string }
   hsa: { label: 'HSA', color: '#14b8a6' },
   money_market: { label: 'Money Market', color: '#6366f1' },
   cd: { label: 'CD', color: '#f97316' },
+  other: { label: 'Other', color: '#6b7280' },
+};
+
+// ============================================
+// SUBSCRIPTIONS
+// ============================================
+
+export type SubscriptionFrequencyUnit = 'days' | 'weeks' | 'months' | 'years';
+
+export interface SubscriptionFrequency {
+  value: number;                   // e.g., 1, 2, 3
+  unit: SubscriptionFrequencyUnit;
+}
+
+export type SubscriptionCategory =
+  | 'entertainment'
+  | 'software'
+  | 'utilities'
+  | 'health'
+  | 'education'
+  | 'other';
+
+export interface Subscription {
+  id: string;
+  name: string;                      // e.g., "Netflix", "Spotify"
+  amount: number;                    // Cost per billing cycle
+  frequency: SubscriptionFrequency;  // Custom frequency
+  nextBillingDate: string;           // ISO date
+  category: SubscriptionCategory;
+  isActive: boolean;                 // Can pause subscriptions
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const SUBSCRIPTION_CATEGORY_INFO: Record<SubscriptionCategory, { label: string; color: string }> = {
+  entertainment: { label: 'Entertainment', color: '#ec4899' },
+  software: { label: 'Software', color: '#3b82f6' },
+  utilities: { label: 'Utilities', color: '#f59e0b' },
+  health: { label: 'Health & Fitness', color: '#10b981' },
+  education: { label: 'Education', color: '#8b5cf6' },
   other: { label: 'Other', color: '#6b7280' },
 };

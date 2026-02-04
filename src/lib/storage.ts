@@ -186,6 +186,15 @@ function migrateData(data: AppData): AppData {
     migrated.version = '1.2.0';
   }
 
+  // Migration: v1.2.0 -> v1.3.0
+  // Adds: subscriptions array for recurring subscription tracking
+  if (migrated.version === '1.2.0') {
+    if (!migrated.subscriptions) {
+      migrated.subscriptions = [];
+    }
+    migrated.version = '1.3.0';
+  }
+
   // Ensure new fields exist even for fresh installs
   if (!migrated.customCategories) {
     migrated.customCategories = [];
@@ -201,6 +210,9 @@ function migrateData(data: AppData): AppData {
   }
   if (!migrated.assets) {
     migrated.assets = [];
+  }
+  if (!migrated.subscriptions) {
+    migrated.subscriptions = [];
   }
 
   return migrated;

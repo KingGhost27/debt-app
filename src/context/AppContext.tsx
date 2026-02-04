@@ -19,6 +19,7 @@ import type {
   ThemeSettings,
   OneTimeFunding,
   Asset,
+  Subscription,
 } from '../types';
 import { DEFAULT_APP_DATA, DEFAULT_STRATEGY, DEFAULT_BUDGET } from '../types';
 import { saveData, loadData, exportData, importData } from '../lib/storage';
@@ -36,6 +37,7 @@ interface AppContextType {
   customCategories: CustomCategory[];
   budget: BudgetSettings;
   assets: Asset[];
+  subscriptions: Subscription[];
   isLoading: boolean;
 
   // Debt operations
@@ -78,6 +80,11 @@ interface AppContextType {
   updateAsset: (id: string, updates: Partial<Asset>) => void;
   deleteAsset: (id: string) => void;
   updateAssetBalance: (id: string, newBalance: number, note?: string) => void;
+
+  // Subscription operations
+  addSubscription: (subscription: Omit<Subscription, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  updateSubscription: (id: string, updates: Partial<Subscription>) => void;
+  deleteSubscription: (id: string) => void;
 
   // Import/Export
   exportAppData: () => void;
@@ -434,6 +441,43 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // ==========================================
+  // SUBSCRIPTION OPERATIONS
+  // ==========================================
+
+  const addSubscription = useCallback((subscriptionData: Omit<Subscription, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const now = new Date().toISOString();
+    const newSubscription: Subscription = {
+      ...subscriptionData,
+      id: uuidv4(),
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    setData((prev) => ({
+      ...prev,
+      subscriptions: [...prev.subscriptions, newSubscription],
+    }));
+  }, []);
+
+  const updateSubscription = useCallback((id: string, updates: Partial<Subscription>) => {
+    setData((prev) => ({
+      ...prev,
+      subscriptions: prev.subscriptions.map((sub) =>
+        sub.id === id
+          ? { ...sub, ...updates, updatedAt: new Date().toISOString() }
+          : sub
+      ),
+    }));
+  }, []);
+
+  const deleteSubscription = useCallback((id: string) => {
+    setData((prev) => ({
+      ...prev,
+      subscriptions: prev.subscriptions.filter((sub) => sub.id !== id),
+    }));
+  }, []);
+
+  // ==========================================
   // IMPORT/EXPORT
   // ==========================================
 
@@ -468,6 +512,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     customCategories: data.customCategories,
     budget: data.budget,
     assets: data.assets,
+    subscriptions: data.subscriptions,
     isLoading,
 
     addDebt,
@@ -501,6 +546,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     updateAsset,
     deleteAsset,
     updateAssetBalance,
+
+    addSubscription,
+    updateSubscription,
+    deleteSubscription,
 
     exportAppData,
     importAppData,

@@ -35,7 +35,7 @@ const getEncouragement = (percentPaid: number) => {
 };
 
 export function HomePage() {
-  const { debts, strategy, settings, customCategories, budget, payments } = useApp();
+  const { debts, strategy, settings, customCategories, budget, payments, subscriptions } = useApp();
 
   // Calculate summary stats
   const summary = useMemo(() => calculateDebtSummary(debts), [debts]);
@@ -312,7 +312,7 @@ export function HomePage() {
         </div>
 
         {/* Upcoming Bills */}
-        <UpcomingBills debts={debts} customCategories={customCategories} payments={payments} incomeSources={budget.incomeSources} />
+        <UpcomingBills debts={debts} customCategories={customCategories} payments={payments} incomeSources={budget.incomeSources} subscriptions={subscriptions} />
 
         {/* Mini Calendar */}
         <MiniCalendar debts={debts} incomeSources={budget.incomeSources} customCategories={customCategories} />

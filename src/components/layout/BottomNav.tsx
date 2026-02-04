@@ -10,6 +10,7 @@ import {
   Home,
   CreditCard,
   Wallet,
+  RefreshCw,
   ClipboardList,
   CalendarCheck,
   Sparkles,
@@ -40,6 +41,12 @@ const navItems: NavItem[] = [
     label: 'Assets',
     icon: <Wallet size={22} strokeWidth={2} />,
     activeIcon: <Wallet size={22} strokeWidth={2.5} />,
+  },
+  {
+    to: '/subscriptions',
+    label: 'Subs',
+    icon: <RefreshCw size={22} strokeWidth={2} />,
+    activeIcon: <RefreshCw size={22} strokeWidth={2.5} />,
   },
   {
     to: '/plan',

@@ -11,6 +11,7 @@ import { Layout } from './components/layout/Layout';
 import { HomePage } from './pages/HomePage';
 import { DebtsPage } from './pages/DebtsPage';
 import { AssetsPage } from './pages/AssetsPage';
+import { SubscriptionsPage } from './pages/SubscriptionsPage';
 import { StrategyPage } from './pages/StrategyPage';
 import { PlanPage } from './pages/PlanPage';
 import { TrackPage } from './pages/TrackPage';
@@ -26,6 +27,7 @@ function App() {
             <Route index element={<HomePage />} />
             <Route path="debts" element={<DebtsPage />} />
             <Route path="assets" element={<AssetsPage />} />
+            <Route path="subscriptions" element={<SubscriptionsPage />} />
             <Route path="strategy" element={<StrategyPage />} />
             <Route path="plan" element={<PlanPage />} />
             <Route path="track" element={<TrackPage />} />

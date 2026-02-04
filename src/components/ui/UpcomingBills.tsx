@@ -7,10 +7,10 @@
  */
 
 import { useState, useMemo } from 'react';
-import { differenceInDays, isSameMonth, parseISO, addDays, addWeeks, format, isBefore } from 'date-fns';
-import { Check, ChevronDown, ChevronLeft, ChevronRight, Calendar, Wallet } from 'lucide-react';
-import type { Debt, Payment, IncomeSource } from '../../types';
-import { CATEGORY_INFO } from '../../types';
+import { differenceInDays, isSameMonth, parseISO, addDays, addWeeks, addMonths, addYears, format, isBefore } from 'date-fns';
+import { Check, ChevronDown, ChevronLeft, ChevronRight, Calendar, Wallet, RefreshCw } from 'lucide-react';
+import type { Debt, Payment, IncomeSource, Subscription, SubscriptionCategory } from '../../types';
+import { CATEGORY_INFO, SUBSCRIPTION_CATEGORY_INFO } from '../../types';
 import {
   formatCurrency,
   formatOrdinal,
@@ -22,12 +22,25 @@ interface UpcomingBillsProps {
   customCategories?: { id: string; name: string; color: string }[];
   payments?: Payment[];
   incomeSources?: IncomeSource[];
+  subscriptions?: Subscription[];
 }
 
 interface BillWithDueDate extends Debt {
   nextDueDate: Date;
   daysUntil: number;
 }
+
+interface SubscriptionWithDueDate {
+  id: string;
+  name: string;
+  amount: number;
+  nextDueDate: Date;
+  daysUntil: number;
+  category: SubscriptionCategory;
+  isSubscription: true;
+}
+
+type BillItem = (BillWithDueDate & { isSubscription?: false }) | SubscriptionWithDueDate;
 
 type TabType = 'pay-period' | 'all';
 
@@ -157,7 +170,42 @@ function getDueDateInPeriod(dueDay: number, periodStart: Date, periodEnd: Date):
   return dates.sort((a, b) => a.getTime() - b.getTime())[0];
 }
 
-export function UpcomingBills({ debts, customCategories = [], payments = [], incomeSources = [] }: UpcomingBillsProps) {
+// Get subscription billing date that falls within a period
+function getSubscriptionBillingInPeriod(
+  subscription: Subscription,
+  periodStart: Date,
+  periodEnd: Date
+): Date | null {
+  let billingDate = parseISO(subscription.nextBillingDate);
+
+  // Move forward until we find a date in or after the period
+  while (isBefore(billingDate, periodStart)) {
+    const { value, unit } = subscription.frequency;
+    switch (unit) {
+      case 'days':
+        billingDate = addDays(billingDate, value);
+        break;
+      case 'weeks':
+        billingDate = addWeeks(billingDate, value);
+        break;
+      case 'months':
+        billingDate = addMonths(billingDate, value);
+        break;
+      case 'years':
+        billingDate = addYears(billingDate, value);
+        break;
+    }
+  }
+
+  // Check if the billing date falls within the period
+  if (billingDate >= periodStart && billingDate <= periodEnd) {
+    return billingDate;
+  }
+
+  return null;
+}
+
+export function UpcomingBills({ debts, customCategories = [], payments = [], incomeSources = [], subscriptions = [] }: UpcomingBillsProps) {
   const [activeTab, setActiveTab] = useState<TabType>(incomeSources.length > 0 ? 'pay-period' : 'all');
   const [selectedSourceId, setSelectedSourceId] = useState<string>(incomeSources[0]?.id || '');
   const [showSourcePicker, setShowSourcePicker] = useState(false);
@@ -216,37 +264,69 @@ export function UpcomingBills({ debts, customCategories = [], payments = [], inc
       .sort((a, b) => a.daysUntil - b.daysUntil);
   }, [debts, today]);
 
-  // Filter bills by pay period - find bills where the due day falls within the period
-  const payPeriodBills = useMemo((): BillWithDueDate[] => {
+  // Filter bills by pay period (debts + subscriptions)
+  const payPeriodBills = useMemo((): BillItem[] => {
     if (!payPeriod) return [];
 
-    return debts
+    // Get debt bills in pay period
+    const debtBills: BillItem[] = debts
       .map((debt) => {
-        // Find the due date that falls within this pay period
         const dueDateInPeriod = getDueDateInPeriod(debt.dueDay, payPeriod.start, payPeriod.end);
         if (!dueDateInPeriod) return null;
 
         const daysUntil = differenceInDays(dueDateInPeriod, today);
-        return { ...debt, nextDueDate: dueDateInPeriod, daysUntil };
+        return { ...debt, nextDueDate: dueDateInPeriod, daysUntil, isSubscription: false as const };
       })
-      .filter((bill): bill is BillWithDueDate => bill !== null)
-      .sort((a, b) => a.nextDueDate.getTime() - b.nextDueDate.getTime());
-  }, [debts, payPeriod, today]);
+      .filter((bill) => bill !== null) as BillItem[];
+
+    // Get subscription bills in pay period
+    const subBills: SubscriptionWithDueDate[] = subscriptions
+      .filter((sub) => sub.isActive)
+      .map((sub) => {
+        const billingDate = getSubscriptionBillingInPeriod(sub, payPeriod.start, payPeriod.end);
+        if (!billingDate) return null;
+
+        const daysUntil = differenceInDays(billingDate, today);
+        return {
+          id: sub.id,
+          name: sub.name,
+          amount: sub.amount,
+          nextDueDate: billingDate,
+          daysUntil,
+          category: sub.category,
+          isSubscription: true as const,
+        };
+      })
+      .filter((bill) => bill !== null) as SubscriptionWithDueDate[];
+
+    // Combine and sort by date
+    return [...debtBills, ...subBills].sort((a, b) => a.nextDueDate.getTime() - b.nextDueDate.getTime());
+  }, [debts, subscriptions, payPeriod, today]);
 
   // Get the bills to display based on active tab
-  const displayBills = activeTab === 'pay-period' ? payPeriodBills : sortedBills;
+  const displayBills: BillItem[] = activeTab === 'pay-period'
+    ? payPeriodBills
+    : sortedBills.map((b) => ({ ...b, isSubscription: false as const }));
 
   // Calculate total due this pay period
   const payPeriodTotal = useMemo(() => {
     return payPeriodBills.reduce((sum, bill) => {
+      if (bill.isSubscription) {
+        return sum + bill.amount;
+      }
       const paidPayment = isPaidThisMonth(bill.id);
       if (paidPayment) return sum; // Don't count paid bills
-      return sum + bill.minimumPayment;
+      return sum + (bill as BillWithDueDate).minimumPayment;
     }, 0);
   }, [payPeriodBills]);
 
-  // Get category color for a debt
-  const getCategoryColor = (debt: Debt): string => {
+  // Get category color for a debt or subscription
+  const getCategoryColor = (item: BillItem): string => {
+    if (item.isSubscription) {
+      const subCatInfo = SUBSCRIPTION_CATEGORY_INFO[item.category as keyof typeof SUBSCRIPTION_CATEGORY_INFO];
+      return subCatInfo?.color || '#6b7280';
+    }
+    const debt = item as BillWithDueDate;
     if (debt.category in CATEGORY_INFO) {
       return CATEGORY_INFO[debt.category as keyof typeof CATEGORY_INFO].color;
     }
@@ -423,12 +503,22 @@ export function UpcomingBills({ debts, customCategories = [], payments = [], inc
         {displayBills.map((bill) => {
           const urgency = getUrgencyStyles(bill.daysUntil);
           const categoryColor = getCategoryColor(bill);
-          const paidPayment = isPaidThisMonth(bill.id);
+          const isSubscription = bill.isSubscription;
+
+          // Only check paid status for debt bills, not subscriptions
+          const paidPayment = !isSubscription ? isPaidThisMonth(bill.id) : undefined;
           const isPaid = !!paidPayment;
+
+          // Get the amount to display
+          const displayAmount = isSubscription
+            ? bill.amount
+            : isPaid && paidPayment
+              ? paidPayment.amount
+              : (bill as BillWithDueDate).minimumPayment;
 
           return (
             <div
-              key={bill.id}
+              key={`${isSubscription ? 'sub' : 'debt'}-${bill.id}`}
               className={`
                 flex items-center gap-3 p-3 rounded-xl border transition-all
                 ${isPaid
@@ -437,10 +527,17 @@ export function UpcomingBills({ debts, customCategories = [], payments = [], inc
                 }
               `}
             >
-              {/* Category color dot or paid checkmark */}
+              {/* Icon: checkmark for paid, RefreshCw for subscription, or color dot for debt */}
               {isPaid ? (
                 <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0 shadow-sm">
                   <Check size={16} className="text-white" strokeWidth={3} />
+                </div>
+              ) : isSubscription ? (
+                <div
+                  className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{ backgroundColor: `${categoryColor}20` }}
+                >
+                  <RefreshCw size={14} style={{ color: categoryColor }} />
                 </div>
               ) : (
                 <div
@@ -451,26 +548,33 @@ export function UpcomingBills({ debts, customCategories = [], payments = [], inc
 
               {/* Bill info */}
               <div className="flex-1 min-w-0">
-                <p className={`font-medium truncate ${isPaid ? 'text-green-700' : 'text-gray-900'}`}>
+                <p className={`font-medium truncate ${isPaid ? 'text-green-700' : 'text-gray-900 dark:text-white'}`}>
                   {bill.name}
                   {isPaid && (
                     <span className="ml-2 text-xs bg-green-100 text-green-600 px-2 py-0.5 rounded-full">
                       Paid
                     </span>
                   )}
+                  {isSubscription && !isPaid && (
+                    <span className="ml-2 text-xs bg-primary-100 dark:bg-primary-900/50 text-primary-600 dark:text-primary-400 px-2 py-0.5 rounded-full">
+                      Sub
+                    </span>
+                  )}
                 </p>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
                   {isPaid
-                    ? `Paid ${formatCurrency(paidPayment.amount)} this month`
-                    : `Due ${formatOrdinal(bill.dueDay)} of each month`
+                    ? `Paid ${formatCurrency(paidPayment!.amount)} this month`
+                    : isSubscription
+                      ? `Renews ${format(bill.nextDueDate, 'MMM d')}`
+                      : `Due ${formatOrdinal((bill as BillWithDueDate).dueDay)} of each month`
                   }
                 </p>
               </div>
 
               {/* Amount and urgency badge */}
               <div className="text-right flex-shrink-0">
-                <p className={`font-semibold ${isPaid ? 'text-green-600' : 'text-gray-900'}`}>
-                  {formatCurrency(isPaid && paidPayment ? paidPayment.amount : bill.minimumPayment)}
+                <p className={`font-semibold ${isPaid ? 'text-green-600' : 'text-gray-900 dark:text-white'}`}>
+                  {formatCurrency(displayAmount)}
                 </p>
                 {!isPaid && urgency.badge && (
                   <span
