@@ -312,7 +312,7 @@ export function HomePage() {
         </div>
 
         {/* Upcoming Bills */}
-        <UpcomingBills debts={debts} customCategories={customCategories} payments={payments} />
+        <UpcomingBills debts={debts} customCategories={customCategories} payments={payments} incomeSources={budget.incomeSources} />
 
         {/* Mini Calendar */}
         <MiniCalendar debts={debts} incomeSources={budget.incomeSources} customCategories={customCategories} />
