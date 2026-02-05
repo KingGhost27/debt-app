@@ -195,6 +195,15 @@ function migrateData(data: AppData): AppData {
     migrated.version = '1.3.0';
   }
 
+  // Migration: v1.3.0 -> v1.4.0
+  // Adds: receivedPaychecks array for actual paycheck tracking
+  if (migrated.version === '1.3.0') {
+    if (!migrated.receivedPaychecks) {
+      migrated.receivedPaychecks = [];
+    }
+    migrated.version = '1.4.0';
+  }
+
   // Ensure new fields exist even for fresh installs
   if (!migrated.customCategories) {
     migrated.customCategories = [];
@@ -213,6 +222,9 @@ function migrateData(data: AppData): AppData {
   }
   if (!migrated.subscriptions) {
     migrated.subscriptions = [];
+  }
+  if (!migrated.receivedPaychecks) {
+    migrated.receivedPaychecks = [];
   }
 
   return migrated;
