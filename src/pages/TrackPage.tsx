@@ -20,21 +20,28 @@ import { useApp } from '../context/AppContext';
 import { PageHeader } from '../components/layout/PageHeader';
 import { MiniCalendar } from '../components/ui/MiniCalendar';
 import { PaymentModal } from '../components/ui/PaymentModal';
+import { PaycheckModal } from '../components/ui/PaycheckModal';
+import { PayPeriodSummary } from '../components/ui/PayPeriodSummary';
 import { BillDistributionPanel } from '../components/ui/BillDistributionPanel';
 import { EmptyState } from '../components/ui/EmptyState';
 import { formatCurrency, generatePayoffPlan } from '../lib/calculations';
-import type { Debt, PaymentType, Payment } from '../types';
+import type { Debt, PaymentType, Payment, ReceivedPaycheck } from '../types';
 
-type TabType = 'upcoming' | 'complete' | 'calendar';
+type TabType = 'upcoming' | 'complete' | 'calendar' | 'paychecks';
 
 export function TrackPage() {
-  const { debts, strategy, payments, budget, deletePayment, updateDebt, customCategories } = useApp();
+  const { debts, strategy, payments, budget, deletePayment, updateDebt, customCategories, receivedPaychecks, deletePaycheck } = useApp();
   const [activeTab, setActiveTab] = useState<TabType>('upcoming');
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [preselectedDebt, setPreselectedDebt] = useState<Debt | undefined>();
   const [preselectedAmount, setPreselectedAmount] = useState<number | undefined>();
   const [preselectedType, setPreselectedType] = useState<PaymentType | undefined>();
   const [editingPayment, setEditingPayment] = useState<Payment | undefined>();
+
+  // Paycheck modal state
+  const [isPaycheckModalOpen, setIsPaycheckModalOpen] = useState(false);
+  const [editingPaycheck, setEditingPaycheck] = useState<ReceivedPaycheck | undefined>();
+  const [selectedPaycheck, setSelectedPaycheck] = useState<ReceivedPaycheck | undefined>();
 
   // Generate upcoming payments from payoff plan
   const plan = useMemo(
@@ -356,11 +363,11 @@ export function TrackPage() {
 
         {/* Tabs */}
         <div className="flex gap-1 p-1.5 bg-gray-100 dark:bg-gray-800 rounded-2xl">
-          {(['upcoming', 'complete', 'calendar'] as TabType[]).map((tab) => (
+          {(['upcoming', 'complete', 'calendar', 'paychecks'] as TabType[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`flex-1 py-2.5 px-4 rounded-xl font-semibold text-sm transition-all ${
+              className={`flex-1 py-2.5 px-3 rounded-xl font-semibold text-sm transition-all ${
                 activeTab === tab
                   ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
                   : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
@@ -615,6 +622,143 @@ export function TrackPage() {
             />
           </div>
         )}
+
+        {/* Paychecks Tab */}
+        {activeTab === 'paychecks' && (
+          <div className="space-y-4">
+            {/* Log Paycheck Button */}
+            <button
+              onClick={() => {
+                setEditingPaycheck(undefined);
+                setIsPaycheckModalOpen(true);
+              }}
+              className="w-full py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl hover:from-emerald-600 hover:to-teal-600 transition-all flex items-center justify-center gap-2"
+            >
+              <Plus size={20} />
+              Log Paycheck
+            </button>
+
+            {/* No income sources warning */}
+            {budget.incomeSources.length === 0 && (
+              <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-2xl p-4 text-center">
+                <p className="text-amber-800 dark:text-amber-200 text-sm">
+                  Add income sources in the Budget page to log paychecks.
+                </p>
+                <a
+                  href="/budget"
+                  className="inline-block mt-2 text-amber-700 dark:text-amber-300 font-semibold text-sm hover:underline"
+                >
+                  Go to Budget →
+                </a>
+              </div>
+            )}
+
+            {/* Pay Period Summary for Selected Paycheck */}
+            {selectedPaycheck && (
+              <PayPeriodSummary paycheck={selectedPaycheck} />
+            )}
+
+            {/* Recent Paychecks List */}
+            <div className="space-y-3">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                <Receipt size={18} className="text-emerald-500" />
+                Recent Paychecks
+              </h3>
+
+              {receivedPaychecks.length === 0 ? (
+                <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-3xl">
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                    <Receipt size={28} className="text-gray-400" />
+                  </div>
+                  <p className="font-bold text-gray-700 dark:text-gray-200 mb-1">No Paychecks Logged</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                    Log your actual paycheck amounts to track spending.
+                  </p>
+                </div>
+              ) : (
+                [...receivedPaychecks]
+                  .sort((a, b) => new Date(b.payDate).getTime() - new Date(a.payDate).getTime())
+                  .map((paycheck) => {
+                    const source = budget.incomeSources.find((s) => s.id === paycheck.incomeSourceId);
+                    const variance = paycheck.actualAmount - paycheck.expectedAmount;
+                    const isSelected = selectedPaycheck?.id === paycheck.id;
+
+                    return (
+                      <div
+                        key={paycheck.id}
+                        onClick={() => setSelectedPaycheck(isSelected ? undefined : paycheck)}
+                        className={`card rounded-2xl flex items-center gap-4 transition-all cursor-pointer ${
+                          isSelected
+                            ? 'bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/30 dark:to-teal-900/30 border-2 border-emerald-300 dark:border-emerald-700'
+                            : 'bg-white dark:bg-gray-800 hover:shadow-md'
+                        }`}
+                      >
+                        <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-300/40 dark:shadow-emerald-900/40">
+                          <span className="text-xl">💰</span>
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-semibold text-gray-900 dark:text-white">
+                            {source?.name || 'Unknown Source'}
+                          </p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            {format(parseISO(paycheck.payDate), 'MMM d, yyyy')}
+                          </p>
+                          {paycheck.note && (
+                            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                              {paycheck.note}
+                            </p>
+                          )}
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold text-gray-900 dark:text-white">
+                            {formatCurrency(paycheck.actualAmount)}
+                          </p>
+                          {variance !== 0 && (
+                            <p
+                              className={`text-xs font-medium ${
+                                variance > 0
+                                  ? 'text-emerald-600 dark:text-emerald-400'
+                                  : 'text-red-600 dark:text-red-400'
+                              }`}
+                            >
+                              {variance > 0 ? '+' : ''}
+                              {formatCurrency(variance)}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex gap-1">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEditingPaycheck(paycheck);
+                              setIsPaycheckModalOpen(true);
+                            }}
+                            className="p-2 text-gray-400 hover:text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/50 rounded-xl transition-all"
+                            title="Edit paycheck"
+                          >
+                            <Pencil size={16} />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (selectedPaycheck?.id === paycheck.id) {
+                                setSelectedPaycheck(undefined);
+                              }
+                              deletePaycheck(paycheck.id);
+                            }}
+                            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/50 rounded-xl transition-all"
+                            title="Delete paycheck"
+                          >
+                            <X size={18} />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Payment Modal */}
@@ -631,6 +775,16 @@ export function TrackPage() {
         preselectedAmount={preselectedAmount}
         preselectedType={preselectedType}
         editingPayment={editingPayment}
+      />
+
+      {/* Paycheck Modal */}
+      <PaycheckModal
+        isOpen={isPaycheckModalOpen}
+        onClose={() => {
+          setIsPaycheckModalOpen(false);
+          setEditingPaycheck(undefined);
+        }}
+        paycheck={editingPaycheck}
       />
     </div>
   );
