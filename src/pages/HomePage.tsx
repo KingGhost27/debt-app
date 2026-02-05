@@ -337,12 +337,13 @@ export function HomePage() {
                   : 0;
 
                 return (
-                  <div key={cat.category} className="flex items-center gap-4 p-3 rounded-2xl bg-gray-50/80 dark:bg-gray-800/50 hover:bg-gray-100/80 dark:hover:bg-gray-700/50 transition-colors">
+                  <div key={cat.category} className="flex items-center gap-4 p-3 rounded-2xl bg-primary-50/80 hover:bg-primary-100/80 transition-colors border border-primary-100">
                     <ProgressRing
                       percentage={percentPaid}
                       size={56}
                       strokeWidth={6}
                       color={cat.color}
+                      backgroundColor={`${cat.color}20`}
                       className="flex-shrink-0"
                     />
                     <div className="flex-1 min-w-0">
@@ -351,15 +352,15 @@ export function HomePage() {
                       </p>
                       <div className="mt-1 space-y-0.5">
                         {categoryDebts.map((debt) => (
-                          <p key={debt.id} className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                          <p key={debt.id} className="text-xs text-gray-600 truncate">
                             {debt.name}
                           </p>
                         ))}
                       </div>
                     </div>
                     <div className="text-right flex-shrink-0">
-                      <p className="text-xs text-gray-400 mb-0.5">Balance</p>
-                      <p className="font-bold text-gray-900 dark:text-gray-100">{formatCurrency(cat.balance)}</p>
+                      <p className="text-xs text-gray-500 mb-0.5">Balance</p>
+                      <p className="font-bold text-gray-900">{formatCurrency(cat.balance)}</p>
                     </div>
                   </div>
                 );
