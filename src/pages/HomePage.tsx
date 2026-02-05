@@ -7,8 +7,7 @@
 
 import { useMemo } from 'react';
 import { format, parseISO } from 'date-fns';
-import { Settings, Target, Sparkles, TrendingDown, Calendar, Wallet } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Target, Sparkles, TrendingDown, Calendar, Wallet } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import {
   calculateDebtSummary,
@@ -83,22 +82,14 @@ export function HomePage() {
           <div className="absolute top-1/2 -left-10 w-24 h-24 bg-accent/20 rounded-full blur-xl" />
           <Sparkles size={16} className="absolute top-8 right-12 text-primary-400/40 animate-kawaii-pulse" />
 
-          <div className="flex justify-between items-center relative z-10">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                Hi{settings.userName ? ` ${settings.userName}` : ''}!
-                <span className="text-2xl animate-kawaii-float" style={{ animationDuration: '2s' }}>
-                  {settings.theme.preset === 'my-melody' ? '🎀' : settings.theme.preset === 'kuromi' ? '💜' : '✨'}
-                </span>
-              </h1>
-              <p className="text-gray-600 text-sm">Ready to start your debt-free journey?</p>
-            </div>
-            <Link
-              to="/settings"
-              className="btn-icon"
-            >
-              <Settings size={20} className="text-gray-500" />
-            </Link>
+          <div className="relative z-10">
+            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+              Hi{settings.userName ? ` ${settings.userName}` : ''}!
+              <span className="text-2xl animate-kawaii-float" style={{ animationDuration: '2s' }}>
+                {settings.theme.preset === 'my-melody' ? '🎀' : settings.theme.preset === 'kuromi' ? '💜' : '✨'}
+              </span>
+            </h1>
+            <p className="text-gray-600 text-sm">Ready to start your debt-free journey?</p>
           </div>
 
           {/* Wave decoration */}
@@ -132,22 +123,14 @@ export function HomePage() {
         <div className="absolute top-1/2 -left-10 w-24 h-24 bg-accent/20 rounded-full blur-xl" />
         <Sparkles size={16} className="absolute top-8 right-12 text-primary-400/40 animate-kawaii-pulse" />
 
-        <div className="flex justify-between items-center mb-4 relative z-10">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              Hi{settings.userName ? ` ${settings.userName}` : ''}!
-              <span className="text-2xl animate-kawaii-float" style={{ animationDuration: '2s' }}>
-                {settings.theme.preset === 'my-melody' ? '🎀' : settings.theme.preset === 'kuromi' ? '💜' : '✨'}
-              </span>
-            </h1>
-            <p className="text-gray-600 text-sm">{encouragement}</p>
-          </div>
-          <Link
-            to="/settings"
-            className="btn-icon"
-          >
-            <Settings size={20} className="text-gray-500" />
-          </Link>
+        <div className="mb-4 relative z-10">
+          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            Hi{settings.userName ? ` ${settings.userName}` : ''}!
+            <span className="text-2xl animate-kawaii-float" style={{ animationDuration: '2s' }}>
+              {settings.theme.preset === 'my-melody' ? '🎀' : settings.theme.preset === 'kuromi' ? '💜' : '✨'}
+            </span>
+          </h1>
+          <p className="text-gray-600 text-sm">{encouragement}</p>
         </div>
 
         {/* Debt-Free Countdown Card */}
