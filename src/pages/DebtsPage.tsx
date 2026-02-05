@@ -104,7 +104,7 @@ export function DebtsPage() {
       .sort((a, b) => b.balance - a.balance);
   }, [debts, settings.categoryColors, customCategories]);
 
-  // Individual debt chart data grouped by category, with unique colors per debt
+  // Individual debt chart data sorted by balance (highest to lowest)
   const debtTotals = useMemo(() => {
     return debts
       .map((d) => ({
@@ -114,11 +114,7 @@ export function DebtsPage() {
         category: d.category,
         color: '', // assigned after sorting
       }))
-      .sort((a, b) => {
-        // Group by category first, then by balance within category
-        if (a.category !== b.category) return a.category.localeCompare(b.category);
-        return b.balance - a.balance;
-      })
+      .sort((a, b) => b.balance - a.balance) // Sort by balance, highest first
       .map((d, index) => ({
         ...d,
         color: DEBT_COLORS[index % DEBT_COLORS.length],
