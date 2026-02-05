@@ -20,6 +20,7 @@ import type {
   OneTimeFunding,
   Asset,
   Subscription,
+  ReceivedPaycheck,
 } from '../types';
 import { DEFAULT_APP_DATA, DEFAULT_STRATEGY, DEFAULT_BUDGET } from '../types';
 import { saveData, loadData, exportData, importData } from '../lib/storage';
@@ -38,6 +39,7 @@ interface AppContextType {
   budget: BudgetSettings;
   assets: Asset[];
   subscriptions: Subscription[];
+  receivedPaychecks: ReceivedPaycheck[];
   isLoading: boolean;
 
   // Debt operations
@@ -85,6 +87,11 @@ interface AppContextType {
   addSubscription: (subscription: Omit<Subscription, 'id' | 'createdAt' | 'updatedAt'>) => void;
   updateSubscription: (id: string, updates: Partial<Subscription>) => void;
   deleteSubscription: (id: string) => void;
+
+  // Paycheck tracking operations
+  addPaycheck: (paycheck: Omit<ReceivedPaycheck, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  updatePaycheck: (id: string, updates: Partial<ReceivedPaycheck>) => void;
+  deletePaycheck: (id: string) => void;
 
   // Import/Export
   exportAppData: () => void;
@@ -478,6 +485,43 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // ==========================================
+  // PAYCHECK TRACKING OPERATIONS
+  // ==========================================
+
+  const addPaycheck = useCallback((paycheckData: Omit<ReceivedPaycheck, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const now = new Date().toISOString();
+    const newPaycheck: ReceivedPaycheck = {
+      ...paycheckData,
+      id: uuidv4(),
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    setData((prev) => ({
+      ...prev,
+      receivedPaychecks: [...(prev.receivedPaychecks || []), newPaycheck],
+    }));
+  }, []);
+
+  const updatePaycheck = useCallback((id: string, updates: Partial<ReceivedPaycheck>) => {
+    setData((prev) => ({
+      ...prev,
+      receivedPaychecks: (prev.receivedPaychecks || []).map((paycheck) =>
+        paycheck.id === id
+          ? { ...paycheck, ...updates, updatedAt: new Date().toISOString() }
+          : paycheck
+      ),
+    }));
+  }, []);
+
+  const deletePaycheck = useCallback((id: string) => {
+    setData((prev) => ({
+      ...prev,
+      receivedPaychecks: (prev.receivedPaychecks || []).filter((paycheck) => paycheck.id !== id),
+    }));
+  }, []);
+
+  // ==========================================
   // IMPORT/EXPORT
   // ==========================================
 
@@ -513,6 +557,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     budget: data.budget,
     assets: data.assets,
     subscriptions: data.subscriptions,
+    receivedPaychecks: data.receivedPaychecks || [],
     isLoading,
 
     addDebt,
@@ -550,6 +595,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     addSubscription,
     updateSubscription,
     deleteSubscription,
+
+    addPaycheck,
+    updatePaycheck,
+    deletePaycheck,
 
     exportAppData,
     importAppData,
