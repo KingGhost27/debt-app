@@ -5,8 +5,8 @@
  * and data import/export with delightful styling.
  */
 
-import { useRef } from 'react';
-import { Download, Upload, Trash2, ChevronLeft, Sparkles, Database, Heart } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { Download, Upload, Trash2, ChevronLeft, Sparkles, Database, Heart, User, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useToast } from '../components/ui/Toast';
@@ -15,9 +15,18 @@ import { CategoryManager } from '../components/ui/CategoryManager';
 
 export function SettingsPage() {
   const navigate = useNavigate();
-  const { exportAppData, importAppData, clearAllData, settings } = useApp();
+  const { exportAppData, importAppData, clearAllData, settings, updateSettings } = useApp();
   const { showToast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [nameInput, setNameInput] = useState(settings.userName || '');
+  const [nameSaved, setNameSaved] = useState(false);
+
+  const handleSaveName = () => {
+    updateSettings({ userName: nameInput.trim() });
+    setNameSaved(true);
+    showToast('Name saved!', 'success');
+    setTimeout(() => setNameSaved(false), 2000);
+  };
 
   const handleImportClick = () => {
     fileInputRef.current?.click();
@@ -91,6 +100,59 @@ export function SettingsPage() {
       </header>
 
       <div className="px-4 py-6 space-y-5">
+        {/* Profile Section */}
+        <div className="card">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow-lg shadow-primary-300/30">
+              <User size={20} className="text-white" />
+            </div>
+            <div>
+              <h3 className="font-bold text-gray-900">Profile</h3>
+              <p className="text-sm text-gray-500">Personalize your experience</p>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Your Name
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={nameInput}
+                  onChange={(e) => setNameInput(e.target.value)}
+                  placeholder="Enter your name"
+                  className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white text-gray-900 placeholder-gray-400 transition-all"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleSaveName();
+                  }}
+                />
+                <button
+                  onClick={handleSaveName}
+                  className={`px-4 py-3 rounded-2xl font-semibold transition-all flex items-center gap-2 ${
+                    nameSaved
+                      ? 'bg-green-500 text-white'
+                      : 'bg-gradient-to-r from-primary-500 to-primary-600 text-white hover:from-primary-600 hover:to-primary-700 shadow-lg shadow-primary-300/30'
+                  }`}
+                >
+                  {nameSaved ? (
+                    <>
+                      <Check size={18} />
+                      Saved!
+                    </>
+                  ) : (
+                    'Save'
+                  )}
+                </button>
+              </div>
+              <p className="text-xs text-gray-400 mt-2">
+                This will be shown in your home page greeting
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Theme Section */}
         <div className="card">
           <ThemeSelector />
