@@ -74,8 +74,8 @@ export function PlanSummary({
                     onClick={() => onStrategyChange('avalanche')}
                     className={`w-full px-4 py-2.5 rounded-2xl font-semibold transition-all flex items-center justify-center gap-2 ${
                       strategy === 'avalanche'
-                        ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-300/40'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg shadow-primary-300/40'
+                        : 'bg-primary-100 text-primary-700 hover:bg-primary-200'
                     } ${betterInterest === 'avalanche' ? 'ring-2 ring-amber-400 ring-offset-2' : ''}`}
                   >
                     <Mountain size={16} />
@@ -106,8 +106,8 @@ export function PlanSummary({
                     onClick={() => onStrategyChange('snowball')}
                     className={`w-full px-4 py-2.5 rounded-2xl font-semibold transition-all flex items-center justify-center gap-2 ${
                       strategy === 'snowball'
-                        ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg shadow-purple-300/40'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        ? 'bg-gradient-to-r from-primary-400 to-primary-500 text-white shadow-lg shadow-primary-200/40'
+                        : 'bg-primary-50 text-primary-600 hover:bg-primary-100'
                     } ${betterInterest === 'snowball' ? 'ring-2 ring-amber-400 ring-offset-2' : ''}`}
                   >
                     <Snowflake size={16} />
@@ -268,35 +268,25 @@ export function PlanSummary({
       <div
         className={`mt-5 p-4 rounded-2xl text-center relative overflow-hidden ${
           strategy === 'avalanche'
-            ? 'bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100'
-            : 'bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-100'
+            ? 'bg-gradient-to-r from-primary-100 to-primary-50 border border-primary-200'
+            : 'bg-gradient-to-r from-primary-50 to-primary-100/50 border border-primary-100'
         }`}
       >
         <Sparkles
           size={12}
-          className={`absolute top-3 right-4 animate-kawaii-pulse ${
-            strategy === 'avalanche' ? 'text-blue-300' : 'text-purple-300'
-          }`}
+          className="absolute top-3 right-4 animate-kawaii-pulse text-primary-300"
         />
         <div className="flex items-center justify-center gap-2 mb-2">
           {strategy === 'avalanche' ? (
-            <Mountain size={18} className="text-blue-500" />
+            <Mountain size={18} className="text-primary-600" />
           ) : (
-            <Snowflake size={18} className="text-purple-500" />
+            <Snowflake size={18} className="text-primary-500" />
           )}
-          <span
-            className={`font-bold ${
-              strategy === 'avalanche' ? 'text-blue-700' : 'text-purple-700'
-            }`}
-          >
+          <span className="font-bold text-primary-700">
             {strategy === 'avalanche' ? 'Avalanche Strategy' : 'Snowball Strategy'}
           </span>
         </div>
-        <p
-          className={`text-sm ${
-            strategy === 'avalanche' ? 'text-blue-700' : 'text-purple-700'
-          }`}
-        >
+        <p className="text-sm text-primary-700">
           {strategy === 'avalanche' ? (
             <>
               Pays off highest interest debts first, saving you the most money.
