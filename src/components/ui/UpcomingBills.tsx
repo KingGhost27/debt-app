@@ -344,7 +344,7 @@ export function UpcomingBills({ debts, customCategories = [], payments = [], inc
     }
     if (daysUntil <= 7) {
       return {
-        bg: 'bg-amber-50 border-amber-200',
+        bg: 'bg-primary-50 border-primary-200',
         badge: `${daysUntil} day${daysUntil !== 1 ? 's' : ''}`,
       };
     }
@@ -582,7 +582,7 @@ export function UpcomingBills({ debts, customCategories = [], payments = [], inc
                       inline-block text-xs font-medium px-2 py-0.5 rounded-full mt-1
                       ${bill.daysUntil === 0
                         ? 'bg-red-500 text-white'
-                        : 'bg-amber-500 text-white'
+                        : 'bg-primary-500 text-white'
                       }
                     `}
                   >
