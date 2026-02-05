@@ -372,7 +372,7 @@ export function UpcomingBills({ debts, customCategories = [], payments = [], inc
     <div className="card">
       {/* Header with tabs */}
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
           Bills
         </h3>
 
@@ -405,26 +405,26 @@ export function UpcomingBills({ debts, customCategories = [], payments = [], inc
 
       {/* Pay Period Info Bar */}
       {activeTab === 'pay-period' && hasIncomeSources && payPeriod && selectedSource && (
-        <div className="mb-4 p-4 bg-gradient-to-r from-primary-50 to-primary-100/50 dark:from-primary-900/30 dark:to-primary-800/20 rounded-2xl border border-primary-100 dark:border-primary-800">
+        <div className="mb-4 p-4 bg-gradient-to-r from-primary-50 to-primary-100/50 rounded-2xl border border-primary-100">
           {/* Date Range Header with Navigation */}
-          <div className="flex items-center justify-between mb-3 pb-3 border-b border-primary-200/50 dark:border-primary-700/50">
+          <div className="flex items-center justify-between mb-3 pb-3 border-b border-primary-200/50">
             {/* Previous button */}
             <button
               onClick={() => setPeriodOffset(periodOffset - 1)}
-              className="p-1.5 rounded-lg hover:bg-primary-200/50 dark:hover:bg-primary-700/50 transition-colors"
+              className="p-1.5 rounded-lg hover:bg-primary-200/50 transition-colors"
               aria-label="Previous pay period"
             >
-              <ChevronLeft size={20} className="text-primary-600 dark:text-primary-400" />
+              <ChevronLeft size={20} className="text-primary-700" />
             </button>
 
             {/* Date range and label */}
             <div className="text-center">
-              <p className="text-xs text-primary-600 dark:text-primary-400 font-medium mb-0.5">
+              <p className="text-xs text-primary-700 font-medium mb-0.5">
                 {periodLabel}
               </p>
               <div className="flex items-center justify-center gap-2">
-                <Calendar size={14} className="text-primary-500" />
-                <span className="text-sm font-bold text-gray-900 dark:text-white">
+                <Calendar size={14} className="text-primary-600" />
+                <span className="text-sm font-bold text-primary-800">
                   {format(payPeriod.start, 'MMM d')} — {format(payPeriod.end, 'MMM d')}
                 </span>
               </div>
@@ -433,10 +433,10 @@ export function UpcomingBills({ debts, customCategories = [], payments = [], inc
             {/* Next button */}
             <button
               onClick={() => setPeriodOffset(periodOffset + 1)}
-              className="p-1.5 rounded-lg hover:bg-primary-200/50 dark:hover:bg-primary-700/50 transition-colors"
+              className="p-1.5 rounded-lg hover:bg-primary-200/50 transition-colors"
               aria-label="Next pay period"
             >
-              <ChevronRight size={20} className="text-primary-600 dark:text-primary-400" />
+              <ChevronRight size={20} className="text-primary-700" />
             </button>
           </div>
 
@@ -451,11 +451,11 @@ export function UpcomingBills({ debts, customCategories = [], payments = [], inc
                   <Wallet size={16} className="text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs text-primary-600 dark:text-primary-400 font-medium">Next payday</p>
-                  <p className="text-sm font-semibold text-gray-900 dark:text-white truncate flex items-center gap-1">
+                  <p className="text-xs text-primary-700 font-medium">Next payday</p>
+                  <p className="text-sm font-semibold text-primary-800 truncate flex items-center gap-1">
                     {selectedSource.name}
                     {incomeSources.length > 1 && (
-                      <ChevronDown size={14} className={`text-gray-400 transition-transform ${showSourcePicker ? 'rotate-180' : ''}`} />
+                      <ChevronDown size={14} className={`text-primary-600 transition-transform ${showSourcePicker ? 'rotate-180' : ''}`} />
                     )}
                   </p>
                 </div>
@@ -463,13 +463,13 @@ export function UpcomingBills({ debts, customCategories = [], payments = [], inc
 
               {/* Dropdown */}
               {showSourcePicker && incomeSources.length > 1 && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 z-10 overflow-hidden">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg border border-gray-200 z-10 overflow-hidden">
                   {incomeSources.map((source) => (
                     <button
                       key={source.id}
                       onClick={() => handleSourceChange(source.id)}
-                      className={`w-full px-3 py-2.5 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2 ${
-                        source.id === selectedSourceId ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300' : 'text-gray-700 dark:text-gray-300'
+                      className={`w-full px-3 py-2.5 text-left text-sm hover:bg-gray-50 transition-colors flex items-center gap-2 ${
+                        source.id === selectedSourceId ? 'bg-primary-50 text-primary-700' : 'text-gray-700'
                       }`}
                     >
                       <Wallet size={14} />
@@ -482,8 +482,8 @@ export function UpcomingBills({ debts, customCategories = [], payments = [], inc
 
             {/* Total due */}
             <div className="text-right flex-shrink-0">
-              <p className="text-xs text-gray-500 dark:text-gray-400">Total due</p>
-              <p className="text-xl font-bold text-primary-600 dark:text-primary-400">
+              <p className="text-xs text-primary-700">Total due</p>
+              <p className="text-xl font-bold text-primary-700">
                 {formatCurrency(payPeriodTotal)}
               </p>
             </div>
@@ -495,7 +495,7 @@ export function UpcomingBills({ debts, customCategories = [], payments = [], inc
       {activeTab === 'pay-period' && displayBills.length === 0 && (
         <div className="text-center py-6">
           <div className="text-3xl mb-2">🎉</div>
-          <p className="text-gray-500 dark:text-gray-400 text-sm">No bills due this pay period!</p>
+          <p className="text-gray-500 text-sm">No bills due this pay period!</p>
         </div>
       )}
 
@@ -548,7 +548,7 @@ export function UpcomingBills({ debts, customCategories = [], payments = [], inc
 
               {/* Bill info */}
               <div className="flex-1 min-w-0">
-                <p className={`font-medium truncate ${isPaid ? 'text-green-700' : 'text-gray-900 dark:text-white'}`}>
+                <p className={`font-medium truncate ${isPaid ? 'text-green-700' : 'text-gray-800'}`}>
                   {bill.name}
                   {isPaid && (
                     <span className="ml-2 text-xs bg-green-100 text-green-600 px-2 py-0.5 rounded-full">
@@ -556,12 +556,12 @@ export function UpcomingBills({ debts, customCategories = [], payments = [], inc
                     </span>
                   )}
                   {isSubscription && !isPaid && (
-                    <span className="ml-2 text-xs bg-primary-100 dark:bg-primary-900/50 text-primary-600 dark:text-primary-400 px-2 py-0.5 rounded-full">
+                    <span className="ml-2 text-xs bg-primary-100 text-primary-600 px-2 py-0.5 rounded-full">
                       Sub
                     </span>
                   )}
                 </p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-sm text-gray-600">
                   {isPaid
                     ? `Paid ${formatCurrency(paidPayment!.amount)} this month`
                     : isSubscription
@@ -573,7 +573,7 @@ export function UpcomingBills({ debts, customCategories = [], payments = [], inc
 
               {/* Amount and urgency badge */}
               <div className="text-right flex-shrink-0">
-                <p className={`font-semibold ${isPaid ? 'text-green-600' : 'text-gray-900 dark:text-white'}`}>
+                <p className={`font-semibold ${isPaid ? 'text-green-600' : 'text-gray-800'}`}>
                   {formatCurrency(displayAmount)}
                 </p>
                 {!isPaid && urgency.badge && (
