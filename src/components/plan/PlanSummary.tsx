@@ -6,7 +6,7 @@
  */
 
 import { parseISO } from 'date-fns';
-import { Trophy, TrendingDown, DollarSign, Check, Sparkles, Mountain, Snowflake } from 'lucide-react';
+import { Trophy, TrendingDown, DollarSign, Check, Sparkles, Mountain, Snowflake, Crown } from 'lucide-react';
 import { formatCurrency, formatTimeUntil } from '../../lib/calculations';
 import type { PayoffPlan, PayoffStrategy } from '../../types';
 
@@ -59,30 +59,68 @@ export function PlanSummary({
             <tr className="border-b border-gray-200">
               <th className="text-left py-3 pr-2 font-medium text-gray-500"></th>
               <th className="text-center py-3 px-2">
-                <button
-                  onClick={() => onStrategyChange('avalanche')}
-                  className={`w-full px-4 py-2.5 rounded-2xl font-semibold transition-all flex items-center justify-center gap-2 ${
-                    strategy === 'avalanche'
-                      ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-300/40'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  <Mountain size={16} />
-                  Avalanche
-                </button>
+                <div className="relative">
+                  {/* Best Value Badge for Avalanche */}
+                  {betterInterest === 'avalanche' && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                      <div className="flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r from-amber-400 to-yellow-400 text-amber-900 text-[10px] font-bold rounded-full shadow-lg animate-kawaii-bounce whitespace-nowrap">
+                        <Crown size={10} className="animate-kawaii-wiggle" />
+                        Best Value!
+                        <Sparkles size={10} className="animate-kawaii-pulse" />
+                      </div>
+                    </div>
+                  )}
+                  <button
+                    onClick={() => onStrategyChange('avalanche')}
+                    className={`w-full px-4 py-2.5 rounded-2xl font-semibold transition-all flex items-center justify-center gap-2 ${
+                      strategy === 'avalanche'
+                        ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-300/40'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    } ${betterInterest === 'avalanche' ? 'ring-2 ring-amber-400 ring-offset-2' : ''}`}
+                  >
+                    <Mountain size={16} />
+                    Avalanche
+                  </button>
+                  {/* Floating sparkles for best strategy */}
+                  {betterInterest === 'avalanche' && (
+                    <>
+                      <span className="absolute -top-1 -left-1 text-sm animate-money-float" style={{ animationDelay: '0s' }}>✨</span>
+                      <span className="absolute -top-1 -right-1 text-sm animate-money-float" style={{ animationDelay: '0.5s' }}>💰</span>
+                    </>
+                  )}
+                </div>
               </th>
               <th className="text-center py-3 px-2">
-                <button
-                  onClick={() => onStrategyChange('snowball')}
-                  className={`w-full px-4 py-2.5 rounded-2xl font-semibold transition-all flex items-center justify-center gap-2 ${
-                    strategy === 'snowball'
-                      ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg shadow-purple-300/40'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  <Snowflake size={16} />
-                  Snowball
-                </button>
+                <div className="relative">
+                  {/* Best Value Badge for Snowball */}
+                  {betterInterest === 'snowball' && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                      <div className="flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r from-amber-400 to-yellow-400 text-amber-900 text-[10px] font-bold rounded-full shadow-lg animate-kawaii-bounce whitespace-nowrap">
+                        <Crown size={10} className="animate-kawaii-wiggle" />
+                        Best Value!
+                        <Sparkles size={10} className="animate-kawaii-pulse" />
+                      </div>
+                    </div>
+                  )}
+                  <button
+                    onClick={() => onStrategyChange('snowball')}
+                    className={`w-full px-4 py-2.5 rounded-2xl font-semibold transition-all flex items-center justify-center gap-2 ${
+                      strategy === 'snowball'
+                        ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg shadow-purple-300/40'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    } ${betterInterest === 'snowball' ? 'ring-2 ring-amber-400 ring-offset-2' : ''}`}
+                  >
+                    <Snowflake size={16} />
+                    Snowball
+                  </button>
+                  {/* Floating sparkles for best strategy */}
+                  {betterInterest === 'snowball' && (
+                    <>
+                      <span className="absolute -top-1 -left-1 text-sm animate-money-float" style={{ animationDelay: '0s' }}>✨</span>
+                      <span className="absolute -top-1 -right-1 text-sm animate-money-float" style={{ animationDelay: '0.5s' }}>💰</span>
+                    </>
+                  )}
+                </div>
               </th>
             </tr>
           </thead>
