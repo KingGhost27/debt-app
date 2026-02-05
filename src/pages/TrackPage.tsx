@@ -30,7 +30,7 @@ import type { Debt, PaymentType, Payment, ReceivedPaycheck } from '../types';
 type TabType = 'upcoming' | 'complete' | 'calendar' | 'paychecks';
 
 export function TrackPage() {
-  const { debts, strategy, payments, budget, deletePayment, updateDebt, customCategories, receivedPaychecks, deletePaycheck } = useApp();
+  const { debts, strategy, payments, budget, deletePayment, updateDebt, customCategories, receivedPaychecks, deletePaycheck, subscriptions } = useApp();
   const [activeTab, setActiveTab] = useState<TabType>('upcoming');
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [preselectedDebt, setPreselectedDebt] = useState<Debt | undefined>();
@@ -611,6 +611,7 @@ export function TrackPage() {
             <MiniCalendar
               debts={debts}
               incomeSources={budget.incomeSources}
+              subscriptions={subscriptions}
               customCategories={customCategories}
               size="large"
             />

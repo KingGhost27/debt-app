@@ -19,19 +19,20 @@ import {
   addMonths,
   subMonths,
 } from 'date-fns';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import type { Debt, IncomeSource } from '../../types';
-import { CATEGORY_INFO } from '../../types';
+import { ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
+import type { Debt, IncomeSource, Subscription } from '../../types';
+import { CATEGORY_INFO, SUBSCRIPTION_CATEGORY_INFO } from '../../types';
 import { getPaydaysInMonth, getPayCycleEndsInMonth } from '../../lib/calculations';
 
 interface MiniCalendarProps {
   debts: Debt[];
   incomeSources?: IncomeSource[];
+  subscriptions?: Subscription[];
   customCategories?: { id: string; name: string; color: string }[];
   size?: 'small' | 'large';
 }
 
-export function MiniCalendar({ debts, incomeSources = [], customCategories = [], size = 'small' }: MiniCalendarProps) {
+export function MiniCalendar({ debts, incomeSources = [], subscriptions = [], customCategories = [], size = 'small' }: MiniCalendarProps) {
   const isLarge = size === 'large';
   const [hoveredDay, setHoveredDay] = useState<Date | null>(null);
 
@@ -98,6 +99,71 @@ export function MiniCalendar({ debts, incomeSources = [], customCategories = [],
     return map;
   }, [incomeSources, displayedMonth]);
 
+  // Build a map of day -> subscriptions billing that day (for displayed month)
+  const subscriptionMap = useMemo(() => {
+    const map = new Map<number, Subscription[]>();
+    const monthStart = startOfMonth(displayedMonth);
+    const monthEnd = endOfMonth(displayedMonth);
+
+    subscriptions
+      .filter((sub) => sub.isActive)
+      .forEach((sub) => {
+        // Parse the next billing date
+        let billingDate = new Date(sub.nextBillingDate);
+
+        // Find billing dates that fall in the displayed month
+        // We need to check multiple billing cycles to cover the displayed month
+        const { value, unit } = sub.frequency;
+
+        // Move forward until we're in or past the displayed month
+        while (billingDate < monthStart) {
+          switch (unit) {
+            case 'days':
+              billingDate = new Date(billingDate.getTime() + value * 24 * 60 * 60 * 1000);
+              break;
+            case 'weeks':
+              billingDate = new Date(billingDate.getTime() + value * 7 * 24 * 60 * 60 * 1000);
+              break;
+            case 'months':
+              billingDate = new Date(billingDate.setMonth(billingDate.getMonth() + value));
+              break;
+            case 'years':
+              billingDate = new Date(billingDate.setFullYear(billingDate.getFullYear() + value));
+              break;
+          }
+        }
+
+        // Now check billing dates that fall within the displayed month
+        while (billingDate <= monthEnd) {
+          if (billingDate >= monthStart && billingDate <= monthEnd) {
+            const day = billingDate.getDate();
+            if (!map.has(day)) {
+              map.set(day, []);
+            }
+            map.get(day)!.push(sub);
+          }
+
+          // Move to next billing date
+          switch (unit) {
+            case 'days':
+              billingDate = new Date(billingDate.getTime() + value * 24 * 60 * 60 * 1000);
+              break;
+            case 'weeks':
+              billingDate = new Date(billingDate.getTime() + value * 7 * 24 * 60 * 60 * 1000);
+              break;
+            case 'months':
+              billingDate = new Date(billingDate.setMonth(billingDate.getMonth() + value));
+              break;
+            case 'years':
+              billingDate = new Date(billingDate.setFullYear(billingDate.getFullYear() + value));
+              break;
+          }
+        }
+      });
+
+    return map;
+  }, [subscriptions, displayedMonth]);
+
   // Get calendar days for displayed month
   const calendarDays = useMemo(() => {
     const monthStart = startOfMonth(displayedMonth);
@@ -126,6 +192,18 @@ export function MiniCalendar({ debts, incomeSources = [], customCategories = [],
     return cycleEndMap.get(date.getDate()) || [];
   };
 
+  // Get subscriptions for a specific day of month
+  const getSubscriptionsForDay = (date: Date): Subscription[] => {
+    if (!isSameMonth(date, displayedMonth)) return [];
+    return subscriptionMap.get(date.getDate()) || [];
+  };
+
+  // Get subscription category color
+  const getSubscriptionColor = (sub: Subscription): string => {
+    const catInfo = SUBSCRIPTION_CATEGORY_INFO[sub.category];
+    return catInfo?.color || '#6b7280';
+  };
+
   // Get category color for a debt
   const getCategoryColor = (debt: Debt): string => {
     // Check built-in categories
@@ -139,16 +217,17 @@ export function MiniCalendar({ debts, incomeSources = [], customCategories = [],
 
   const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-  // Show calendar even if no debts, as long as there are income sources with paydays or cycle ends
+  // Show calendar even if no debts, as long as there are income sources with paydays or cycle ends or subscriptions
   const hasPaydays = incomeSources.some((s) => s.nextPayDate);
   const hasCycleEnds = incomeSources.some((s) => s.payCycleEndDate);
+  const hasSubscriptions = subscriptions.filter((s) => s.isActive).length > 0;
 
-  if (debts.length === 0 && !hasPaydays && !hasCycleEnds) {
+  if (debts.length === 0 && !hasPaydays && !hasCycleEnds && !hasSubscriptions) {
     return (
       <div className="card">
         <h3 className="text-sm text-gray-500 mb-3">BILL CALENDAR</h3>
         <div className="text-center py-6 text-gray-500 text-sm">
-          Add debts to see your payment calendar
+          Add debts or subscriptions to see your payment calendar
         </div>
       </div>
     );
@@ -210,11 +289,13 @@ export function MiniCalendar({ debts, incomeSources = [], customCategories = [],
           const debtsOnDay = getDebtsForDay(date);
           const paydaysOnDay = getPaydaysForDay(date);
           const cycleEndsOnDay = getCycleEndsForDay(date);
+          const subsOnDay = getSubscriptionsForDay(date);
           const hasBills = debtsOnDay.length > 0;
           const hasPayday = paydaysOnDay.length > 0;
           const hasCycleEnd = cycleEndsOnDay.length > 0;
+          const hasSubs = subsOnDay.length > 0;
           const isHovered = hoveredDay && isSameDay(date, hoveredDay);
-          const hasContent = hasBills || hasPayday || hasCycleEnd;
+          const hasContent = hasBills || hasPayday || hasCycleEnd || hasSubs;
 
           return (
             <div
@@ -267,6 +348,25 @@ export function MiniCalendar({ debts, incomeSources = [], customCategories = [],
                       📅 Cycle ends
                     </div>
                   )}
+                  {/* Subscriptions on this day */}
+                  {isInDisplayedMonth && subsOnDay.length > 0 && (
+                    <div className="space-y-0.5 mt-0.5">
+                      {subsOnDay.slice(0, 2).map((sub) => (
+                        <div
+                          key={sub.id}
+                          className="text-[10px] px-1 py-0.5 rounded bg-purple-100 text-purple-700 truncate flex items-center gap-1"
+                        >
+                          <RefreshCw size={8} />
+                          {sub.name}
+                        </div>
+                      ))}
+                      {subsOnDay.length > 2 && (
+                        <div className="text-[9px] text-gray-400 px-1">
+                          +{subsOnDay.length - 2} more subs
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               ) : (
                 /* Small calendar - original compact view */
@@ -275,18 +375,24 @@ export function MiniCalendar({ debts, incomeSources = [], customCategories = [],
                     w-9 h-9 flex items-center justify-center text-sm rounded-md
                     transition-all duration-150
                     ${!isInDisplayedMonth ? 'text-gray-300' : ''}
-                    ${isInDisplayedMonth && !hasBills && !hasPayday && !hasCycleEnd && !isToday ? 'text-gray-600' : ''}
-                    ${isToday && !hasBills ? 'ring-1 ring-primary-500 text-gray-900 font-semibold' : ''}
-                    ${hasBills && !isToday ? 'bg-primary-500 text-white font-semibold' : ''}
-                    ${hasBills && isToday ? 'bg-primary-600 text-white font-bold ring-1 ring-primary-300' : ''}
+                    ${isInDisplayedMonth && !hasBills && !hasSubs && !hasPayday && !hasCycleEnd && !isToday ? 'text-gray-600' : ''}
+                    ${isToday && !hasBills && !hasSubs ? 'ring-1 ring-primary-500 text-gray-900 font-semibold' : ''}
+                    ${(hasBills || hasSubs) && !isToday ? 'bg-primary-500 text-white font-semibold' : ''}
+                    ${(hasBills || hasSubs) && isToday ? 'bg-primary-600 text-white font-bold ring-1 ring-primary-300' : ''}
                     ${hasContent ? 'cursor-pointer hover:opacity-90' : ''}
                   `}
                 >
                   {date.getDate()}
-                  {/* Bill count badge */}
-                  {debtsOnDay.length > 1 && (
+                  {/* Bill + Sub count badge */}
+                  {(debtsOnDay.length + subsOnDay.length) > 1 && (
                     <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] w-3 h-3 rounded-full flex items-center justify-center font-bold">
-                      {debtsOnDay.length}
+                      {debtsOnDay.length + subsOnDay.length}
+                    </span>
+                  )}
+                  {/* Subscription indicator - top left (only if has subs but no bills) */}
+                  {hasSubs && !hasBills && (
+                    <span className="absolute -top-0.5 -left-0.5 bg-purple-500 text-white text-[8px] w-3 h-3 rounded-full flex items-center justify-center font-bold">
+                      ↻
                     </span>
                   )}
                   {/* Pay cycle end indicator - left side */}
@@ -354,6 +460,24 @@ export function MiniCalendar({ debts, incomeSources = [], customCategories = [],
                       ))}
                     </>
                   )}
+                  {/* Subscriptions section */}
+                  {hasSubs && (
+                    <>
+                      {(hasBills || hasPayday || hasCycleEnd) && <div className="border-t border-gray-700 my-1" />}
+                      <div className="font-semibold mb-0.5 text-purple-400">
+                        Subscriptions:
+                      </div>
+                      {subsOnDay.map((sub) => (
+                        <div key={sub.id} className="flex items-center gap-1.5">
+                          <span
+                            className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                            style={{ backgroundColor: getSubscriptionColor(sub) }}
+                          />
+                          <span>{sub.name}</span>
+                        </div>
+                      ))}
+                    </>
+                  )}
                   <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900" />
                 </div>
               )}
@@ -383,6 +507,12 @@ export function MiniCalendar({ debts, incomeSources = [], customCategories = [],
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 rounded-full bg-blue-500 text-white text-[8px] flex items-center justify-center font-bold">|</div>
             <span>Cycle ends</span>
+          </div>
+        )}
+        {hasSubscriptions && (
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 rounded-full bg-purple-500 text-white text-[8px] flex items-center justify-center font-bold">↻</div>
+            <span>Subscription</span>
           </div>
         )}
       </div>
