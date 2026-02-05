@@ -144,12 +144,40 @@ export function AssetsPage() {
           {/* Floating money celebration for positive net worth */}
           {netWorth > 0 && (
             <>
+              {/* Corner floaters */}
               <span className="absolute top-8 left-6 text-xl animate-money-float" style={{ animationDelay: '0s' }}>💰</span>
               <span className="absolute top-12 left-16 text-lg animate-money-float" style={{ animationDelay: '0.5s' }}>✨</span>
               <span className="absolute top-6 right-16 text-xl animate-money-float" style={{ animationDelay: '0.3s' }}>💵</span>
               <span className="absolute top-14 right-8 text-lg animate-money-pop" style={{ animationDelay: '0.8s' }}>🪙</span>
               <span className="absolute top-20 left-10 text-sm animate-money-pop" style={{ animationDelay: '1.2s' }}>💎</span>
               <span className="absolute top-16 right-20 text-sm animate-money-float" style={{ animationDelay: '1.5s' }}>⭐</span>
+
+              {/* Money shower in the center */}
+              <div className="absolute inset-x-0 top-0 flex justify-center pointer-events-none overflow-hidden h-full">
+                {/* Row 1 - Different currencies */}
+                <span className="absolute text-2xl animate-money-shower" style={{ left: '20%', animationDelay: '0s' }}>💵</span>
+                <span className="absolute text-xl animate-money-bounce-fall" style={{ left: '30%', animationDelay: '0.4s' }}>💴</span>
+                <span className="absolute text-2xl animate-money-shower" style={{ left: '40%', animationDelay: '0.8s' }}>💶</span>
+                <span className="absolute text-xl animate-money-bounce-fall" style={{ left: '50%', animationDelay: '0.2s' }}>💷</span>
+                <span className="absolute text-2xl animate-money-shower" style={{ left: '60%', animationDelay: '0.6s' }}>💰</span>
+                <span className="absolute text-xl animate-money-bounce-fall" style={{ left: '70%', animationDelay: '1s' }}>💸</span>
+                <span className="absolute text-lg animate-money-shower" style={{ left: '80%', animationDelay: '1.4s' }}>🪙</span>
+
+                {/* Row 2 - More variety */}
+                <span className="absolute text-lg animate-money-bounce-fall" style={{ left: '25%', animationDelay: '1.2s' }}>🤑</span>
+                <span className="absolute text-xl animate-money-shower" style={{ left: '35%', animationDelay: '1.6s' }}>💎</span>
+                <span className="absolute text-lg animate-money-bounce-fall" style={{ left: '45%', animationDelay: '0.9s' }}>🏦</span>
+                <span className="absolute text-xl animate-money-shower" style={{ left: '55%', animationDelay: '1.8s' }}>💳</span>
+                <span className="absolute text-lg animate-money-bounce-fall" style={{ left: '65%', animationDelay: '2s' }}>🏧</span>
+                <span className="absolute text-xl animate-money-shower" style={{ left: '75%', animationDelay: '2.2s' }}>💹</span>
+
+                {/* Row 3 - Extra sparkle */}
+                <span className="absolute text-sm animate-money-shower" style={{ left: '22%', animationDelay: '2.4s' }}>✨</span>
+                <span className="absolute text-sm animate-money-bounce-fall" style={{ left: '38%', animationDelay: '2.6s' }}>⭐</span>
+                <span className="absolute text-sm animate-money-shower" style={{ left: '52%', animationDelay: '2.8s' }}>🌟</span>
+                <span className="absolute text-sm animate-money-bounce-fall" style={{ left: '68%', animationDelay: '3s' }}>💫</span>
+                <span className="absolute text-sm animate-money-shower" style={{ left: '78%', animationDelay: '1.1s' }}>🎉</span>
+              </div>
             </>
           )}
 
