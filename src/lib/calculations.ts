@@ -30,6 +30,7 @@ import type {
   AssetType,
   Subscription,
   ReceivedPaycheck,
+  Payment,
 } from '../types';
 
 // ============================================
@@ -933,23 +934,35 @@ export function getSubscriptionsDueInPeriod(
 }
 
 /**
+ * Parse a date string that may be yyyy-MM-dd or full ISO format
+ */
+function parseDateString(dateStr: string): Date {
+  // If it's just yyyy-MM-dd, add noon time to avoid timezone issues
+  if (dateStr.length === 10) {
+    return new Date(dateStr + 'T12:00:00');
+  }
+  return parseISO(dateStr);
+}
+
+/**
  * Calculate remaining balance after bills for a pay period
  */
 export function calculatePayPeriodRemaining(
   paycheck: ReceivedPaycheck,
   debts: Debt[],
   subscriptions: Subscription[],
-  includeSubscriptions: boolean = true
+  includeSubscriptions: boolean = true,
+  payments: Payment[] = []
 ): {
   totalIncome: number;
   totalBills: number;
   totalSubscriptions: number;
   remaining: number;
-  bills: { name: string; amount: number; dueDate: Date }[];
+  bills: { name: string; amount: number; dueDate: Date; debtId: string; isPaid: boolean }[];
   subs: { name: string; amount: number; billingDate: Date }[];
 } {
-  const periodStart = parseISO(paycheck.payPeriodStart);
-  const periodEnd = parseISO(paycheck.payPeriodEnd);
+  const periodStart = parseDateString(paycheck.payPeriodStart);
+  const periodEnd = parseDateString(paycheck.payPeriodEnd);
 
   // Get bills in period
   const billsInPeriod = getBillsDueInPeriod(debts, periodStart, periodEnd);
@@ -963,16 +976,33 @@ export function calculatePayPeriodRemaining(
 
   const remaining = paycheck.actualAmount - totalBills - totalSubscriptions;
 
+  // Check which bills have been paid
+  const billsWithPaidStatus = billsInPeriod.map((b) => {
+    // Check if there's a completed payment for this debt in the pay period month
+    const isPaid = payments.some((p) => {
+      if (!p.isCompleted || !p.completedAt || p.debtId !== b.debt.id) return false;
+      const paidDate = parseISO(p.completedAt);
+      // Check if payment was made in the same month as the due date
+      return (
+        paidDate.getMonth() === b.dueDate.getMonth() &&
+        paidDate.getFullYear() === b.dueDate.getFullYear()
+      );
+    });
+    return {
+      name: b.debt.name,
+      amount: b.amount,
+      dueDate: b.dueDate,
+      debtId: b.debt.id,
+      isPaid,
+    };
+  });
+
   return {
     totalIncome: paycheck.actualAmount,
     totalBills,
     totalSubscriptions: includeSubscriptions ? totalSubscriptions : 0,
     remaining: round(remaining),
-    bills: billsInPeriod.map((b) => ({
-      name: b.debt.name,
-      amount: b.amount,
-      dueDate: b.dueDate,
-    })),
+    bills: billsWithPaidStatus,
     subs: includeSubscriptions
       ? subsInPeriod.map((s) => ({
           name: s.subscription.name,

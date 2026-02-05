@@ -653,17 +653,15 @@ export function TrackPage() {
               </div>
             )}
 
-            {/* Pay Period Summary for Selected Paycheck */}
-            {selectedPaycheck && (
-              <PayPeriodSummary paycheck={selectedPaycheck} />
-            )}
-
             {/* Recent Paychecks List */}
             <div className="space-y-3">
               <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                 <Receipt size={18} className="text-emerald-500" />
                 Recent Paychecks
               </h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 -mt-2">
+                Tap a paycheck to see your remaining balance after bills
+              </p>
 
               {receivedPaychecks.length === 0 ? (
                 <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-3xl">
@@ -681,62 +679,63 @@ export function TrackPage() {
                   .map((paycheck) => {
                     const source = budget.incomeSources.find((s) => s.id === paycheck.incomeSourceId);
                     const variance = paycheck.actualAmount - paycheck.expectedAmount;
-                    const isSelected = selectedPaycheck?.id === paycheck.id;
+                    const isExpanded = selectedPaycheck?.id === paycheck.id;
 
                     return (
-                      <div
-                        key={paycheck.id}
-                        onClick={() => setSelectedPaycheck(isSelected ? undefined : paycheck)}
-                        className={`card rounded-2xl flex items-center gap-4 transition-all cursor-pointer ${
-                          isSelected
-                            ? 'bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/30 dark:to-teal-900/30 border-2 border-emerald-300 dark:border-emerald-700'
-                            : 'bg-white dark:bg-gray-800 hover:shadow-md'
-                        }`}
-                      >
-                        <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-300/40 dark:shadow-emerald-900/40">
-                          <span className="text-xl">💰</span>
-                        </div>
-                        <div className="flex-1">
-                          <p className="font-semibold text-gray-900 dark:text-white">
-                            {source?.name || 'Unknown Source'}
-                          </p>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">
-                            {format(parseISO(paycheck.payDate), 'MMM d, yyyy')}
-                          </p>
-                          {paycheck.note && (
-                            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                              {paycheck.note}
+                      <div key={paycheck.id} className="space-y-2">
+                        {/* Paycheck Card */}
+                        <div
+                          onClick={() => setSelectedPaycheck(isExpanded ? undefined : paycheck)}
+                          className={`card rounded-2xl flex items-center gap-4 transition-all cursor-pointer ${
+                            isExpanded
+                              ? 'bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/30 dark:to-teal-900/30 border-2 border-emerald-300 dark:border-emerald-700'
+                              : 'bg-white dark:bg-gray-800 hover:shadow-md'
+                          }`}
+                        >
+                          <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-300/40 dark:shadow-emerald-900/40">
+                            <span className="text-xl">💰</span>
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-semibold text-gray-900 dark:text-white">
+                              {source?.name || 'Unknown Source'}
                             </p>
-                          )}
-                        </div>
-                        <div className="text-right">
-                          <p className="font-bold text-gray-900 dark:text-white">
-                            {formatCurrency(paycheck.actualAmount)}
-                          </p>
-                          {variance !== 0 && (
-                            <p
-                              className={`text-xs font-medium ${
-                                variance > 0
-                                  ? 'text-emerald-600 dark:text-emerald-400'
-                                  : 'text-red-600 dark:text-red-400'
-                              }`}
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              {format(new Date(paycheck.payDate + (paycheck.payDate.length === 10 ? 'T12:00:00' : '')), 'MMM d, yyyy')}
+                            </p>
+                            {paycheck.note && (
+                              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                                {paycheck.note}
+                              </p>
+                            )}
+                          </div>
+                          <div className="text-right">
+                            <p className="font-bold text-gray-900 dark:text-white">
+                              {formatCurrency(paycheck.actualAmount)}
+                            </p>
+                            {variance !== 0 && (
+                              <p
+                                className={`text-xs font-medium ${
+                                  variance > 0
+                                    ? 'text-emerald-600 dark:text-emerald-400'
+                                    : 'text-red-600 dark:text-red-400'
+                                }`}
+                              >
+                                {variance > 0 ? '+' : ''}
+                                {formatCurrency(variance)}
+                              </p>
+                            )}
+                          </div>
+                          <div className="flex gap-1">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingPaycheck(paycheck);
+                                setIsPaycheckModalOpen(true);
+                              }}
+                              className="p-2 text-gray-400 hover:text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/50 rounded-xl transition-all"
+                              title="Edit paycheck"
                             >
-                              {variance > 0 ? '+' : ''}
-                              {formatCurrency(variance)}
-                            </p>
-                          )}
-                        </div>
-                        <div className="flex gap-1">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setEditingPaycheck(paycheck);
-                              setIsPaycheckModalOpen(true);
-                            }}
-                            className="p-2 text-gray-400 hover:text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/50 rounded-xl transition-all"
-                            title="Edit paycheck"
-                          >
-                            <Pencil size={16} />
+                              <Pencil size={16} />
                           </button>
                           <button
                             onClick={(e) => {
@@ -752,6 +751,14 @@ export function TrackPage() {
                             <X size={18} />
                           </button>
                         </div>
+                        </div>
+
+                        {/* Inline Pay Period Summary */}
+                        {isExpanded && (
+                          <div className="animate-in fade-in slide-in-from-top-2 duration-200">
+                            <PayPeriodSummary paycheck={paycheck} />
+                          </div>
+                        )}
                       </div>
                     );
                   })

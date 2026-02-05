@@ -6,8 +6,8 @@
  */
 
 import { useMemo, useState } from 'react';
-import { format, parseISO } from 'date-fns';
-import { DollarSign, CreditCard, Tv, ChevronDown, ChevronUp } from 'lucide-react';
+import { format } from 'date-fns';
+import { DollarSign, CreditCard, Tv, ChevronDown, ChevronUp, Check } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import {
   calculatePayPeriodRemaining,
@@ -15,12 +15,22 @@ import {
 } from '../../lib/calculations';
 import type { ReceivedPaycheck } from '../../types';
 
+/**
+ * Parse a date string that may be yyyy-MM-dd or full ISO format
+ */
+function parseDateForDisplay(dateStr: string): Date {
+  if (dateStr.length === 10) {
+    return new Date(dateStr + 'T12:00:00');
+  }
+  return new Date(dateStr);
+}
+
 interface PayPeriodSummaryProps {
   paycheck: ReceivedPaycheck;
 }
 
 export function PayPeriodSummary({ paycheck }: PayPeriodSummaryProps) {
-  const { debts, subscriptions } = useApp();
+  const { debts, subscriptions, payments } = useApp();
   const [includeSubscriptions, setIncludeSubscriptions] = useState(true);
   const [showDetails, setShowDetails] = useState(false);
 
@@ -29,9 +39,10 @@ export function PayPeriodSummary({ paycheck }: PayPeriodSummaryProps) {
       paycheck,
       debts,
       subscriptions,
-      includeSubscriptions
+      includeSubscriptions,
+      payments
     );
-  }, [paycheck, debts, subscriptions, includeSubscriptions]);
+  }, [paycheck, debts, subscriptions, includeSubscriptions, payments]);
 
   const isPositive = summary.remaining >= 0;
 
@@ -42,8 +53,8 @@ export function PayPeriodSummary({ paycheck }: PayPeriodSummaryProps) {
         <div className="flex items-center justify-between">
           <h3 className="font-semibold text-primary-900">Pay Period Summary</h3>
           <span className="text-sm text-primary-600">
-            {format(parseISO(paycheck.payPeriodStart), 'MMM d')} -{' '}
-            {format(parseISO(paycheck.payPeriodEnd), 'MMM d')}
+            {format(parseDateForDisplay(paycheck.payPeriodStart), 'MMM d')} -{' '}
+            {format(parseDateForDisplay(paycheck.payPeriodEnd), 'MMM d')}
           </span>
         </div>
       </div>
@@ -157,15 +168,27 @@ export function PayPeriodSummary({ paycheck }: PayPeriodSummaryProps) {
                 {summary.bills.map((bill, idx) => (
                   <div
                     key={idx}
-                    className="flex items-center justify-between text-sm"
+                    className={`flex items-center justify-between text-sm ${
+                      bill.isPaid ? 'opacity-60' : ''
+                    }`}
                   >
                     <div className="flex items-center gap-2">
-                      <span className="text-gray-600">{bill.name}</span>
+                      {bill.isPaid && (
+                        <div className="w-4 h-4 rounded-full bg-emerald-500 flex items-center justify-center">
+                          <Check className="w-3 h-3 text-white" />
+                        </div>
+                      )}
+                      <span className={`text-gray-600 ${bill.isPaid ? 'line-through' : ''}`}>
+                        {bill.name}
+                      </span>
                       <span className="text-xs text-gray-400">
                         (due {format(bill.dueDate, 'MMM d')})
                       </span>
+                      {bill.isPaid && (
+                        <span className="text-xs text-emerald-600 font-medium">Paid</span>
+                      )}
                     </div>
-                    <span className="text-gray-900">
+                    <span className={`text-gray-900 ${bill.isPaid ? 'line-through' : ''}`}>
                       {formatCurrency(bill.amount)}
                     </span>
                   </div>

@@ -196,11 +196,12 @@ export function PaycheckModal({
     e.preventDefault();
     if (!validate()) return;
 
+    // Store dates with noon time to avoid timezone day-shift issues
     const paycheckData = {
       incomeSourceId: formData.incomeSourceId,
-      payDate: new Date(formData.payDate).toISOString(),
-      payPeriodStart: new Date(formData.payPeriodStart).toISOString(),
-      payPeriodEnd: new Date(formData.payPeriodEnd).toISOString(),
+      payDate: formData.payDate,
+      payPeriodStart: formData.payPeriodStart,
+      payPeriodEnd: formData.payPeriodEnd,
       expectedAmount,
       actualAmount: parseFloat(formData.actualAmount),
       note: formData.note.trim() || undefined,
@@ -225,9 +226,9 @@ export function PaycheckModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-start justify-center z-50 p-4 pt-8 pb-24 overflow-y-auto">
       <div
-        className="bg-white rounded-3xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200"
+        className="bg-white rounded-3xl shadow-2xl w-full max-w-md animate-in fade-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
