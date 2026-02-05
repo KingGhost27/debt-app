@@ -280,7 +280,7 @@ export function DebtsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50">
       <PageHeader
         title="Debts"
         subtitle="Manage all your debts in one place"
@@ -327,19 +327,19 @@ export function DebtsPage() {
         {debts.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Balance Chart Card */}
-            <div className="card bg-white dark:bg-gray-800 rounded-3xl shadow-sm hover:shadow-md transition-shadow">
+            <div className="card bg-white rounded-3xl shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2">
+                <h2 className="text-sm font-medium text-gray-500 flex items-center gap-2">
                   <Sparkles size={14} className="text-primary-400" />
                   Balance by {chartView === 'category' ? 'category' : 'debt'}
                 </h2>
-                <div className="flex bg-gray-100 dark:bg-gray-700 rounded-xl p-1">
+                <div className="flex bg-gray-100 rounded-xl p-1">
                   <button
                     onClick={() => setChartView('category')}
                     className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
                       chartView === 'category'
-                        ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
-                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                        ? 'bg-white text-gray-900 shadow-sm'
+                        : 'text-gray-500 hover:text-gray-700'
                     }`}
                   >
                     Category
@@ -348,8 +348,8 @@ export function DebtsPage() {
                     onClick={() => setChartView('debt')}
                     className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
                       chartView === 'debt'
-                        ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
-                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                        ? 'bg-white text-gray-900 shadow-sm'
+                        : 'text-gray-500 hover:text-gray-700'
                     }`}
                   >
                     By Debt
@@ -389,7 +389,7 @@ export function DebtsPage() {
                     })()}
                   </svg>
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-sm font-bold text-gray-900 dark:text-white">{formatCompactCurrency(totalBalance)}</span>
+                    <span className="text-sm font-bold text-gray-900">{formatCompactCurrency(totalBalance)}</span>
                   </div>
                 </div>
 
@@ -403,17 +403,17 @@ export function DebtsPage() {
                     return (
                       <div key={key} className="flex items-center gap-2 group">
                         <div
-                          className="w-3 h-3 rounded-full flex-shrink-0 ring-2 ring-white dark:ring-gray-800 shadow-sm"
+                          className="w-3 h-3 rounded-full flex-shrink-0 ring-2 ring-white shadow-sm"
                           style={{ backgroundColor: item.color }}
                         />
                         <div className="flex-1 min-w-0">
                           <div className="flex justify-between text-sm">
-                            <span className="text-gray-700 dark:text-gray-300 truncate group-hover:text-gray-900 dark:group-hover:text-white transition-colors">{label}</span>
-                            <span className="font-semibold text-gray-900 dark:text-white ml-2 flex-shrink-0">
+                            <span className="text-gray-700 truncate group-hover:text-gray-900 transition-colors">{label}</span>
+                            <span className="font-semibold text-gray-900 ml-2 flex-shrink-0">
                               {formatCurrency(item.balance)}
                             </span>
                           </div>
-                          <div className="h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full mt-1 overflow-hidden">
+                          <div className="h-1.5 bg-gray-100 rounded-full mt-1 overflow-hidden">
                             <div
                               className="h-full rounded-full transition-all duration-500"
                               style={{
@@ -431,9 +431,9 @@ export function DebtsPage() {
             </div>
 
             {/* Monthly Interest Cost Card */}
-            <div className="card bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-900/30 dark:to-orange-900/30 rounded-3xl border border-red-100/50 dark:border-red-800/50 flex flex-col justify-center relative overflow-hidden">
+            <div className="card bg-gradient-to-br from-red-50 to-orange-50 rounded-3xl border border-red-100/50 flex flex-col justify-center relative overflow-hidden">
               {/* Decorative flame */}
-              <div className="absolute top-4 right-4 text-red-200 dark:text-red-800">
+              <div className="absolute top-4 right-4 text-red-200">
                 <Flame size={48} className="opacity-50" />
               </div>
 
@@ -442,23 +442,23 @@ export function DebtsPage() {
                   <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-red-400 to-orange-500 flex items-center justify-center shadow-lg shadow-red-300/30">
                     <TrendingDown size={20} className="text-white" />
                   </div>
-                  <h2 className="text-sm font-medium text-gray-600 dark:text-gray-400">Monthly Interest Cost</h2>
+                  <h2 className="text-sm font-medium text-gray-600">Monthly Interest Cost</h2>
                 </div>
-                <p className="text-3xl font-bold text-red-500 dark:text-red-400">
+                <p className="text-3xl font-bold text-red-500">
                   {formatCurrency(monthlyInterestCost)}
-                  <span className="text-lg font-normal text-gray-400 dark:text-gray-500">/mo</span>
+                  <span className="text-lg font-normal text-gray-400">/mo</span>
                 </p>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                <p className="text-sm text-gray-500 mt-2">
                   This is how much your debt costs you every month in interest alone.
                 </p>
-                <div className="mt-4 pt-4 border-t border-red-100 dark:border-red-800/50">
+                <div className="mt-4 pt-4 border-t border-red-100">
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-500 dark:text-gray-400">Daily cost</span>
-                    <span className="font-semibold text-gray-900 dark:text-white">{formatCurrency(monthlyInterestCost / 30)}/day</span>
+                    <span className="text-gray-500">Daily cost</span>
+                    <span className="font-semibold text-gray-900">{formatCurrency(monthlyInterestCost / 30)}/day</span>
                   </div>
                   <div className="flex justify-between text-sm mt-1">
-                    <span className="text-gray-500 dark:text-gray-400">Yearly cost</span>
-                    <span className="font-semibold text-gray-900 dark:text-white">{formatCurrency(monthlyInterestCost * 12)}/yr</span>
+                    <span className="text-gray-500">Yearly cost</span>
+                    <span className="font-semibold text-gray-900">{formatCurrency(monthlyInterestCost * 12)}/yr</span>
                   </div>
                 </div>
               </div>
@@ -468,23 +468,23 @@ export function DebtsPage() {
 
         {/* APR Comparison Chart */}
         {debts.length > 0 && (
-          <div className="card bg-white dark:bg-gray-800 rounded-3xl shadow-sm">
+          <div className="card bg-white rounded-3xl shadow-sm">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
                 <Flame size={16} className="text-white" />
               </div>
-              <h2 className="text-sm font-medium text-gray-600 dark:text-gray-400">APR Comparison</h2>
+              <h2 className="text-sm font-medium text-gray-600">APR Comparison</h2>
               <div className="relative ml-auto">
                 <button
                   onMouseEnter={() => setShowAPRTooltip(true)}
                   onMouseLeave={() => setShowAPRTooltip(false)}
                   onClick={() => setShowAPRTooltip(!showAPRTooltip)}
-                  className="text-gray-400 hover:text-primary-500 transition-colors p-1 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/30"
+                  className="text-gray-400 hover:text-primary-500 transition-colors p-1 rounded-lg hover:bg-primary-50"
                 >
                   <HelpCircle size={16} />
                 </button>
                 {showAPRTooltip && (
-                  <div className="absolute z-20 right-0 bottom-full mb-2 w-64 p-4 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-2xl shadow-xl">
+                  <div className="absolute z-20 right-0 bottom-full mb-2 w-64 p-4 bg-gray-900 text-white text-xs rounded-2xl shadow-xl">
                     <p className="font-semibold mb-2 flex items-center gap-1">
                       <Sparkles size={12} className="text-primary-400" />
                       What is APR?
@@ -498,7 +498,7 @@ export function DebtsPage() {
                       <span className="text-amber-400 font-medium">Amber</span> = Medium (10-20%)<br/>
                       <span className="text-red-400 font-medium">Red</span> = High (&gt;20%)
                     </p>
-                    <div className="absolute top-full right-4 border-8 border-transparent border-t-gray-900 dark:border-t-gray-700" />
+                    <div className="absolute top-full right-4 border-8 border-transparent border-t-gray-900" />
                   </div>
                 )}
               </div>
@@ -510,10 +510,10 @@ export function DebtsPage() {
 
                 return (
                   <div key={debt.id} className="flex items-center gap-3 group">
-                    <span className="w-24 text-sm text-gray-700 dark:text-gray-300 truncate flex-shrink-0 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
+                    <span className="w-24 text-sm text-gray-700 truncate flex-shrink-0 group-hover:text-gray-900 transition-colors">
                       {debt.name}
                     </span>
-                    <div className="flex-1 h-7 bg-gray-100 dark:bg-gray-700 rounded-xl overflow-hidden">
+                    <div className="flex-1 h-7 bg-gray-100 rounded-xl overflow-hidden">
                       <div
                         className="h-full rounded-xl transition-all duration-500 flex items-center justify-end pr-2 shadow-sm"
                         style={{
@@ -529,7 +529,7 @@ export function DebtsPage() {
                       </div>
                     </div>
                     {barWidth <= 20 && (
-                      <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 w-14 text-right">
+                      <span className="text-sm font-semibold text-gray-700 w-14 text-right">
                         {debt.apr.toFixed(1)}%
                       </span>
                     )}
@@ -538,17 +538,17 @@ export function DebtsPage() {
               })}
             </div>
             {/* Legend */}
-            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 flex items-center justify-center gap-6 text-xs text-gray-500 dark:text-gray-400">
+            <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-center gap-6 text-xs text-gray-500">
               <div className="flex items-center gap-1.5">
-                <div className="w-3 h-3 rounded-full bg-green-500 ring-2 ring-green-200 dark:ring-green-900" />
+                <div className="w-3 h-3 rounded-full bg-green-500 ring-2 ring-green-200" />
                 <span>&lt;10%</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="w-3 h-3 rounded-full bg-amber-500 ring-2 ring-amber-200 dark:ring-amber-900" />
+                <div className="w-3 h-3 rounded-full bg-amber-500 ring-2 ring-amber-200" />
                 <span>10-20%</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="w-3 h-3 rounded-full bg-red-500 ring-2 ring-red-200 dark:ring-red-900" />
+                <div className="w-3 h-3 rounded-full bg-red-500 ring-2 ring-red-200" />
                 <span>&gt;20%</span>
               </div>
             </div>
@@ -557,16 +557,16 @@ export function DebtsPage() {
 
         {/* Payoff Timeline */}
         {payoffMilestones.length > 0 && (
-          <div className="card bg-white dark:bg-gray-800 rounded-3xl shadow-sm overflow-hidden">
+          <div className="card bg-white rounded-3xl shadow-sm overflow-hidden">
             <div className="flex items-center gap-2 mb-5">
               <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center">
                 <Calendar size={16} className="text-white" />
               </div>
-              <h2 className="text-sm font-medium text-gray-600 dark:text-gray-400">Payoff Timeline</h2>
+              <h2 className="text-sm font-medium text-gray-600">Payoff Timeline</h2>
             </div>
             <div className="relative">
               {/* Timeline line */}
-              <div className="absolute top-4 left-0 right-0 h-1 bg-gradient-to-r from-primary-200 via-primary-300 to-green-300 dark:from-primary-800 dark:via-primary-700 dark:to-green-800 rounded-full" />
+              <div className="absolute top-4 left-0 right-0 h-1 bg-gradient-to-r from-primary-200 via-primary-300 to-green-300 rounded-full" />
 
               {/* Timeline markers */}
               <div className="relative flex justify-between">
@@ -578,16 +578,16 @@ export function DebtsPage() {
                   >
                     {/* Dot */}
                     <div
-                      className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-xs font-bold z-10 shadow-lg shadow-primary-300/40 dark:shadow-primary-900/40 group-hover:scale-110 transition-transform ring-2 ring-white dark:ring-gray-800"
+                      className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-xs font-bold z-10 shadow-lg shadow-primary-300/40 group-hover:scale-110 transition-transform ring-2 ring-white"
                     >
                       {index + 1}
                     </div>
                     {/* Debt name */}
-                    <span className="mt-2 text-xs font-semibold text-gray-700 dark:text-gray-300 text-center max-w-[80px] truncate group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                    <span className="mt-2 text-xs font-semibold text-gray-700 text-center max-w-[80px] truncate group-hover:text-primary-600 transition-colors">
                       {milestone.debtName}
                     </span>
                     {/* Date */}
-                    <span className="text-[10px] text-gray-400 dark:text-gray-500">
+                    <span className="text-[10px] text-gray-400">
                       {format(new Date(milestone.payoffDate), 'MMM yyyy')}
                     </span>
                   </div>
@@ -595,14 +595,14 @@ export function DebtsPage() {
 
                 {/* Debt Free marker */}
                 <div className="flex flex-col items-center group" style={{ flex: 1 }}>
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center z-10 shadow-lg shadow-green-300/40 dark:shadow-green-900/40 group-hover:scale-110 transition-transform ring-2 ring-white dark:ring-gray-800">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center z-10 shadow-lg shadow-green-300/40 group-hover:scale-110 transition-transform ring-2 ring-white">
                     <span className="text-white text-sm">✓</span>
                   </div>
-                  <span className="mt-2 text-xs font-bold text-green-600 dark:text-green-400 text-center flex items-center gap-1">
+                  <span className="mt-2 text-xs font-bold text-green-600 text-center flex items-center gap-1">
                     <Sparkles size={10} className="animate-kawaii-pulse" />
                     Debt Free!
                   </span>
-                  <span className="text-[10px] text-gray-400 dark:text-gray-500">
+                  <span className="text-[10px] text-gray-400">
                     {payoffMilestones.length > 0 &&
                       format(
                         new Date(payoffMilestones[payoffMilestones.length - 1].payoffDate),
@@ -617,10 +617,10 @@ export function DebtsPage() {
 
         {/* Debts List Header */}
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
             <span className="text-xl">💳</span>
             Debts
-            <span className="text-sm font-normal text-gray-500 dark:text-gray-400">({debts.length})</span>
+            <span className="text-sm font-normal text-gray-500">({debts.length})</span>
           </h2>
         </div>
 
@@ -636,14 +636,14 @@ export function DebtsPage() {
               placeholder="Search debts..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 transition-all"
+              className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white text-gray-900 placeholder-gray-400 transition-all"
             />
           </div>
           <div className="relative">
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as SortOption)}
-              className="appearance-none pl-4 pr-9 py-2.5 border-2 border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm font-medium cursor-pointer transition-all"
+              className="appearance-none pl-4 pr-9 py-2.5 border-2 border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white text-gray-900 text-sm font-medium cursor-pointer transition-all"
             >
               <option value="balance">Balance</option>
               <option value="apr">APR</option>
@@ -660,8 +660,8 @@ export function DebtsPage() {
             onClick={() => setSortAscending(!sortAscending)}
             className={`p-2.5 border-2 rounded-2xl transition-all ${
               sortAscending
-                ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 shadow-sm'
-                : 'border-gray-200 dark:border-gray-700 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
+                ? 'border-primary-500 bg-primary-50 text-primary-600 shadow-sm'
+                : 'border-gray-200 text-gray-400 hover:text-gray-600 hover:border-gray-300'
             }`}
             title={sortAscending ? 'Ascending (Low to High)' : 'Descending (High to Low)'}
           >
@@ -683,12 +683,12 @@ export function DebtsPage() {
               encouragement="You've got this!"
             />
           ) : (
-            <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-3xl">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+            <div className="text-center py-12 bg-white rounded-3xl">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gray-100 flex items-center justify-center">
                 <Search size={28} className="text-gray-400" />
               </div>
-              <p className="text-gray-500 dark:text-gray-400 font-medium">No debts match your search</p>
-              <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">Try a different search term</p>
+              <p className="text-gray-500 font-medium">No debts match your search</p>
+              <p className="text-sm text-gray-400 mt-1">Try a different search term</p>
             </div>
           )
         ) : (
@@ -706,7 +706,7 @@ export function DebtsPage() {
               return (
                 <div
                   key={debt.id}
-                  className="card bg-white dark:bg-gray-800 rounded-3xl shadow-sm hover:shadow-md transition-all overflow-hidden group"
+                  className="card bg-white rounded-3xl shadow-sm hover:shadow-md transition-all overflow-hidden group"
                 >
                   {/* Category color bar at top */}
                   <div
@@ -723,7 +723,7 @@ export function DebtsPage() {
                         💳
                       </div>
                       <div>
-                        <h3 className="font-bold text-gray-900 dark:text-white text-lg">{debt.name}</h3>
+                        <h3 className="font-bold text-gray-900 text-lg">{debt.name}</h3>
                         <span
                           className="text-xs font-medium px-2 py-0.5 rounded-full"
                           style={{
@@ -738,13 +738,13 @@ export function DebtsPage() {
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button
                         onClick={() => handleEdit(debt)}
-                        className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-xl transition-all"
+                        className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all"
                       >
                         <Pencil size={16} />
                       </button>
                       <button
                         onClick={() => handleDelete(debt)}
-                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-xl transition-all"
+                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
                       >
                         <Trash2 size={16} />
                       </button>
@@ -763,7 +763,7 @@ export function DebtsPage() {
 
                     <div className="flex-1 grid grid-cols-2 gap-x-4 gap-y-3">
                       <div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1 mb-1">
+                        <p className="text-xs text-gray-500 flex items-center gap-1 mb-1">
                           Balance
                           {recalibratingDebtId !== debt.id && (
                             <button
@@ -777,12 +777,12 @@ export function DebtsPage() {
                         </p>
                         {recalibratingDebtId === debt.id ? (
                           <div className="flex items-center gap-1">
-                            <span className="text-gray-400 dark:text-gray-500">$</span>
+                            <span className="text-gray-400">$</span>
                             <input
                               type="number"
                               value={newBalanceInput}
                               onChange={(e) => setNewBalanceInput(e.target.value)}
-                              className="w-24 text-lg font-bold border-b-2 border-primary-500 focus:outline-none bg-transparent text-gray-900 dark:text-white"
+                              className="w-24 text-lg font-bold border-b-2 border-primary-500 focus:outline-none bg-transparent text-gray-900"
                               autoFocus
                               step="0.01"
                               min="0"
@@ -793,37 +793,37 @@ export function DebtsPage() {
                             />
                             <button
                               onClick={() => saveRecalibration(debt.id)}
-                              className="p-1.5 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30 rounded-lg transition-colors"
+                              className="p-1.5 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                               title="Save"
                             >
                               <Check size={14} />
                             </button>
                             <button
                               onClick={cancelRecalibration}
-                              className="p-1.5 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                              className="p-1.5 text-gray-400 hover:bg-gray-100 rounded-lg transition-colors"
                               title="Cancel"
                             >
                               <X size={14} />
                             </button>
                           </div>
                         ) : (
-                          <p className="text-xl font-bold text-gray-900 dark:text-white">{formatCurrency(debt.balance)}</p>
+                          <p className="text-xl font-bold text-gray-900">{formatCurrency(debt.balance)}</p>
                         )}
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Minimum</p>
-                        <p className="font-bold text-gray-900 dark:text-white">{formatCurrency(debt.minimumPayment)}</p>
+                        <p className="text-xs text-gray-500 mb-1">Minimum</p>
+                        <p className="font-bold text-gray-900">{formatCurrency(debt.minimumPayment)}</p>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">APR</p>
+                        <p className="text-xs text-gray-500 mb-1">APR</p>
                         <p className="font-bold" style={{ color: getAPRColor(debt.apr) }}>{formatPercent(debt.apr, 2)}</p>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1 mb-1">
+                        <p className="text-xs text-gray-500 flex items-center gap-1 mb-1">
                           <Calendar size={10} />
                           Due
                         </p>
-                        <p className="font-bold text-gray-900 dark:text-white">
+                        <p className="font-bold text-gray-900">
                           {debt.dueDay}{debt.dueDay === 1 ? 'st' : debt.dueDay === 2 ? 'nd' : debt.dueDay === 3 ? 'rd' : 'th'}
                         </p>
                       </div>
@@ -831,13 +831,13 @@ export function DebtsPage() {
                   </div>
 
                   {/* Estimated Interest Fee */}
-                  <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+                  <div className="mt-4 pt-4 border-t border-gray-100">
                     <div className="flex justify-between items-center">
-                      <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                      <span className="text-xs text-gray-500 flex items-center gap-1">
                         <Flame size={12} className="text-red-400" />
                         Est. monthly interest
                       </span>
-                      <span className="text-sm font-bold text-red-500 dark:text-red-400">
+                      <span className="text-sm font-bold text-red-500">
                         {formatCurrency(debt.balance * (debt.apr / 100) / 12)}/mo
                       </span>
                     </div>
@@ -845,8 +845,8 @@ export function DebtsPage() {
 
                   {/* Utilization bar */}
                   {utilization !== null && (
-                    <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
-                      <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-2">
+                    <div className="mt-3 pt-3 border-t border-gray-100">
+                      <div className="flex justify-between text-xs text-gray-500 mb-2">
                         <span>Credit utilization</span>
                         <span
                           className={`font-semibold ${utilization > 30 ? 'text-red-500' : 'text-green-500'}`}
@@ -854,7 +854,7 @@ export function DebtsPage() {
                           {formatPercent(utilization, 0)}
                         </span>
                       </div>
-                      <div className="h-2.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                      <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
                         <div
                           className={`h-full rounded-full transition-all duration-500 ${
                             utilization > 100
