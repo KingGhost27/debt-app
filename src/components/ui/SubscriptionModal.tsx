@@ -130,14 +130,14 @@ export function SubscriptionModal({ isOpen, onClose, subscription }: Subscriptio
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 pb-20 sm:pb-4">
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
 
       {/* Modal */}
-      <div className="relative w-full max-w-lg bg-white rounded-t-3xl sm:rounded-3xl shadow-xl animate-slide-up max-h-[90vh] overflow-hidden mb-16 sm:mb-0">
+      <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-xl animate-slide-up max-h-[75vh] sm:max-h-[85vh] overflow-hidden">
         {/* Header */}
-        <div className="sticky top-0 z-10 bg-gradient-to-r from-primary-500 to-primary-600 px-5 py-4 flex items-center justify-between">
+        <div className="sticky top-0 z-10 bg-gradient-to-r from-primary-500 to-primary-600 px-5 py-4 flex items-center justify-between rounded-t-3xl">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
               <RefreshCw size={20} className="text-white" />
@@ -155,7 +155,7 @@ export function SubscriptionModal({ isOpen, onClose, subscription }: Subscriptio
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto max-h-[calc(90vh-80px)]">
+        <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto max-h-[calc(75vh-72px)] sm:max-h-[calc(85vh-72px)]">
           {/* Name */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">

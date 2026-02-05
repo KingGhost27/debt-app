@@ -122,7 +122,7 @@ export function AssetModal({ isOpen, onClose, asset }: AssetModalProps) {
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
 
       {/* Modal */}
-      <div className="relative w-full max-w-lg bg-white dark:bg-gray-800 rounded-3xl shadow-xl animate-slide-up max-h-[85vh] overflow-y-auto mb-16 sm:mb-0">
+      <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-xl animate-slide-up max-h-[85vh] overflow-y-auto mb-16 sm:mb-0">
         {/* Header */}
         <div className="sticky top-0 z-10 bg-gradient-to-r from-primary-500 to-primary-600 px-5 py-4 flex items-center justify-between rounded-t-3xl">
           <div className="flex items-center gap-3">
@@ -145,7 +145,7 @@ export function AssetModal({ isOpen, onClose, asset }: AssetModalProps) {
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           {/* Name */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Account Name *
             </label>
             <input
@@ -154,8 +154,8 @@ export function AssetModal({ isOpen, onClose, asset }: AssetModalProps) {
               value={formData.name}
               onChange={handleChange}
               placeholder="e.g., Chase Savings, Fidelity 401k"
-              className={`w-full px-4 py-3 border-2 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all ${
-                errors.name ? 'border-red-500' : 'border-gray-200 dark:border-gray-600'
+              className={`w-full px-4 py-3 border-2 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white text-gray-900 transition-all ${
+                errors.name ? 'border-red-500' : 'border-gray-200'
               }`}
             />
             {errors.name && (
@@ -165,14 +165,14 @@ export function AssetModal({ isOpen, onClose, asset }: AssetModalProps) {
 
           {/* Type */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Account Type *
             </label>
             <select
               name="type"
               value={formData.type}
               onChange={handleChange}
-              className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all"
+              className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white text-gray-900 transition-all"
             >
               {Object.entries(ASSET_TYPE_INFO).map(([key, info]) => (
                 <option key={key} value={key}>
@@ -184,11 +184,11 @@ export function AssetModal({ isOpen, onClose, asset }: AssetModalProps) {
 
           {/* Balance */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Current Balance *
             </label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
                 $
               </span>
               <input
@@ -199,8 +199,8 @@ export function AssetModal({ isOpen, onClose, asset }: AssetModalProps) {
                 step="0.01"
                 min="0"
                 placeholder="0.00"
-                className={`w-full pl-8 pr-4 py-3 border-2 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all ${
-                  errors.balance ? 'border-red-500' : 'border-gray-200 dark:border-gray-600'
+                className={`w-full pl-8 pr-4 py-3 border-2 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white text-gray-900 transition-all ${
+                  errors.balance ? 'border-red-500' : 'border-gray-200'
                 }`}
               />
             </div>
@@ -211,7 +211,7 @@ export function AssetModal({ isOpen, onClose, asset }: AssetModalProps) {
 
           {/* Institution */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Institution
             </label>
             <input
@@ -220,13 +220,13 @@ export function AssetModal({ isOpen, onClose, asset }: AssetModalProps) {
               value={formData.institution}
               onChange={handleChange}
               placeholder="e.g., Chase, Fidelity, Vanguard"
-              className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all"
+              className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white text-gray-900 transition-all"
             />
           </div>
 
           {/* Interest Rate (APY) */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Interest Rate (APY)
             </label>
             <div className="relative">
@@ -239,11 +239,11 @@ export function AssetModal({ isOpen, onClose, asset }: AssetModalProps) {
                 min="0"
                 max="100"
                 placeholder="0.00"
-                className={`w-full px-4 py-3 pr-10 border-2 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all ${
-                  errors.interestRate ? 'border-red-500' : 'border-gray-200 dark:border-gray-600'
+                className={`w-full px-4 py-3 pr-10 border-2 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white text-gray-900 transition-all ${
+                  errors.interestRate ? 'border-red-500' : 'border-gray-200'
                 }`}
               />
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
                 %
               </span>
             </div>
