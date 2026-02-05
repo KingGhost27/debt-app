@@ -207,28 +207,28 @@ export function HomePage() {
         {/* Paycheck Summary Card */}
         {paycheckSummary && (
           <Link to="/track" className="block">
-            <div className="card bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-100 rounded-3xl relative overflow-hidden hover:shadow-md transition-all">
+            <div className="card bg-gradient-to-br from-primary-50 to-primary-100/50 border border-primary-100 rounded-3xl relative overflow-hidden hover:shadow-md transition-all">
               {/* Decorative elements */}
-              <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-200/30 rounded-full -translate-y-1/2 translate-x-1/2" />
-              <Sparkles size={12} className="absolute top-3 right-12 text-emerald-300 animate-kawaii-pulse" />
+              <div className="absolute top-0 right-0 w-24 h-24 bg-primary-200/30 rounded-full -translate-y-1/2 translate-x-1/2" />
+              <Sparkles size={12} className="absolute top-3 right-12 text-primary-300 animate-kawaii-pulse" />
 
               <div className="relative z-10">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-300/30">
+                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-500 flex items-center justify-center shadow-lg shadow-primary-300/30">
                       <Receipt size={20} className="text-white" />
                     </div>
                     <div>
-                      <p className="text-xs text-emerald-600 font-semibold uppercase tracking-wide">Latest Paycheck</p>
+                      <p className="text-xs text-primary-600 font-semibold uppercase tracking-wide">Latest Paycheck</p>
                       <p className="text-sm font-bold text-gray-900">{paycheckSummary.sourceName}</p>
                     </div>
                   </div>
-                  <ChevronRight size={20} className="text-emerald-400" />
+                  <ChevronRight size={20} className="text-primary-400" />
                 </div>
 
                 <div className="grid grid-cols-3 gap-3">
                   <div className="text-center p-2 bg-white/60 rounded-xl">
-                    <p className="text-lg font-bold text-emerald-600">
+                    <p className="text-lg font-bold text-primary-600">
                       {formatCurrency(paycheckSummary.paycheck.actualAmount)}
                     </p>
                     <p className="text-[10px] text-gray-500 font-medium">Received</p>
@@ -242,7 +242,7 @@ export function HomePage() {
                     </p>
                   </div>
                   <div className="text-center p-2 bg-white/60 rounded-xl">
-                    <p className={`text-lg font-bold ${paycheckSummary.remaining >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                    <p className={`text-lg font-bold ${paycheckSummary.remaining >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                       {formatCurrency(paycheckSummary.remaining)}
                     </p>
                     <p className="text-[10px] text-gray-500 font-medium">Remaining</p>
@@ -253,7 +253,7 @@ export function HomePage() {
                   <span className="text-gray-500">
                     Pay period: {format(new Date(paycheckSummary.paycheck.payPeriodStart + 'T12:00:00'), 'MMM d')} – {format(new Date(paycheckSummary.paycheck.payPeriodEnd + 'T12:00:00'), 'MMM d')}
                   </span>
-                  <span className="text-emerald-600 font-semibold flex items-center gap-1">
+                  <span className="text-primary-600 font-semibold flex items-center gap-1">
                     View details
                     <ChevronRight size={14} />
                   </span>
