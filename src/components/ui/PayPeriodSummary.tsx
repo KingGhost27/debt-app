@@ -193,6 +193,15 @@ export function PayPeriodSummary({ paycheck }: PayPeriodSummaryProps) {
                     </span>
                   </div>
                 ))}
+                {/* Remaining unpaid total */}
+                {summary.bills.some(b => !b.isPaid) && (
+                  <div className="flex items-center justify-between pt-2 mt-2 border-t border-gray-200">
+                    <span className="text-sm font-semibold text-gray-700">Remaining Unpaid</span>
+                    <span className="font-bold text-red-600">
+                      {formatCurrency(summary.bills.filter(b => !b.isPaid).reduce((sum, b) => sum + b.amount, 0))}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           )}
