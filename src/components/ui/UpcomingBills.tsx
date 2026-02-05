@@ -378,13 +378,13 @@ export function UpcomingBills({ debts, customCategories = [], payments = [], inc
 
         {/* Tabs */}
         {hasIncomeSources && (
-          <div className="flex bg-primary-100 dark:bg-gray-700 rounded-xl p-1">
+          <div className="flex bg-primary-200/50 rounded-xl p-1">
             <button
               onClick={() => setActiveTab('pay-period')}
               className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
                 activeTab === 'pay-period'
-                  ? 'bg-white dark:bg-gray-600 text-primary-600 dark:text-primary-400 shadow-sm'
-                  : 'text-primary-600/70 dark:text-gray-400 hover:text-primary-700 dark:hover:text-gray-300'
+                  ? 'bg-white text-primary-600 shadow-sm'
+                  : 'text-primary-700/70 hover:text-primary-800'
               }`}
             >
               Pay Period
@@ -393,8 +393,8 @@ export function UpcomingBills({ debts, customCategories = [], payments = [], inc
               onClick={() => setActiveTab('all')}
               className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
                 activeTab === 'all'
-                  ? 'bg-white dark:bg-gray-600 text-primary-600 dark:text-primary-400 shadow-sm'
-                  : 'text-primary-600/70 dark:text-gray-400 hover:text-primary-700 dark:hover:text-gray-300'
+                  ? 'bg-white text-primary-600 shadow-sm'
+                  : 'text-primary-700/70 hover:text-primary-800'
               }`}
             >
               All
