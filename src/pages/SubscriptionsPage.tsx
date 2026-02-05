@@ -137,7 +137,7 @@ export function SubscriptionsPage() {
   // Empty state
   if (subscriptions.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen bg-gray-50">
         <PageHeader
           title="Subscriptions"
           subtitle="Track recurring services"
@@ -165,7 +165,7 @@ export function SubscriptionsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50">
       <PageHeader
         title="Subscriptions"
         subtitle="Track recurring services"
@@ -183,40 +183,40 @@ export function SubscriptionsPage() {
 
       <div className="px-4 py-6 space-y-6">
         {/* Summary Card */}
-        <div className="card bg-gradient-to-br from-primary-50 to-white dark:from-primary-900/30 dark:to-gray-800 rounded-3xl border border-primary-100 dark:border-primary-800/50 relative overflow-hidden">
+        <div className="card bg-gradient-to-br from-primary-50 to-white rounded-3xl border border-primary-100 relative overflow-hidden">
           {/* Decorative elements */}
-          <div className="absolute top-0 right-0 w-32 h-32 bg-primary-200/30 dark:bg-primary-700/20 rounded-full -translate-y-1/2 translate-x-1/2" />
-          <Sparkles size={14} className="absolute top-4 right-6 text-primary-300 dark:text-primary-600 animate-kawaii-pulse" />
+          <div className="absolute top-0 right-0 w-32 h-32 bg-primary-200/30 rounded-full -translate-y-1/2 translate-x-1/2" />
+          <Sparkles size={14} className="absolute top-4 right-6 text-primary-300 animate-kawaii-pulse" />
 
           <div className="relative z-10">
             <div className="flex items-center gap-2 mb-4">
               <RefreshCw size={18} className="text-primary-500" />
-              <p className="text-sm text-gray-500 dark:text-gray-400 font-semibold uppercase tracking-wide">
+              <p className="text-sm text-gray-500 font-semibold uppercase tracking-wide">
                 Recurring Costs
               </p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="p-4 bg-white/60 dark:bg-gray-800/60 rounded-2xl">
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Monthly</p>
-                <p className="text-2xl font-bold text-primary-600 dark:text-primary-400">
+              <div className="p-4 bg-white/60 rounded-2xl">
+                <p className="text-xs text-gray-500 mb-1">Monthly</p>
+                <p className="text-2xl font-bold text-primary-600">
                   {formatCurrency(monthlyTotal)}
                 </p>
               </div>
-              <div className="p-4 bg-white/60 dark:bg-gray-800/60 rounded-2xl">
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Annual</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">
+              <div className="p-4 bg-white/60 rounded-2xl">
+                <p className="text-xs text-gray-500 mb-1">Annual</p>
+                <p className="text-2xl font-bold text-gray-900">
                   {formatCurrency(annualTotal)}
                 </p>
               </div>
             </div>
 
             <div className="mt-4 flex items-center justify-between text-sm">
-              <span className="text-gray-500 dark:text-gray-400">
+              <span className="text-gray-500">
                 {activeSubscriptions.length} active subscription{activeSubscriptions.length !== 1 ? 's' : ''}
               </span>
               {subscriptions.length > activeSubscriptions.length && (
-                <span className="text-gray-400 dark:text-gray-500">
+                <span className="text-gray-400">
                   {subscriptions.length - activeSubscriptions.length} paused
                 </span>
               )}
@@ -236,7 +236,7 @@ export function SubscriptionsPage() {
                     className="w-3 h-3 rounded-full"
                     style={{ backgroundColor: categoryInfo?.color || '#6b7280' }}
                   />
-                  <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
                     {categoryInfo?.label || category}
                   </h3>
                 </div>
@@ -251,7 +251,7 @@ export function SubscriptionsPage() {
                     return (
                       <div
                         key={subscription.id}
-                        className={`card bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-md transition-all group overflow-hidden ${
+                        className={`card bg-white rounded-2xl shadow-sm hover:shadow-md transition-all group overflow-hidden ${
                           !subscription.isActive ? 'opacity-60' : ''
                         }`}
                       >
@@ -264,30 +264,30 @@ export function SubscriptionsPage() {
                         <div className="flex items-start justify-between">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
-                              <h4 className="font-semibold text-gray-900 dark:text-white truncate">
+                              <h4 className="font-semibold text-gray-900 truncate">
                                 {subscription.name}
                               </h4>
                               {!subscription.isActive && (
-                                <span className="px-2 py-0.5 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-full">
+                                <span className="px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-500 rounded-full">
                                   Paused
                                 </span>
                               )}
                             </div>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                            <p className="text-sm text-gray-500 mt-1">
                               {formatCurrency(subscription.amount)} · {formatFrequency(subscription.frequency)}
                             </p>
                             {subscription.isActive && (
                               <div className="flex items-center gap-1.5 mt-2">
                                 <Calendar size={14} className="text-gray-400" />
-                                <span className="text-xs text-gray-500 dark:text-gray-400">
+                                <span className="text-xs text-gray-500">
                                   {format(nextBilling, 'MMM d, yyyy')}
                                 </span>
                                 {daysUntil <= 7 && daysUntil >= 0 && (
                                   <span
                                     className={`ml-1 px-2 py-0.5 text-xs font-medium rounded-full ${
                                       daysUntil === 0
-                                        ? 'bg-red-100 text-red-600 dark:bg-red-900/50 dark:text-red-400'
-                                        : 'bg-amber-100 text-amber-600 dark:bg-amber-900/50 dark:text-amber-400'
+                                        ? 'bg-red-100 text-red-600'
+                                        : 'bg-amber-100 text-amber-600'
                                     }`}
                                   >
                                     {daysUntil === 0 ? 'Today' : `${daysUntil}d`}
@@ -300,10 +300,10 @@ export function SubscriptionsPage() {
                           {/* Amount and Actions */}
                           <div className="flex items-start gap-2">
                             <div className="text-right">
-                              <p className="text-lg font-bold text-gray-900 dark:text-white">
+                              <p className="text-lg font-bold text-gray-900">
                                 {formatCurrency(subscription.amount)}
                               </p>
-                              <p className="text-xs text-gray-400 dark:text-gray-500">
+                              <p className="text-xs text-gray-400">
                                 ~{formatCurrency(monthlyAmount)}/mo
                               </p>
                             </div>
@@ -312,20 +312,20 @@ export function SubscriptionsPage() {
                             <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                               <button
                                 onClick={() => handleToggleActive(subscription)}
-                                className="p-2 text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors"
+                                className="p-2 text-gray-400 hover:text-primary-600 hover:bg-gray-100 rounded-xl transition-colors"
                                 title={subscription.isActive ? 'Pause' : 'Resume'}
                               >
                                 {subscription.isActive ? <Pause size={16} /> : <Play size={16} />}
                               </button>
                               <button
                                 onClick={() => handleEdit(subscription)}
-                                className="p-2 text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors"
+                                className="p-2 text-gray-400 hover:text-primary-600 hover:bg-gray-100 rounded-xl transition-colors"
                               >
                                 <Pencil size={16} />
                               </button>
                               <button
                                 onClick={() => handleDelete(subscription)}
-                                className="p-2 text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors"
+                                className="p-2 text-gray-400 hover:text-red-500 hover:bg-gray-100 rounded-xl transition-colors"
                               >
                                 <Trash2 size={16} />
                               </button>
