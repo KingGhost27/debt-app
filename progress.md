@@ -1,5 +1,109 @@
 # Progress Log
 
+## Session: February 5, 2026
+
+### Branch: `feature/paycheck-tracking`
+
+---
+
+### Changes Made
+
+#### 1. UI Dark Mode Cleanup (Day Mode Fixes)
+- Removed all `dark:` variant classes from multiple components for consistent day mode appearance
+- Fixed pages: SubscriptionsPage, PlanPage, TrackPage
+- Fixed components: SubscriptionModal, IncomeSourceModal, UpcomingBills, PayoffSteps, PlanSummary, BudgetSidebar, AssetModal
+
+#### 2. Modal Window Sizing Fixes
+- Fixed SubscriptionModal and IncomeSourceModal cutting off at bottom
+- Added `max-h-[75vh] sm:max-h-[85vh]` with proper overflow handling
+- Added bottom padding (`pb-20`) to prevent overlap with bottom navigation
+
+#### 3. Text Visibility Fixes (Home Page Bills Section)
+- Changed text colors in UpcomingBills from `gray-900` to `primary-700/800`
+- Better contrast against pink theme backgrounds
+
+#### 4. Debts Page Sorting
+- Changed "By Debt" chart view to sort by balance (highest to lowest) instead of grouping by category
+
+#### 5. Assets Page Money Celebration Animation
+- Added floating money emojis (💰💵🪙💎✨⭐) when net worth is positive
+- Added money shower animation in center with all currency emojis (💵💴💶💷💰💸🪙🤑💎🏦💳🏧💹)
+- Added "You're in the green!" message
+- New CSS animations: `money-float`, `money-pop`, `money-shower`, `money-bounce-fall`
+
+#### 6. Calendar Subscriptions Integration
+- Added subscriptions to MiniCalendar component in Track page
+- Subscriptions show as purple tags with ↻ icon in large calendar view
+- Purple ↻ badge indicator in small calendar view
+- Subscriptions included in day tooltips with category colors
+- Added legend entry for subscriptions
+
+#### 7. Paycheck Summary on Home Page
+- Added paycheck summary card near top of Home page
+- Shows: received amount, bills + subs total, remaining balance
+- Displays pay period date range
+- Links to Track page for full details
+- Styled with theme colors (primary gradient)
+
+#### 8. Strategy Comparison Animation
+- Added "Best Value!" badge with crown icon for strategy that saves most money
+- Badge has bounce animation, wiggling crown, and pulsing sparkles
+- Golden ring highlight around the winning strategy button
+- Floating ✨ and 💰 emojis around best strategy
+
+#### 9. Strategy Comparison Theme Colors
+- Changed Avalanche/Snowball buttons from blue/purple to theme primary colors
+- Avalanche uses darker shade (primary-500/600), Snowball uses lighter (primary-400/500)
+- Bottom callout updated to use primary color gradients
+
+#### 10. Profile Name Setting
+- Added Profile section to Settings page
+- User can enter their name with save button
+- Name displays in Home page greeting ("Hi, [name]!")
+- Shows confirmation toast when saved
+
+---
+
+### Files Created
+- None (all changes to existing files)
+
+### Files Modified
+- `src/pages/SubscriptionsPage.tsx` - Removed dark: classes
+- `src/components/ui/SubscriptionModal.tsx` - Dark mode cleanup, window sizing fix
+- `src/pages/PlanPage.tsx` - Removed dark: classes
+- `src/components/plan/BudgetSidebar.tsx` - Removed dark: classes
+- `src/components/plan/PlanSummary.tsx` - Theme colors, best strategy animation
+- `src/components/plan/PayoffSteps.tsx` - Removed dark: classes
+- `src/components/ui/IncomeSourceModal.tsx` - Dark mode cleanup, window sizing fix
+- `src/pages/TrackPage.tsx` - Removed dark: classes, pass subscriptions to calendar
+- `src/components/ui/PayPeriodSummary.tsx` - Added remaining unpaid bills total
+- `src/components/ui/UpcomingBills.tsx` - Text visibility fixes
+- `src/pages/DebtsPage.tsx` - Sort debts by balance in chart
+- `src/pages/AssetsPage.tsx` - Money celebration animation
+- `src/index.css` - Money animation keyframes and classes
+- `src/components/ui/MiniCalendar.tsx` - Subscriptions integration
+- `src/pages/HomePage.tsx` - Paycheck summary card
+- `src/pages/SettingsPage.tsx` - Profile name input
+
+---
+
+### Git Commits (this session)
+1. `[UI] Fix text visibility in Bills section on Home page`
+2. `[UI] Sort debts by balance (highest to lowest) in By Debt chart view`
+3. `[UI] Add floating money celebration for positive net worth`
+4. `[UI] Add money shower animation with all currency emojis`
+5. `[Feature] Add subscriptions to calendar in Track page`
+6. `[Feature] Add paycheck summary card to Home page`
+7. `[UI] Update paycheck summary card to use theme colors`
+8. `[UI] Add cute animation to best strategy in comparison`
+9. `[UI] Update strategy comparison colors to match theme`
+10. `[Feature] Add profile name setting to Settings page`
+11. `[UI] Remove remaining dark mode classes from modals`
+
+---
+
+---
+
 ## Session: February 4, 2026
 
 ### Branch: `feature/kawaii-redesign`
