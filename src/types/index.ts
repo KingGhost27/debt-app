@@ -267,6 +267,7 @@ export interface AppData {
   budget: BudgetSettings;          // Income & budget settings
   assets: Asset[];                 // Savings and investment accounts
   subscriptions: Subscription[];   // Recurring subscriptions
+  receivedPaychecks: ReceivedPaycheck[]; // Actual paycheck amounts received
   exportedAt?: string;             // For import/export
 }
 
@@ -301,7 +302,7 @@ export const DEFAULT_BUDGET: BudgetSettings = {
 };
 
 export const DEFAULT_APP_DATA: AppData = {
-  version: '1.3.0',
+  version: '1.4.0',
   debts: [],
   payments: [],
   strategy: DEFAULT_STRATEGY,
@@ -310,6 +311,7 @@ export const DEFAULT_APP_DATA: AppData = {
   budget: DEFAULT_BUDGET,
   assets: [],
   subscriptions: [],
+  receivedPaychecks: [],
 };
 
 // ============================================
@@ -427,3 +429,20 @@ export const SUBSCRIPTION_CATEGORY_INFO: Record<SubscriptionCategory, { label: s
   education: { label: 'Education', color: '#8b5cf6' },
   other: { label: 'Other', color: '#6b7280' },
 };
+
+// ============================================
+// PAYCHECK TRACKING TYPES
+// ============================================
+
+export interface ReceivedPaycheck {
+  id: string;
+  incomeSourceId: string;        // Links to which income source
+  payDate: string;               // When received (ISO date)
+  payPeriodStart: string;        // Start of pay period
+  payPeriodEnd: string;          // End of pay period
+  expectedAmount: number;        // Calculated from IncomeSource
+  actualAmount: number;          // What user actually received
+  note?: string;                 // Optional note ("overtime", "holiday pay")
+  createdAt: string;
+  updatedAt: string;
+}
