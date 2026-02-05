@@ -113,7 +113,7 @@ export function PayoffSteps({ plan, sortedDebts }: PayoffStepsProps) {
         <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow-lg shadow-primary-300/30">
           <Target size={20} className="text-white" />
         </div>
-        <h2 className="text-lg font-bold text-gray-900 dark:text-white">Step-by-Step Plan</h2>
+        <h2 className="text-lg font-bold text-gray-900">Step-by-Step Plan</h2>
       </div>
 
       <div className="space-y-4">
@@ -133,7 +133,7 @@ export function PayoffSteps({ plan, sortedDebts }: PayoffStepsProps) {
 
           return (
             <div key={step.stepNumber}>
-              <div className="card bg-white dark:bg-gray-800 rounded-3xl shadow-sm hover:shadow-md transition-all overflow-hidden">
+              <div className="card bg-white rounded-3xl shadow-sm hover:shadow-md transition-all overflow-hidden">
                 {/* Step number indicator bar */}
                 <div
                   className={`h-1.5 -mx-4 -mt-4 mb-4 ${
@@ -147,18 +147,18 @@ export function PayoffSteps({ plan, sortedDebts }: PayoffStepsProps) {
                   <div
                     className={`w-14 h-14 rounded-2xl flex flex-col items-center justify-center text-white font-bold shrink-0 shadow-lg ${
                       isLast
-                        ? 'bg-gradient-to-br from-green-400 to-emerald-500 shadow-green-300/40 dark:shadow-green-900/40'
-                        : 'bg-gradient-to-br from-primary-400 to-primary-600 shadow-primary-300/40 dark:shadow-primary-900/40'
+                        ? 'bg-gradient-to-br from-green-400 to-emerald-500 shadow-green-300/40'
+                        : 'bg-gradient-to-br from-primary-400 to-primary-600 shadow-primary-300/40'
                     }`}
                   >
                     <span className="text-[10px] font-semibold opacity-80">STEP</span>
                     <span className="text-xl">{step.stepNumber}</span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <p className="text-sm font-medium text-gray-700">
                       Completes on {format(stepDate, 'MMM d, yyyy')}
                     </p>
-                    <p className="text-xs text-gray-400 dark:text-gray-500 flex items-center gap-1 mt-0.5">
+                    <p className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
                       <Clock size={12} />
                       {formatTimeUntil(stepDate)}
                     </p>
@@ -169,17 +169,17 @@ export function PayoffSteps({ plan, sortedDebts }: PayoffStepsProps) {
                 {step.milestonesInStep.map((milestone) => (
                   <div
                     key={milestone.debtId}
-                    className="flex items-center gap-3 p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 rounded-2xl mb-3 border border-green-100 dark:border-green-800/50"
+                    className="flex items-center gap-3 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl mb-3 border border-green-100"
                   >
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-md shadow-green-300/30">
                       <PartyPopper size={20} className="text-white" />
                     </div>
                     <div className="flex-1">
-                      <p className="font-bold text-green-700 dark:text-green-300 flex items-center gap-1">
+                      <p className="font-bold text-green-700 flex items-center gap-1">
                         {milestone.debtName} Paid Off!
                         <Sparkles size={14} className="text-green-400 animate-kawaii-pulse" />
                       </p>
-                      <p className="text-sm text-green-600 dark:text-green-400">
+                      <p className="text-sm text-green-600">
                         {format(parseISO(milestone.payoffDate), 'MMM d, yyyy')}
                       </p>
                     </div>
@@ -188,8 +188,8 @@ export function PayoffSteps({ plan, sortedDebts }: PayoffStepsProps) {
 
                 {/* Debt receiving extra payments */}
                 {debtGettingExtra && (
-                  <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-3">
-                    <span className="px-3 py-1.5 bg-gradient-to-r from-primary-100 to-primary-50 dark:from-primary-900/50 dark:to-primary-800/30 text-primary-700 dark:text-primary-300 rounded-xl text-xs font-semibold">
+                  <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
+                    <span className="px-3 py-1.5 bg-gradient-to-r from-primary-100 to-primary-50 text-primary-700 rounded-xl text-xs font-semibold">
                       Extra Payment
                     </span>
                     <span className="truncate font-medium">→ {debtGettingExtra.name}</span>
@@ -198,8 +198,8 @@ export function PayoffSteps({ plan, sortedDebts }: PayoffStepsProps) {
 
                 {/* Debts paying minimum */}
                 {step.debtsPayingMinimum.length > 0 && (
-                  <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                    <span className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-xl text-xs font-medium">
+                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                    <span className="px-3 py-1.5 bg-gray-100 text-gray-600 rounded-xl text-xs font-medium">
                       Minimum
                     </span>
                     <span>
@@ -210,17 +210,17 @@ export function PayoffSteps({ plan, sortedDebts }: PayoffStepsProps) {
                 )}
 
                 {/* Progress visualization */}
-                <div className="mt-5 pt-5 border-t border-gray-100 dark:border-gray-700">
+                <div className="mt-5 pt-5 border-t border-gray-100">
                   {/* Balance decrease summary */}
                   <div className="flex items-center justify-between text-sm mb-3">
-                    <span className="text-gray-600 dark:text-gray-400">Paid this step</span>
-                    <span className="font-bold text-gray-900 dark:text-white">
+                    <span className="text-gray-600">Paid this step</span>
+                    <span className="font-bold text-gray-900">
                       {formatCurrency(stepProgress.paidThisStep)}
                     </span>
                   </div>
 
                   {/* Progress bar showing step completion */}
-                  <div className="h-3 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                  <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all duration-500 ease-out ${
                         isLast
@@ -233,12 +233,12 @@ export function PayoffSteps({ plan, sortedDebts }: PayoffStepsProps) {
 
                   {/* Journey progress indicator */}
                   <div className="flex items-center justify-between mt-3">
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                    <span className="text-xs text-gray-500">
                       {formatCurrency(stepProgress.endingBalance)} remaining
                     </span>
                     <span
                       className={`text-xs font-semibold flex items-center gap-1 ${
-                        isLast ? 'text-green-600 dark:text-green-400' : 'text-primary-600 dark:text-primary-400'
+                        isLast ? 'text-green-600' : 'text-primary-600'
                       }`}
                     >
                       <Sparkles size={10} />
@@ -248,7 +248,7 @@ export function PayoffSteps({ plan, sortedDebts }: PayoffStepsProps) {
 
                   {/* Step duration */}
                   {stepProgress.monthCount > 0 && (
-                    <div className="mt-2 text-xs text-gray-400 dark:text-gray-500">
+                    <div className="mt-2 text-xs text-gray-400">
                       {stepProgress.monthCount} month
                       {stepProgress.monthCount !== 1 ? 's' : ''} in this step
                     </div>

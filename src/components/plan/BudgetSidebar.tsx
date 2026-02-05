@@ -97,7 +97,7 @@ export function BudgetSidebar({
       {/* Income Summary */}
       <div className="card">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold text-gray-900 dark:text-gray-100">Income</h3>
+          <h3 className="font-semibold text-gray-900 ">Income</h3>
           <button
             onClick={() => setIsIncomeModalOpen(true)}
             className="flex items-center gap-1 text-sm text-primary-600 hover:text-primary-700"
@@ -128,7 +128,7 @@ export function BudgetSidebar({
               return (
                 <div
                   key={source.id}
-                  className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800/50 rounded-lg"
+                  className="flex items-center justify-between p-2 bg-gray-50 rounded-lg"
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
@@ -166,8 +166,8 @@ export function BudgetSidebar({
               );
             })}
 
-            <div className="flex justify-between items-center pt-2 border-t border-gray-200 dark:border-gray-700">
-              <span className="text-sm font-medium dark:text-gray-200">Total Take-Home</span>
+            <div className="flex justify-between items-center pt-2 border-t border-gray-200">
+              <span className="text-sm font-medium">Total Take-Home</span>
               <span className="text-lg font-bold text-primary-600">
                 {formatCurrency(totalMonthlyIncome)}
               </span>
@@ -178,7 +178,7 @@ export function BudgetSidebar({
 
       {/* Monthly Expenses */}
       <div className="card">
-        <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Monthly Expenses</h3>
+        <h3 className="font-semibold text-gray-900  mb-2">Monthly Expenses</h3>
         <p className="text-xs text-gray-500 mb-3">
           Rent, utilities, groceries, etc.
         </p>
@@ -194,30 +194,30 @@ export function BudgetSidebar({
             placeholder="0.00"
             step="0.01"
             min="0"
-            className="w-full pl-8 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-800 dark:text-gray-100"
+            className="w-full pl-8 pr-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white "
           />
         </div>
       </div>
 
       {/* Debt Payment Calculator */}
-      <div className="card bg-gradient-to-br from-primary-50 to-white dark:from-primary-900/30 dark:to-gray-800/50">
-        <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Debt Payment</h3>
+      <div className="card bg-gradient-to-br from-primary-50 to-white">
+        <h3 className="font-semibold text-gray-900  mb-3">Debt Payment</h3>
 
         {/* Step 1: What's available */}
-        <div className="p-3 bg-white dark:bg-gray-800/80 rounded-xl border border-gray-200 dark:border-gray-700 mb-4">
-          <div className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">What you have</div>
+        <div className="p-3 bg-white/80 rounded-xl border border-gray-200 mb-4">
+          <div className="text-xs text-gray-500 uppercase tracking-wide mb-2">What you have</div>
           <div className="space-y-1 text-sm">
             <div className="flex justify-between">
-              <span className="text-gray-600 dark:text-gray-400">Income</span>
-              <span className="text-gray-900 dark:text-gray-100">{formatCurrency(totalMonthlyIncome)}</span>
+              <span className="text-gray-600">Income</span>
+              <span className="text-gray-900 ">{formatCurrency(totalMonthlyIncome)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600 dark:text-gray-400">Expenses</span>
-              <span className="text-gray-500 dark:text-gray-400">-{formatCurrency(budget.monthlyExpenses)}</span>
+              <span className="text-gray-600">Expenses</span>
+              <span className="text-gray-500">-{formatCurrency(budget.monthlyExpenses)}</span>
             </div>
-            <div className="flex justify-between pt-1 border-t border-gray-100 dark:border-gray-700 font-medium">
-              <span className="text-gray-700 dark:text-gray-300">Available</span>
-              <span className={availableForDebt > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}>
+            <div className="flex justify-between pt-1 border-t border-gray-100 font-medium">
+              <span className="text-gray-700">Available</span>
+              <span className={availableForDebt > 0 ? 'text-green-600' : 'text-red-500'}>
                 {formatCurrency(availableForDebt)}
               </span>
             </div>
@@ -225,17 +225,17 @@ export function BudgetSidebar({
         </div>
 
         {/* Step 2: Required minimums (not editable) */}
-        <div className="flex justify-between items-center py-2 px-3 bg-gray-100 dark:bg-gray-800/60 rounded-lg mb-3">
+        <div className="flex justify-between items-center py-2 px-3 bg-gray-100/60 rounded-lg mb-3">
           <div>
-            <span className="text-sm text-gray-700 dark:text-gray-300">Minimum payments</span>
-            <p className="text-xs text-gray-500 dark:text-gray-400">Required each month</p>
+            <span className="text-sm text-gray-700">Minimum payments</span>
+            <p className="text-xs text-gray-500">Required each month</p>
           </div>
-          <span className="font-semibold text-gray-900 dark:text-gray-100">{formatCurrency(totalMinimums)}</span>
+          <span className="font-semibold text-gray-900 ">{formatCurrency(totalMinimums)}</span>
         </div>
 
         {/* Step 3: Extra payment input (the ONE thing user controls) */}
         <div className="mb-4">
-          <label className="block text-sm font-medium text-primary-700 dark:text-primary-300 mb-1">
+          <label className="block text-sm font-medium text-primary-700 mb-1">
             Extra payment (accelerates payoff)
           </label>
           <div className="relative">
@@ -250,18 +250,18 @@ export function BudgetSidebar({
               placeholder="0.00"
               step="0.01"
               min="0"
-              className="w-full pl-8 pr-4 py-2.5 border-2 border-primary-300 dark:border-primary-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 font-semibold text-primary-700 dark:text-primary-300 bg-white dark:bg-gray-800"
+              className="w-full pl-8 pr-4 py-2.5 border-2 border-primary-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 font-semibold text-primary-700 bg-white"
             />
           </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          <p className="text-xs text-gray-500 mt-1">
             This goes to your focus debt each month
           </p>
         </div>
 
         {/* Step 4: Total result */}
-        <div className="flex justify-between items-center p-3 bg-primary-100 dark:bg-primary-900/50 rounded-xl">
-          <span className="font-medium text-primary-800 dark:text-primary-200">Total monthly payment</span>
-          <span className="text-xl font-bold text-primary-700 dark:text-primary-300">
+        <div className="flex justify-between items-center p-3 bg-primary-100 rounded-xl">
+          <span className="font-medium text-primary-800">Total monthly payment</span>
+          <span className="text-xl font-bold text-primary-700">
             {formatCurrency(budget.debtAllocationAmount || totalMinimums)}
           </span>
         </div>
@@ -272,7 +272,7 @@ export function BudgetSidebar({
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Gift size={18} className="text-amber-500" />
-            <h3 className="font-semibold text-gray-900 dark:text-gray-100">One-time Fundings</h3>
+            <h3 className="font-semibold text-gray-900 ">One-time Fundings</h3>
           </div>
           <button
             onClick={() => setIsFundingModalOpen(true)}
@@ -296,7 +296,7 @@ export function BudgetSidebar({
               <div
                 key={funding.id}
                 className={`flex items-center justify-between p-2 rounded-lg ${
-                  funding.isApplied ? 'bg-gray-100 dark:bg-gray-800/50 opacity-60' : 'bg-amber-50 dark:bg-amber-900/30'
+                  funding.isApplied ? 'bg-gray-100 opacity-60' : 'bg-amber-50'
                 }`}
               >
                 <div className="flex-1 min-w-0">
@@ -339,8 +339,8 @@ export function BudgetSidebar({
 
             {/* Total upcoming */}
             {totalUpcomingFundings > 0 && (
-              <div className="flex justify-between items-center pt-2 border-t border-gray-200 dark:border-gray-700">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Total upcoming</span>
+              <div className="flex justify-between items-center pt-2 border-t border-gray-200">
+                <span className="text-sm text-gray-600">Total upcoming</span>
                 <span className="font-semibold text-amber-600">
                   {formatCurrency(totalUpcomingFundings)}
                 </span>
