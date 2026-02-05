@@ -141,6 +141,18 @@ export function AssetsPage() {
           <div className="absolute top-0 right-0 w-32 h-32 bg-primary-200/30 rounded-full -translate-y-1/2 translate-x-1/2" />
           <Sparkles size={14} className="absolute top-4 right-6 text-primary-300 animate-kawaii-pulse" />
 
+          {/* Floating money celebration for positive net worth */}
+          {netWorth > 0 && (
+            <>
+              <span className="absolute top-8 left-6 text-xl animate-money-float" style={{ animationDelay: '0s' }}>💰</span>
+              <span className="absolute top-12 left-16 text-lg animate-money-float" style={{ animationDelay: '0.5s' }}>✨</span>
+              <span className="absolute top-6 right-16 text-xl animate-money-float" style={{ animationDelay: '0.3s' }}>💵</span>
+              <span className="absolute top-14 right-8 text-lg animate-money-pop" style={{ animationDelay: '0.8s' }}>🪙</span>
+              <span className="absolute top-20 left-10 text-sm animate-money-pop" style={{ animationDelay: '1.2s' }}>💎</span>
+              <span className="absolute top-16 right-20 text-sm animate-money-float" style={{ animationDelay: '1.5s' }}>⭐</span>
+            </>
+          )}
+
           <div className="relative z-10 text-center mb-5">
             <div className="flex items-center justify-center gap-2 mb-2">
               <PiggyBank size={18} className="text-primary-500" />
@@ -153,6 +165,12 @@ export function AssetsPage() {
             >
               {formatCurrency(netWorth)}
             </p>
+            {netWorth > 0 && (
+              <p className="text-sm text-green-500 font-medium mt-1 flex items-center justify-center gap-1">
+                <Sparkles size={12} className="animate-kawaii-pulse" />
+                You're in the green!
+              </p>
+            )}
           </div>
 
           {/* Assets vs Debts bar */}
