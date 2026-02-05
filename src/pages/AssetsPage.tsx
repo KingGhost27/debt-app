@@ -90,7 +90,7 @@ export function AssetsPage() {
   // Empty state
   if (assets.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen bg-gray-50">
         <PageHeader
           title="Assets"
           subtitle="Track your savings & investments"
@@ -118,7 +118,7 @@ export function AssetsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50">
       <PageHeader
         title="Assets"
         subtitle="Track your savings & investments"
@@ -136,19 +136,19 @@ export function AssetsPage() {
 
       <div className="px-4 py-6 space-y-6">
         {/* Net Worth Card */}
-        <div className="card bg-gradient-to-br from-primary-50 to-white dark:from-primary-900/30 dark:to-gray-800 rounded-3xl border border-primary-100 dark:border-primary-800/50 relative overflow-hidden">
+        <div className="card bg-gradient-to-br from-primary-50 to-white rounded-3xl border border-primary-100 relative overflow-hidden">
           {/* Decorative elements */}
-          <div className="absolute top-0 right-0 w-32 h-32 bg-primary-200/30 dark:bg-primary-700/20 rounded-full -translate-y-1/2 translate-x-1/2" />
-          <Sparkles size={14} className="absolute top-4 right-6 text-primary-300 dark:text-primary-600 animate-kawaii-pulse" />
+          <div className="absolute top-0 right-0 w-32 h-32 bg-primary-200/30 rounded-full -translate-y-1/2 translate-x-1/2" />
+          <Sparkles size={14} className="absolute top-4 right-6 text-primary-300 animate-kawaii-pulse" />
 
           <div className="relative z-10 text-center mb-5">
             <div className="flex items-center justify-center gap-2 mb-2">
               <PiggyBank size={18} className="text-primary-500" />
-              <p className="text-sm text-gray-500 dark:text-gray-400 font-semibold uppercase tracking-wide">Net Worth</p>
+              <p className="text-sm text-gray-500 font-semibold uppercase tracking-wide">Net Worth</p>
             </div>
             <p
               className={`text-4xl font-bold ${
-                netWorth >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                netWorth >= 0 ? 'text-green-600' : 'text-red-600'
               }`}
             >
               {formatCurrency(netWorth)}
@@ -156,7 +156,7 @@ export function AssetsPage() {
           </div>
 
           {/* Assets vs Debts bar */}
-          <div className="relative h-4 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden mb-4">
+          <div className="relative h-4 bg-gray-100 rounded-full overflow-hidden mb-4">
             {totalAssets + totalDebt > 0 && (
               <>
                 <div
@@ -176,17 +176,17 @@ export function AssetsPage() {
           </div>
 
           <div className="flex justify-between text-sm">
-            <div className="flex items-center gap-2 px-3 py-2 bg-green-50 dark:bg-green-900/30 rounded-xl">
+            <div className="flex items-center gap-2 px-3 py-2 bg-green-50 rounded-xl">
               <TrendingUp size={16} className="text-green-500" />
-              <span className="text-gray-600 dark:text-gray-400">Assets:</span>
-              <span className="font-bold text-green-600 dark:text-green-400">
+              <span className="text-gray-600">Assets:</span>
+              <span className="font-bold text-green-600">
                 {formatCurrency(totalAssets)}
               </span>
             </div>
-            <div className="flex items-center gap-2 px-3 py-2 bg-red-50 dark:bg-red-900/30 rounded-xl">
+            <div className="flex items-center gap-2 px-3 py-2 bg-red-50 rounded-xl">
               <TrendingDown size={16} className="text-red-400" />
-              <span className="text-gray-600 dark:text-gray-400">Debts:</span>
-              <span className="font-bold text-red-500 dark:text-red-400">
+              <span className="text-gray-600">Debts:</span>
+              <span className="font-bold text-red-500">
                 {formatCurrency(totalDebt)}
               </span>
             </div>
@@ -197,8 +197,8 @@ export function AssetsPage() {
         <div className="grid grid-cols-2 gap-4">
           {/* Asset Allocation Pie */}
           {pieData.length > 0 && (
-            <div className="card bg-white dark:bg-gray-800 rounded-3xl shadow-sm">
-              <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3 flex items-center gap-2">
+            <div className="card bg-white rounded-3xl shadow-sm">
+              <h3 className="text-sm font-semibold text-gray-500 mb-3 flex items-center gap-2">
                 <Sparkles size={12} className="text-primary-400" />
                 Allocation
               </h3>
@@ -229,14 +229,14 @@ export function AssetsPage() {
                 {pieData.slice(0, 3).map((entry) => (
                   <div key={entry.name} className="flex items-center gap-2 text-xs">
                     <div
-                      className="w-3 h-3 rounded-full ring-2 ring-white dark:ring-gray-800 shadow-sm"
+                      className="w-3 h-3 rounded-full ring-2 ring-white shadow-sm"
                       style={{ backgroundColor: entry.color }}
                     />
-                    <span className="text-gray-600 dark:text-gray-400 truncate">{entry.name}</span>
+                    <span className="text-gray-600 truncate">{entry.name}</span>
                   </div>
                 ))}
                 {pieData.length > 3 && (
-                  <p className="text-xs text-gray-400 dark:text-gray-500">+{pieData.length - 3} more</p>
+                  <p className="text-xs text-gray-400">+{pieData.length - 3} more</p>
                 )}
               </div>
             </div>
@@ -244,8 +244,8 @@ export function AssetsPage() {
 
           {/* Balance Trend */}
           {lineData.length > 1 && (
-            <div className="card bg-white dark:bg-gray-800 rounded-3xl shadow-sm">
-              <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3 flex items-center gap-2">
+            <div className="card bg-white rounded-3xl shadow-sm">
+              <h3 className="text-sm font-semibold text-gray-500 mb-3 flex items-center gap-2">
                 <TrendingUp size={12} className="text-green-500" />
                 Trend
               </h3>
@@ -268,7 +268,7 @@ export function AssetsPage() {
                   </LineChart>
                 </ResponsiveContainer>
               </div>
-              <p className="text-xs text-gray-400 dark:text-gray-500 mt-3">
+              <p className="text-xs text-gray-400 mt-3">
                 {lineData.length} updates tracked
               </p>
             </div>
@@ -277,7 +277,7 @@ export function AssetsPage() {
 
         {/* Asset Cards */}
         <div className="space-y-4">
-          <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide flex items-center gap-2">
+          <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide flex items-center gap-2">
             <Wallet size={14} />
             Your Accounts
           </h3>
@@ -285,7 +285,7 @@ export function AssetsPage() {
             const typeInfo = ASSET_TYPE_INFO[asset.type];
 
             return (
-              <div key={asset.id} className="card bg-white dark:bg-gray-800 rounded-3xl shadow-sm hover:shadow-md transition-all group overflow-hidden">
+              <div key={asset.id} className="card bg-white rounded-3xl shadow-sm hover:shadow-md transition-all group overflow-hidden">
                 {/* Type color bar */}
                 <div
                   className="h-1.5 -mx-4 -mt-4 mb-4"
@@ -301,8 +301,8 @@ export function AssetsPage() {
                       <Wallet size={22} style={{ color: typeInfo.color }} />
                     </div>
                     <div>
-                      <p className="font-bold text-gray-900 dark:text-white">{asset.name}</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="font-bold text-gray-900">{asset.name}</p>
+                      <p className="text-sm text-gray-500">
                         <span
                           className="px-2 py-0.5 rounded-full text-xs font-medium"
                           style={{
@@ -319,13 +319,13 @@ export function AssetsPage() {
                   <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
                       onClick={() => handleEdit(asset)}
-                      className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-xl transition-all"
+                      className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all"
                     >
                       <Pencil size={16} />
                     </button>
                     <button
                       onClick={() => handleDelete(asset)}
-                      className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-xl transition-all"
+                      className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
                     >
                       <Trash2 size={16} />
                     </button>
@@ -334,11 +334,11 @@ export function AssetsPage() {
 
                 <div className="flex items-end justify-between">
                   <div>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                    <p className="text-2xl font-bold text-gray-900">
                       {formatCurrency(asset.balance)}
                     </p>
                     {asset.interestRate && (
-                      <p className="text-sm text-green-600 dark:text-green-400 font-semibold flex items-center gap-1">
+                      <p className="text-sm text-green-600 font-semibold flex items-center gap-1">
                         <TrendingUp size={14} />
                         {asset.interestRate}% APY
                       </p>
@@ -346,7 +346,7 @@ export function AssetsPage() {
                   </div>
                   <button
                     onClick={() => setUpdatingAsset(asset)}
-                    className="flex items-center gap-1.5 px-4 py-2.5 text-sm font-semibold text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/30 rounded-xl hover:bg-primary-100 dark:hover:bg-primary-900/50 transition-all"
+                    className="flex items-center gap-1.5 px-4 py-2.5 text-sm font-semibold text-primary-600 bg-primary-50 rounded-xl hover:bg-primary-100 transition-all"
                   >
                     <RefreshCw size={14} />
                     Update
@@ -354,15 +354,15 @@ export function AssetsPage() {
                 </div>
 
                 {/* Last updated */}
-                <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
-                  <p className="text-xs text-gray-400 dark:text-gray-500">
+                <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
+                  <p className="text-xs text-gray-400">
                     Updated {format(parseISO(asset.updatedAt), 'MMM d, yyyy')}
                   </p>
                   <button
                     onClick={() =>
                       setShowHistory(showHistory === asset.id ? null : asset.id)
                     }
-                    className="text-xs text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 flex items-center gap-1 font-medium"
+                    className="text-xs text-primary-600 hover:text-primary-700 flex items-center gap-1 font-medium"
                   >
                     <History size={12} />
                     History
@@ -371,7 +371,7 @@ export function AssetsPage() {
 
                 {/* History dropdown */}
                 {showHistory === asset.id && (
-                  <div className="mt-3 bg-gray-50 dark:bg-gray-700/50 rounded-2xl p-4 space-y-2 max-h-40 overflow-y-auto">
+                  <div className="mt-3 bg-gray-50 rounded-2xl p-4 space-y-2 max-h-40 overflow-y-auto">
                     {asset.balanceHistory
                       .slice()
                       .reverse()
@@ -382,16 +382,16 @@ export function AssetsPage() {
                           className="flex justify-between text-sm"
                         >
                           <div>
-                            <span className="text-gray-500 dark:text-gray-400">
+                            <span className="text-gray-500">
                               {format(parseISO(entry.date), 'MMM d, yyyy')}
                             </span>
                             {entry.note && (
-                              <span className="text-gray-400 dark:text-gray-500 ml-2">
+                              <span className="text-gray-400 ml-2">
                                 - {entry.note}
                               </span>
                             )}
                           </div>
-                          <span className="font-semibold text-gray-900 dark:text-white">
+                          <span className="font-semibold text-gray-900">
                             {formatCurrency(entry.balance)}
                           </span>
                         </div>
