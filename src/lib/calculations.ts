@@ -28,6 +28,8 @@ import type {
   BudgetSettings,
   Asset,
   AssetType,
+  Subscription,
+  ReceivedPaycheck,
 } from '../types';
 
 // ============================================
@@ -832,4 +834,151 @@ export function calculateAssetBalanceHistory(
   }
 
   return result;
+}
+
+// ============================================
+// PAYCHECK TRACKING CALCULATIONS
+// ============================================
+
+/**
+ * Calculate expected take-home pay per paycheck for an income source
+ * This converts net monthly income to per-paycheck amount
+ */
+export function calculateExpectedPaycheck(source: IncomeSource): number {
+  const netMonthly = calculateNetMonthlyIncome(source);
+
+  switch (source.payFrequency) {
+    case 'weekly':
+      return round(netMonthly / (52 / 12)); // ~4.33 paychecks/month
+    case 'bi-weekly':
+      return round(netMonthly / (26 / 12)); // ~2.17 paychecks/month
+    case 'semi-monthly':
+      return round(netMonthly / 2); // 2 paychecks/month
+    case 'monthly':
+      return round(netMonthly); // 1 paycheck/month
+    default:
+      return round(netMonthly);
+  }
+}
+
+/**
+ * Get all debts with due dates falling within a pay period
+ * Returns debts with their due date in the period
+ */
+export function getBillsDueInPeriod(
+  debts: Debt[],
+  periodStart: Date,
+  periodEnd: Date
+): { debt: Debt; dueDate: Date; amount: number }[] {
+  const bills: { debt: Debt; dueDate: Date; amount: number }[] = [];
+
+  for (const debt of debts) {
+    // Get due date in the month of periodStart
+    const year = periodStart.getFullYear();
+    const month = periodStart.getMonth();
+    const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
+    const clampedDueDay = Math.min(debt.dueDay, lastDayOfMonth);
+    let dueDate = new Date(year, month, clampedDueDay);
+
+    // If due date is before period start, try next month
+    if (dueDate < periodStart) {
+      const nextMonth = month + 1;
+      const nextYear = nextMonth > 11 ? year + 1 : year;
+      const nextMonthNum = nextMonth > 11 ? 0 : nextMonth;
+      const lastDayOfNextMonth = new Date(nextYear, nextMonthNum + 1, 0).getDate();
+      const clampedNextDueDay = Math.min(debt.dueDay, lastDayOfNextMonth);
+      dueDate = new Date(nextYear, nextMonthNum, clampedNextDueDay);
+    }
+
+    // Check if due date falls within the period
+    if (dueDate >= periodStart && dueDate <= periodEnd) {
+      bills.push({
+        debt,
+        dueDate,
+        amount: debt.minimumPayment,
+      });
+    }
+  }
+
+  return bills.sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime());
+}
+
+/**
+ * Get all subscriptions with billing dates falling within a pay period
+ * Returns subscriptions with their billing date in the period
+ */
+export function getSubscriptionsDueInPeriod(
+  subscriptions: Subscription[],
+  periodStart: Date,
+  periodEnd: Date
+): { subscription: Subscription; billingDate: Date; amount: number }[] {
+  const subs: { subscription: Subscription; billingDate: Date; amount: number }[] = [];
+
+  for (const sub of subscriptions) {
+    if (!sub.isActive) continue;
+
+    const nextBilling = parseISO(sub.nextBillingDate);
+
+    // Check if next billing date falls within the period
+    if (nextBilling >= periodStart && nextBilling <= periodEnd) {
+      subs.push({
+        subscription: sub,
+        billingDate: nextBilling,
+        amount: sub.amount,
+      });
+    }
+  }
+
+  return subs.sort((a, b) => a.billingDate.getTime() - b.billingDate.getTime());
+}
+
+/**
+ * Calculate remaining balance after bills for a pay period
+ */
+export function calculatePayPeriodRemaining(
+  paycheck: ReceivedPaycheck,
+  debts: Debt[],
+  subscriptions: Subscription[],
+  includeSubscriptions: boolean = true
+): {
+  totalIncome: number;
+  totalBills: number;
+  totalSubscriptions: number;
+  remaining: number;
+  bills: { name: string; amount: number; dueDate: Date }[];
+  subs: { name: string; amount: number; billingDate: Date }[];
+} {
+  const periodStart = parseISO(paycheck.payPeriodStart);
+  const periodEnd = parseISO(paycheck.payPeriodEnd);
+
+  // Get bills in period
+  const billsInPeriod = getBillsDueInPeriod(debts, periodStart, periodEnd);
+  const totalBills = billsInPeriod.reduce((sum, b) => sum + b.amount, 0);
+
+  // Get subscriptions in period
+  const subsInPeriod = getSubscriptionsDueInPeriod(subscriptions, periodStart, periodEnd);
+  const totalSubscriptions = includeSubscriptions
+    ? subsInPeriod.reduce((sum, s) => sum + s.amount, 0)
+    : 0;
+
+  const remaining = paycheck.actualAmount - totalBills - totalSubscriptions;
+
+  return {
+    totalIncome: paycheck.actualAmount,
+    totalBills,
+    totalSubscriptions: includeSubscriptions ? totalSubscriptions : 0,
+    remaining: round(remaining),
+    bills: billsInPeriod.map((b) => ({
+      name: b.debt.name,
+      amount: b.amount,
+      dueDate: b.dueDate,
+    })),
+    subs: includeSubscriptions
+      ? subsInPeriod.map((s) => ({
+          name: s.subscription.name,
+          amount: s.amount,
+          billingDate: s.billingDate,
+        }))
+      : [],
+  };
 }
