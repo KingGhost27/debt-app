@@ -7,7 +7,8 @@
 
 import { useMemo } from 'react';
 import { format, parseISO } from 'date-fns';
-import { Target, Sparkles, TrendingDown, Calendar, Wallet } from 'lucide-react';
+import { Target, Sparkles, TrendingDown, Calendar, Wallet, Receipt, ChevronRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import {
   calculateDebtSummary,
@@ -15,6 +16,7 @@ import {
   formatTimeUntil,
   formatCurrency,
   formatPercent,
+  calculatePayPeriodRemaining,
 } from '../lib/calculations';
 import { ProgressRing } from '../components/ui/ProgressRing';
 import { DebtOverTimeChart } from '../components/ui/DebtOverTimeChart';
@@ -34,7 +36,7 @@ const getEncouragement = (percentPaid: number) => {
 };
 
 export function HomePage() {
-  const { debts, strategy, settings, customCategories, budget, payments, subscriptions } = useApp();
+  const { debts, strategy, settings, customCategories, budget, payments, subscriptions, receivedPaychecks } = useApp();
 
   // Calculate summary stats
   const summary = useMemo(() => calculateDebtSummary(debts), [debts]);
@@ -59,6 +61,40 @@ export function HomePage() {
     });
     return milestones;
   }, [plan.steps]);
+
+  // Get latest paycheck and calculate remaining
+  const paycheckSummary = useMemo(() => {
+    if (receivedPaychecks.length === 0) return null;
+
+    // Get the most recent paycheck
+    const sortedPaychecks = [...receivedPaychecks].sort(
+      (a, b) => new Date(b.payDate).getTime() - new Date(a.payDate).getTime()
+    );
+    const latestPaycheck = sortedPaychecks[0];
+
+    // Get the income source name
+    const incomeSource = budget.incomeSources.find((s) => s.id === latestPaycheck.incomeSourceId);
+
+    // Calculate remaining after bills
+    const periodSummary = calculatePayPeriodRemaining(
+      latestPaycheck,
+      debts,
+      subscriptions,
+      true, // include subscriptions
+      payments
+    );
+
+    return {
+      paycheck: latestPaycheck,
+      sourceName: incomeSource?.name || 'Unknown',
+      remaining: periodSummary.remaining,
+      totalBills: periodSummary.totalBills,
+      totalSubscriptions: periodSummary.totalSubscriptions,
+      billCount: periodSummary.bills.length,
+      subCount: periodSummary.subs.length,
+      unpaidBillCount: periodSummary.bills.filter((b) => !b.isPaid).length,
+    };
+  }, [receivedPaychecks, budget.incomeSources, debts, subscriptions, payments]);
 
   // Get categories with balances
   const categories = useMemo(() => {
@@ -168,6 +204,65 @@ export function HomePage() {
 
       {/* Main Content */}
       <div className="px-4 py-6 space-y-5">
+        {/* Paycheck Summary Card */}
+        {paycheckSummary && (
+          <Link to="/track" className="block">
+            <div className="card bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-100 rounded-3xl relative overflow-hidden hover:shadow-md transition-all">
+              {/* Decorative elements */}
+              <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-200/30 rounded-full -translate-y-1/2 translate-x-1/2" />
+              <Sparkles size={12} className="absolute top-3 right-12 text-emerald-300 animate-kawaii-pulse" />
+
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-300/30">
+                      <Receipt size={20} className="text-white" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-emerald-600 font-semibold uppercase tracking-wide">Latest Paycheck</p>
+                      <p className="text-sm font-bold text-gray-900">{paycheckSummary.sourceName}</p>
+                    </div>
+                  </div>
+                  <ChevronRight size={20} className="text-emerald-400" />
+                </div>
+
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="text-center p-2 bg-white/60 rounded-xl">
+                    <p className="text-lg font-bold text-emerald-600">
+                      {formatCurrency(paycheckSummary.paycheck.actualAmount)}
+                    </p>
+                    <p className="text-[10px] text-gray-500 font-medium">Received</p>
+                  </div>
+                  <div className="text-center p-2 bg-white/60 rounded-xl">
+                    <p className="text-lg font-bold text-red-500">
+                      {formatCurrency(paycheckSummary.totalBills + paycheckSummary.totalSubscriptions)}
+                    </p>
+                    <p className="text-[10px] text-gray-500 font-medium">
+                      Bills ({paycheckSummary.unpaidBillCount}) + Subs
+                    </p>
+                  </div>
+                  <div className="text-center p-2 bg-white/60 rounded-xl">
+                    <p className={`text-lg font-bold ${paycheckSummary.remaining >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                      {formatCurrency(paycheckSummary.remaining)}
+                    </p>
+                    <p className="text-[10px] text-gray-500 font-medium">Remaining</p>
+                  </div>
+                </div>
+
+                <div className="mt-3 flex items-center justify-between text-xs">
+                  <span className="text-gray-500">
+                    Pay period: {format(new Date(paycheckSummary.paycheck.payPeriodStart + 'T12:00:00'), 'MMM d')} – {format(new Date(paycheckSummary.paycheck.payPeriodEnd + 'T12:00:00'), 'MMM d')}
+                  </span>
+                  <span className="text-emerald-600 font-semibold flex items-center gap-1">
+                    View details
+                    <ChevronRight size={14} />
+                  </span>
+                </div>
+              </div>
+            </div>
+          </Link>
+        )}
+
         {/* Up Next - First Debt to Pay Off */}
         {payoffMilestones.length > 0 && (() => {
           const nextDebt = debts.find(d => d.id === payoffMilestones[0].debtId);
