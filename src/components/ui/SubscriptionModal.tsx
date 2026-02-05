@@ -135,7 +135,7 @@ export function SubscriptionModal({ isOpen, onClose, subscription }: Subscriptio
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
 
       {/* Modal */}
-      <div className="relative w-full max-w-lg bg-white dark:bg-gray-800 rounded-3xl shadow-xl animate-slide-up max-h-[85vh] overflow-y-auto mb-16 sm:mb-0">
+      <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-xl animate-slide-up max-h-[85vh] overflow-y-auto mb-16 sm:mb-0">
         {/* Header */}
         <div className="sticky top-0 z-10 bg-gradient-to-r from-primary-500 to-primary-600 px-5 py-4 flex items-center justify-between rounded-t-3xl">
           <div className="flex items-center gap-3">
@@ -158,7 +158,7 @@ export function SubscriptionModal({ isOpen, onClose, subscription }: Subscriptio
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           {/* Name */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Subscription Name *
             </label>
             <input
@@ -167,8 +167,8 @@ export function SubscriptionModal({ isOpen, onClose, subscription }: Subscriptio
               value={formData.name}
               onChange={handleChange}
               placeholder="e.g., Netflix, Spotify, Adobe"
-              className={`w-full px-4 py-3 border-2 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all ${
-                errors.name ? 'border-red-500' : 'border-gray-200 dark:border-gray-600'
+              className={`w-full px-4 py-3 border-2 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white text-gray-900 transition-all ${
+                errors.name ? 'border-red-500' : 'border-gray-200'
               }`}
             />
             {errors.name && (
@@ -178,11 +178,11 @@ export function SubscriptionModal({ isOpen, onClose, subscription }: Subscriptio
 
           {/* Amount */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Amount *
             </label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
                 $
               </span>
               <input
@@ -193,8 +193,8 @@ export function SubscriptionModal({ isOpen, onClose, subscription }: Subscriptio
                 step="0.01"
                 min="0"
                 placeholder="0.00"
-                className={`w-full pl-8 pr-4 py-3 border-2 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all ${
-                  errors.amount ? 'border-red-500' : 'border-gray-200 dark:border-gray-600'
+                className={`w-full pl-8 pr-4 py-3 border-2 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white text-gray-900 transition-all ${
+                  errors.amount ? 'border-red-500' : 'border-gray-200'
                 }`}
               />
             </div>
@@ -205,30 +205,30 @@ export function SubscriptionModal({ isOpen, onClose, subscription }: Subscriptio
 
           {/* Billing Frequency */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Billing Frequency *
             </label>
             <div className="flex gap-3">
               <div className="flex-1">
-                <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Every</label>
+                <label className="block text-xs text-gray-500 mb-1">Every</label>
                 <input
                   type="number"
                   name="frequencyValue"
                   value={formData.frequencyValue}
                   onChange={handleChange}
                   min="1"
-                  className={`w-full px-4 py-3 border-2 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all ${
-                    errors.frequencyValue ? 'border-red-500' : 'border-gray-200 dark:border-gray-600'
+                  className={`w-full px-4 py-3 border-2 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white text-gray-900 transition-all ${
+                    errors.frequencyValue ? 'border-red-500' : 'border-gray-200'
                   }`}
                 />
               </div>
               <div className="flex-1">
-                <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Period</label>
+                <label className="block text-xs text-gray-500 mb-1">Period</label>
                 <select
                   name="frequencyUnit"
                   value={formData.frequencyUnit}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white text-gray-900 transition-all"
                 >
                   <option value="days">Day(s)</option>
                   <option value="weeks">Week(s)</option>
@@ -244,7 +244,7 @@ export function SubscriptionModal({ isOpen, onClose, subscription }: Subscriptio
 
           {/* Next Billing Date */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Next Billing Date *
             </label>
             <input
@@ -252,8 +252,8 @@ export function SubscriptionModal({ isOpen, onClose, subscription }: Subscriptio
               name="nextBillingDate"
               value={formData.nextBillingDate}
               onChange={handleChange}
-              className={`w-full px-4 py-3 border-2 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all ${
-                errors.nextBillingDate ? 'border-red-500' : 'border-gray-200 dark:border-gray-600'
+              className={`w-full px-4 py-3 border-2 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white text-gray-900 transition-all ${
+                errors.nextBillingDate ? 'border-red-500' : 'border-gray-200'
               }`}
             />
             {errors.nextBillingDate && (
@@ -263,14 +263,14 @@ export function SubscriptionModal({ isOpen, onClose, subscription }: Subscriptio
 
           {/* Category */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Category
             </label>
             <select
               name="category"
               value={formData.category}
               onChange={handleChange}
-              className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all"
+              className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white text-gray-900 transition-all"
             >
               {Object.entries(SUBSCRIPTION_CATEGORY_INFO).map(([key, info]) => (
                 <option key={key} value={key}>
@@ -281,7 +281,7 @@ export function SubscriptionModal({ isOpen, onClose, subscription }: Subscriptio
           </div>
 
           {/* Active Toggle */}
-          <label className="flex items-center gap-3 cursor-pointer p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+          <label className="flex items-center gap-3 cursor-pointer p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
             <input
               type="checkbox"
               name="isActive"
@@ -290,8 +290,8 @@ export function SubscriptionModal({ isOpen, onClose, subscription }: Subscriptio
               className="w-5 h-5 text-primary-500 rounded-lg focus:ring-primary-500 border-2 border-gray-300"
             />
             <div>
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Active subscription</span>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Uncheck if paused or cancelled</p>
+              <span className="text-sm font-medium text-gray-700">Active subscription</span>
+              <p className="text-xs text-gray-500">Uncheck if paused or cancelled</p>
             </div>
           </label>
 
