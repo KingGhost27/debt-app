@@ -6,7 +6,7 @@
  * Features cute animations, soft gradients, and delightful interactions.
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { Plus, Search, Pencil, Trash2, ChevronDown, ArrowUpDown, Calendar, HelpCircle, RefreshCw, Check, X, Sparkles, TrendingDown, Flame } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { useApp } from '../context/AppContext';
@@ -58,6 +58,8 @@ export function DebtsPage() {
   const [showAPRTooltip, setShowAPRTooltip] = useState(false);
   const [recalibratingDebtId, setRecalibratingDebtId] = useState<string | null>(null);
   const [newBalanceInput, setNewBalanceInput] = useState('');
+  const [insightsExpanded, setInsightsExpanded] = useState(false);
+  const insightsRef = useRef<HTMLDivElement>(null);
 
   // Helper to get category info (supports custom categories)
   const getCategoryInfo = (categoryId: string) => {
@@ -319,8 +321,41 @@ export function DebtsPage() {
           </div>
         )}
 
-        {/* Balance Chart & Monthly Interest */}
+        {/* Insights Section - Collapsible */}
         {debts.length > 0 && (
+          <div>
+            <button
+              onClick={() => setInsightsExpanded(!insightsExpanded)}
+              className="w-full flex items-center justify-between py-3 group"
+            >
+              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <Sparkles size={18} className="text-primary-400" />
+                Insights
+                <span className="text-sm font-normal text-gray-500">
+                  ({debts.length} debts)
+                </span>
+              </h2>
+              <ChevronDown
+                size={20}
+                className={`text-gray-400 group-hover:text-gray-600 transition-transform duration-300 ${
+                  insightsExpanded ? 'rotate-180' : ''
+                }`}
+              />
+            </button>
+
+            <div
+              ref={insightsRef}
+              className="overflow-hidden transition-all duration-300 ease-in-out"
+              style={{
+                maxHeight: insightsExpanded
+                  ? `${insightsRef.current?.scrollHeight || 2000}px`
+                  : '0px',
+                opacity: insightsExpanded ? 1 : 0,
+              }}
+            >
+              <div className="space-y-6 pb-2">
+
+        {/* Balance Chart & Monthly Interest */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Balance Chart Card */}
             <div className="card bg-white rounded-3xl shadow-sm hover:shadow-md transition-shadow">
@@ -460,10 +495,8 @@ export function DebtsPage() {
               </div>
             </div>
           </div>
-        )}
 
         {/* APR Comparison Chart */}
-        {debts.length > 0 && (
           <div className="card bg-white rounded-3xl shadow-sm">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
@@ -549,7 +582,6 @@ export function DebtsPage() {
               </div>
             </div>
           </div>
-        )}
 
         {/* Payoff Timeline */}
         {payoffMilestones.length > 0 && (
@@ -606,6 +638,11 @@ export function DebtsPage() {
                       )}
                   </span>
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
               </div>
             </div>
           </div>
