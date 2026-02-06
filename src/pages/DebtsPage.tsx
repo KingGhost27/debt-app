@@ -462,7 +462,7 @@ export function DebtsPage() {
             </div>
 
             {/* Monthly Interest Cost Card */}
-            <div className="card bg-gradient-to-br from-red-50 to-orange-50 rounded-3xl border border-red-100/50 flex flex-col justify-center relative overflow-hidden">
+            <div className="card bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-900/30 dark:to-orange-900/20 rounded-3xl border border-red-100/50 dark:border-red-800/30 flex flex-col justify-center relative overflow-hidden">
               {/* Decorative flame */}
               <div className="absolute top-4 right-4 text-red-200">
                 <Flame size={48} className="opacity-50" />
@@ -594,7 +594,7 @@ export function DebtsPage() {
             </div>
             <div className="relative">
               {/* Timeline line */}
-              <div className="absolute top-4 left-0 right-0 h-1 bg-gradient-to-r from-primary-200 via-primary-300 to-green-300 rounded-full" />
+              <div className="absolute top-4 left-0 right-0 h-1 bg-gradient-to-r from-primary-200 via-primary-300 to-green-300 dark:from-primary-700 dark:via-primary-600 dark:to-green-700 rounded-full" />
 
               {/* Timeline markers */}
               <div className="relative flex justify-between">

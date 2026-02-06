@@ -305,7 +305,7 @@ export function HomePage() {
         {/* Paycheck Summary Card */}
         {paycheckSummary && (
           <Link to="/track" className="block">
-            <div className="card bg-gradient-to-br from-primary-50 to-primary-100/50 border border-primary-100 rounded-3xl relative overflow-hidden hover:shadow-md transition-all">
+            <div className="card bg-gradient-to-br from-primary-50 to-primary-100/50 dark:from-primary-900/30 dark:to-primary-800/20 border border-primary-100 rounded-3xl relative overflow-hidden hover:shadow-md transition-all">
               {/* Decorative elements */}
               <div className="absolute top-0 right-0 w-24 h-24 bg-primary-200/30 rounded-full -translate-y-1/2 translate-x-1/2" />
               <Sparkles size={12} className="absolute top-3 right-12 text-primary-300 animate-kawaii-pulse" />
