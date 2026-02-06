@@ -169,31 +169,6 @@ export function HomePage() {
           <p className="text-gray-600 text-sm">{encouragement}</p>
         </div>
 
-        {/* Debt-Free Countdown Card */}
-        {debtFreeDate && (
-          <div className="relative bg-gradient-to-r from-primary-600 to-primary-500 rounded-3xl p-5 text-white overflow-hidden shadow-lg shadow-primary-400/30">
-            {/* Background decoration */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/4" />
-            <div className="absolute bottom-0 left-0 w-20 h-20 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/4" />
-
-            <div className="relative z-10">
-              <div className="flex items-center gap-2 mb-2">
-                <Calendar size={16} className="text-primary-200" />
-                <p className="text-primary-200 text-xs font-semibold tracking-wider uppercase">Debt-Free Countdown</p>
-              </div>
-              <p className="text-2xl font-bold tracking-tight">
-                {format(debtFreeDate, 'MMMM yyyy')}
-              </p>
-              {timeUntilDebtFree && (
-                <p className="text-primary-200 text-sm mt-1 flex items-center gap-1">
-                  <Sparkles size={12} className="animate-kawaii-pulse" />
-                  {timeUntilDebtFree} to go!
-                </p>
-              )}
-            </div>
-          </div>
-        )}
-
         {/* Wave decoration */}
         <div className="absolute bottom-0 left-0 right-0 h-4 overflow-hidden">
           <svg viewBox="0 0 1200 30" className="w-full h-full" preserveAspectRatio="none">
@@ -204,102 +179,7 @@ export function HomePage() {
 
       {/* Main Content */}
       <div className="px-4 py-6 space-y-5">
-        {/* Paycheck Summary Card */}
-        {paycheckSummary && (
-          <Link to="/track" className="block">
-            <div className="card bg-gradient-to-br from-primary-50 to-primary-100/50 border border-primary-100 rounded-3xl relative overflow-hidden hover:shadow-md transition-all">
-              {/* Decorative elements */}
-              <div className="absolute top-0 right-0 w-24 h-24 bg-primary-200/30 rounded-full -translate-y-1/2 translate-x-1/2" />
-              <Sparkles size={12} className="absolute top-3 right-12 text-primary-300 animate-kawaii-pulse" />
-
-              <div className="relative z-10">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-500 flex items-center justify-center shadow-lg shadow-primary-300/30">
-                      <Receipt size={20} className="text-white" />
-                    </div>
-                    <div>
-                      <p className="text-xs text-primary-600 font-semibold uppercase tracking-wide">Latest Paycheck</p>
-                      <p className="text-sm font-bold text-gray-900">{paycheckSummary.sourceName}</p>
-                    </div>
-                  </div>
-                  <ChevronRight size={20} className="text-primary-400" />
-                </div>
-
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="text-center p-2 bg-white/60 rounded-xl">
-                    <p className="text-lg font-bold text-primary-600">
-                      {formatCurrency(paycheckSummary.paycheck.actualAmount)}
-                    </p>
-                    <p className="text-[10px] text-gray-500 font-medium">Received</p>
-                  </div>
-                  <div className="text-center p-2 bg-white/60 rounded-xl">
-                    <p className="text-lg font-bold text-red-500">
-                      {formatCurrency(paycheckSummary.totalBills + paycheckSummary.totalSubscriptions)}
-                    </p>
-                    <p className="text-[10px] text-gray-500 font-medium">
-                      Bills ({paycheckSummary.unpaidBillCount}) + Subs
-                    </p>
-                  </div>
-                  <div className="text-center p-2 bg-white/60 rounded-xl">
-                    <p className={`text-lg font-bold ${paycheckSummary.remaining >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {formatCurrency(paycheckSummary.remaining)}
-                    </p>
-                    <p className="text-[10px] text-gray-500 font-medium">Remaining</p>
-                  </div>
-                </div>
-
-                <div className="mt-3 flex items-center justify-between text-xs">
-                  <span className="text-gray-500">
-                    Pay period: {format(new Date(paycheckSummary.paycheck.payPeriodStart + 'T12:00:00'), 'MMM d')} – {format(new Date(paycheckSummary.paycheck.payPeriodEnd + 'T12:00:00'), 'MMM d')}
-                  </span>
-                  <span className="text-primary-600 font-semibold flex items-center gap-1">
-                    View details
-                    <ChevronRight size={14} />
-                  </span>
-                </div>
-              </div>
-            </div>
-          </Link>
-        )}
-
-        {/* Up Next - First Debt to Pay Off */}
-        {payoffMilestones.length > 0 && (() => {
-          const nextDebt = debts.find(d => d.id === payoffMilestones[0].debtId);
-          return (
-            <div className="relative bg-gradient-to-r from-primary-600 via-primary-400 to-primary-200 rounded-3xl p-5 text-white overflow-hidden shadow-lg shadow-primary-400/30">
-              {/* Background decoration */}
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/4" />
-              <div className="absolute bottom-0 left-0 w-20 h-20 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/4" />
-
-              <div className="relative z-10 flex items-center gap-4">
-                <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                  <Target size={26} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Sparkles size={12} className="text-primary-200" />
-                    <p className="text-xs font-semibold text-primary-200 uppercase tracking-wide">Up Next</p>
-                  </div>
-                  <p className="font-bold text-white truncate">
-                    {payoffMilestones[0].debtName}
-                  </p>
-                  <p className="text-sm text-primary-200">
-                    Paid off by {format(parseISO(payoffMilestones[0].payoffDate), 'MMMM yyyy')}
-                  </p>
-                </div>
-                {nextDebt && (
-                  <div className="text-right flex-shrink-0">
-                    <p className="text-xs text-primary-200 mb-1">Balance</p>
-                    <p className="text-lg font-bold text-white">{formatCurrency(nextDebt.balance)}</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          );
-        })()}
-
-        {/* Progress Overview Card */}
+        {/* Progress Overview Card (Hero) */}
         <div className="card">
           <div className="flex items-center gap-3 mb-5">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center">
@@ -397,11 +277,128 @@ export function HomePage() {
           })()}
         </div>
 
+        {/* Debt-Free Countdown Card */}
+        {debtFreeDate && (
+          <div className="relative bg-gradient-to-r from-primary-600 to-primary-500 rounded-3xl p-5 text-white overflow-hidden shadow-lg shadow-primary-400/30">
+            {/* Background decoration */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/4" />
+            <div className="absolute bottom-0 left-0 w-20 h-20 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/4" />
+
+            <div className="relative z-10">
+              <div className="flex items-center gap-2 mb-2">
+                <Calendar size={16} className="text-primary-200" />
+                <p className="text-primary-200 text-xs font-semibold tracking-wider uppercase">Debt-Free Countdown</p>
+              </div>
+              <p className="text-2xl font-bold tracking-tight">
+                {format(debtFreeDate, 'MMMM yyyy')}
+              </p>
+              {timeUntilDebtFree && (
+                <p className="text-primary-200 text-sm mt-1 flex items-center gap-1">
+                  <Sparkles size={12} className="animate-kawaii-pulse" />
+                  {timeUntilDebtFree} to go!
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Paycheck Summary Card */}
+        {paycheckSummary && (
+          <Link to="/track" className="block">
+            <div className="card bg-gradient-to-br from-primary-50 to-primary-100/50 border border-primary-100 rounded-3xl relative overflow-hidden hover:shadow-md transition-all">
+              {/* Decorative elements */}
+              <div className="absolute top-0 right-0 w-24 h-24 bg-primary-200/30 rounded-full -translate-y-1/2 translate-x-1/2" />
+              <Sparkles size={12} className="absolute top-3 right-12 text-primary-300 animate-kawaii-pulse" />
+
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-500 flex items-center justify-center shadow-lg shadow-primary-300/30">
+                      <Receipt size={20} className="text-white" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-primary-600 font-semibold uppercase tracking-wide">Latest Paycheck</p>
+                      <p className="text-sm font-bold text-gray-900">{paycheckSummary.sourceName}</p>
+                    </div>
+                  </div>
+                  <ChevronRight size={20} className="text-primary-400" />
+                </div>
+
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="text-center p-2 bg-white/60 rounded-xl">
+                    <p className="text-lg font-bold text-primary-600">
+                      {formatCurrency(paycheckSummary.paycheck.actualAmount)}
+                    </p>
+                    <p className="text-[10px] text-gray-500 font-medium">Received</p>
+                  </div>
+                  <div className="text-center p-2 bg-white/60 rounded-xl">
+                    <p className="text-lg font-bold text-red-500">
+                      {formatCurrency(paycheckSummary.totalBills + paycheckSummary.totalSubscriptions)}
+                    </p>
+                    <p className="text-[10px] text-gray-500 font-medium">
+                      Bills ({paycheckSummary.unpaidBillCount}) + Subs
+                    </p>
+                  </div>
+                  <div className="text-center p-2 bg-white/60 rounded-xl">
+                    <p className={`text-lg font-bold ${paycheckSummary.remaining >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {formatCurrency(paycheckSummary.remaining)}
+                    </p>
+                    <p className="text-[10px] text-gray-500 font-medium">Remaining</p>
+                  </div>
+                </div>
+
+                <div className="mt-3 flex items-center justify-between text-xs">
+                  <span className="text-gray-500">
+                    Pay period: {format(new Date(paycheckSummary.paycheck.payPeriodStart + 'T12:00:00'), 'MMM d')} – {format(new Date(paycheckSummary.paycheck.payPeriodEnd + 'T12:00:00'), 'MMM d')}
+                  </span>
+                  <span className="text-primary-600 font-semibold flex items-center gap-1">
+                    View details
+                    <ChevronRight size={14} />
+                  </span>
+                </div>
+              </div>
+            </div>
+          </Link>
+        )}
+
+        {/* Up Next - First Debt to Pay Off */}
+        {payoffMilestones.length > 0 && (() => {
+          const nextDebt = debts.find(d => d.id === payoffMilestones[0].debtId);
+          return (
+            <div className="relative bg-gradient-to-r from-primary-600 via-primary-400 to-primary-200 rounded-3xl p-5 text-white overflow-hidden shadow-lg shadow-primary-400/30">
+              {/* Background decoration */}
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/4" />
+              <div className="absolute bottom-0 left-0 w-20 h-20 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/4" />
+
+              <div className="relative z-10 flex items-center gap-4">
+                <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                  <Target size={26} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Sparkles size={12} className="text-primary-200" />
+                    <p className="text-xs font-semibold text-primary-200 uppercase tracking-wide">Up Next</p>
+                  </div>
+                  <p className="font-bold text-white truncate">
+                    {payoffMilestones[0].debtName}
+                  </p>
+                  <p className="text-sm text-primary-200">
+                    Paid off by {format(parseISO(payoffMilestones[0].payoffDate), 'MMMM yyyy')}
+                  </p>
+                </div>
+                {nextDebt && (
+                  <div className="text-right flex-shrink-0">
+                    <p className="text-xs text-primary-200 mb-1">Balance</p>
+                    <p className="text-lg font-bold text-white">{formatCurrency(nextDebt.balance)}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })()}
+
         {/* Upcoming Bills */}
         <UpcomingBills debts={debts} customCategories={customCategories} payments={payments} incomeSources={budget.incomeSources} subscriptions={subscriptions} />
-
-        {/* Mini Calendar */}
-        <MiniCalendar debts={debts} incomeSources={budget.incomeSources} customCategories={customCategories} />
 
         {/* Debt Over Time Chart */}
         {plan.monthlyBreakdown && plan.monthlyBreakdown.length > 0 && (
@@ -415,6 +412,9 @@ export function HomePage() {
             <DebtOverTimeChart plan={plan} startingBalance={summary.totalBalance} />
           </div>
         )}
+
+        {/* Mini Calendar */}
+        <MiniCalendar debts={debts} incomeSources={budget.incomeSources} customCategories={customCategories} />
 
         {/* Categories */}
         {categories.length > 0 && (
