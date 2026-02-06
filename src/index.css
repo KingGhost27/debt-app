@@ -1031,6 +1031,46 @@ select.input {
   background-color: #4b5563 !important;
 }
 
+/* Dark mode colored border overrides */
+.dark .border-red-100,
+.dark .border-red-200 {
+  border-color: rgba(127, 29, 29, 0.5) !important;
+}
+
+.dark .border-green-100,
+.dark .border-green-200 {
+  border-color: rgba(20, 83, 45, 0.5) !important;
+}
+
+.dark .border-amber-100,
+.dark .border-amber-200 {
+  border-color: rgba(120, 53, 15, 0.5) !important;
+}
+
+.dark .border-orange-100 {
+  border-color: rgba(124, 45, 18, 0.5) !important;
+}
+
+.dark .border-emerald-100 {
+  border-color: rgba(6, 78, 59, 0.5) !important;
+}
+
+.dark .border-emerald-300 {
+  border-color: rgba(16, 185, 129, 0.5) !important;
+}
+
+.dark .border-blue-100 {
+  border-color: rgba(30, 58, 138, 0.5) !important;
+}
+
+.dark .border-purple-100 {
+  border-color: rgba(88, 28, 135, 0.5) !important;
+}
+
+.dark .border-primary-100 {
+  border-color: color-mix(in srgb, var(--theme-primary-700) 50%, transparent) !important;
+}
+
 /* Dark mode hover states for colored backgrounds */
 .dark .hover\:bg-red-100:hover {
   background-color: rgba(127, 29, 29, 0.4) !important;
@@ -1065,6 +1105,54 @@ select.input {
   color: #fbbf24 !important;
 }
 
+.dark .text-amber-800 {
+  color: #fcd34d !important;
+}
+
+.dark .text-orange-700 {
+  color: #fb923c !important;
+}
+
+.dark .text-yellow-700 {
+  color: #fbbf24 !important;
+}
+
+.dark .text-green-700 {
+  color: #4ade80 !important;
+}
+
+.dark .text-green-800 {
+  color: #86efac !important;
+}
+
+.dark .text-blue-700 {
+  color: #93c5fd !important;
+}
+
+.dark .text-purple-700 {
+  color: #d8b4fe !important;
+}
+
+.dark .text-red-800 {
+  color: #fca5a5 !important;
+}
+
+.dark .text-primary-700 {
+  color: var(--theme-primary-200) !important;
+}
+
+.dark .text-primary-800 {
+  color: var(--theme-primary-100) !important;
+}
+
+.dark .text-primary-900 {
+  color: var(--theme-primary-100) !important;
+}
+
+.dark .text-primary-600 {
+  color: var(--theme-primary-300) !important;
+}
+
 /* Dark mode for primary backgrounds */
 .dark .bg-primary-100 {
   background-color: color-mix(in srgb, var(--theme-primary-700) 40%, #1f2937) !important;
@@ -1077,6 +1165,50 @@ select.input {
 /* Dark mode indicator dots */
 .dark .bg-red-100 {
   background-color: rgba(127, 29, 29, 0.4) !important;
+}
+
+.dark .bg-blue-100 {
+  background-color: rgba(30, 58, 138, 0.4) !important;
+}
+
+.dark .bg-purple-100 {
+  background-color: rgba(88, 28, 135, 0.4) !important;
+}
+
+.dark .bg-orange-50 {
+  background-color: rgba(124, 45, 18, 0.3) !important;
+}
+
+.dark .bg-orange-100 {
+  background-color: rgba(124, 45, 18, 0.4) !important;
+}
+
+.dark .bg-amber-100 {
+  background-color: rgba(120, 53, 15, 0.4) !important;
+}
+
+.dark .bg-emerald-50 {
+  background-color: rgba(6, 78, 59, 0.3) !important;
+}
+
+.dark .bg-emerald-100 {
+  background-color: rgba(6, 78, 59, 0.4) !important;
+}
+
+.dark .bg-teal-50 {
+  background-color: rgba(19, 78, 74, 0.3) !important;
+}
+
+.dark .bg-yellow-100 {
+  background-color: rgba(113, 63, 18, 0.4) !important;
+}
+
+.dark .bg-slate-50 {
+  background-color: #1e293b !important;
+}
+
+.dark .bg-pink-50 {
+  background-color: rgba(131, 24, 67, 0.3) !important;
 }
 
 /* Dark mode dividers */
@@ -1097,6 +1229,55 @@ select.input {
 .dark nav.fixed.bottom-0 {
   background-color: #1f2937 !important;
   border-color: #374151 !important;
+}
+
+/* Dark mode semi-transparent white backgrounds */
+.dark .bg-white\/60 {
+  background-color: rgba(31, 41, 55, 0.6) !important;
+}
+
+.dark .bg-white\/80 {
+  background-color: rgba(31, 41, 55, 0.8) !important;
+}
+
+.dark .bg-white\/90 {
+  background-color: rgba(31, 41, 55, 0.9) !important;
+}
+
+/* Dark mode wave SVG color */
+.dark .text-gray-50 {
+  color: #111827 !important;
+}
+
+/* Dark mode hover for BottomNav */
+.dark .hover\:bg-primary-50\/50:hover {
+  background-color: color-mix(in srgb, var(--theme-primary-800) 30%, transparent) !important;
+}
+
+.dark .hover\:bg-primary-100\/80:hover {
+  background-color: color-mix(in srgb, var(--theme-primary-700) 50%, transparent) !important;
+}
+
+/* Dark mode colored hover states */
+.dark .hover\:bg-red-50:hover {
+  background-color: rgba(127, 29, 29, 0.3) !important;
+}
+
+.dark .hover\:bg-primary-50\/80:hover {
+  background-color: color-mix(in srgb, var(--theme-primary-800) 40%, transparent) !important;
+}
+
+/* Dark mode primary-50 alpha variants */
+.dark .bg-primary-50\/80 {
+  background-color: color-mix(in srgb, var(--theme-primary-900) 30%, #1f2937) !important;
+}
+
+.dark .bg-primary-50\/50 {
+  background-color: color-mix(in srgb, var(--theme-primary-900) 20%, #1f2937) !important;
+}
+
+.dark .bg-primary-100\/50 {
+  background-color: color-mix(in srgb, var(--theme-primary-700) 30%, #1f2937) !important;
 }
 
 /* Dark mode stat boxes */
