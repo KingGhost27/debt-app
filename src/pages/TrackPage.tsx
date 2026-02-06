@@ -283,7 +283,7 @@ export function TrackPage() {
         </div>
 
         {/* Payment Streak Card */}
-        <div className="card bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-100 rounded-3xl relative overflow-hidden">
+        <div className="card bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/30 dark:to-amber-900/20 border border-orange-100 rounded-3xl relative overflow-hidden">
           {/* Decorative element */}
           <Sparkles size={14} className="absolute top-4 right-4 text-orange-300 animate-kawaii-pulse" />
 
@@ -334,25 +334,25 @@ export function TrackPage() {
           {paymentStreak.months >= 1 && (
             <div className="flex gap-2 mt-4 flex-wrap">
               {paymentStreak.months >= 1 && (
-                <span className="px-3 py-1.5 bg-gradient-to-r from-orange-100 to-amber-100 text-orange-700 text-xs font-semibold rounded-xl flex items-center gap-1">
+                <span className="px-3 py-1.5 bg-gradient-to-r from-orange-100 to-amber-100 dark:from-orange-900/40 dark:to-amber-900/30 text-orange-700 text-xs font-semibold rounded-xl flex items-center gap-1">
                   <Trophy size={12} />
                   1 Month
                 </span>
               )}
               {paymentStreak.months >= 3 && (
-                <span className="px-3 py-1.5 bg-gradient-to-r from-orange-100 to-amber-100 text-orange-700 text-xs font-semibold rounded-xl flex items-center gap-1">
+                <span className="px-3 py-1.5 bg-gradient-to-r from-orange-100 to-amber-100 dark:from-orange-900/40 dark:to-amber-900/30 text-orange-700 text-xs font-semibold rounded-xl flex items-center gap-1">
                   <Trophy size={12} />
                   3 Months
                 </span>
               )}
               {paymentStreak.months >= 6 && (
-                <span className="px-3 py-1.5 bg-gradient-to-r from-orange-100 to-amber-100 text-orange-700 text-xs font-semibold rounded-xl flex items-center gap-1">
+                <span className="px-3 py-1.5 bg-gradient-to-r from-orange-100 to-amber-100 dark:from-orange-900/40 dark:to-amber-900/30 text-orange-700 text-xs font-semibold rounded-xl flex items-center gap-1">
                   <Trophy size={12} />
                   6 Months
                 </span>
               )}
               {paymentStreak.months >= 12 && (
-                <span className="px-3 py-1.5 bg-gradient-to-r from-yellow-100 to-orange-100 text-yellow-700 text-xs font-bold rounded-xl flex items-center gap-1 animate-kawaii-pulse">
+                <span className="px-3 py-1.5 bg-gradient-to-r from-yellow-100 to-orange-100 dark:from-yellow-900/40 dark:to-orange-900/30 text-yellow-700 text-xs font-bold rounded-xl flex items-center gap-1 animate-kawaii-pulse">
                   <Sparkles size={12} />
                   1 Year!
                 </span>
@@ -416,7 +416,7 @@ export function TrackPage() {
                           key={`${monthKey}-${payment.debtId}`}
                           className={`card rounded-2xl flex items-center gap-4 transition-all ${
                             alreadyPaid
-                              ? 'bg-gradient-to-r from-green-50 to-emerald-50 border border-green-100'
+                              ? 'bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/20 border border-green-100'
                               : 'bg-white hover:shadow-md'
                           }`}
                         >
@@ -689,7 +689,7 @@ export function TrackPage() {
                           onClick={() => setSelectedPaycheck(isExpanded ? undefined : paycheck)}
                           className={`card rounded-2xl flex items-center gap-4 transition-all cursor-pointer ${
                             isExpanded
-                              ? 'bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-300'
+                              ? 'bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/30 dark:to-teal-900/20 border-2 border-emerald-300'
                               : 'bg-white hover:shadow-md'
                           }`}
                         >

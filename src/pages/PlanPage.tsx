@@ -87,7 +87,7 @@ export function PlanPage() {
         <div className="px-4 py-12 text-center">
           <div className="relative w-24 h-24 mx-auto mb-6">
             <div className="absolute inset-0 bg-gradient-to-br from-primary-400 to-primary-600 rounded-3xl rotate-6 opacity-20" />
-            <div className="relative w-full h-full bg-gradient-to-br from-primary-100 to-primary-200 rounded-3xl flex items-center justify-center shadow-lg">
+            <div className="relative w-full h-full bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-800 dark:to-primary-700 rounded-3xl flex items-center justify-center shadow-lg">
               <Trophy size={40} className="text-primary-500" />
             </div>
             <Sparkles size={16} className="absolute -top-2 -right-2 text-primary-400 animate-kawaii-pulse" />
@@ -115,7 +115,7 @@ export function PlanPage() {
         <PageHeader title="Payoff Plan" subtitle="Your debt-free roadmap" emoji="📋" />
         <div className="px-4 py-6">
           {/* Setup prompt */}
-          <div className="card bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-100 text-center py-8 mb-6 rounded-3xl relative overflow-hidden">
+          <div className="card bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/30 dark:to-orange-900/20 border border-amber-100 text-center py-8 mb-6 rounded-3xl relative overflow-hidden">
             {/* Decorative elements */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-amber-200/30 rounded-full -translate-y-1/2 translate-x-1/2" />
             <Sparkles size={14} className="absolute top-4 left-8 text-amber-300 animate-kawaii-pulse" />
@@ -203,7 +203,7 @@ export function PlanPage() {
 
             {/* Debt-free celebration */}
             {debtFreeDate && (
-              <div className="card bg-gradient-to-br from-green-50 to-primary-50 border border-green-200 rounded-3xl relative overflow-hidden">
+              <div className="card bg-gradient-to-br from-green-50 to-primary-50 dark:from-green-900/30 dark:to-primary-900/20 border border-green-200 rounded-3xl relative overflow-hidden">
                 {/* Decorative sparkles */}
                 <Sparkles size={14} className="absolute top-4 right-6 text-green-300 animate-kawaii-pulse" />
                 <Sparkles size={10} className="absolute bottom-6 left-8 text-primary-300 animate-kawaii-pulse" style={{ animationDelay: '0.3s' }} />

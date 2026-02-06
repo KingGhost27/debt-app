@@ -169,7 +169,7 @@ export function PayoffSteps({ plan, sortedDebts }: PayoffStepsProps) {
                 {step.milestonesInStep.map((milestone) => (
                   <div
                     key={milestone.debtId}
-                    className="flex items-center gap-3 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl mb-3 border border-green-100"
+                    className="flex items-center gap-3 p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/20 rounded-2xl mb-3 border border-green-100"
                   >
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-md shadow-green-300/30">
                       <PartyPopper size={20} className="text-white" />
