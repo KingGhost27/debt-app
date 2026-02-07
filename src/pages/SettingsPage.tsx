@@ -179,7 +179,7 @@ export function SettingsPage() {
             {/* Export */}
             <button
               onClick={exportAppData}
-              className="w-full flex items-center gap-4 p-4 bg-gradient-to-r from-primary-50 to-white rounded-2xl border border-primary-100/50 hover:shadow-md hover:-translate-y-0.5 transition-all text-left group"
+              className="w-full flex items-center gap-4 p-4 bg-gradient-to-r from-primary-50 to-white dark:from-primary-900/30 dark:to-gray-800 rounded-2xl border border-primary-100/50 dark:border-primary-700/50 hover:shadow-md hover:-translate-y-0.5 transition-all text-left group"
             >
               <div className="w-12 h-12 bg-gradient-to-br from-primary-400 to-primary-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary-300/30 group-hover:scale-105 transition-transform">
                 <Download size={22} className="text-white" />
@@ -194,7 +194,7 @@ export function SettingsPage() {
             {/* Import */}
             <button
               onClick={handleImportClick}
-              className="w-full flex items-center gap-4 p-4 bg-gradient-to-r from-green-50 to-white rounded-2xl border border-green-100/50 hover:shadow-md hover:-translate-y-0.5 transition-all text-left group"
+              className="w-full flex items-center gap-4 p-4 bg-gradient-to-r from-green-50 to-white dark:from-green-900/30 dark:to-gray-800 rounded-2xl border border-green-100/50 dark:border-green-800/50 hover:shadow-md hover:-translate-y-0.5 transition-all text-left group"
             >
               <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-300/30 group-hover:scale-105 transition-transform">
                 <Upload size={22} className="text-white" />
@@ -216,7 +216,7 @@ export function SettingsPage() {
             {/* Clear Data */}
             <button
               onClick={clearAllData}
-              className="w-full flex items-center gap-4 p-4 bg-gradient-to-r from-red-50 to-white rounded-2xl border border-red-100/50 hover:shadow-md hover:-translate-y-0.5 transition-all text-left group"
+              className="w-full flex items-center gap-4 p-4 bg-gradient-to-r from-red-50 to-white dark:from-red-900/30 dark:to-gray-800 rounded-2xl border border-red-100/50 dark:border-red-800/50 hover:shadow-md hover:-translate-y-0.5 transition-all text-left group"
             >
               <div className="w-12 h-12 bg-gradient-to-br from-red-400 to-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-300/30 group-hover:scale-105 transition-transform">
                 <Trash2 size={22} className="text-white" />
