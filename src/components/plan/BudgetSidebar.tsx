@@ -200,11 +200,11 @@ export function BudgetSidebar({
       </div>
 
       {/* Debt Payment Calculator */}
-      <div className="card bg-gradient-to-br from-primary-50 to-white">
+      <div className="card bg-gradient-to-br from-primary-50 to-white dark:from-primary-900/30 dark:to-gray-800">
         <h3 className="font-semibold text-gray-900  mb-3">Debt Payment</h3>
 
         {/* Step 1: What's available */}
-        <div className="p-3 bg-white/80 rounded-xl border border-gray-200 mb-4">
+        <div className="p-3 bg-white/80 dark:bg-gray-800/80 rounded-xl border border-gray-200 dark:border-gray-700 mb-4">
           <div className="text-xs text-gray-500 uppercase tracking-wide mb-2">What you have</div>
           <div className="space-y-1 text-sm">
             <div className="flex justify-between">
@@ -225,7 +225,7 @@ export function BudgetSidebar({
         </div>
 
         {/* Step 2: Required minimums (not editable) */}
-        <div className="flex justify-between items-center py-2 px-3 bg-gray-100/60 rounded-lg mb-3">
+        <div className="flex justify-between items-center py-2 px-3 bg-gray-100/60 dark:bg-gray-700/60 rounded-lg mb-3">
           <div>
             <span className="text-sm text-gray-700">Minimum payments</span>
             <p className="text-xs text-gray-500">Required each month</p>
@@ -259,7 +259,7 @@ export function BudgetSidebar({
         </div>
 
         {/* Step 4: Total result */}
-        <div className="flex justify-between items-center p-3 bg-primary-100 rounded-xl">
+        <div className="flex justify-between items-center p-3 bg-primary-100 dark:bg-primary-900/40 rounded-xl">
           <span className="font-medium text-primary-800">Total monthly payment</span>
           <span className="text-xl font-bold text-primary-700">
             {formatCurrency(budget.debtAllocationAmount || totalMinimums)}
