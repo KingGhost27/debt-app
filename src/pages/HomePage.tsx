@@ -110,7 +110,7 @@ export function HomePage() {
 
   if (debts.length === 0) {
     return (
-      <div className="min-h-screen">
+      <div className="min-h-screen animate-page-enter">
         {/* Header */}
         <header className="page-header bg-gradient-to-b from-primary-200 to-primary-100/50 px-4 pt-12 pb-8 relative overflow-hidden">
           {/* Decorative elements */}
@@ -151,7 +151,7 @@ export function HomePage() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen animate-page-enter">
       {/* Header */}
       <header className="page-header bg-gradient-to-b from-primary-200 to-primary-100/50 px-4 pt-12 pb-8 relative overflow-hidden">
         {/* Decorative elements */}

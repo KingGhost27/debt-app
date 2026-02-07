@@ -285,7 +285,7 @@ export function DebtsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 animate-page-enter">
       <PageHeader
         title="Debts"
         subtitle="Manage all your debts in one place"

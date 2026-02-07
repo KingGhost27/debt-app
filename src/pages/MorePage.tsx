@@ -37,7 +37,7 @@ const moreItems = [
 
 export function MorePage() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 animate-page-enter">
       <PageHeader title="More" subtitle="Additional features" emoji="✨" />
 
       <div className="px-4 py-6 space-y-4">

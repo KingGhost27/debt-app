@@ -144,7 +144,7 @@ export function SubscriptionsPage() {
   // Empty state
   if (subscriptions.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 animate-page-enter">
         <PageHeader
           title="Subscriptions"
           subtitle="Track recurring services"
@@ -172,7 +172,7 @@ export function SubscriptionsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 animate-page-enter">
       <PageHeader
         title="Subscriptions"
         subtitle="Track recurring services"

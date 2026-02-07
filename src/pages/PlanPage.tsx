@@ -82,7 +82,7 @@ export function PlanPage() {
   // No debts empty state
   if (debts.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 animate-page-enter">
         <PageHeader title="Payoff Plan" subtitle="Your debt-free roadmap" emoji="📋" />
         <div className="px-4 py-12 text-center">
           <div className="relative w-24 h-24 mx-auto mb-6">
@@ -111,7 +111,7 @@ export function PlanPage() {
   // No funding set - show setup prompt
   if (strategy.recurringFunding.amount === 0) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 animate-page-enter">
         <PageHeader title="Payoff Plan" subtitle="Your debt-free roadmap" emoji="📋" />
         <div className="px-4 py-6">
           {/* Setup prompt */}
@@ -147,7 +147,7 @@ export function PlanPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 animate-page-enter">
       <PageHeader title="Payoff Plan" subtitle="Your debt-free roadmap" emoji="📋" />
 
       <div className="px-4 py-6">

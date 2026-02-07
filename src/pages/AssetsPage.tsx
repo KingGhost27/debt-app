@@ -97,7 +97,7 @@ export function AssetsPage() {
   // Empty state
   if (assets.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 animate-page-enter">
         <PageHeader
           title="Assets"
           subtitle="Track your savings & investments"
@@ -125,7 +125,7 @@ export function AssetsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 animate-page-enter">
       <PageHeader
         title="Assets"
         subtitle="Track your savings & investments"
