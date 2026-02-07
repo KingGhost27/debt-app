@@ -136,7 +136,7 @@ export function AssetsPage() {
 
       <div className="px-4 py-6 space-y-6">
         {/* Net Worth Card */}
-        <div className="card bg-gradient-to-br from-primary-50 to-white rounded-3xl border border-primary-100 relative overflow-hidden">
+        <div className="card bg-gradient-to-br from-primary-50 to-white dark:from-primary-900/30 dark:to-gray-800 rounded-3xl border border-primary-100 dark:border-primary-700/50 relative overflow-hidden">
           {/* Decorative elements */}
           <div className="absolute top-0 right-0 w-32 h-32 bg-primary-200/30 rounded-full -translate-y-1/2 translate-x-1/2" />
           <Sparkles size={14} className="absolute top-4 right-6 text-primary-300 animate-kawaii-pulse" />
@@ -202,7 +202,7 @@ export function AssetsPage() {
           </div>
 
           {/* Assets vs Debts bar */}
-          <div className="relative h-4 bg-gray-100 rounded-full overflow-hidden mb-4">
+          <div className="relative h-4 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden mb-4">
             {totalAssets + totalDebt > 0 && (
               <>
                 <div
@@ -222,14 +222,14 @@ export function AssetsPage() {
           </div>
 
           <div className="flex justify-between text-sm">
-            <div className="flex items-center gap-2 px-3 py-2 bg-green-50 rounded-xl">
+            <div className="flex items-center gap-2 px-3 py-2 bg-green-50 dark:bg-green-900/30 rounded-xl">
               <TrendingUp size={16} className="text-green-500" />
               <span className="text-gray-600">Assets:</span>
               <span className="font-bold text-green-600">
                 {formatCurrency(totalAssets)}
               </span>
             </div>
-            <div className="flex items-center gap-2 px-3 py-2 bg-red-50 rounded-xl">
+            <div className="flex items-center gap-2 px-3 py-2 bg-red-50 dark:bg-red-900/30 rounded-xl">
               <TrendingDown size={16} className="text-red-400" />
               <span className="text-gray-600">Debts:</span>
               <span className="font-bold text-red-500">
