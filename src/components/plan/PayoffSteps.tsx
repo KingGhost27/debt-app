@@ -189,7 +189,7 @@ export function PayoffSteps({ plan, sortedDebts }: PayoffStepsProps) {
                 {/* Debt receiving extra payments */}
                 {debtGettingExtra && (
                   <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
-                    <span className="px-3 py-1.5 bg-gradient-to-r from-primary-100 to-primary-50 text-primary-700 rounded-xl text-xs font-semibold">
+                    <span className="px-3 py-1.5 bg-gradient-to-r from-primary-100 to-primary-50 dark:from-primary-900/40 dark:to-primary-800/30 text-primary-700 rounded-xl text-xs font-semibold">
                       Extra Payment
                     </span>
                     <span className="truncate font-medium">→ {debtGettingExtra.name}</span>
