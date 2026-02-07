@@ -338,18 +338,18 @@ export function UpcomingBills({ debts, customCategories = [], payments = [], inc
   const getUrgencyStyles = (daysUntil: number): { bg: string; badge: string | null } => {
     if (daysUntil === 0) {
       return {
-        bg: 'bg-red-50 border-red-200',
+        bg: 'bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-800/50',
         badge: 'TODAY',
       };
     }
     if (daysUntil <= 7) {
       return {
-        bg: 'bg-primary-50 border-primary-200',
+        bg: 'bg-primary-50 dark:bg-primary-900/30 border-primary-200 dark:border-primary-700/50',
         badge: `${daysUntil} day${daysUntil !== 1 ? 's' : ''}`,
       };
     }
     return {
-      bg: 'bg-gray-50 border-gray-100',
+      bg: 'bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700',
       badge: null,
     };
   };
@@ -378,13 +378,13 @@ export function UpcomingBills({ debts, customCategories = [], payments = [], inc
 
         {/* Tabs */}
         {hasIncomeSources && (
-          <div className="flex bg-primary-200/50 rounded-xl p-1">
+          <div className="flex bg-primary-200/50 dark:bg-primary-800/50 rounded-xl p-1">
             <button
               onClick={() => setActiveTab('pay-period')}
               className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
                 activeTab === 'pay-period'
-                  ? 'bg-white text-primary-600 shadow-sm'
-                  : 'text-primary-700/70 hover:text-primary-800'
+                  ? 'bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-300 shadow-sm'
+                  : 'text-primary-700/70 dark:text-primary-300/70 hover:text-primary-800 dark:hover:text-primary-200'
               }`}
             >
               Pay Period
@@ -393,8 +393,8 @@ export function UpcomingBills({ debts, customCategories = [], payments = [], inc
               onClick={() => setActiveTab('all')}
               className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
                 activeTab === 'all'
-                  ? 'bg-white text-primary-600 shadow-sm'
-                  : 'text-primary-700/70 hover:text-primary-800'
+                  ? 'bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-300 shadow-sm'
+                  : 'text-primary-700/70 dark:text-primary-300/70 hover:text-primary-800 dark:hover:text-primary-200'
               }`}
             >
               All
@@ -405,13 +405,13 @@ export function UpcomingBills({ debts, customCategories = [], payments = [], inc
 
       {/* Pay Period Info Bar */}
       {activeTab === 'pay-period' && hasIncomeSources && payPeriod && selectedSource && (
-        <div className="mb-4 p-4 bg-gradient-to-r from-primary-50 to-primary-100/50 rounded-2xl border border-primary-100">
+        <div className="mb-4 p-4 bg-gradient-to-r from-primary-50 to-primary-100/50 dark:from-primary-900/30 dark:to-primary-800/20 rounded-2xl border border-primary-100 dark:border-primary-700/50">
           {/* Date Range Header with Navigation */}
-          <div className="flex items-center justify-between mb-3 pb-3 border-b border-primary-200/50">
+          <div className="flex items-center justify-between mb-3 pb-3 border-b border-primary-200/50 dark:border-primary-700/50">
             {/* Previous button */}
             <button
               onClick={() => setPeriodOffset(periodOffset - 1)}
-              className="p-1.5 rounded-lg hover:bg-primary-200/50 transition-colors"
+              className="p-1.5 rounded-lg hover:bg-primary-200/50 dark:hover:bg-primary-700/50 transition-colors"
               aria-label="Previous pay period"
             >
               <ChevronLeft size={20} className="text-primary-700" />
@@ -433,7 +433,7 @@ export function UpcomingBills({ debts, customCategories = [], payments = [], inc
             {/* Next button */}
             <button
               onClick={() => setPeriodOffset(periodOffset + 1)}
-              className="p-1.5 rounded-lg hover:bg-primary-200/50 transition-colors"
+              className="p-1.5 rounded-lg hover:bg-primary-200/50 dark:hover:bg-primary-700/50 transition-colors"
               aria-label="Next pay period"
             >
               <ChevronRight size={20} className="text-primary-700" />
@@ -463,7 +463,7 @@ export function UpcomingBills({ debts, customCategories = [], payments = [], inc
 
               {/* Dropdown */}
               {showSourcePicker && incomeSources.length > 1 && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg border border-gray-200 z-10 overflow-hidden">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-600 z-10 overflow-hidden">
                   {incomeSources.map((source) => (
                     <button
                       key={source.id}
@@ -522,7 +522,7 @@ export function UpcomingBills({ debts, customCategories = [], payments = [], inc
               className={`
                 flex items-center gap-3 p-3 rounded-xl border transition-all
                 ${isPaid
-                  ? 'bg-green-50 border-green-200'
+                  ? 'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800/50'
                   : urgency.bg
                 }
               `}
