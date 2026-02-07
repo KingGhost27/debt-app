@@ -349,7 +349,7 @@ export function UpcomingBills({ debts, customCategories = [], payments = [], inc
       };
     }
     return {
-      bg: 'bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700',
+      bg: 'bg-gray-50 dark:bg-gray-900/20 border-gray-100 dark:border-gray-700/50',
       badge: null,
     };
   };
