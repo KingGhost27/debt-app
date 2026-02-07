@@ -179,7 +179,7 @@ export function DebtModal({ isOpen, onClose, debt }: DebtModalProps) {
       {/* Modal */}
       <div className="relative bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[90vh] overflow-hidden shadow-2xl animate-slide-up">
         {/* Header */}
-        <div className="sticky top-0 bg-gradient-to-r from-primary-100 to-primary-50 px-5 py-4 border-b border-primary-100/50">
+        <div className="sticky top-0 bg-gradient-to-r from-primary-100 to-primary-50 dark:from-primary-900/40 dark:to-primary-800/30 px-5 py-4 border-b border-primary-100/50 dark:border-primary-700/50">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow-lg shadow-primary-300/30">

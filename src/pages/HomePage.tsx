@@ -325,13 +325,13 @@ export function HomePage() {
                 </div>
 
                 <div className="grid grid-cols-3 gap-3">
-                  <div className="text-center p-2 bg-white/60 rounded-xl">
+                  <div className="text-center p-2 bg-white/60 dark:bg-gray-900/20 rounded-xl">
                     <p className="text-lg font-bold text-primary-600">
                       {formatCurrency(paycheckSummary.paycheck.actualAmount)}
                     </p>
                     <p className="text-[10px] text-gray-500 font-medium">Received</p>
                   </div>
-                  <div className="text-center p-2 bg-white/60 rounded-xl">
+                  <div className="text-center p-2 bg-white/60 dark:bg-gray-900/20 rounded-xl">
                     <p className="text-lg font-bold text-red-500">
                       {formatCurrency(paycheckSummary.totalBills + paycheckSummary.totalSubscriptions)}
                     </p>
@@ -339,7 +339,7 @@ export function HomePage() {
                       Bills ({paycheckSummary.unpaidBillCount}) + Subs
                     </p>
                   </div>
-                  <div className="text-center p-2 bg-white/60 rounded-xl">
+                  <div className="text-center p-2 bg-white/60 dark:bg-gray-900/20 rounded-xl">
                     <p className={`text-lg font-bold ${paycheckSummary.remaining >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                       {formatCurrency(paycheckSummary.remaining)}
                     </p>

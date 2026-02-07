@@ -36,11 +36,11 @@ export function EmptyState({
       {icon && (
         <div className="relative inline-block mb-6">
           {/* Decorative circles */}
-          <div className="absolute -inset-4 bg-gradient-to-br from-primary-100 to-accent-light rounded-full opacity-50 blur-xl" />
-          <div className="absolute -inset-2 bg-primary-50 rounded-full" />
+          <div className="absolute -inset-4 bg-gradient-to-br from-primary-100 to-accent-light dark:from-primary-800/30 dark:to-primary-900/20 rounded-full opacity-50 blur-xl" />
+          <div className="absolute -inset-2 bg-primary-50 dark:bg-primary-900/30 rounded-full" />
 
           {/* Main icon container */}
-          <div className="relative w-24 h-24 bg-gradient-to-br from-primary-100 to-primary-50 rounded-3xl flex items-center justify-center shadow-lg border border-primary-200/50">
+          <div className="relative w-24 h-24 bg-gradient-to-br from-primary-100 to-primary-50 dark:from-primary-900/40 dark:to-primary-800/30 rounded-3xl flex items-center justify-center shadow-lg border border-primary-200/50 dark:border-primary-700/50">
             {isEmoji ? (
               <span className="text-5xl animate-kawaii-float" style={{ animationDuration: '3s' }}>
                 {icon}

@@ -232,10 +232,10 @@ export function PaycheckModal({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="sticky top-0 bg-gradient-to-r from-primary-100 to-primary-50 px-6 py-4 border-b border-primary-200 rounded-t-3xl">
+        <div className="sticky top-0 bg-gradient-to-r from-primary-100 to-primary-50 dark:from-primary-900/40 dark:to-primary-800/30 px-6 py-4 border-b border-primary-200 dark:border-primary-700/50 rounded-t-3xl">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-white/80 flex items-center justify-center shadow-sm">
+              <div className="w-10 h-10 rounded-full bg-white/80 dark:bg-gray-900/30 flex items-center justify-center shadow-sm">
                 <DollarSign className="w-5 h-5 text-primary-600" />
               </div>
               <div>
