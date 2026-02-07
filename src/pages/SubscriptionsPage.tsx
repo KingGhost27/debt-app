@@ -183,7 +183,7 @@ export function SubscriptionsPage() {
 
       <div className="px-4 py-6 space-y-6">
         {/* Summary Card */}
-        <div className="card bg-gradient-to-br from-primary-50 to-white rounded-3xl border border-primary-100 relative overflow-hidden">
+        <div className="card bg-gradient-to-br from-primary-50 to-white dark:from-primary-900/30 dark:to-gray-800 rounded-3xl border border-primary-100 dark:border-primary-700/50 relative overflow-hidden">
           {/* Decorative elements */}
           <div className="absolute top-0 right-0 w-32 h-32 bg-primary-200/30 rounded-full -translate-y-1/2 translate-x-1/2" />
           <Sparkles size={14} className="absolute top-4 right-6 text-primary-300 animate-kawaii-pulse" />
@@ -197,13 +197,13 @@ export function SubscriptionsPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="p-4 bg-white/60 rounded-2xl">
+              <div className="p-4 bg-white/60 dark:bg-gray-800/60 rounded-2xl">
                 <p className="text-xs text-gray-500 mb-1">Monthly</p>
                 <p className="text-2xl font-bold text-primary-600">
                   {formatCurrency(monthlyTotal)}
                 </p>
               </div>
-              <div className="p-4 bg-white/60 rounded-2xl">
+              <div className="p-4 bg-white/60 dark:bg-gray-800/60 rounded-2xl">
                 <p className="text-xs text-gray-500 mb-1">Annual</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {formatCurrency(annualTotal)}
