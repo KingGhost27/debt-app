@@ -12,7 +12,7 @@ import { Trophy, DollarSign, Clock, Sparkles, Calendar, PartyPopper } from 'luci
 import { formatTimeUntil, formatCurrency } from '../lib/calculations';
 import { useApp } from '../context/AppContext';
 import { PageHeader } from '../components/layout/PageHeader';
-import { PlanSummary, PayoffSteps, BudgetSidebar } from '../components/plan';
+import { PlanSummary, PayoffSteps, BudgetSidebar, WhatIfScenario } from '../components/plan';
 import {
   generatePayoffPlan,
   sortDebtsByStrategy,
@@ -200,6 +200,9 @@ export function PlanPage() {
           <div className="lg:col-span-2 space-y-6">
             {/* Step-by-step Plan */}
             <PayoffSteps plan={plan} sortedDebts={sortedDebts} />
+
+            {/* What-If Scenario Tool */}
+            <WhatIfScenario debts={debts} strategy={strategy} />
 
             {/* Debt-free celebration */}
             {debtFreeDate && (
