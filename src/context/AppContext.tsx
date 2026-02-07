@@ -535,13 +535,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const clearAllData = useCallback(() => {
-    if (window.confirm('Are you sure you want to delete all data? This cannot be undone.')) {
-      setData({
-        ...DEFAULT_APP_DATA,
-        strategy: { ...DEFAULT_STRATEGY },
-        budget: { ...DEFAULT_BUDGET },
-      });
-    }
+    setData({
+      ...DEFAULT_APP_DATA,
+      strategy: { ...DEFAULT_STRATEGY },
+      budget: { ...DEFAULT_BUDGET },
+    });
   }, []);
 
   // ==========================================

@@ -23,6 +23,8 @@ import {
 import { useApp } from '../context/AppContext';
 import { PageHeader } from '../components/layout/PageHeader';
 import { AssetModal } from '../components/ui/AssetModal';
+import { ConfirmDialog } from '../components/ui/ConfirmDialog';
+import { useConfirmDialog } from '../hooks/useConfirmDialog';
 import { UpdateBalanceModal } from '../components/ui/UpdateBalanceModal';
 import { EmptyState } from '../components/ui/EmptyState';
 import {
@@ -43,6 +45,7 @@ export function AssetsPage() {
   const [editingAsset, setEditingAsset] = useState<Asset | null>(null);
   const [updatingAsset, setUpdatingAsset] = useState<Asset | null>(null);
   const [showHistory, setShowHistory] = useState<string | null>(null);
+  const { confirm, dialogProps } = useConfirmDialog();
 
   // Calculate totals
   const totalAssets = useMemo(() => calculateTotalAssets(assets), [assets]);
@@ -77,9 +80,13 @@ export function AssetsPage() {
   };
 
   const handleDelete = (asset: Asset) => {
-    if (window.confirm(`Delete "${asset.name}"? This cannot be undone.`)) {
-      deleteAsset(asset.id);
-    }
+    confirm({
+      title: 'Delete Asset',
+      message: `Are you sure you want to delete "${asset.name}"? This action cannot be undone.`,
+      confirmLabel: 'Delete',
+      variant: 'danger',
+      onConfirm: () => deleteAsset(asset.id),
+    });
   };
 
   const handleCloseModal = () => {
@@ -456,6 +463,8 @@ export function AssetsPage() {
         onClose={() => setUpdatingAsset(null)}
         asset={updatingAsset}
       />
+
+      <ConfirmDialog {...dialogProps} />
     </div>
   );
 }

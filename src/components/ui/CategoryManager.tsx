@@ -7,6 +7,8 @@
 
 import { useState } from 'react';
 import { Plus, Pencil, Trash2, X, Check, Tag } from 'lucide-react';
+import { ConfirmDialog } from './ConfirmDialog';
+import { useConfirmDialog } from '../../hooks/useConfirmDialog';
 import { useApp } from '../../context/AppContext';
 import { useToast } from './Toast';
 import { CATEGORY_INFO } from '../../types';
@@ -30,6 +32,7 @@ export function CategoryManager() {
   const [newCategoryColor, setNewCategoryColor] = useState('#8b5cf6');
   const [editName, setEditName] = useState('');
   const [editColor, setEditColor] = useState('');
+  const { confirm, dialogProps } = useConfirmDialog();
 
   const builtInCategories = Object.entries(CATEGORY_INFO) as [DebtCategory, { label: string; color: string }][];
 
@@ -71,9 +74,13 @@ export function CategoryManager() {
       return;
     }
 
-    if (window.confirm(`Delete category "${name}"?`)) {
-      deleteCustomCategory(id);
-    }
+    confirm({
+      title: 'Delete Category',
+      message: `Are you sure you want to delete "${name}"?`,
+      confirmLabel: 'Delete',
+      variant: 'danger',
+      onConfirm: () => deleteCustomCategory(id),
+    });
   };
 
   const handleBuiltInColorChange = (categoryId: DebtCategory, color: string) => {
@@ -257,6 +264,8 @@ export function CategoryManager() {
           )}
         </div>
       </div>
+
+      <ConfirmDialog {...dialogProps} />
     </div>
   );
 }

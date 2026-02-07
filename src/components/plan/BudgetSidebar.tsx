@@ -7,6 +7,8 @@
 
 import { useState } from 'react';
 import { Plus, Pencil, Trash2, DollarSign, Gift, Calendar } from 'lucide-react';
+import { ConfirmDialog } from '../ui/ConfirmDialog';
+import { useConfirmDialog } from '../../hooks/useConfirmDialog';
 import { format, parseISO } from 'date-fns';
 import { useApp } from '../../context/AppContext';
 import { IncomeSourceModal } from '../ui/IncomeSourceModal';
@@ -48,6 +50,7 @@ export function BudgetSidebar({
   const [editingSource, setEditingSource] = useState<IncomeSource | null>(null);
   const [isFundingModalOpen, setIsFundingModalOpen] = useState(false);
   const [editingFunding, setEditingFunding] = useState<OneTimeFunding | null>(null);
+  const { confirm, dialogProps } = useConfirmDialog();
 
   const availableForDebt = Math.max(0, totalMonthlyIncome - budget.monthlyExpenses);
 
@@ -62,9 +65,13 @@ export function BudgetSidebar({
   };
 
   const handleDeleteSource = (source: IncomeSource) => {
-    if (window.confirm(`Delete income source "${source.name}"?`)) {
-      deleteIncomeSource(source.id);
-    }
+    confirm({
+      title: 'Delete Income Source',
+      message: `Are you sure you want to delete "${source.name}"?`,
+      confirmLabel: 'Delete',
+      variant: 'danger',
+      onConfirm: () => deleteIncomeSource(source.id),
+    });
   };
 
   const handleCloseModal = () => {
@@ -78,9 +85,13 @@ export function BudgetSidebar({
   };
 
   const handleDeleteFunding = (funding: OneTimeFunding) => {
-    if (window.confirm(`Delete "${funding.name}"?`)) {
-      deleteOneTimeFunding(funding.id);
-    }
+    confirm({
+      title: 'Delete Funding',
+      message: `Are you sure you want to delete "${funding.name}"?`,
+      confirmLabel: 'Delete',
+      variant: 'danger',
+      onConfirm: () => deleteOneTimeFunding(funding.id),
+    });
   };
 
   const handleCloseFundingModal = () => {
@@ -365,6 +376,8 @@ export function BudgetSidebar({
         onUpdate={updateOneTimeFunding}
         funding={editingFunding}
       />
+
+      <ConfirmDialog {...dialogProps} />
     </div>
   );
 }

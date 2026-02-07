@@ -8,6 +8,8 @@
 
 import { useState, useMemo } from 'react';
 import { Plus, Pencil, Trash2, RefreshCw, Calendar, Sparkles, Pause, Play } from 'lucide-react';
+import { ConfirmDialog } from '../components/ui/ConfirmDialog';
+import { useConfirmDialog } from '../hooks/useConfirmDialog';
 import { format, parseISO, differenceInDays, addDays, addWeeks, addMonths, addYears, isBefore } from 'date-fns';
 import { useApp } from '../context/AppContext';
 import { PageHeader } from '../components/layout/PageHeader';
@@ -75,6 +77,7 @@ export function SubscriptionsPage() {
   const { subscriptions, deleteSubscription, updateSubscription } = useApp();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSubscription, setEditingSubscription] = useState<Subscription | null>(null);
+  const { confirm, dialogProps } = useConfirmDialog();
 
   // Calculate totals (only active subscriptions)
   const activeSubscriptions = useMemo(
@@ -120,9 +123,13 @@ export function SubscriptionsPage() {
   };
 
   const handleDelete = (subscription: Subscription) => {
-    if (window.confirm(`Delete "${subscription.name}"? This cannot be undone.`)) {
-      deleteSubscription(subscription.id);
-    }
+    confirm({
+      title: 'Delete Subscription',
+      message: `Are you sure you want to delete "${subscription.name}"? This action cannot be undone.`,
+      confirmLabel: 'Delete',
+      variant: 'danger',
+      onConfirm: () => deleteSubscription(subscription.id),
+    });
   };
 
   const handleToggleActive = (subscription: Subscription) => {
@@ -348,6 +355,8 @@ export function SubscriptionsPage() {
         onClose={handleCloseModal}
         subscription={editingSubscription}
       />
+
+      <ConfirmDialog {...dialogProps} />
     </div>
   );
 }

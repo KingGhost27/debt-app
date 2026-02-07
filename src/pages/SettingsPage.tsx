@@ -12,6 +12,8 @@ import { useApp } from '../context/AppContext';
 import { useToast } from '../components/ui/Toast';
 import { ThemeSelector } from '../components/ui/ThemeSelector';
 import { CategoryManager } from '../components/ui/CategoryManager';
+import { ConfirmDialog } from '../components/ui/ConfirmDialog';
+import { useConfirmDialog } from '../hooks/useConfirmDialog';
 
 export function SettingsPage() {
   const navigate = useNavigate();
@@ -20,6 +22,7 @@ export function SettingsPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [nameInput, setNameInput] = useState(settings.userName || '');
   const [nameSaved, setNameSaved] = useState(false);
+  const { confirm, dialogProps } = useConfirmDialog();
 
   const handleSaveName = () => {
     updateSettings({ userName: nameInput.trim() });
@@ -215,7 +218,13 @@ export function SettingsPage() {
 
             {/* Clear Data */}
             <button
-              onClick={clearAllData}
+              onClick={() => confirm({
+                title: 'Clear All Data',
+                message: 'Are you sure you want to delete all data? This cannot be undone. You will lose all debts, payments, and settings.',
+                confirmLabel: 'Delete Everything',
+                variant: 'danger',
+                onConfirm: () => clearAllData(),
+              })}
               className="w-full flex items-center gap-4 p-4 bg-gradient-to-r from-red-50 to-white dark:from-red-900/30 dark:to-gray-800 rounded-2xl border border-red-100/50 dark:border-red-800/50 hover:shadow-md hover:-translate-y-0.5 transition-all text-left group"
             >
               <div className="w-12 h-12 bg-gradient-to-br from-red-400 to-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-300/30 group-hover:scale-105 transition-transform">
@@ -240,6 +249,8 @@ export function SettingsPage() {
           </p>
         </div>
       </div>
+
+      <ConfirmDialog {...dialogProps} />
     </div>
   );
 }

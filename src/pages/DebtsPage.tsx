@@ -14,6 +14,8 @@ import { PageHeader } from '../components/layout/PageHeader';
 import { ProgressRing } from '../components/ui/ProgressRing';
 import { DebtModal } from '../components/ui/DebtModal';
 import { EmptyState } from '../components/ui/EmptyState';
+import { ConfirmDialog } from '../components/ui/ConfirmDialog';
+import { useConfirmDialog } from '../hooks/useConfirmDialog';
 import {
   formatCurrency,
   formatCompactCurrency,
@@ -60,6 +62,7 @@ export function DebtsPage() {
   const [newBalanceInput, setNewBalanceInput] = useState('');
   const [insightsExpanded, setInsightsExpanded] = useState(false);
   const insightsRef = useRef<HTMLDivElement>(null);
+  const { confirm, dialogProps } = useConfirmDialog();
 
   // Helper to get category info (supports custom categories)
   const getCategoryInfo = (categoryId: string) => {
@@ -241,9 +244,13 @@ export function DebtsPage() {
   };
 
   const handleDelete = (debt: Debt) => {
-    if (window.confirm(`Are you sure you want to delete "${debt.name}"?`)) {
-      deleteDebt(debt.id);
-    }
+    confirm({
+      title: 'Delete Debt',
+      message: `Are you sure you want to delete "${debt.name}"? This action cannot be undone.`,
+      confirmLabel: 'Delete',
+      variant: 'danger',
+      onConfirm: () => deleteDebt(debt.id),
+    });
   };
 
   const handleCloseModal = () => {
@@ -914,6 +921,8 @@ export function DebtsPage() {
         onClose={handleCloseModal}
         debt={editingDebt}
       />
+
+      <ConfirmDialog {...dialogProps} />
     </div>
   );
 }
