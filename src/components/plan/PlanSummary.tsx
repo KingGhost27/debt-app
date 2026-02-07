@@ -268,8 +268,8 @@ export function PlanSummary({
       <div
         className={`mt-5 p-4 rounded-2xl text-center relative overflow-hidden ${
           strategy === 'avalanche'
-            ? 'bg-gradient-to-r from-primary-100 to-primary-50 border border-primary-200'
-            : 'bg-gradient-to-r from-primary-50 to-primary-100/50 border border-primary-100'
+            ? 'bg-gradient-to-r from-primary-100 to-primary-50 dark:from-primary-900/30 dark:to-primary-800/20 border border-primary-200 dark:border-primary-700/50'
+            : 'bg-gradient-to-r from-primary-50 to-primary-100/50 dark:from-primary-900/30 dark:to-primary-800/20 border border-primary-100 dark:border-primary-700/50'
         }`}
       >
         <Sparkles
