@@ -316,7 +316,7 @@ export function TrackPage() {
                 {paymentStreak.totalPayments}/{paymentStreak.expectedPayments} payments
               </span>
             </div>
-            <div className="h-3 bg-white/60/60 rounded-full overflow-hidden">
+            <div className="h-3 bg-white/60 dark:bg-gray-900/20 rounded-full overflow-hidden">
               <div
                 className="h-full bg-gradient-to-r from-orange-400 to-amber-500 rounded-full transition-all duration-500"
                 style={{
@@ -484,14 +484,14 @@ export function TrackPage() {
                               <div className="flex gap-1">
                                 <button
                                   onClick={() => paidPayment && openPaymentModal(debt, undefined, undefined, paidPayment)}
-                                  className="p-2 bg-white/80/80 text-gray-500 rounded-xl hover:bg-primary-100 hover:text-primary-600 transition-all"
+                                  className="p-2 bg-white/80 dark:bg-gray-900/30 text-gray-500 rounded-xl hover:bg-primary-100 hover:text-primary-600 transition-all"
                                   title="Edit payment"
                                 >
                                   <Pencil size={16} />
                                 </button>
                                 <button
                                   onClick={() => paidPayment && handleDeletePayment(paidPayment.id, paidPayment.debtId, paidPayment.principal)}
-                                  className="p-2 bg-white/80/80 text-gray-500 rounded-xl hover:bg-red-100 hover:text-red-500 transition-all"
+                                  className="p-2 bg-white/80 dark:bg-gray-900/30 text-gray-500 rounded-xl hover:bg-red-100 hover:text-red-500 transition-all"
                                   title="Undo payment"
                                 >
                                   <Undo2 size={18} />
