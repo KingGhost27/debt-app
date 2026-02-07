@@ -26,6 +26,7 @@ interface FormData {
   amount: string;
   date: string;
   type: PaymentType;
+  note: string;
 }
 
 export function PaymentModal({
@@ -48,6 +49,7 @@ export function PaymentModal({
         amount: editingPayment.amount.toString(),
         date: editingPayment.date,
         type: editingPayment.type,
+        note: editingPayment.note || '',
       };
     }
     // New payment mode
@@ -56,6 +58,7 @@ export function PaymentModal({
       amount: preselectedAmount?.toString() || '',
       date: new Date().toISOString().split('T')[0],
       type: preselectedType || 'extra',
+      note: '',
     };
   };
 
@@ -128,6 +131,7 @@ export function PaymentModal({
         interest: Math.max(0, interestPortion),
         date: formData.date,
         type: formData.type,
+        note: formData.note.trim() || undefined,
       });
 
       // Adjust debt balance by the difference
@@ -151,6 +155,7 @@ export function PaymentModal({
         type: formData.type,
         isCompleted: true,
         completedAt: new Date().toISOString(),
+        note: formData.note.trim() || undefined,
       });
 
       // Update debt balance (reduce by principal amount)
@@ -327,6 +332,22 @@ export function PaymentModal({
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* Note */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              Note <span className="font-normal text-gray-400">(optional)</span>
+            </label>
+            <input
+              type="text"
+              name="note"
+              value={formData.note}
+              onChange={handleChange}
+              placeholder="Add a note..."
+              maxLength={100}
+              className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all"
+            />
           </div>
 
           {/* Submit */}

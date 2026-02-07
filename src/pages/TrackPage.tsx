@@ -554,13 +554,18 @@ export function TrackPage() {
                     <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-500 rounded-2xl flex items-center justify-center shadow-lg shadow-green-300/40">
                       <Check size={22} className="text-white" />
                     </div>
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                       <p className="font-semibold text-gray-900">{debt?.name || 'Unknown'}</p>
                       <p className="text-sm text-gray-500">
                         {payment.completedAt
                           ? format(parseISO(payment.completedAt), 'MMM d, yyyy')
                           : 'N/A'}
                       </p>
+                      {payment.note && (
+                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 truncate italic">
+                          {payment.note}
+                        </p>
+                      )}
                     </div>
                     <div className="text-right flex items-center gap-3">
                       <div>

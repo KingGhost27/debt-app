@@ -105,6 +105,7 @@ export interface Payment {
   type: PaymentType;
   isCompleted: boolean;
   completedAt?: string;            // When marked as paid
+  note?: string;                   // Optional memo/note for the payment
 }
 
 export interface RecurringFunding {
