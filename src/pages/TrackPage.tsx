@@ -13,7 +13,6 @@ import {
   startOfMonth,
   endOfMonth,
   isSameMonth,
-  subMonths,
 } from 'date-fns';
 import { Check, Plus, Flame, CheckCircle, AlertCircle, X, Undo2, Pencil, Receipt, Calendar, Sparkles, Trophy, Target } from 'lucide-react';
 import { useApp } from '../context/AppContext';
@@ -25,6 +24,7 @@ import { PayPeriodSummary } from '../components/ui/PayPeriodSummary';
 import { BillDistributionPanel } from '../components/ui/BillDistributionPanel';
 import { EmptyState } from '../components/ui/EmptyState';
 import { formatCurrency, generatePayoffPlan } from '../lib/calculations';
+import { computePaymentStreak } from '../lib/milestones';
 import type { Debt, PaymentType, Payment, ReceivedPaycheck } from '../types';
 
 type TabType = 'upcoming' | 'complete' | 'calendar' | 'paychecks';
@@ -132,49 +132,13 @@ export function TrackPage() {
     };
   }, [payments, plan, debts]);
 
-  // Payment streak calculation
-  const paymentStreak = useMemo(() => {
-    if (payments.length === 0 || debts.length === 0) {
-      return { months: 0, totalPayments: 0, expectedPayments: debts.length };
-    }
-
-    const now = new Date();
-    let streakMonths = 0;
-    let checkMonth = subMonths(now, 1); // Start from last month
-
-    // Check up to 24 months back
-    for (let i = 0; i < 24; i++) {
-      const monthStart = startOfMonth(checkMonth);
-      const monthEnd = endOfMonth(checkMonth);
-
-      // Count payments made in this month
-      const paymentsInMonth = payments.filter((p) => {
-        if (!p.isCompleted || !p.completedAt) return false;
-        const date = parseISO(p.completedAt);
-        return date >= monthStart && date <= monthEnd;
-      });
-
-      // If at least one payment was made, count as streak month
-      if (paymentsInMonth.length > 0) {
-        streakMonths++;
-        checkMonth = subMonths(checkMonth, 1);
-      } else {
-        break;
-      }
-    }
-
-    // Count total payments vs expected (this month)
-    const thisMonthPayments = payments.filter((p) => {
-      if (!p.isCompleted || !p.completedAt) return false;
-      return isSameMonth(parseISO(p.completedAt), now);
-    }).length;
-
-    return {
-      months: streakMonths,
-      totalPayments: thisMonthPayments,
-      expectedPayments: debts.length,
-    };
-  }, [payments, debts]);
+  // Payment streak calculation (shared utility)
+  const streakData = useMemo(() => computePaymentStreak(payments, debts), [payments, debts]);
+  const paymentStreak = {
+    months: streakData.consecutiveMonths,
+    totalPayments: streakData.thisMonthPayments,
+    expectedPayments: debts.length,
+  };
 
   // Handle undoing/deleting a payment (restore balance)
   const handleDeletePayment = (paymentId: string, debtId: string, principal: number) => {
