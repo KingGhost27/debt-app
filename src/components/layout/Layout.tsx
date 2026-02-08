@@ -37,7 +37,7 @@ export function Layout() {
       </div>
 
       {/* Page content */}
-      <main className="flex-1 pb-20 relative z-10 max-w-lg mx-auto w-full">
+      <main className="flex-1 pb-20 relative z-10">
         <Outlet />
       </main>
 
