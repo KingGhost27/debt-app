@@ -7,7 +7,7 @@
 
 import { useMemo } from 'react';
 import { format, parseISO } from 'date-fns';
-import { Target, Sparkles, TrendingDown, Calendar, Wallet, Receipt, ChevronRight } from 'lucide-react';
+import { Target, Sparkles, TrendingDown, Calendar, Wallet, Receipt, ChevronRight, Trophy, BarChart3, PieChart as PieChartIcon, ClipboardList } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import {
@@ -18,11 +18,18 @@ import {
   formatPercent,
   calculatePayPeriodRemaining,
 } from '../lib/calculations';
+import { computeOverallMilestones, computeDebtPayoffTimeline, computePaymentStreak } from '../lib/milestones';
 import { ProgressRing } from '../components/ui/ProgressRing';
 import { DebtOverTimeChart } from '../components/ui/DebtOverTimeChart';
+import { MilestoneTracker } from '../components/ui/MilestoneTracker';
+import { DebtPayoffTimeline } from '../components/ui/DebtPayoffTimeline';
+import { PaymentStreakCard } from '../components/ui/PaymentStreakCard';
 import { UpcomingBills } from '../components/ui/UpcomingBills';
 import { MiniCalendar } from '../components/ui/MiniCalendar';
 import { EmptyState } from '../components/ui/EmptyState';
+import { InterestVsPrincipalChart } from '../components/analytics/InterestVsPrincipalChart';
+import { DebtBreakdownChart } from '../components/analytics/DebtBreakdownChart';
+import { PaymentHistorySummary } from '../components/analytics/PaymentHistorySummary';
 import { CATEGORY_INFO } from '../types';
 
 // Encouraging messages based on progress
@@ -95,6 +102,27 @@ export function HomePage() {
       unpaidBillCount: periodSummary.bills.filter((b) => !b.isPaid).length,
     };
   }, [receivedPaychecks, budget.incomeSources, debts, subscriptions, payments]);
+
+  // Compute milestone data
+  const totalOriginalBalance = useMemo(
+    () => debts.reduce((sum, d) => sum + d.originalBalance, 0),
+    [debts]
+  );
+
+  const overallMilestones = useMemo(
+    () => computeOverallMilestones(summary.percentPaid, totalOriginalBalance, plan.monthlyBreakdown),
+    [summary.percentPaid, totalOriginalBalance, plan.monthlyBreakdown]
+  );
+
+  const debtTimeline = useMemo(
+    () => computeDebtPayoffTimeline(debts, plan),
+    [debts, plan]
+  );
+
+  const streakData = useMemo(
+    () => computePaymentStreak(payments, debts),
+    [payments, debts]
+  );
 
   // Get categories with balances
   const categories = useMemo(() => {
@@ -277,6 +305,20 @@ export function HomePage() {
           })()}
         </div>
 
+        {/* Milestone Tracker */}
+        <div className="card">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center">
+              <Trophy size={20} className="text-white" />
+            </div>
+            <div>
+              <h2 className="font-bold text-gray-900 dark:text-white">Milestones</h2>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Track your progress</p>
+            </div>
+          </div>
+          <MilestoneTracker milestones={overallMilestones} percentPaid={summary.percentPaid} />
+        </div>
+
         {/* Debt-Free Countdown Card */}
         {debtFreeDate && (
           <div className="relative bg-gradient-to-r from-primary-600 to-primary-500 rounded-3xl p-5 text-white overflow-hidden shadow-lg shadow-primary-400/30">
@@ -301,6 +343,9 @@ export function HomePage() {
             </div>
           </div>
         )}
+
+        {/* Payment Streak */}
+        <PaymentStreakCard streak={streakData} />
 
         {/* Paycheck Summary Card */}
         {paycheckSummary && (
@@ -397,6 +442,22 @@ export function HomePage() {
           );
         })()}
 
+        {/* Debt Payoff Timeline */}
+        {debtTimeline.length > 0 && (
+          <div className="card">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center">
+                <ClipboardList size={20} className="text-white" />
+              </div>
+              <div>
+                <h2 className="font-bold text-gray-900 dark:text-white">Payoff Timeline</h2>
+                <p className="text-xs text-gray-500 dark:text-gray-400">When each debt gets paid off</p>
+              </div>
+            </div>
+            <DebtPayoffTimeline timeline={debtTimeline} />
+          </div>
+        )}
+
         {/* Upcoming Bills */}
         <UpcomingBills debts={debts} customCategories={customCategories} payments={payments} incomeSources={budget.incomeSources} subscriptions={subscriptions} />
 
@@ -413,8 +474,56 @@ export function HomePage() {
           </div>
         )}
 
+        {/* Interest vs Principal Chart */}
+        {plan.monthlyBreakdown && plan.monthlyBreakdown.length > 0 && (
+          <div className="card">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center">
+                <PieChartIcon size={20} className="text-white" />
+              </div>
+              <div>
+                <h2 className="font-bold text-gray-900 dark:text-white">Interest vs Principal</h2>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Where your payments go</p>
+              </div>
+            </div>
+            <InterestVsPrincipalChart monthlyBreakdown={plan.monthlyBreakdown} />
+          </div>
+        )}
+
+        {/* Debt Breakdown Chart */}
+        {plan.monthlyBreakdown && plan.monthlyBreakdown.length > 0 && debts.length > 1 && (
+          <div className="card">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center">
+                <BarChart3 size={20} className="text-white" />
+              </div>
+              <div>
+                <h2 className="font-bold text-gray-900 dark:text-white">Debt Breakdown</h2>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Each debt over time</p>
+              </div>
+            </div>
+            <DebtBreakdownChart monthlyBreakdown={plan.monthlyBreakdown} debts={debts} />
+          </div>
+        )}
+
         {/* Mini Calendar */}
         <MiniCalendar debts={debts} incomeSources={budget.incomeSources} customCategories={customCategories} />
+
+        {/* Payment History */}
+        {payments.filter((p) => p.isCompleted).length > 0 && (
+          <div className="card">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center">
+                <Receipt size={20} className="text-white" />
+              </div>
+              <div>
+                <h2 className="font-bold text-gray-900 dark:text-white">Payment History</h2>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Your actual payments</p>
+              </div>
+            </div>
+            <PaymentHistorySummary payments={payments} />
+          </div>
+        )}
 
         {/* Categories */}
         {categories.length > 0 && (
