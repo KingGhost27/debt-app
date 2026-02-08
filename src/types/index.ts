@@ -183,11 +183,40 @@ export interface IncomeSource {
   updatedAt: string;
 }
 
+export type ExpenseCategory =
+  | 'housing'
+  | 'utilities'
+  | 'groceries'
+  | 'transport'
+  | 'insurance'
+  | 'entertainment'
+  | 'dining'
+  | 'other';
+
+export interface ExpenseEntry {
+  id: string;
+  name: string;
+  category: ExpenseCategory;
+  amount: number;
+}
+
+export const EXPENSE_CATEGORY_INFO: Record<ExpenseCategory, { label: string; color: string; emoji: string }> = {
+  housing: { label: 'Housing', color: '#8b5cf6', emoji: '🏠' },
+  utilities: { label: 'Utilities', color: '#3b82f6', emoji: '💡' },
+  groceries: { label: 'Groceries', color: '#10b981', emoji: '🛒' },
+  transport: { label: 'Transport', color: '#f59e0b', emoji: '🚗' },
+  insurance: { label: 'Insurance', color: '#6366f1', emoji: '🛡️' },
+  entertainment: { label: 'Entertainment', color: '#ec4899', emoji: '🎮' },
+  dining: { label: 'Dining', color: '#ef4444', emoji: '🍔' },
+  other: { label: 'Other', color: '#6b7280', emoji: '📦' },
+};
+
 export interface BudgetSettings {
   incomeSources: IncomeSource[];
-  monthlyExpenses: number;         // Total monthly expenses
+  monthlyExpenses: number;         // Total monthly expenses (auto-summed from entries)
   debtAllocationAmount: number;    // Fixed amount to allocate to debt
   debtAllocationPercent?: number;  // Alternative: percentage of available
+  expenseEntries?: ExpenseEntry[]; // Itemized expense breakdown
 }
 
 // ============================================

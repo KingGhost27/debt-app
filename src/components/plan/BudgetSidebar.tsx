@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { Plus, Pencil, Trash2, DollarSign, Gift, Calendar } from 'lucide-react';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { useConfirmDialog } from '../../hooks/useConfirmDialog';
+import { ExpenseTracker } from '../ui/ExpenseTracker';
 import { format, parseISO } from 'date-fns';
 import { useApp } from '../../context/AppContext';
 import { IncomeSourceModal } from '../ui/IncomeSourceModal';
@@ -33,6 +34,7 @@ interface BudgetSidebarProps {
   totalMonthlyIncome: number;
   totalMinimums: number;
   onExpenseChange: (value: string) => void;
+  onBudgetChange?: (updates: Partial<BudgetSettings>) => void;
   onAllocationChange?: (value: string) => void; // kept for compatibility
   onExtraChange: (value: string) => void;
 }
@@ -43,6 +45,7 @@ export function BudgetSidebar({
   totalMonthlyIncome,
   totalMinimums,
   onExpenseChange,
+  onBudgetChange,
   onExtraChange,
 }: BudgetSidebarProps) {
   const { deleteIncomeSource, addOneTimeFunding, updateOneTimeFunding, deleteOneTimeFunding } = useApp();
@@ -188,27 +191,31 @@ export function BudgetSidebar({
       </div>
 
       {/* Monthly Expenses */}
-      <div className="card">
-        <h3 className="font-semibold text-gray-900  mb-2">Monthly Expenses</h3>
-        <p className="text-xs text-gray-500 mb-3">
-          Rent, utilities, groceries, etc.
-        </p>
-        <div className="relative">
-          <DollarSign
-            size={16}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-          />
-          <input
-            type="number"
-            value={budget.monthlyExpenses || ''}
-            onChange={(e) => onExpenseChange(e.target.value)}
-            placeholder="0.00"
-            step="0.01"
-            min="0"
-            className="w-full pl-8 pr-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white "
-          />
+      {onBudgetChange ? (
+        <ExpenseTracker budget={budget} onBudgetChange={onBudgetChange} />
+      ) : (
+        <div className="card">
+          <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Monthly Expenses</h3>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+            Rent, utilities, groceries, etc.
+          </p>
+          <div className="relative">
+            <DollarSign
+              size={16}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+            />
+            <input
+              type="number"
+              value={budget.monthlyExpenses || ''}
+              onChange={(e) => onExpenseChange(e.target.value)}
+              placeholder="0.00"
+              step="0.01"
+              min="0"
+              className="w-full pl-8 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Debt Payment Calculator */}
       <div className="card bg-gradient-to-br from-primary-50 to-white dark:from-primary-900/30 dark:to-gray-800">

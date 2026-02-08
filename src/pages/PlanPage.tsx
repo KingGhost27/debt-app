@@ -138,6 +138,7 @@ export function PlanPage() {
             totalMonthlyIncome={totalMonthlyIncome}
             totalMinimums={totalMinimums}
             onExpenseChange={handleExpenseChange}
+            onBudgetChange={updateBudget}
             onAllocationChange={handleAllocationChange}
             onExtraChange={handleExtraChange}
           />
@@ -235,6 +236,7 @@ export function PlanPage() {
               totalMonthlyIncome={totalMonthlyIncome}
               totalMinimums={totalMinimums}
               onExpenseChange={handleExpenseChange}
+              onBudgetChange={updateBudget}
               onAllocationChange={handleAllocationChange}
               onExtraChange={handleExtraChange}
             />
