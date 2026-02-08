@@ -7,7 +7,7 @@
 
 import { useState, useMemo } from 'react';
 import { Sparkles, TrendingDown, Calendar, DollarSign, Zap } from 'lucide-react';
-import { parseISO, differenceInMonths } from 'date-fns';
+import { parseISO, differenceInMonths, format } from 'date-fns';
 import { generatePayoffPlan, formatCurrency } from '../../lib/calculations';
 import type { Debt, StrategySettings } from '../../types';
 
@@ -122,6 +122,11 @@ export function WhatIfScenario({ debts, strategy }: WhatIfScenarioProps) {
                 <p className="text-lg font-bold text-green-700 dark:text-green-400">
                   {monthsSaved > 0 ? `${monthsSaved} month${monthsSaved !== 1 ? 's' : ''} sooner` : 'Same timeline'}
                 </p>
+                {monthsSaved > 0 && whatIfDate && (
+                  <p className="text-xs text-green-600/70 dark:text-green-400/60 font-medium">
+                    Debt-free by {format(whatIfDate, 'MMMM yyyy')}
+                  </p>
+                )}
               </div>
             </div>
 
