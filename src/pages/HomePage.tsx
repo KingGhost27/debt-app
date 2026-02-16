@@ -181,54 +181,89 @@ export function HomePage() {
   return (
     <div className="min-h-screen animate-page-enter">
       {/* Header */}
-      <header className="page-header bg-gradient-to-br from-primary-200 via-primary-100 to-accent/10 px-4 pt-12 pb-8 relative overflow-hidden">
-        {/* Soft glowing orbs */}
-        <div className="absolute -top-10 -right-10 w-40 h-40 bg-primary-300/25 rounded-full blur-2xl" />
-        <div className="absolute top-1/2 -left-10 w-28 h-28 bg-accent/20 rounded-full blur-xl" />
-        <div className="absolute top-4 right-1/3 w-20 h-20 bg-primary-400/10 rounded-full blur-xl" />
+      <header className="page-header bg-gradient-to-br from-primary-300 via-primary-200 to-accent/20 px-4 pt-12 pb-8 relative overflow-hidden">
+        {/* Glowing orbs - bolder */}
+        <div className="absolute -top-6 -right-6 w-44 h-44 bg-primary-400/30 rounded-full blur-2xl" />
+        <div className="absolute top-1/2 -left-8 w-32 h-32 bg-accent/30 rounded-full blur-xl" />
+        <div className="absolute top-2 right-1/3 w-24 h-24 bg-primary-500/15 rounded-full blur-xl" />
+        <div className="absolute bottom-4 left-1/4 w-16 h-16 bg-accent/20 rounded-full blur-lg" />
 
-        {/* Polka dot pattern */}
-        <svg className="absolute inset-0 w-full h-full opacity-[0.06] pointer-events-none" aria-hidden="true">
-          <pattern id="dots" x="0" y="0" width="28" height="28" patternUnits="userSpaceOnUse">
-            <circle cx="4" cy="4" r="2.5" fill="currentColor" className="text-primary-600" />
+        {/* Polka dot pattern - more visible */}
+        <svg className="absolute inset-0 w-full h-full opacity-[0.12] pointer-events-none" aria-hidden="true">
+          <pattern id="dots" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
+            <circle cx="4" cy="4" r="3" fill="currentColor" className="text-primary-600" />
           </pattern>
           <rect width="100%" height="100%" fill="url(#dots)" />
         </svg>
 
-        {/* Floating decorative shapes */}
-        <div className="absolute top-3 right-8 animate-kawaii-float" style={{ animationDuration: '5s' }}>
-          <svg width="24" height="24" viewBox="0 0 24 24" className="text-primary-400/30">
+        {/* Floating stars - bigger & brighter */}
+        <div className="absolute top-2 right-6 animate-kawaii-float" style={{ animationDuration: '5s' }}>
+          <svg width="32" height="32" viewBox="0 0 24 24" className="text-primary-500/50">
             <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z" fill="currentColor" />
           </svg>
         </div>
-        <div className="absolute top-10 right-24 animate-kawaii-float" style={{ animationDuration: '4s', animationDelay: '1s' }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" className="text-accent/30">
+        <div className="absolute top-6 left-[55%] animate-kawaii-float" style={{ animationDuration: '3.5s', animationDelay: '2s' }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" className="text-accent/50">
+            <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z" fill="currentColor" />
+          </svg>
+        </div>
+        <div className="absolute bottom-10 left-[15%] animate-kawaii-float" style={{ animationDuration: '4.5s', animationDelay: '1.5s' }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" className="text-primary-400/45">
+            <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z" fill="currentColor" />
+          </svg>
+        </div>
+
+        {/* Floating hearts - bigger & more visible */}
+        <div className="absolute top-8 right-20 animate-kawaii-float" style={{ animationDuration: '4s', animationDelay: '1s' }}>
+          <svg width="22" height="22" viewBox="0 0 24 24" className="text-accent/55">
             <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor" />
           </svg>
         </div>
-        <div className="absolute bottom-8 right-16 animate-kawaii-float" style={{ animationDuration: '6s', animationDelay: '0.5s' }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" className="text-primary-300/35">
-            <circle cx="12" cy="12" r="10" fill="currentColor" />
+        <div className="absolute bottom-12 right-[40%] animate-kawaii-float" style={{ animationDuration: '5.5s', animationDelay: '0.5s' }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" className="text-primary-400/50">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor" />
           </svg>
         </div>
-        <div className="absolute top-6 left-1/2 animate-kawaii-float" style={{ animationDuration: '3.5s', animationDelay: '2s' }}>
-          <svg width="12" height="12" viewBox="0 0 24 24" className="text-accent/25">
-            <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z" fill="currentColor" />
+        <div className="absolute top-3 left-[70%] animate-kawaii-float" style={{ animationDuration: '6s', animationDelay: '3s' }}>
+          <svg width="12" height="12" viewBox="0 0 24 24" className="text-accent/40">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor" />
           </svg>
         </div>
 
-        {/* Sparkle icons */}
-        <Sparkles size={16} className="absolute top-8 right-12 text-primary-400/40 animate-kawaii-pulse" />
-        <Sparkles size={10} className="absolute top-14 right-32 text-accent/30 animate-kawaii-pulse" style={{ animationDelay: '1s' }} />
+        {/* Floating bubbles */}
+        <div className="absolute bottom-8 right-12 animate-kawaii-float" style={{ animationDuration: '6s', animationDelay: '0.5s' }}>
+          <div className="w-5 h-5 rounded-full bg-primary-400/25 border-2 border-primary-400/30" />
+        </div>
+        <div className="absolute top-10 left-[40%] animate-kawaii-float" style={{ animationDuration: '4s', animationDelay: '2.5s' }}>
+          <div className="w-3 h-3 rounded-full bg-accent/25 border-2 border-accent/30" />
+        </div>
+        <div className="absolute bottom-14 left-[60%] animate-kawaii-float" style={{ animationDuration: '5s', animationDelay: '1s' }}>
+          <div className="w-4 h-4 rounded-full bg-primary-300/30 border-2 border-primary-300/35" />
+        </div>
 
-        {/* Cute flower cluster (top-right corner) */}
-        <svg className="absolute -top-2 -right-2 w-20 h-20 text-primary-300/20 animate-kawaii-pulse" style={{ animationDuration: '4s' }} viewBox="0 0 80 80" aria-hidden="true">
-          <circle cx="40" cy="20" r="10" fill="currentColor" />
-          <circle cx="55" cy="32" r="10" fill="currentColor" />
-          <circle cx="48" cy="50" r="10" fill="currentColor" />
-          <circle cx="32" cy="50" r="10" fill="currentColor" />
-          <circle cx="25" cy="32" r="10" fill="currentColor" />
-          <circle cx="40" cy="36" r="8" className="text-accent/20" fill="currentColor" />
+        {/* Sparkle icons - more & brighter */}
+        <Sparkles size={18} className="absolute top-6 right-10 text-primary-500/60 animate-kawaii-pulse" />
+        <Sparkles size={14} className="absolute top-14 right-28 text-accent/50 animate-kawaii-pulse" style={{ animationDelay: '1s' }} />
+        <Sparkles size={12} className="absolute bottom-10 left-[30%] text-primary-400/45 animate-kawaii-pulse" style={{ animationDelay: '0.5s' }} />
+
+        {/* Cute flower cluster (top-right corner) - bigger & bolder */}
+        <svg className="absolute -top-1 -right-1 w-28 h-28 text-primary-400/30 animate-kawaii-pulse" style={{ animationDuration: '4s' }} viewBox="0 0 80 80" aria-hidden="true">
+          <circle cx="40" cy="18" r="11" fill="currentColor" />
+          <circle cx="57" cy="30" r="11" fill="currentColor" />
+          <circle cx="50" cy="50" r="11" fill="currentColor" />
+          <circle cx="30" cy="50" r="11" fill="currentColor" />
+          <circle cx="23" cy="30" r="11" fill="currentColor" />
+          <circle cx="40" cy="35" r="9" className="text-accent/35" fill="currentColor" />
+        </svg>
+
+        {/* Small flower (bottom-left) */}
+        <svg className="absolute bottom-6 left-4 w-16 h-16 text-accent/25 animate-kawaii-pulse" style={{ animationDuration: '5s', animationDelay: '2s' }} viewBox="0 0 60 60" aria-hidden="true">
+          <circle cx="30" cy="14" r="8" fill="currentColor" />
+          <circle cx="42" cy="24" r="8" fill="currentColor" />
+          <circle cx="38" cy="38" r="8" fill="currentColor" />
+          <circle cx="22" cy="38" r="8" fill="currentColor" />
+          <circle cx="18" cy="24" r="8" fill="currentColor" />
+          <circle cx="30" cy="27" r="6" className="text-primary-300/35" fill="currentColor" />
         </svg>
 
         <div className="mb-4 relative z-10">
@@ -242,7 +277,7 @@ export function HomePage() {
         </div>
 
         {/* Scalloped wave decoration */}
-        <div className="absolute bottom-0 left-0 right-0 h-5 overflow-hidden">
+        <div className="absolute bottom-0 left-0 right-0 h-6 overflow-hidden">
           <svg viewBox="0 0 1200 40" className="w-full h-full" preserveAspectRatio="none">
             <path d="M0,20 C50,0 100,0 150,20 C200,40 250,40 300,20 C350,0 400,0 450,20 C500,40 550,40 600,20 C650,0 700,0 750,20 C800,40 850,40 900,20 C950,0 1000,0 1050,20 C1100,40 1150,40 1200,20 L1200,40 L0,40 Z" fill="currentColor" className="text-gray-50" />
           </svg>
