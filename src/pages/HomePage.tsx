@@ -181,11 +181,55 @@ export function HomePage() {
   return (
     <div className="min-h-screen animate-page-enter">
       {/* Header */}
-      <header className="page-header bg-gradient-to-b from-primary-200 to-primary-100/50 px-4 pt-12 pb-8 relative overflow-hidden">
-        {/* Decorative elements */}
-        <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary-300/20 rounded-full blur-2xl" />
-        <div className="absolute top-1/2 -left-10 w-24 h-24 bg-accent/20 rounded-full blur-xl" />
+      <header className="page-header bg-gradient-to-br from-primary-200 via-primary-100 to-accent/10 px-4 pt-12 pb-8 relative overflow-hidden">
+        {/* Soft glowing orbs */}
+        <div className="absolute -top-10 -right-10 w-40 h-40 bg-primary-300/25 rounded-full blur-2xl" />
+        <div className="absolute top-1/2 -left-10 w-28 h-28 bg-accent/20 rounded-full blur-xl" />
+        <div className="absolute top-4 right-1/3 w-20 h-20 bg-primary-400/10 rounded-full blur-xl" />
+
+        {/* Polka dot pattern */}
+        <svg className="absolute inset-0 w-full h-full opacity-[0.06] pointer-events-none" aria-hidden="true">
+          <pattern id="dots" x="0" y="0" width="28" height="28" patternUnits="userSpaceOnUse">
+            <circle cx="4" cy="4" r="2.5" fill="currentColor" className="text-primary-600" />
+          </pattern>
+          <rect width="100%" height="100%" fill="url(#dots)" />
+        </svg>
+
+        {/* Floating decorative shapes */}
+        <div className="absolute top-3 right-8 animate-kawaii-float" style={{ animationDuration: '5s' }}>
+          <svg width="24" height="24" viewBox="0 0 24 24" className="text-primary-400/30">
+            <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z" fill="currentColor" />
+          </svg>
+        </div>
+        <div className="absolute top-10 right-24 animate-kawaii-float" style={{ animationDuration: '4s', animationDelay: '1s' }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" className="text-accent/30">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor" />
+          </svg>
+        </div>
+        <div className="absolute bottom-8 right-16 animate-kawaii-float" style={{ animationDuration: '6s', animationDelay: '0.5s' }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" className="text-primary-300/35">
+            <circle cx="12" cy="12" r="10" fill="currentColor" />
+          </svg>
+        </div>
+        <div className="absolute top-6 left-1/2 animate-kawaii-float" style={{ animationDuration: '3.5s', animationDelay: '2s' }}>
+          <svg width="12" height="12" viewBox="0 0 24 24" className="text-accent/25">
+            <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z" fill="currentColor" />
+          </svg>
+        </div>
+
+        {/* Sparkle icons */}
         <Sparkles size={16} className="absolute top-8 right-12 text-primary-400/40 animate-kawaii-pulse" />
+        <Sparkles size={10} className="absolute top-14 right-32 text-accent/30 animate-kawaii-pulse" style={{ animationDelay: '1s' }} />
+
+        {/* Cute flower cluster (top-right corner) */}
+        <svg className="absolute -top-2 -right-2 w-20 h-20 text-primary-300/20 animate-kawaii-pulse" style={{ animationDuration: '4s' }} viewBox="0 0 80 80" aria-hidden="true">
+          <circle cx="40" cy="20" r="10" fill="currentColor" />
+          <circle cx="55" cy="32" r="10" fill="currentColor" />
+          <circle cx="48" cy="50" r="10" fill="currentColor" />
+          <circle cx="32" cy="50" r="10" fill="currentColor" />
+          <circle cx="25" cy="32" r="10" fill="currentColor" />
+          <circle cx="40" cy="36" r="8" className="text-accent/20" fill="currentColor" />
+        </svg>
 
         <div className="mb-4 relative z-10">
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
@@ -197,10 +241,10 @@ export function HomePage() {
           <p className="text-gray-600 text-sm">{encouragement}</p>
         </div>
 
-        {/* Wave decoration */}
-        <div className="absolute bottom-0 left-0 right-0 h-4 overflow-hidden">
-          <svg viewBox="0 0 1200 30" className="w-full h-full" preserveAspectRatio="none">
-            <path d="M0,15 Q300,30 600,15 T1200,15 L1200,30 L0,30 Z" fill="currentColor" className="text-gray-50" />
+        {/* Scalloped wave decoration */}
+        <div className="absolute bottom-0 left-0 right-0 h-5 overflow-hidden">
+          <svg viewBox="0 0 1200 40" className="w-full h-full" preserveAspectRatio="none">
+            <path d="M0,20 C50,0 100,0 150,20 C200,40 250,40 300,20 C350,0 400,0 450,20 C500,40 550,40 600,20 C650,0 700,0 750,20 C800,40 850,40 900,20 C950,0 1000,0 1050,20 C1100,40 1150,40 1200,20 L1200,40 L0,40 Z" fill="currentColor" className="text-gray-50" />
           </svg>
         </div>
       </header>
