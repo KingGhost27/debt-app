@@ -19,30 +19,60 @@ export function Layout() {
   const decorations = getThemeDecorations(settings.theme);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col relative">
-      {/* Floating decorations */}
-      <div className="decorations" aria-hidden="true">
-        {decorations.floatingEmojis.map((emoji, index) => (
-          <span
-            key={index}
-            className="decoration"
-            style={{
-              animationDelay: `${index * 1.5}s`,
-              fontSize: index % 2 === 0 ? '1.5rem' : '1.2rem',
-            }}
-          >
-            {emoji}
-          </span>
-        ))}
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-950 flex flex-col relative overflow-hidden">
+      {/* Background emojis for wider screens */}
+      <div className="hidden sm:block fixed inset-0 pointer-events-none z-0" aria-hidden="true">
+        {decorations.floatingEmojis.flatMap((emoji, emojiIdx) =>
+          Array.from({ length: 4 }, (_, i) => {
+            const idx = emojiIdx * 4 + i;
+            const isLeft = idx % 2 === 0;
+            const top = (idx * 17 + 5) % 90;
+            const horizontal = 2 + (idx * 7) % 12;
+            return (
+              <span
+                key={`bg-${idx}`}
+                className="absolute text-2xl opacity-20 dark:opacity-10 animate-kawaii-float"
+                style={{
+                  top: `${top}%`,
+                  ...(isLeft ? { left: `${horizontal}%` } : { right: `${horizontal}%` }),
+                  animationDelay: `${idx * 1.2}s`,
+                  animationDuration: `${6 + (idx % 4) * 2}s`,
+                  fontSize: `${1.2 + (idx % 3) * 0.5}rem`,
+                }}
+              >
+                {emoji}
+              </span>
+            );
+          })
+        )}
       </div>
 
-      {/* Page content */}
-      <main className="flex-1 pb-20 relative z-10">
-        <Outlet />
-      </main>
+      {/* Centered app container for wider screens */}
+      <div className="w-full sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-4xl mx-auto bg-gray-50 dark:bg-gray-900 min-h-screen flex flex-col relative shadow-xl shadow-black/5">
+        {/* Floating decorations */}
+        <div className="decorations" aria-hidden="true">
+          {decorations.floatingEmojis.map((emoji, index) => (
+            <span
+              key={index}
+              className="decoration"
+              style={{
+                animationDelay: `${index * 1.5}s`,
+                fontSize: index % 2 === 0 ? '1.5rem' : '1.2rem',
+              }}
+            >
+              {emoji}
+            </span>
+          ))}
+        </div>
 
-      {/* Bottom navigation */}
-      <BottomNav />
+        {/* Page content */}
+        <main className="flex-1 pb-20 relative z-10">
+          <Outlet />
+        </main>
+
+        {/* Bottom navigation */}
+        <BottomNav />
+      </div>
     </div>
   );
 }
