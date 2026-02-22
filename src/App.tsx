@@ -5,9 +5,11 @@
  */
 
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { AppProvider } from './context/AppContext';
 import { ToastProvider } from './components/ui/Toast';
 import { Layout } from './components/layout/Layout';
+import { AuthPage } from './pages/AuthPage';
 import { HomePage } from './pages/HomePage';
 import { DebtsPage } from './pages/DebtsPage';
 import { AssetsPage } from './pages/AssetsPage';
@@ -17,11 +19,27 @@ import { TrackPage } from './pages/TrackPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { MorePage } from './pages/MorePage';
 
-function App() {
+function ProtectedRoutes() {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
+        <div className="text-center">
+          <div className="text-4xl mb-3 animate-bounce">🌸</div>
+          <p className="text-gray-400 text-sm">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <AuthPage />;
+  }
+
   return (
     <AppProvider>
       <ToastProvider>
-      <BrowserRouter>
         <Routes>
           <Route path="/" element={<Layout />}>
             <Route index element={<HomePage />} />
@@ -35,9 +53,18 @@ function App() {
             <Route path="more" element={<MorePage />} />
           </Route>
         </Routes>
-      </BrowserRouter>
       </ToastProvider>
     </AppProvider>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <ProtectedRoutes />
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 
