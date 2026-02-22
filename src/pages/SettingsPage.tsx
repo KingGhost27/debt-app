@@ -6,9 +6,10 @@
  */
 
 import { useRef, useState } from 'react';
-import { Download, Upload, Trash2, ChevronLeft, Sparkles, Database, Heart, User, Check } from 'lucide-react';
+import { Download, Upload, Trash2, ChevronLeft, Sparkles, Database, Heart, User, Check, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/ui/Toast';
 import { ThemeSelector } from '../components/ui/ThemeSelector';
 import { CategoryManager } from '../components/ui/CategoryManager';
@@ -18,6 +19,7 @@ import { useConfirmDialog } from '../hooks/useConfirmDialog';
 export function SettingsPage() {
   const navigate = useNavigate();
   const { exportAppData, importAppData, clearAllData, settings, updateSettings } = useApp();
+  const { signOut, user } = useAuth();
   const { showToast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [nameInput, setNameInput] = useState(settings.userName || '');
@@ -152,6 +154,24 @@ export function SettingsPage() {
               <p className="text-xs text-gray-400 mt-2">
                 This will be shown in your home page greeting
               </p>
+            </div>
+
+            {/* Account info + sign out */}
+            <div className="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-800">
+              <p className="text-xs text-gray-400 truncate max-w-[200px]">{user?.email}</p>
+              <button
+                onClick={() => confirm({
+                  title: 'Sign Out',
+                  message: 'Are you sure you want to sign out?',
+                  confirmLabel: 'Sign Out',
+                  variant: 'danger',
+                  onConfirm: () => signOut(),
+                })}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+              >
+                <LogOut size={15} />
+                Sign Out
+              </button>
             </div>
           </div>
         </div>
