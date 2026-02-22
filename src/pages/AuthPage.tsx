@@ -7,6 +7,14 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 
+const PW_RULES = [
+  { label: 'At least 12 characters', test: (p: string) => p.length >= 12 },
+  { label: 'Uppercase letter (A-Z)', test: (p: string) => /[A-Z]/.test(p) },
+  { label: 'Lowercase letter (a-z)', test: (p: string) => /[a-z]/.test(p) },
+  { label: 'Number (0-9)', test: (p: string) => /[0-9]/.test(p) },
+  { label: 'Symbol (e.g. !@#$)', test: (p: string) => /[^A-Za-z0-9]/.test(p) },
+];
+
 export function AuthPage() {
   const { signIn, signUp } = useAuth();
   const [mode, setMode] = useState<'login' | 'signup'>('login');
@@ -16,10 +24,20 @@ export function AuthPage() {
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const pwRuleResults = PW_RULES.map((rule) => ({ ...rule, passed: rule.test(password) }));
+  const passwordValid = pwRuleResults.every((r) => r.passed);
+  const showPwRules = mode === 'signup' && password.length > 0;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccessMsg(null);
+
+    if (mode === 'signup' && !passwordValid) {
+      setError('Please meet all password requirements.');
+      return;
+    }
+
     setIsSubmitting(true);
 
     if (mode === 'login') {
@@ -36,6 +54,13 @@ export function AuthPage() {
     }
 
     setIsSubmitting(false);
+  };
+
+  const switchMode = () => {
+    setMode(mode === 'login' ? 'signup' : 'login');
+    setError(null);
+    setSuccessMsg(null);
+    setPassword('');
   };
 
   return (
@@ -116,14 +141,30 @@ export function AuthPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 placeholder="••••••••"
-                minLength={6}
+                minLength={12}
                 className="w-full px-4 py-3 rounded-xl border border-primary-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent transition"
               />
+
+              {/* Password requirements checklist — only shown on signup */}
+              {showPwRules && (
+                <ul className="mt-2 space-y-1">
+                  {pwRuleResults.map((rule) => (
+                    <li key={rule.label} className="flex items-center gap-2 text-xs">
+                      <span className={rule.passed ? 'text-green-500' : 'text-gray-300 dark:text-gray-600'}>
+                        {rule.passed ? '✓' : '○'}
+                      </span>
+                      <span className={rule.passed ? 'text-green-600 dark:text-green-400' : 'text-gray-400'}>
+                        {rule.label}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
 
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || (mode === 'signup' && password.length > 0 && !passwordValid)}
               className="w-full py-3 rounded-xl bg-gradient-to-r from-primary-400 to-primary-500 hover:from-primary-500 hover:to-primary-600 text-white font-semibold shadow-md shadow-primary-200/50 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {isSubmitting
@@ -136,7 +177,7 @@ export function AuthPage() {
           <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-6">
             {mode === 'login' ? "Don't have an account?" : 'Already have an account?'}{' '}
             <button
-              onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(null); setSuccessMsg(null); }}
+              onClick={switchMode}
               className="text-primary-500 font-semibold hover:underline"
             >
               {mode === 'login' ? 'Sign up' : 'Log in'}
