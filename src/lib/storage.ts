@@ -231,6 +231,43 @@ function migrateData(data: AppData): AppData {
 }
 
 /**
+ * Export payment history as a downloadable CSV file
+ */
+export function exportPaymentsCSV(data: AppData): void {
+  const debtMap = new Map(data.debts.map((d) => [d.id, d.name]));
+
+  const header = ['Date', 'Debt', 'Amount', 'Principal', 'Interest', 'Type', 'Status', 'Completed At', 'Note'];
+
+  const rows = [...data.payments]
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .map((p) => [
+      p.date,
+      debtMap.get(p.debtId) ?? p.debtId,
+      p.amount.toFixed(2),
+      p.principal.toFixed(2),
+      p.interest.toFixed(2),
+      p.type,
+      p.isCompleted ? 'completed' : 'pending',
+      p.completedAt ?? '',
+      p.note ?? '',
+    ]);
+
+  const csv = [header, ...rows]
+    .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+    .join('\n');
+
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `payment-history-${formatDateForFilename(new Date())}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+/**
  * Format date for filename
  */
 function formatDateForFilename(date: Date): string {
