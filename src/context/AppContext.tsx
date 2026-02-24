@@ -23,7 +23,7 @@ import type {
   ReceivedPaycheck,
 } from '../types';
 import { DEFAULT_APP_DATA, DEFAULT_STRATEGY, DEFAULT_BUDGET } from '../types';
-import { exportData, importData } from '../lib/storage';
+import { exportData, exportPaymentsCSV, importData } from '../lib/storage';
 import { supabase } from '../lib/supabase';
 import { useAuth } from './AuthContext';
 
@@ -85,6 +85,7 @@ interface AppContextType {
   deletePaycheck: (id: string) => Promise<void>;
 
   exportAppData: () => void;
+  exportPaymentHistory: () => void;
   importAppData: (file: File) => Promise<void>;
   clearAllData: () => Promise<void>;
 }
@@ -115,8 +116,8 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
-  const [data, setData] = useState<AppData>(loadCache());
-  const [isLoading, setIsLoading] = useState(true);
+  const [data, setData] = useState<AppData>(() => loadCache());
+  const [isLoading, setIsLoading] = useState(() => !localStorage.getItem('debtapp_cache'));
 
   // ------------------------------------------
   // LOAD ALL DATA FROM SUPABASE ON LOGIN
@@ -128,7 +129,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
 
     const load = async () => {
-      setIsLoading(true);
+      if (!localStorage.getItem('debtapp_cache')) setIsLoading(true);
 
       const [
         { data: debts },
@@ -688,6 +689,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // ==========================================
 
   const exportAppData = useCallback(() => { exportData(data); }, [data]);
+  const exportPaymentHistory = useCallback(() => { exportPaymentsCSV(data); }, [data]);
 
   const importAppData = useCallback(async (file: File) => {
     const imported = await importData(file);
@@ -738,7 +740,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     addAsset, updateAsset, deleteAsset, updateAssetBalance,
     addSubscription, updateSubscription, deleteSubscription,
     addPaycheck, updatePaycheck, deletePaycheck,
-    exportAppData, importAppData, clearAllData,
+    exportAppData, exportPaymentHistory, importAppData, clearAllData,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
