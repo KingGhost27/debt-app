@@ -6,7 +6,7 @@
  */
 
 import { useRef, useState } from 'react';
-import { Download, Upload, Trash2, ChevronLeft, Sparkles, Database, Heart, User, Check, LogOut } from 'lucide-react';
+import { Download, Upload, Trash2, ChevronLeft, Sparkles, Database, Heart, User, Check, LogOut, FileSpreadsheet } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
@@ -18,7 +18,7 @@ import { useConfirmDialog } from '../hooks/useConfirmDialog';
 
 export function SettingsPage() {
   const navigate = useNavigate();
-  const { exportAppData, importAppData, clearAllData, settings, updateSettings } = useApp();
+  const { exportAppData, exportPaymentHistory, importAppData, clearAllData, settings, updateSettings } = useApp();
   const { signOut, user } = useAuth();
   const { showToast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -212,6 +212,21 @@ export function SettingsPage() {
                 <p className="text-sm text-gray-500">Download your data as a backup</p>
               </div>
               <Sparkles size={16} className="text-primary-300 opacity-0 group-hover:opacity-100 transition-opacity" />
+            </button>
+
+            {/* Export Payment History */}
+            <button
+              onClick={exportPaymentHistory}
+              className="w-full flex items-center gap-4 p-4 bg-gradient-to-r from-purple-50 to-white dark:from-purple-900/30 dark:to-gray-800 rounded-2xl border border-purple-100/50 dark:border-purple-700/50 hover:shadow-md hover:-translate-y-0.5 transition-all text-left group"
+            >
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-300/30 group-hover:scale-105 transition-transform">
+                <FileSpreadsheet size={22} className="text-white" />
+              </div>
+              <div className="flex-1">
+                <p className="font-semibold text-gray-900">Export Payment History</p>
+                <p className="text-sm text-gray-500">Download payments as CSV spreadsheet</p>
+              </div>
+              <Sparkles size={16} className="text-purple-300 opacity-0 group-hover:opacity-100 transition-opacity" />
             </button>
 
             {/* Import */}
