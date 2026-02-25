@@ -391,6 +391,36 @@ export function HomePage() {
           })()}
         </div>
 
+        {/* Credit Utilization */}
+        {summary.totalCreditLimit > 0 && (
+          <div className="card">
+            <h2 className="font-bold text-gray-900 mb-2">Credit Utilization</h2>
+            <p className="text-sm text-gray-500 mb-4">
+              Only includes debts with a credit limit
+            </p>
+            <div className="flex justify-center">
+              <div className="relative">
+                <ProgressRing
+                  percentage={summary.creditUtilization}
+                  size={120}
+                  strokeWidth={12}
+                  color={summary.creditUtilization > 30 ? '#ef4444' : '#22c55e'}
+                  showLabel={false}
+                />
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className={`text-2xl font-bold ${summary.creditUtilization > 100 ? 'text-red-600' : 'text-gray-900'}`}>
+                    {formatPercent(summary.creditUtilization, 0)}
+                  </span>
+                  <span className="text-xs text-gray-500">utilized</span>
+                </div>
+              </div>
+            </div>
+            <p className="text-center text-sm text-gray-600 mt-3">
+              {formatCurrency(debts.filter(d => d.creditLimit).reduce((sum, d) => sum + d.balance, 0))} / {formatCurrency(summary.totalCreditLimit)}
+            </p>
+          </div>
+        )}
+
         {/* Milestone Tracker */}
         <div className="card">
           <div className="flex items-center gap-3 mb-4">
@@ -656,36 +686,6 @@ export function HomePage() {
                 );
               })}
             </div>
-          </div>
-        )}
-
-        {/* Credit Utilization */}
-        {summary.totalCreditLimit > 0 && (
-          <div className="card">
-            <h2 className="font-bold text-gray-900 mb-2">Credit Utilization</h2>
-            <p className="text-sm text-gray-500 mb-4">
-              Only includes debts with a credit limit
-            </p>
-            <div className="flex justify-center">
-              <div className="relative">
-                <ProgressRing
-                  percentage={summary.creditUtilization}
-                  size={120}
-                  strokeWidth={12}
-                  color={summary.creditUtilization > 30 ? '#ef4444' : '#22c55e'}
-                  showLabel={false}
-                />
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className={`text-2xl font-bold ${summary.creditUtilization > 100 ? 'text-red-600' : 'text-gray-900'}`}>
-                    {formatPercent(summary.creditUtilization, 0)}
-                  </span>
-                  <span className="text-xs text-gray-500">utilized</span>
-                </div>
-              </div>
-            </div>
-            <p className="text-center text-sm text-gray-600 mt-3">
-              {formatCurrency(debts.filter(d => d.creditLimit).reduce((sum, d) => sum + d.balance, 0))} / {formatCurrency(summary.totalCreditLimit)}
-            </p>
           </div>
         )}
 

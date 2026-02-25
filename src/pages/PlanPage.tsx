@@ -6,9 +6,9 @@
  * Features cute animations, soft gradients, and delightful interactions.
  */
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { parseISO, format } from 'date-fns';
-import { Trophy, DollarSign, Clock, Sparkles, Calendar, PartyPopper } from 'lucide-react';
+import { Trophy, DollarSign, Clock, Sparkles, Calendar, PartyPopper, ChevronDown } from 'lucide-react';
 import { formatTimeUntil, formatCurrency } from '../lib/calculations';
 import { useApp } from '../context/AppContext';
 import { PageHeader } from '../components/layout/PageHeader';
@@ -53,6 +53,7 @@ export function PlanPage() {
   );
 
   const debtFreeDate = plan.debtFreeDate ? parseISO(plan.debtFreeDate) : null;
+  const [budgetOpen, setBudgetOpen] = useState(false);
 
   const handleStrategyChange = (newStrategy: PayoffStrategy) => {
     updateStrategy({ strategy: newStrategy });
@@ -228,18 +229,34 @@ export function PlanPage() {
           </div>
 
           {/* Budget sidebar - takes 1 column on desktop */}
-          {/* On mobile, this appears after the plan */}
+          {/* On mobile: collapsible toggle; on desktop: always visible sidebar */}
           <div className="mt-6 lg:mt-0">
-            <BudgetSidebar
-              budget={budget}
-              strategy={strategy}
-              totalMonthlyIncome={totalMonthlyIncome}
-              totalMinimums={totalMinimums}
-              onExpenseChange={handleExpenseChange}
-              onBudgetChange={updateBudget}
-              onAllocationChange={handleAllocationChange}
-              onExtraChange={handleExtraChange}
-            />
+            {/* Mobile toggle header — hidden on lg+ */}
+            <button
+              type="button"
+              onClick={() => setBudgetOpen((v) => !v)}
+              className="lg:hidden w-full flex items-center justify-between px-4 py-3 rounded-2xl bg-white border border-primary-100 shadow-sm mb-3"
+            >
+              <span className="font-semibold text-gray-700 text-sm">Budget & Income</span>
+              <ChevronDown
+                size={18}
+                className={`text-primary-400 transition-transform duration-200 ${budgetOpen ? 'rotate-180' : ''}`}
+              />
+            </button>
+
+            {/* Content: always visible on desktop, toggled on mobile */}
+            <div className={`lg:block ${budgetOpen ? 'block' : 'hidden'}`}>
+              <BudgetSidebar
+                budget={budget}
+                strategy={strategy}
+                totalMonthlyIncome={totalMonthlyIncome}
+                totalMinimums={totalMinimums}
+                onExpenseChange={handleExpenseChange}
+                onBudgetChange={updateBudget}
+                onAllocationChange={handleAllocationChange}
+                onExtraChange={handleExtraChange}
+              />
+            </div>
           </div>
         </div>
       </div>
