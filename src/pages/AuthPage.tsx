@@ -64,8 +64,8 @@ export function AuthPage() {
     setIsSubmitting(false);
   };
 
-  const switchMode = () => {
-    setMode(mode === 'login' ? 'signup' : 'login');
+  const switchMode = (newMode: 'login' | 'signup') => {
+    setMode(newMode);
     setError(null);
     setSuccessMsg(null);
     setPassword('');
@@ -93,29 +93,58 @@ export function AuthPage() {
       </div>
 
       <div className="w-full max-w-sm relative">
+        {/* App identity — always visible above the card */}
+        {mode !== 'forgot' && (
+          <div className="text-center mb-6">
+            <div className="flex justify-center mb-2">
+              <DebtsyCow size={72} />
+            </div>
+            <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 tracking-tight">Debtsy</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Track and crush your debt 🐄</p>
+          </div>
+        )}
+
         {/* Card */}
         <div className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-md rounded-3xl shadow-xl shadow-primary-200/30 dark:shadow-black/30 border border-primary-100/50 dark:border-gray-800 p-8">
 
-          {/* Logo / Header */}
-          <div className="text-center mb-8">
-            {mode === 'forgot' ? (
+          {/* Forgot password header */}
+          {mode === 'forgot' && (
+            <div className="text-center mb-6">
               <div className="flex justify-center mb-3">
                 <DebtsyCow size={56} />
               </div>
-            ) : (
-              <div className="text-5xl mb-3">🌸</div>
-            )}
-            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-              {mode === 'login' ? 'Welcome back!' : mode === 'signup' ? 'Create account' : 'Forgot password?'}
-            </h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              {mode === 'login'
-                ? 'Log in to your debt dashboard'
-                : mode === 'signup'
-                ? 'Start your debt-free journey'
-                : "No worries — we'll send you a reset link"}
-            </p>
-          </div>
+              <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Forgot password?</h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">No worries — we&apos;ll send you a reset link</p>
+            </div>
+          )}
+
+          {/* Sign In / Sign Up tabs — shown when not in forgot mode */}
+          {mode !== 'forgot' && (
+            <div className="flex rounded-2xl bg-gray-100 dark:bg-gray-800 p-1 mb-6">
+              <button
+                type="button"
+                onClick={() => switchMode('login')}
+                className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                  mode === 'login'
+                    ? 'bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-400 shadow-sm'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                }`}
+              >
+                Sign In
+              </button>
+              <button
+                type="button"
+                onClick={() => switchMode('signup')}
+                className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                  mode === 'signup'
+                    ? 'bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-400 shadow-sm'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                }`}
+              >
+                Create Account
+              </button>
+            </div>
+          )}
 
           {/* Success message */}
           {successMsg && (
@@ -173,7 +202,7 @@ export function AuthPage() {
                   className="w-full px-4 py-3 rounded-xl border border-primary-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent transition"
                 />
 
-                {/* Password requirements checklist — only shown on signup */}
+                {/* Password requirements — shown on signup while typing */}
                 {showPwRules && (
                   <ul className="mt-2 space-y-1">
                     {pwRuleResults.map((rule) => (
@@ -188,6 +217,13 @@ export function AuthPage() {
                     ))}
                   </ul>
                 )}
+
+                {/* Password hint shown upfront on signup before typing */}
+                {mode === 'signup' && password.length === 0 && (
+                  <p className="mt-1.5 text-xs text-gray-400 dark:text-gray-500">
+                    12+ characters with uppercase, number & symbol
+                  </p>
+                )}
               </div>
             )}
 
@@ -197,39 +233,23 @@ export function AuthPage() {
               className="w-full py-3 rounded-xl bg-gradient-to-r from-primary-400 to-primary-500 hover:from-primary-500 hover:to-primary-600 text-white font-semibold shadow-md shadow-primary-200/50 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {isSubmitting
-                ? (mode === 'login' ? 'Logging in...' : mode === 'signup' ? 'Creating account...' : 'Sending...')
-                : (mode === 'login' ? 'Log in' : mode === 'signup' ? 'Create account' : 'Send reset link')}
+                ? (mode === 'login' ? 'Signing in...' : mode === 'signup' ? 'Creating account...' : 'Sending...')
+                : (mode === 'login' ? 'Sign In' : mode === 'signup' ? 'Create Account' : 'Send reset link')}
             </button>
           </form>
 
-          {/* Toggle mode */}
-          <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-6">
-            {mode === 'forgot' ? (
-              <>
-                Remember it after all?{' '}
-                <button
-                  onClick={() => { setMode('login'); setError(null); setSuccessMsg(null); }}
-                  className="text-primary-500 font-semibold hover:underline"
-                >
-                  Back to log in
-                </button>
-              </>
-            ) : mode === 'login' ? (
-              <>
-                Don&apos;t have an account?{' '}
-                <button onClick={switchMode} className="text-primary-500 font-semibold hover:underline">
-                  Sign up
-                </button>
-              </>
-            ) : (
-              <>
-                Already have an account?{' '}
-                <button onClick={switchMode} className="text-primary-500 font-semibold hover:underline">
-                  Log in
-                </button>
-              </>
-            )}
-          </p>
+          {/* Back to login from forgot */}
+          {mode === 'forgot' && (
+            <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-6">
+              Remember it after all?{' '}
+              <button
+                onClick={() => { setMode('login'); setError(null); setSuccessMsg(null); }}
+                className="text-primary-500 font-semibold hover:underline"
+              >
+                Back to Sign In
+              </button>
+            </p>
+          )}
         </div>
       </div>
     </div>
