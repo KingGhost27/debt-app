@@ -18,9 +18,10 @@ import { PlanPage } from './pages/PlanPage';
 import { TrackPage } from './pages/TrackPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { MorePage } from './pages/MorePage';
+import { ResetPasswordPage } from './pages/ResetPasswordPage';
 
 function ProtectedRoutes() {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, isPasswordRecovery } = useAuth();
 
   if (isLoading) {
     return (
@@ -31,6 +32,10 @@ function ProtectedRoutes() {
         </div>
       </div>
     );
+  }
+
+  if (isPasswordRecovery) {
+    return <ResetPasswordPage />;
   }
 
   if (!user) {

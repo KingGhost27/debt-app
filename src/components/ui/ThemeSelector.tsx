@@ -94,7 +94,7 @@ export function ThemeSelector() {
       <div>
         <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-2">
           <Sparkles size={14} />
-          Character Themes
+          Color Vibes 🌈
         </h4>
         <div className="grid grid-cols-2 gap-3">
           {presetKeys.map((preset) => {

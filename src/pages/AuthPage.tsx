@@ -6,6 +6,7 @@
 
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { DebtsyCow } from '../components/ui/DebtsyCow';
 
 const PW_RULES = [
   { label: 'At least 12 characters', test: (p: string) => p.length >= 12 },
@@ -16,8 +17,8 @@ const PW_RULES = [
 ];
 
 export function AuthPage() {
-  const { signIn, signUp } = useAuth();
-  const [mode, setMode] = useState<'login' | 'signup'>('login');
+  const { signIn, signUp, resetPasswordForEmail } = useAuth();
+  const [mode, setMode] = useState<'login' | 'signup' | 'forgot'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -43,13 +44,20 @@ export function AuthPage() {
     if (mode === 'login') {
       const { error } = await signIn(email, password);
       if (error) setError(error);
-    } else {
+    } else if (mode === 'signup') {
       const { error } = await signUp(email, password);
       if (error) {
         setError(error);
       } else {
         setSuccessMsg('Account created! Check your email to confirm, then log in.');
         setMode('login');
+      }
+    } else if (mode === 'forgot') {
+      const { error } = await resetPasswordForEmail(email);
+      if (error) {
+        setError(error);
+      } else {
+        setSuccessMsg('Reset link sent! Check your email and click the link to set a new password.');
       }
     }
 
@@ -90,14 +98,22 @@ export function AuthPage() {
 
           {/* Logo / Header */}
           <div className="text-center mb-8">
-            <div className="text-5xl mb-3">🌸</div>
+            {mode === 'forgot' ? (
+              <div className="flex justify-center mb-3">
+                <DebtsyCow size={56} />
+              </div>
+            ) : (
+              <div className="text-5xl mb-3">🌸</div>
+            )}
             <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-              {mode === 'login' ? 'Welcome back!' : 'Create account'}
+              {mode === 'login' ? 'Welcome back!' : mode === 'signup' ? 'Create account' : 'Forgot password?'}
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
               {mode === 'login'
                 ? 'Log in to your debt dashboard'
-                : 'Start your debt-free journey'}
+                : mode === 'signup'
+                ? 'Start your debt-free journey'
+                : "No worries — we'll send you a reset link"}
             </p>
           </div>
 
@@ -131,36 +147,49 @@ export function AuthPage() {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Password
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                placeholder="••••••••"
-                minLength={12}
-                className="w-full px-4 py-3 rounded-xl border border-primary-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent transition"
-              />
+            {mode !== 'forgot' && (
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Password
+                  </label>
+                  {mode === 'login' && (
+                    <button
+                      type="button"
+                      onClick={() => { setMode('forgot'); setError(null); setSuccessMsg(null); }}
+                      className="text-xs text-primary-500 hover:underline"
+                    >
+                      Forgot password?
+                    </button>
+                  )}
+                </div>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  placeholder="••••••••"
+                  minLength={12}
+                  className="w-full px-4 py-3 rounded-xl border border-primary-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent transition"
+                />
 
-              {/* Password requirements checklist — only shown on signup */}
-              {showPwRules && (
-                <ul className="mt-2 space-y-1">
-                  {pwRuleResults.map((rule) => (
-                    <li key={rule.label} className="flex items-center gap-2 text-xs">
-                      <span className={rule.passed ? 'text-green-500' : 'text-gray-300 dark:text-gray-600'}>
-                        {rule.passed ? '✓' : '○'}
-                      </span>
-                      <span className={rule.passed ? 'text-green-600 dark:text-green-400' : 'text-gray-400'}>
-                        {rule.label}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
+                {/* Password requirements checklist — only shown on signup */}
+                {showPwRules && (
+                  <ul className="mt-2 space-y-1">
+                    {pwRuleResults.map((rule) => (
+                      <li key={rule.label} className="flex items-center gap-2 text-xs">
+                        <span className={rule.passed ? 'text-green-500' : 'text-gray-300 dark:text-gray-600'}>
+                          {rule.passed ? '✓' : '○'}
+                        </span>
+                        <span className={rule.passed ? 'text-green-600 dark:text-green-400' : 'text-gray-400'}>
+                          {rule.label}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
 
             <button
               type="submit"
@@ -168,20 +197,38 @@ export function AuthPage() {
               className="w-full py-3 rounded-xl bg-gradient-to-r from-primary-400 to-primary-500 hover:from-primary-500 hover:to-primary-600 text-white font-semibold shadow-md shadow-primary-200/50 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {isSubmitting
-                ? (mode === 'login' ? 'Logging in...' : 'Creating account...')
-                : (mode === 'login' ? 'Log in' : 'Create account')}
+                ? (mode === 'login' ? 'Logging in...' : mode === 'signup' ? 'Creating account...' : 'Sending...')
+                : (mode === 'login' ? 'Log in' : mode === 'signup' ? 'Create account' : 'Send reset link')}
             </button>
           </form>
 
           {/* Toggle mode */}
           <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-6">
-            {mode === 'login' ? "Don't have an account?" : 'Already have an account?'}{' '}
-            <button
-              onClick={switchMode}
-              className="text-primary-500 font-semibold hover:underline"
-            >
-              {mode === 'login' ? 'Sign up' : 'Log in'}
-            </button>
+            {mode === 'forgot' ? (
+              <>
+                Remember it after all?{' '}
+                <button
+                  onClick={() => { setMode('login'); setError(null); setSuccessMsg(null); }}
+                  className="text-primary-500 font-semibold hover:underline"
+                >
+                  Back to log in
+                </button>
+              </>
+            ) : mode === 'login' ? (
+              <>
+                Don&apos;t have an account?{' '}
+                <button onClick={switchMode} className="text-primary-500 font-semibold hover:underline">
+                  Sign up
+                </button>
+              </>
+            ) : (
+              <>
+                Already have an account?{' '}
+                <button onClick={switchMode} className="text-primary-500 font-semibold hover:underline">
+                  Log in
+                </button>
+              </>
+            )}
           </p>
         </div>
       </div>

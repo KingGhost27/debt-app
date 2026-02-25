@@ -30,7 +30,7 @@ export const THEME_PRESETS: Record<Exclude<ThemePreset, 'custom'>, ThemeColors> 
     gradientTo: '#faf5ff',
   },
 
-  // My Melody: Strawberry Milk Pink
+  // Rose Milk: Strawberry Pink
   'my-melody': {
     primary50: '#fff0f3',
     primary100: '#ffe4e9',
@@ -48,25 +48,25 @@ export const THEME_PRESETS: Record<Exclude<ThemePreset, 'custom'>, ThemeColors> 
     gradientTo: '#fff0f3',
   },
 
-  // Kuromi: Mystical Purple Night
+  // Midnight Grape: Deep Indigo-Violet
   kuromi: {
-    primary50: '#faf5ff',
-    primary100: '#f3e8ff',
-    primary200: '#e9d5ff',
-    primary300: '#d8b4fe',
-    primary400: '#c084fc',
-    primary500: '#a855f7',
-    primary600: '#9333ea',
-    primary700: '#7e22ce',
-    primary800: '#6b21a8',
-    primary900: '#581c87',
-    accent: '#e879f9',
-    accentLight: '#f5d0fe',
-    gradientFrom: '#d8b4fe',
-    gradientTo: '#faf5ff',
+    primary50: '#f0edff',
+    primary100: '#e0d9ff',
+    primary200: '#c4b5ff',
+    primary300: '#a38bff',
+    primary400: '#7c5cf6',
+    primary500: '#5b21b6',
+    primary600: '#4c1d95',
+    primary700: '#3b1578',
+    primary800: '#2c0f5e',
+    primary900: '#1a0a3d',
+    accent: '#a78bfa',
+    accentLight: '#ede9fe',
+    gradientFrom: '#c4b5ff',
+    gradientTo: '#f0edff',
   },
 
-  // Cinnamoroll: Sky Blue Cloud
+  // Cloud Nine: Sky Blue
   cinnamoroll: {
     primary50: '#f0f9ff',
     primary100: '#e0f2fe',
@@ -84,7 +84,7 @@ export const THEME_PRESETS: Record<Exclude<ThemePreset, 'custom'>, ThemeColors> 
     gradientTo: '#f0f9ff',
   },
 
-  // Pompompurin: Golden Pudding
+  // Golden Hour: Yellow/Gold
   pompompurin: {
     primary50: '#fffbeb',
     primary100: '#fef3c7',
@@ -102,25 +102,25 @@ export const THEME_PRESETS: Record<Exclude<ThemePreset, 'custom'>, ThemeColors> 
     gradientTo: '#fffbeb',
   },
 
-  // Hello Kitty: Cherry Blossom
+  // Cherry Pop: True Cherry Red
   'hello-kitty': {
-    primary50: '#fdf2f8',
-    primary100: '#fce7f3',
-    primary200: '#fbcfe8',
-    primary300: '#f9a8d4',
-    primary400: '#f472b6',
-    primary500: '#ec4899',
-    primary600: '#db2777',
-    primary700: '#be185d',
-    primary800: '#9d174d',
-    primary900: '#831843',
-    accent: '#f9a8d4',
-    accentLight: '#fce7f3',
-    gradientFrom: '#fbcfe8',
-    gradientTo: '#fdf2f8',
+    primary50: '#fff1f2',
+    primary100: '#ffe4e6',
+    primary200: '#fecdd3',
+    primary300: '#fda4af',
+    primary400: '#fb7185',
+    primary500: '#f43f5e',
+    primary600: '#e11d48',
+    primary700: '#be123c',
+    primary800: '#9f1239',
+    primary900: '#881337',
+    accent: '#fda4af',
+    accentLight: '#ffe4e6',
+    gradientFrom: '#fecdd3',
+    gradientTo: '#fff1f2',
   },
 
-  // Keroppi: Mint Lily Pad
+  // Fresh Mint: Green
   keroppi: {
     primary50: '#ecfdf5',
     primary100: '#d1fae5',
@@ -138,7 +138,25 @@ export const THEME_PRESETS: Record<Exclude<ThemePreset, 'custom'>, ThemeColors> 
     gradientTo: '#ecfdf5',
   },
 
-  // Chococat: Mocha Latte
+  // Maple: Warm Orange
+  maple: {
+    primary50: '#fff7ed',
+    primary100: '#ffedd5',
+    primary200: '#fed7aa',
+    primary300: '#fdba74',
+    primary400: '#fb923c',
+    primary500: '#f97316',
+    primary600: '#ea580c',
+    primary700: '#c2410c',
+    primary800: '#9a3412',
+    primary900: '#7c2d12',
+    accent: '#fdba74',
+    accentLight: '#ffedd5',
+    gradientFrom: '#fed7aa',
+    gradientTo: '#fff7ed',
+  },
+
+  // Cocoa Dream: Brown/Mocha
   chococat: {
     primary50: '#fdf8f6',
     primary100: '#f2e8e5',
@@ -169,51 +187,57 @@ export const THEME_METADATA: Record<Exclude<ThemePreset, 'custom'>, {
 }> = {
   default: {
     name: 'Lavender Dream',
-    description: 'Soft purple & violet vibes',
-    emoji: '💜',
-    mascot: '✨',
-  },
-  'my-melody': {
-    name: 'My Melody',
-    description: 'Sweet strawberry milk pink',
-    emoji: '🎀',
+    description: 'Luna the bunny\'s dreamy purple world',
+    emoji: '🐰',
     mascot: '🐰',
   },
+  'my-melody': {
+    name: 'Rose Milk',
+    description: 'Rosie the pig\'s sweet strawberry world',
+    emoji: '🐷',
+    mascot: '🐷',
+  },
   kuromi: {
-    name: 'Kuromi',
-    description: 'Mystical purple magic',
-    emoji: '💜',
-    mascot: '🖤',
+    name: 'Midnight Grape',
+    description: 'Luna\'s mysterious deep violet night',
+    emoji: '🌙',
+    mascot: '🐰',
   },
   cinnamoroll: {
-    name: 'Cinnamoroll',
-    description: 'Fluffy sky blue clouds',
-    emoji: '☁️',
-    mascot: '🐕',
+    name: 'Cloud Nine',
+    description: 'Lilo the otter\'s sky blue dream',
+    emoji: '🦦',
+    mascot: '🦦',
   },
   pompompurin: {
-    name: 'Pompompurin',
-    description: 'Golden pudding sunshine',
-    emoji: '🍮',
-    mascot: '🐕',
+    name: 'Golden Hour',
+    description: 'Sunshine the chick\'s golden world',
+    emoji: '🐥',
+    mascot: '🐥',
   },
   'hello-kitty': {
-    name: 'Hello Kitty',
-    description: 'Cherry blossom dreams',
-    emoji: '🌸',
-    mascot: '🎀',
+    name: 'Cherry Pop',
+    description: 'Rosie\'s bold cherry red side',
+    emoji: '🍒',
+    mascot: '🐷',
   },
   keroppi: {
-    name: 'Keroppi',
-    description: 'Fresh mint lily pad',
+    name: 'Fresh Mint',
+    description: 'Mochi the frog\'s cool green world',
     emoji: '🐸',
-    mascot: '🌿',
+    mascot: '🐸',
   },
   chococat: {
-    name: 'Chococat',
-    description: 'Cozy mocha latte',
-    emoji: '☕',
-    mascot: '🐱',
+    name: 'Cocoa Dream',
+    description: 'Chai the bear\'s cozy mocha corner',
+    emoji: '🐻',
+    mascot: '🐻',
+  },
+  maple: {
+    name: 'Maple Season',
+    description: 'Maple the fox\'s warm autumn world',
+    emoji: '🦊',
+    mascot: '🦊',
   },
 };
 
@@ -222,32 +246,32 @@ export const THEME_METADATA: Record<Exclude<ThemePreset, 'custom'>, {
 // ============================================
 
 export const THEME_DECORATIONS: Record<Exclude<ThemePreset, 'custom'>, {
-  pattern: 'stars' | 'hearts' | 'clouds' | 'flowers' | 'dots' | 'sparkles' | 'leaves' | 'beans';
+  pattern: 'stars' | 'hearts' | 'clouds' | 'flowers' | 'dots' | 'sparkles' | 'leaves' | 'beans' | 'maple-leaf';
   floatingEmojis: string[];
 }> = {
   default: {
     pattern: 'sparkles',
-    floatingEmojis: ['✨', '💫', '⭐'],
+    floatingEmojis: ['🐰', '💜', '✨', '🌙'],
   },
   'my-melody': {
     pattern: 'hearts',
-    floatingEmojis: ['🎀', '💕', '🌸', '💗'],
+    floatingEmojis: ['🐷', '🌸', '💕', '🍓'],
   },
   kuromi: {
     pattern: 'stars',
-    floatingEmojis: ['💜', '🖤', '⭐', '✨'],
+    floatingEmojis: ['🐰', '🌙', '💜', '⭐'],
   },
   cinnamoroll: {
     pattern: 'clouds',
-    floatingEmojis: ['☁️', '⭐', '💙', '🌟'],
+    floatingEmojis: ['🦦', '☁️', '💙', '🌊'],
   },
   pompompurin: {
     pattern: 'dots',
-    floatingEmojis: ['🍮', '⭐', '💛', '🌟'],
+    floatingEmojis: ['🐥', '⭐', '💛', '🌻'],
   },
   'hello-kitty': {
     pattern: 'flowers',
-    floatingEmojis: ['🌸', '🎀', '💕', '✨'],
+    floatingEmojis: ['🐷', '🍒', '❤️', '🌹'],
   },
   keroppi: {
     pattern: 'leaves',
@@ -255,7 +279,11 @@ export const THEME_DECORATIONS: Record<Exclude<ThemePreset, 'custom'>, {
   },
   chococat: {
     pattern: 'beans',
-    floatingEmojis: ['☕', '🐱', '🤎', '✨'],
+    floatingEmojis: ['🐻', '☕', '🤎', '🍂'],
+  },
+  maple: {
+    pattern: 'maple-leaf',
+    floatingEmojis: ['🦊', '🍁', '🧡', '🌻'],
   },
 };
 

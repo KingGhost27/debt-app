@@ -18,6 +18,7 @@ export type ThemePreset =
   | 'hello-kitty'
   | 'keroppi'
   | 'chococat'
+  | 'maple'
   | 'custom';
 
 export interface ThemeColors {

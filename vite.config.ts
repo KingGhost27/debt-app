@@ -12,9 +12,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['icon-192.png', 'icon-512.png', 'icon-maskable.png'],
       manifest: {
-        name: 'Debt Payoff App',
-        short_name: 'DebtApp',
-        description: 'Track and pay off your debts with avalanche or snowball strategy',
+        name: 'Debtsy',
+        short_name: 'Debtsy',
+        description: 'Track and pay off your debts with Debtsy — your cute debt payoff companion',
         theme_color: '#a855f7',
         background_color: '#ffffff',
         display: 'standalone',

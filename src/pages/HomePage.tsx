@@ -20,6 +20,7 @@ import {
 } from '../lib/calculations';
 import { computeOverallMilestones, computeDebtPayoffTimeline, computePaymentStreak } from '../lib/milestones';
 import { ProgressRing } from '../components/ui/ProgressRing';
+import { DebtsyCow } from '../components/ui/DebtsyCow';
 import { DebtOverTimeChart } from '../components/ui/DebtOverTimeChart';
 import { MilestoneTracker } from '../components/ui/MilestoneTracker';
 import { DebtPayoffTimeline } from '../components/ui/DebtPayoffTimeline';
@@ -146,14 +147,17 @@ export function HomePage() {
           <div className="absolute top-1/2 -left-10 w-24 h-24 bg-accent/20 rounded-full blur-xl" />
           <Sparkles size={16} className="absolute top-8 right-12 text-primary-400/40 animate-kawaii-pulse" />
 
-          <div className="relative z-10">
-            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              Hi{settings.userName ? ` ${settings.userName}` : ''}!
-              <span className="text-2xl animate-kawaii-float" style={{ animationDuration: '2s' }}>
-                {settings.theme.preset === 'my-melody' ? '🎀' : settings.theme.preset === 'kuromi' ? '💜' : '✨'}
-              </span>
-            </h1>
-            <p className="text-gray-600 text-sm">Ready to start your debt-free journey?</p>
+          <div className="relative z-10 flex items-center gap-4">
+            <DebtsyCow size={64} />
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                Hi{settings.userName ? ` ${settings.userName}` : ''}!
+                <span className="text-2xl animate-kawaii-float" style={{ animationDuration: '2s' }}>
+                  {settings.theme.preset === 'cinnamoroll' ? '🦦' : settings.theme.preset === 'pompompurin' ? '🐥' : settings.theme.preset === 'keroppi' ? '🐸' : settings.theme.preset === 'chococat' ? '🐻' : settings.theme.preset === 'maple' ? '🦊' : settings.theme.preset === 'kuromi' ? '🌙' : settings.theme.preset === 'my-melody' || settings.theme.preset === 'hello-kitty' ? '🐷' : '🐰'}
+                </span>
+              </h1>
+              <p className="text-gray-600 text-sm">Ready to start your debt-free journey?</p>
+            </div>
           </div>
 
           {/* Wave decoration */}
@@ -266,14 +270,17 @@ export function HomePage() {
           <circle cx="30" cy="27" r="6" className="text-primary-300/35" fill="currentColor" />
         </svg>
 
-        <div className="mb-4 relative z-10">
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            Hi{settings.userName ? ` ${settings.userName}` : ''}!
-            <span className="text-2xl animate-kawaii-float" style={{ animationDuration: '2s' }}>
-              {settings.theme.preset === 'my-melody' ? '🎀' : settings.theme.preset === 'kuromi' ? '💜' : '✨'}
-            </span>
-          </h1>
-          <p className="text-gray-600 text-sm">{encouragement}</p>
+        <div className="mb-4 relative z-10 flex items-center gap-4">
+          <DebtsyCow size={72} />
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+              Hi{settings.userName ? ` ${settings.userName}` : ''}!
+              <span className="text-2xl animate-kawaii-float" style={{ animationDuration: '2s' }}>
+                {settings.theme.preset === 'my-melody' ? '🎀' : settings.theme.preset === 'kuromi' ? '💜' : '✨'}
+              </span>
+            </h1>
+            <p className="text-gray-600 text-sm">{encouragement}</p>
+          </div>
         </div>
 
         {/* Scalloped wave decoration */}

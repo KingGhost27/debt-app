@@ -57,14 +57,15 @@ export function SettingsPage() {
   // Get theme-appropriate emoji
   const getThemeEmoji = () => {
     const emojiMap: Record<string, string> = {
-      'my-melody': '🎀',
-      'kuromi': '💜',
-      'cinnamoroll': '☁️',
-      'pompompurin': '🍮',
-      'hello-kitty': '🌸',
+      'my-melody': '🐷',
+      'kuromi': '🌙',
+      'cinnamoroll': '🦦',
+      'pompompurin': '🐥',
+      'hello-kitty': '🍒',
       'keroppi': '🐸',
-      'chococat': '☕',
-      'default': '✨',
+      'chococat': '🐻',
+      'maple': '🦊',
+      'default': '🐰',
     };
     return emojiMap[settings.theme.preset] || '✨';
   };
@@ -277,7 +278,7 @@ export function SettingsPage() {
         <div className="text-center py-6">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary-50/50 rounded-full mb-3">
             <span className="text-lg">{getThemeEmoji()}</span>
-            <span className="text-sm font-medium text-primary-600">Debt Payoff App v1.2.0</span>
+            <span className="text-sm font-medium text-primary-600">Debtsy v1.2.0</span>
           </div>
           <p className="text-sm text-gray-400 flex items-center justify-center gap-1">
             Made with <Heart size={14} className="text-red-400 animate-heartbeat" fill="currentColor" /> for your financial freedom
