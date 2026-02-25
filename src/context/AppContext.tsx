@@ -400,9 +400,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const updateSettings = useCallback(async (updates: Partial<UserSettings>) => {
     if (!user) return;
+    let next: UserSettings | undefined;
     update((prev) => {
-      const next = { ...prev.settings, ...updates };
-      supabase.from('profiles').update({
+      next = { ...prev.settings, ...updates };
+      return { ...prev, settings: next };
+    });
+    if (next) {
+      await supabase.from('profiles').update({
         user_name: next.userName,
         currency: next.currency,
         date_format: next.dateFormat,
@@ -410,8 +414,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         category_colors: next.categoryColors,
         updated_at: new Date().toISOString(),
       }).eq('id', user.id);
-      return { ...prev, settings: next };
-    });
+    }
   }, [user, update]);
 
   const updateTheme = useCallback(async (theme: ThemeSettings) => {
