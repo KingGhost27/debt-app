@@ -11,10 +11,14 @@ import { useTheme } from '../../hooks/useTheme';
 import { useApp } from '../../context/AppContext';
 import { getThemeDecorations } from '../../lib/themes';
 import { Cloud, Check } from 'lucide-react';
+import { useNotificationChecker } from '../../hooks/useNotifications';
 
 export function Layout() {
   // Apply theme on mount and when theme changes
   useTheme();
+
+  // Check for upcoming bills once per day
+  useNotificationChecker();
 
   const { settings, syncStatus } = useApp();
   const decorations = getThemeDecorations(settings.theme);

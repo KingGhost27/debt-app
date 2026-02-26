@@ -6,7 +6,8 @@
  */
 
 import { useRef, useState } from 'react';
-import { Download, Upload, Trash2, ChevronLeft, Sparkles, Database, Heart, User, Check, LogOut, FileSpreadsheet } from 'lucide-react';
+import { Download, Upload, Trash2, ChevronLeft, Sparkles, Database, Heart, User, Check, LogOut, FileSpreadsheet, Bell, BellOff } from 'lucide-react';
+import { useNotificationSettings } from '../hooks/useNotifications';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
@@ -25,6 +26,7 @@ export function SettingsPage() {
   const [nameInput, setNameInput] = useState(settings.userName || '');
   const [nameSaved, setNameSaved] = useState(false);
   const { confirm, dialogProps } = useConfirmDialog();
+  const { settings: notifSettings, save: saveNotif, requestPermission, permissionState } = useNotificationSettings();
 
   const handleSaveName = () => {
     updateSettings({ userName: nameInput.trim() });
@@ -185,6 +187,111 @@ export function SettingsPage() {
         {/* Categories Section */}
         <div className="card">
           <CategoryManager />
+        </div>
+
+        {/* Notifications Section */}
+        <div className="card">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-300/30">
+              <Bell size={20} className="text-white" />
+            </div>
+            <div>
+              <h3 className="font-bold text-gray-900">Bill Reminders</h3>
+              <p className="text-sm text-gray-500">Get notified before payments are due</p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            {/* Permission / enable toggle */}
+            {permissionState === 'denied' ? (
+              <div className="flex items-start gap-3 p-3 bg-red-50 rounded-2xl border border-red-100">
+                <BellOff size={18} className="text-red-400 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-red-600">Notifications are blocked. Please allow them in your browser settings, then come back here.</p>
+              </div>
+            ) : permissionState === 'default' ? (
+              <button
+                onClick={async () => {
+                  const result = await requestPermission();
+                  if (result === 'denied') showToast('Notifications blocked — allow them in browser settings', 'error');
+                  else if (result === 'granted') showToast('Notifications enabled! 🔔', 'success');
+                }}
+                className="w-full flex items-center gap-3 p-4 bg-gradient-to-r from-amber-50 to-white rounded-2xl border border-amber-100 hover:shadow-md transition-all text-left"
+              >
+                <Bell size={20} className="text-amber-500 flex-shrink-0" />
+                <div className="flex-1">
+                  <p className="font-semibold text-gray-900">Allow Notifications</p>
+                  <p className="text-xs text-gray-500">Tap to enable bill reminders on this device</p>
+                </div>
+                <Sparkles size={14} className="text-amber-300" />
+              </button>
+            ) : (
+              /* Permission granted — show toggle */
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-2xl">
+                <div className="flex items-center gap-2">
+                  {notifSettings.enabled ? <Bell size={18} className="text-amber-500" /> : <BellOff size={18} className="text-gray-400" />}
+                  <span className="text-sm font-medium text-gray-700">
+                    {notifSettings.enabled ? 'Reminders on' : 'Reminders off'}
+                  </span>
+                </div>
+                <button
+                  onClick={() => saveNotif({ enabled: !notifSettings.enabled })}
+                  className={`relative w-12 h-6 rounded-full transition-colors duration-200 ${notifSettings.enabled ? 'bg-amber-400' : 'bg-gray-300'}`}
+                >
+                  <span className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-all duration-200 ${notifSettings.enabled ? 'left-7' : 'left-1'}`} />
+                </button>
+              </div>
+            )}
+
+            {/* Options — only show when enabled + permitted */}
+            {permissionState === 'granted' && notifSettings.enabled && (
+              <>
+                {/* Days in advance */}
+                <div>
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Remind me how far in advance?</p>
+                  <div className="flex gap-2">
+                    {[1, 3, 5, 7].map((days) => (
+                      <button
+                        key={days}
+                        onClick={() => saveNotif({ daysInAdvance: days })}
+                        className={`flex-1 py-2 rounded-xl text-sm font-semibold transition-all ${
+                          notifSettings.daysInAdvance === days
+                            ? 'bg-amber-400 text-white shadow-sm'
+                            : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                        }`}
+                      >
+                        {days}d
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* What to remind */}
+                <div>
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Remind me about</p>
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <div
+                        onClick={() => saveNotif({ remindSubscriptions: !notifSettings.remindSubscriptions })}
+                        className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${notifSettings.remindSubscriptions ? 'bg-amber-400 border-amber-400' : 'border-gray-300'}`}
+                      >
+                        {notifSettings.remindSubscriptions && <Check size={12} className="text-white" />}
+                      </div>
+                      <span className="text-sm text-gray-700">Subscription renewals</span>
+                    </label>
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <div
+                        onClick={() => saveNotif({ remindPayments: !notifSettings.remindPayments })}
+                        className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${notifSettings.remindPayments ? 'bg-amber-400 border-amber-400' : 'border-gray-300'}`}
+                      >
+                        {notifSettings.remindPayments && <Check size={12} className="text-white" />}
+                      </div>
+                      <span className="text-sm text-gray-700">Debt payment due dates</span>
+                    </label>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
         </div>
 
         {/* Data Management Section */}
