@@ -99,7 +99,7 @@ export function AuthPage() {
             <div className="flex justify-center mb-2">
               <DebtsyCow size={72} />
             </div>
-            <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 tracking-tight">Debtsy</h1>
+            <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 tracking-tight">Cowculator</h1>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Track and crush your debt 🐄</p>
           </div>
         )}
