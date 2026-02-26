@@ -15,6 +15,7 @@ import {
   isSameMonth,
 } from 'date-fns';
 import { Check, Plus, Flame, CheckCircle, AlertCircle, X, Undo2, Pencil, Receipt, Calendar, Sparkles, Trophy, Target } from 'lucide-react';
+import { SubscriptionsPage } from './SubscriptionsPage';
 import { useApp } from '../context/AppContext';
 import { PageHeader } from '../components/layout/PageHeader';
 import { MiniCalendar } from '../components/ui/MiniCalendar';
@@ -27,7 +28,7 @@ import { formatCurrency, generatePayoffPlan } from '../lib/calculations';
 import { computePaymentStreak } from '../lib/milestones';
 import type { Debt, PaymentType, Payment, ReceivedPaycheck } from '../types';
 
-type TabType = 'upcoming' | 'complete' | 'calendar' | 'paychecks';
+type TabType = 'upcoming' | 'complete' | 'calendar' | 'paychecks' | 'subs';
 
 export function TrackPage() {
   const { debts, strategy, payments, budget, deletePayment, updateDebt, customCategories, receivedPaychecks, deletePaycheck, subscriptions } = useApp();
@@ -326,12 +327,12 @@ export function TrackPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 p-1.5 bg-gray-100 rounded-2xl">
-          {(['upcoming', 'complete', 'calendar', 'paychecks'] as TabType[]).map((tab) => (
+        <div className="flex gap-1 p-1.5 bg-gray-100 rounded-2xl overflow-x-auto">
+          {(['upcoming', 'complete', 'calendar', 'paychecks', 'subs'] as TabType[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`flex-1 py-2.5 px-3 rounded-xl font-semibold text-sm transition-all ${
+              className={`flex-1 py-2.5 px-2 rounded-xl font-semibold text-xs transition-all whitespace-nowrap ${
                 activeTab === tab
                   ? 'bg-white text-gray-900 shadow-sm'
                   : 'text-gray-500 hover:text-gray-700'
@@ -735,6 +736,11 @@ export function TrackPage() {
               )}
             </div>
           </div>
+        )}
+
+        {/* Subs Tab */}
+        {activeTab === 'subs' && (
+          <SubscriptionsPage embedded />
         )}
       </div>
 

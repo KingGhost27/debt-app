@@ -17,7 +17,6 @@ import { SubscriptionsPage } from './pages/SubscriptionsPage';
 import { PlanPage } from './pages/PlanPage';
 import { TrackPage } from './pages/TrackPage';
 import { SettingsPage } from './pages/SettingsPage';
-import { MorePage } from './pages/MorePage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
 
 function ProtectedRoutes() {
@@ -55,7 +54,7 @@ function ProtectedRoutes() {
             <Route path="plan" element={<PlanPage />} />
             <Route path="track" element={<TrackPage />} />
             <Route path="settings" element={<SettingsPage />} />
-            <Route path="more" element={<MorePage />} />
+            <Route path="more" element={<Navigate to="/" replace />} />
           </Route>
         </Routes>
       </ToastProvider>

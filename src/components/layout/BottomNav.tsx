@@ -11,7 +11,7 @@ import {
   CreditCard,
   ClipboardList,
   CalendarCheck,
-  MoreHorizontal,
+  Wallet,
   Sparkles,
 } from 'lucide-react';
 
@@ -49,11 +49,10 @@ const navItems: NavItem[] = [
     activeIcon: <CalendarCheck size={22} strokeWidth={2.5} />,
   },
   {
-    to: '/more',
-    label: 'More',
-    icon: <MoreHorizontal size={22} strokeWidth={2} />,
-    activeIcon: <MoreHorizontal size={22} strokeWidth={2.5} />,
-    matchPaths: ['/assets', '/subscriptions', '/settings'],
+    to: '/assets',
+    label: 'Assets',
+    icon: <Wallet size={22} strokeWidth={2} />,
+    activeIcon: <Wallet size={22} strokeWidth={2.5} />,
   },
 ];
 

@@ -6,7 +6,8 @@
  */
 
 import type { ReactNode } from 'react';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Settings } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
 
 interface PageHeaderProps {
   title: string;
@@ -23,6 +24,8 @@ export function PageHeader({
   gradient = true,
   emoji,
 }: PageHeaderProps) {
+  const location = useLocation();
+  const isSettingsPage = location.pathname === '/settings';
   return (
     <header
       className={`page-header px-4 pt-12 pb-8 relative overflow-hidden ${
@@ -62,11 +65,17 @@ export function PageHeader({
             )}
           </div>
         </div>
-        {action && (
-          <div className="animate-pop-in" style={{ animationDelay: '0.2s' }}>
-            {action}
-          </div>
-        )}
+        <div className="flex items-center gap-2 animate-pop-in" style={{ animationDelay: '0.2s' }}>
+          {action && <div>{action}</div>}
+          {!isSettingsPage && (
+            <Link
+              to="/settings"
+              className="w-9 h-9 flex items-center justify-center rounded-2xl bg-white/60 hover:bg-white/90 transition-all text-gray-500 hover:text-primary-600 shadow-sm"
+            >
+              <Settings size={18} />
+            </Link>
+          )}
+        </div>
       </div>
 
       {/* Bottom wave decoration */}

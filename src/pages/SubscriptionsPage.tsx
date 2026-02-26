@@ -73,7 +73,7 @@ function formatFrequency(frequency: SubscriptionFrequency): string {
   return `Every ${value} ${unit}`;
 }
 
-export function SubscriptionsPage() {
+export function SubscriptionsPage({ embedded = false }: { embedded?: boolean }) {
   const { subscriptions, deleteSubscription, updateSubscription } = useApp();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSubscription, setEditingSubscription] = useState<Subscription | null>(null);
@@ -141,221 +141,161 @@ export function SubscriptionsPage() {
     setEditingSubscription(null);
   };
 
+  const addButton = (
+    <button
+      onClick={() => setIsModalOpen(true)}
+      className="flex items-center gap-1.5 px-4 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white text-sm font-semibold rounded-2xl hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg shadow-primary-500/30 hover:shadow-primary-500/40 hover:scale-105 active:scale-95"
+    >
+      <Plus size={18} />
+      Add
+    </button>
+  );
+
   // Empty state
   if (subscriptions.length === 0) {
+    if (embedded) {
+      return (
+        <div className="space-y-4">
+          <div className="flex justify-end">{addButton}</div>
+          <EmptyState
+            icon="📺"
+            title="No Subscriptions Yet"
+            description="Add your streaming services, software subscriptions, and other recurring charges to track your spending."
+            action={{ label: 'Add Your First Subscription', onClick: () => setIsModalOpen(true) }}
+            encouragement="Stay on top of your recurring costs!"
+          />
+          <SubscriptionModal isOpen={isModalOpen} onClose={handleCloseModal} subscription={editingSubscription} />
+          <ConfirmDialog {...dialogProps} />
+        </div>
+      );
+    }
     return (
       <div className="min-h-screen bg-gray-50 animate-page-enter">
-        <PageHeader
-          title="Subscriptions"
-          subtitle="Track recurring services"
-          emoji="🔄"
-        />
+        <PageHeader title="Subscriptions" subtitle="Track recurring services" emoji="🔄" />
         <div className="px-4">
           <EmptyState
             icon="📺"
             title="No Subscriptions Yet"
             description="Add your streaming services, software subscriptions, and other recurring charges to track your spending."
-            action={{
-              label: 'Add Your First Subscription',
-              onClick: () => setIsModalOpen(true),
-            }}
+            action={{ label: 'Add Your First Subscription', onClick: () => setIsModalOpen(true) }}
             encouragement="Stay on top of your recurring costs!"
           />
         </div>
-        <SubscriptionModal
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-          subscription={editingSubscription}
-        />
+        <SubscriptionModal isOpen={isModalOpen} onClose={handleCloseModal} subscription={editingSubscription} />
+      </div>
+    );
+  }
+
+  const sharedContent = (
+    <>
+      {/* Summary Card */}
+      <div className="card bg-gradient-to-br from-primary-50 to-white dark:from-primary-900/30 dark:to-gray-800 rounded-3xl border border-primary-100 dark:border-primary-700/50 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-primary-200/30 rounded-full -translate-y-1/2 translate-x-1/2" />
+        <Sparkles size={14} className="absolute top-4 right-6 text-primary-300 animate-kawaii-pulse" />
+        <div className="relative z-10">
+          <div className="flex items-center gap-2 mb-4">
+            <RefreshCw size={18} className="text-primary-500" />
+            <p className="text-sm text-gray-500 font-semibold uppercase tracking-wide">Recurring Costs</p>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="p-4 bg-white/60 dark:bg-gray-800/60 rounded-2xl">
+              <p className="text-xs text-gray-500 mb-1">Monthly</p>
+              <p className="text-2xl font-bold text-primary-600">{formatCurrency(monthlyTotal)}</p>
+            </div>
+            <div className="p-4 bg-white/60 dark:bg-gray-800/60 rounded-2xl">
+              <p className="text-xs text-gray-500 mb-1">Annual</p>
+              <p className="text-2xl font-bold text-gray-900">{formatCurrency(annualTotal)}</p>
+            </div>
+          </div>
+          <div className="mt-4 flex items-center justify-between text-sm">
+            <span className="text-gray-500">{activeSubscriptions.length} active subscription{activeSubscriptions.length !== 1 ? 's' : ''}</span>
+            {subscriptions.length > activeSubscriptions.length && (
+              <span className="text-gray-400">{subscriptions.length - activeSubscriptions.length} paused</span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Subscriptions List */}
+      <div className="space-y-4">
+        {Object.entries(subscriptionsByCategory).map(([category, subs]) => {
+          const categoryInfo = SUBSCRIPTION_CATEGORY_INFO[category as keyof typeof SUBSCRIPTION_CATEGORY_INFO];
+          return (
+            <div key={category}>
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: categoryInfo?.color || '#6b7280' }} />
+                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">{categoryInfo?.label || category}</h3>
+              </div>
+              <div className="space-y-3">
+                {subs.map((subscription) => {
+                  const nextBilling = getNextBillingDate(subscription);
+                  const daysUntil = differenceInDays(nextBilling, new Date());
+                  const monthlyAmount = getMonthlyAmount(subscription.amount, subscription.frequency);
+                  return (
+                    <div key={subscription.id} className={`card bg-white rounded-2xl shadow-sm hover:shadow-md transition-all group overflow-hidden ${!subscription.isActive ? 'opacity-60' : ''}`}>
+                      <div className="h-1 -mx-4 -mt-4 mb-3" style={{ backgroundColor: categoryInfo?.color || '#6b7280' }} />
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-semibold text-gray-900 truncate">{subscription.name}</h4>
+                            {!subscription.isActive && <span className="px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-500 rounded-full">Paused</span>}
+                          </div>
+                          <p className="text-sm text-gray-500 mt-1">{formatCurrency(subscription.amount)} · {formatFrequency(subscription.frequency)}</p>
+                          {subscription.isActive && (
+                            <div className="flex items-center gap-1.5 mt-2">
+                              <Calendar size={14} className="text-gray-400" />
+                              <span className="text-xs text-gray-500">{format(nextBilling, 'MMM d, yyyy')}</span>
+                              {daysUntil <= 7 && daysUntil >= 0 && (
+                                <span className={`ml-1 px-2 py-0.5 text-xs font-medium rounded-full ${daysUntil === 0 ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'}`}>
+                                  {daysUntil === 0 ? 'Today' : `${daysUntil}d`}
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <div className="text-right">
+                            <p className="text-lg font-bold text-gray-900">{formatCurrency(subscription.amount)}</p>
+                            <p className="text-xs text-gray-400">~{formatCurrency(monthlyAmount)}/mo</p>
+                          </div>
+                          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onClick={() => handleToggleActive(subscription)} className="p-2 text-gray-400 hover:text-primary-600 hover:bg-gray-100 rounded-xl transition-colors" title={subscription.isActive ? 'Pause' : 'Resume'}>
+                              {subscription.isActive ? <Pause size={16} /> : <Play size={16} />}
+                            </button>
+                            <button onClick={() => handleEdit(subscription)} className="p-2 text-gray-400 hover:text-primary-600 hover:bg-gray-100 rounded-xl transition-colors"><Pencil size={16} /></button>
+                            <button onClick={() => handleDelete(subscription)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-gray-100 rounded-xl transition-colors"><Trash2 size={16} /></button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </>
+  );
+
+  if (embedded) {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-end">{addButton}</div>
+        {sharedContent}
+        <SubscriptionModal isOpen={isModalOpen} onClose={handleCloseModal} subscription={editingSubscription} />
+        <ConfirmDialog {...dialogProps} />
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-gray-50 animate-page-enter">
-      <PageHeader
-        title="Subscriptions"
-        subtitle="Track recurring services"
-        emoji="🔄"
-        action={
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-1.5 px-4 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white text-sm font-semibold rounded-2xl hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg shadow-primary-500/30 hover:shadow-primary-500/40 hover:scale-105 active:scale-95"
-          >
-            <Plus size={18} />
-            Add
-          </button>
-        }
-      />
-
+      <PageHeader title="Subscriptions" subtitle="Track recurring services" emoji="🔄" action={addButton} />
       <div className="px-4 py-6 space-y-6">
-        {/* Summary Card */}
-        <div className="card bg-gradient-to-br from-primary-50 to-white dark:from-primary-900/30 dark:to-gray-800 rounded-3xl border border-primary-100 dark:border-primary-700/50 relative overflow-hidden">
-          {/* Decorative elements */}
-          <div className="absolute top-0 right-0 w-32 h-32 bg-primary-200/30 rounded-full -translate-y-1/2 translate-x-1/2" />
-          <Sparkles size={14} className="absolute top-4 right-6 text-primary-300 animate-kawaii-pulse" />
-
-          <div className="relative z-10">
-            <div className="flex items-center gap-2 mb-4">
-              <RefreshCw size={18} className="text-primary-500" />
-              <p className="text-sm text-gray-500 font-semibold uppercase tracking-wide">
-                Recurring Costs
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-4 bg-white/60 dark:bg-gray-800/60 rounded-2xl">
-                <p className="text-xs text-gray-500 mb-1">Monthly</p>
-                <p className="text-2xl font-bold text-primary-600">
-                  {formatCurrency(monthlyTotal)}
-                </p>
-              </div>
-              <div className="p-4 bg-white/60 dark:bg-gray-800/60 rounded-2xl">
-                <p className="text-xs text-gray-500 mb-1">Annual</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {formatCurrency(annualTotal)}
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-4 flex items-center justify-between text-sm">
-              <span className="text-gray-500">
-                {activeSubscriptions.length} active subscription{activeSubscriptions.length !== 1 ? 's' : ''}
-              </span>
-              {subscriptions.length > activeSubscriptions.length && (
-                <span className="text-gray-400">
-                  {subscriptions.length - activeSubscriptions.length} paused
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Subscriptions List */}
-        <div className="space-y-4">
-          {Object.entries(subscriptionsByCategory).map(([category, subs]) => {
-            const categoryInfo = SUBSCRIPTION_CATEGORY_INFO[category as keyof typeof SUBSCRIPTION_CATEGORY_INFO];
-            return (
-              <div key={category}>
-                {/* Category Header */}
-                <div className="flex items-center gap-2 mb-3">
-                  <div
-                    className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: categoryInfo?.color || '#6b7280' }}
-                  />
-                  <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
-                    {categoryInfo?.label || category}
-                  </h3>
-                </div>
-
-                {/* Subscription Cards */}
-                <div className="space-y-3">
-                  {subs.map((subscription) => {
-                    const nextBilling = getNextBillingDate(subscription);
-                    const daysUntil = differenceInDays(nextBilling, new Date());
-                    const monthlyAmount = getMonthlyAmount(subscription.amount, subscription.frequency);
-
-                    return (
-                      <div
-                        key={subscription.id}
-                        className={`card bg-white rounded-2xl shadow-sm hover:shadow-md transition-all group overflow-hidden ${
-                          !subscription.isActive ? 'opacity-60' : ''
-                        }`}
-                      >
-                        {/* Color bar */}
-                        <div
-                          className="h-1 -mx-4 -mt-4 mb-3"
-                          style={{ backgroundColor: categoryInfo?.color || '#6b7280' }}
-                        />
-
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <h4 className="font-semibold text-gray-900 truncate">
-                                {subscription.name}
-                              </h4>
-                              {!subscription.isActive && (
-                                <span className="px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-500 rounded-full">
-                                  Paused
-                                </span>
-                              )}
-                            </div>
-                            <p className="text-sm text-gray-500 mt-1">
-                              {formatCurrency(subscription.amount)} · {formatFrequency(subscription.frequency)}
-                            </p>
-                            {subscription.isActive && (
-                              <div className="flex items-center gap-1.5 mt-2">
-                                <Calendar size={14} className="text-gray-400" />
-                                <span className="text-xs text-gray-500">
-                                  {format(nextBilling, 'MMM d, yyyy')}
-                                </span>
-                                {daysUntil <= 7 && daysUntil >= 0 && (
-                                  <span
-                                    className={`ml-1 px-2 py-0.5 text-xs font-medium rounded-full ${
-                                      daysUntil === 0
-                                        ? 'bg-red-100 text-red-600'
-                                        : 'bg-amber-100 text-amber-600'
-                                    }`}
-                                  >
-                                    {daysUntil === 0 ? 'Today' : `${daysUntil}d`}
-                                  </span>
-                                )}
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Amount and Actions */}
-                          <div className="flex items-start gap-2">
-                            <div className="text-right">
-                              <p className="text-lg font-bold text-gray-900">
-                                {formatCurrency(subscription.amount)}
-                              </p>
-                              <p className="text-xs text-gray-400">
-                                ~{formatCurrency(monthlyAmount)}/mo
-                              </p>
-                            </div>
-
-                            {/* Action buttons */}
-                            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <button
-                                onClick={() => handleToggleActive(subscription)}
-                                className="p-2 text-gray-400 hover:text-primary-600 hover:bg-gray-100 rounded-xl transition-colors"
-                                title={subscription.isActive ? 'Pause' : 'Resume'}
-                              >
-                                {subscription.isActive ? <Pause size={16} /> : <Play size={16} />}
-                              </button>
-                              <button
-                                onClick={() => handleEdit(subscription)}
-                                className="p-2 text-gray-400 hover:text-primary-600 hover:bg-gray-100 rounded-xl transition-colors"
-                              >
-                                <Pencil size={16} />
-                              </button>
-                              <button
-                                onClick={() => handleDelete(subscription)}
-                                className="p-2 text-gray-400 hover:text-red-500 hover:bg-gray-100 rounded-xl transition-colors"
-                              >
-                                <Trash2 size={16} />
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        {sharedContent}
       </div>
-
-      {/* Modal */}
-      <SubscriptionModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        subscription={editingSubscription}
-      />
-
+      <SubscriptionModal isOpen={isModalOpen} onClose={handleCloseModal} subscription={editingSubscription} />
       <ConfirmDialog {...dialogProps} />
     </div>
   );
