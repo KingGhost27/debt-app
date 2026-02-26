@@ -5,9 +5,9 @@
  * Features: Cute animations, encouraging messages, progress celebration.
  */
 
-import { useMemo } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { format, parseISO } from 'date-fns';
-import { Target, Sparkles, TrendingDown, Calendar, Wallet, Receipt, ChevronRight, Trophy, BarChart3, PieChart as PieChartIcon, ClipboardList } from 'lucide-react';
+import { Target, Sparkles, TrendingDown, Calendar, Wallet, Receipt, ChevronRight, ChevronDown, Trophy, BarChart3, PieChart as PieChartIcon, ClipboardList } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import {
@@ -42,6 +42,46 @@ const getEncouragement = (percentPaid: number) => {
   if (percentPaid > 0) return "Every payment counts!";
   return "Let's start your journey!";
 };
+
+function CollapsibleSection({
+  title,
+  subtitle,
+  icon,
+  iconGradient = 'from-primary-400 to-primary-600',
+  children,
+  defaultOpen = false,
+}: {
+  title: string;
+  subtitle?: string;
+  icon: ReactNode;
+  iconGradient?: string;
+  children: ReactNode;
+  defaultOpen?: boolean;
+}) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+  return (
+    <div className="card">
+      <button onClick={() => setIsOpen(!isOpen)} className="w-full flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className={`w-10 h-10 rounded-2xl bg-gradient-to-br ${iconGradient} flex items-center justify-center`}>
+            {icon}
+          </div>
+          <div className="text-left">
+            <h2 className="font-bold text-gray-900">{title}</h2>
+            {subtitle && <p className="text-xs text-gray-500">{subtitle}</p>}
+          </div>
+        </div>
+        <ChevronDown
+          size={20}
+          className={`text-gray-400 transition-transform duration-200 flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`}
+        />
+      </button>
+      <div className={`grid transition-all duration-200 ${isOpen ? 'grid-rows-[1fr] mt-4' : 'grid-rows-[0fr]'}`}>
+        <div className="overflow-hidden">{children}</div>
+      </div>
+    </div>
+  );
+}
 
 export function HomePage() {
   const { debts, strategy, settings, customCategories, budget, payments, subscriptions, receivedPaychecks } = useApp();
@@ -305,28 +345,56 @@ export function HomePage() {
             </div>
           </div>
 
-          {/* Progress Ring + Stats */}
-          <div className="flex items-center gap-6 mb-6">
-            <ProgressRing
-              percentage={summary.percentPaid}
-              size={110}
-              strokeWidth={12}
-              showSparkle
-            />
-            <div className="flex-1 space-y-3">
-              <div>
-                <p className="text-xs text-gray-500 mb-0.5">Paid Off</p>
-                <p className="text-xl font-bold text-primary-600">
-                  {formatCurrency(summary.principalPaid)}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500 mb-0.5">Remaining</p>
-                <p className="text-xl font-bold text-gray-900">
-                  {formatCurrency(summary.totalBalance)}
-                </p>
+          {/* Progress Rings — grid-cols-2 matches stat grid below */}
+          <div className="grid grid-cols-2 gap-3 mb-6">
+            {/* Left col: Payoff Ring (sits above Total Interest) */}
+            <div className="flex flex-col items-center gap-2">
+              <ProgressRing
+                percentage={summary.percentPaid}
+                size={100}
+                strokeWidth={11}
+                showSparkle
+              />
+              <div className="flex gap-4">
+                <div className="text-center">
+                  <p className="text-[10px] text-gray-500">Paid Off</p>
+                  <p className="text-sm font-bold text-primary-600">{formatCurrency(summary.principalPaid)}</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-[10px] text-gray-500">Remaining</p>
+                  <p className="text-sm font-bold text-gray-900">{formatCurrency(summary.totalBalance)}</p>
+                </div>
               </div>
             </div>
+
+            {/* Right col: Credit Ring (sits above Monthly Payment) */}
+            {summary.totalCreditLimit > 0 ? (
+              <div className="flex flex-col items-center gap-2">
+                <div className="relative">
+                  <ProgressRing
+                    percentage={summary.creditUtilization}
+                    size={100}
+                    strokeWidth={11}
+                    color={summary.creditUtilization > 30 ? '#ef4444' : '#22c55e'}
+                    showLabel={false}
+                  />
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className={`text-base font-bold ${summary.creditUtilization > 100 ? 'text-red-600' : 'text-gray-900'}`}>
+                      {formatPercent(summary.creditUtilization, 0)}
+                    </span>
+                    <span className="text-[9px] text-gray-400">used</span>
+                  </div>
+                </div>
+                <div className="text-center">
+                  <p className="text-[10px] text-gray-500 font-medium">Credit Used</p>
+                  <p className="text-[10px] text-gray-400 leading-tight">
+                    {formatCurrency(debts.filter(d => d.creditLimit).reduce((s, d) => s + d.balance, 0))}
+                    {' / '}
+                    {formatCurrency(summary.totalCreditLimit)}
+                  </p>
+                </div>
+              </div>
+            ) : <div />}
           </div>
 
           {/* Quick Stats Grid */}
@@ -391,35 +459,6 @@ export function HomePage() {
           })()}
         </div>
 
-        {/* Credit Utilization */}
-        {summary.totalCreditLimit > 0 && (
-          <div className="card">
-            <h2 className="font-bold text-gray-900 mb-2">Credit Utilization</h2>
-            <p className="text-sm text-gray-500 mb-4">
-              Only includes debts with a credit limit
-            </p>
-            <div className="flex justify-center">
-              <div className="relative">
-                <ProgressRing
-                  percentage={summary.creditUtilization}
-                  size={120}
-                  strokeWidth={12}
-                  color={summary.creditUtilization > 30 ? '#ef4444' : '#22c55e'}
-                  showLabel={false}
-                />
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className={`text-2xl font-bold ${summary.creditUtilization > 100 ? 'text-red-600' : 'text-gray-900'}`}>
-                    {formatPercent(summary.creditUtilization, 0)}
-                  </span>
-                  <span className="text-xs text-gray-500">utilized</span>
-                </div>
-              </div>
-            </div>
-            <p className="text-center text-sm text-gray-600 mt-3">
-              {formatCurrency(debts.filter(d => d.creditLimit).reduce((sum, d) => sum + d.balance, 0))} / {formatCurrency(summary.totalCreditLimit)}
-            </p>
-          </div>
-        )}
 
         {/* Milestone Tracker */}
         <div className="card">
@@ -428,8 +467,8 @@ export function HomePage() {
               <Trophy size={20} className="text-white" />
             </div>
             <div>
-              <h2 className="font-bold text-gray-900 dark:text-white">Milestones</h2>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Track your progress</p>
+              <h2 className="font-bold text-gray-900">Milestones</h2>
+              <p className="text-xs text-gray-500">Track your progress</p>
             </div>
           </div>
           <MilestoneTracker milestones={overallMilestones} percentPaid={summary.percentPaid} />
@@ -560,66 +599,43 @@ export function HomePage() {
 
         {/* Debt Payoff Timeline */}
         {debtTimeline.length > 0 && (
-          <div className="card">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center">
-                <ClipboardList size={20} className="text-white" />
-              </div>
-              <div>
-                <h2 className="font-bold text-gray-900 dark:text-white">Payoff Timeline</h2>
-                <p className="text-xs text-gray-500 dark:text-gray-400">When each debt gets paid off</p>
-              </div>
-            </div>
+          <CollapsibleSection title="Payoff Timeline" subtitle="When each debt gets paid off" icon={<ClipboardList size={20} className="text-white" />}>
             <DebtPayoffTimeline timeline={debtTimeline} />
-          </div>
+          </CollapsibleSection>
         )}
 
         {/* Upcoming Bills */}
         <UpcomingBills debts={debts} customCategories={customCategories} payments={payments} incomeSources={budget.incomeSources} subscriptions={subscriptions} />
 
-        {/* Debt Over Time Chart */}
+        {/* Analytics (Charts) */}
         {plan.monthlyBreakdown && plan.monthlyBreakdown.length > 0 && (
-          <div className="card">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center">
-                <TrendingDown size={20} className="text-white" />
-              </div>
-              <h2 className="font-bold text-gray-900">Debt Over Time</h2>
-            </div>
-            <DebtOverTimeChart plan={plan} startingBalance={summary.totalBalance} />
-          </div>
-        )}
-
-        {/* Interest vs Principal Chart */}
-        {plan.monthlyBreakdown && plan.monthlyBreakdown.length > 0 && (
-          <div className="card">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center">
-                <PieChartIcon size={20} className="text-white" />
-              </div>
+          <CollapsibleSection title="Analytics" subtitle="Charts & detailed breakdowns" icon={<BarChart3 size={20} className="text-white" />}>
+            <div className="space-y-6">
               <div>
-                <h2 className="font-bold text-gray-900 dark:text-white">Interest vs Principal</h2>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Where your payments go</p>
+                <p className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                  <TrendingDown size={14} className="text-primary-500" />
+                  Debt Over Time
+                </p>
+                <DebtOverTimeChart plan={plan} startingBalance={summary.totalBalance} />
               </div>
+              <div className="border-t border-gray-100 pt-5">
+                <p className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                  <PieChartIcon size={14} className="text-primary-500" />
+                  Interest vs Principal
+                </p>
+                <InterestVsPrincipalChart monthlyBreakdown={plan.monthlyBreakdown} />
+              </div>
+              {debts.length > 1 && (
+                <div className="border-t border-gray-100 pt-5">
+                  <p className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                    <BarChart3 size={14} className="text-primary-500" />
+                    Debt Breakdown
+                  </p>
+                  <DebtBreakdownChart monthlyBreakdown={plan.monthlyBreakdown} debts={debts} />
+                </div>
+              )}
             </div>
-            <InterestVsPrincipalChart monthlyBreakdown={plan.monthlyBreakdown} />
-          </div>
-        )}
-
-        {/* Debt Breakdown Chart */}
-        {plan.monthlyBreakdown && plan.monthlyBreakdown.length > 0 && debts.length > 1 && (
-          <div className="card">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center">
-                <BarChart3 size={20} className="text-white" />
-              </div>
-              <div>
-                <h2 className="font-bold text-gray-900 dark:text-white">Debt Breakdown</h2>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Each debt over time</p>
-              </div>
-            </div>
-            <DebtBreakdownChart monthlyBreakdown={plan.monthlyBreakdown} debts={debts} />
-          </div>
+          </CollapsibleSection>
         )}
 
         {/* Mini Calendar */}
@@ -627,27 +643,14 @@ export function HomePage() {
 
         {/* Payment History */}
         {payments.filter((p) => p.isCompleted).length > 0 && (
-          <div className="card">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center">
-                <Receipt size={20} className="text-white" />
-              </div>
-              <div>
-                <h2 className="font-bold text-gray-900 dark:text-white">Payment History</h2>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Your actual payments</p>
-              </div>
-            </div>
+          <CollapsibleSection title="Payment History" subtitle="Your actual payments" icon={<Receipt size={20} className="text-white" />} iconGradient="from-green-400 to-emerald-500">
             <PaymentHistorySummary payments={payments} />
-          </div>
+          </CollapsibleSection>
         )}
 
         {/* Categories */}
         {categories.length > 0 && (
-          <div className="card">
-            <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-              <Sparkles size={12} />
-              Categories
-            </h3>
+          <CollapsibleSection title="Categories" subtitle="Debts by category" icon={<Sparkles size={20} className="text-white" />}>
             <div className="space-y-3">
               {categories.slice(0, 4).map((cat) => {
                 const categoryDebts = debts.filter((d) => d.category === cat.category);
@@ -686,15 +689,11 @@ export function HomePage() {
                 );
               })}
             </div>
-          </div>
+          </CollapsibleSection>
         )}
 
         {/* Summary Card */}
-        <div className="card">
-          <h2 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <Sparkles size={16} className="text-primary-400" />
-            Summary
-          </h2>
+        <CollapsibleSection title="Summary" subtitle="Full breakdown" icon={<Sparkles size={20} className="text-white" />}>
           <div className="space-y-3">
             <div className="flex justify-between items-center py-2 border-b border-gray-100">
               <span className="text-gray-600">Total Debt</span>
@@ -713,7 +712,7 @@ export function HomePage() {
               <span className="font-bold text-gray-900">{debts.length}</span>
             </div>
           </div>
-        </div>
+        </CollapsibleSection>
       </div>
     </div>
   );
