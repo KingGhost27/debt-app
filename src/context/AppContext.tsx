@@ -271,7 +271,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const pendingRef = useRef(0);
   const syncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const withSync = useCallback(async <T>(fn: () => Promise<T>): Promise<T> => {
+  const withSync = useCallback(async <T,>(fn: () => PromiseLike<T>): Promise<T> => {
     pendingRef.current += 1;
     setSyncStatus('syncing');
     if (syncTimerRef.current) clearTimeout(syncTimerRef.current);
@@ -430,12 +430,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return { ...prev, settings: next };
     });
     if (next) {
+      const settled = next;
       await withSync(() => supabase.from('profiles').update({
-        user_name: next.userName,
-        currency: next.currency,
-        date_format: next.dateFormat,
-        theme: next.theme,
-        category_colors: next.categoryColors,
+        user_name: settled.userName,
+        currency: settled.currency,
+        date_format: settled.dateFormat,
+        theme: settled.theme,
+        category_colors: settled.categoryColors,
         updated_at: new Date().toISOString(),
       }).eq('id', user.id));
     }
