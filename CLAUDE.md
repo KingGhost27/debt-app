@@ -1,10 +1,15 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code when working with the Debt Payoff App.
+This file provides guidance to Claude Code when working with Cowculator.
 
 ## Project Overview
 
-React-based debt payoff dashboard for tracking debts, comparing payoff strategies (Avalanche vs Snowball), and planning the debt-free journey. All data persists in localStorage—no backend required.
+**Cowculator** — a kawaii-themed debt payoff dashboard for tracking debts, comparing payoff strategies (Avalanche vs Snowball), and planning the debt-free journey.
+
+- **Frontend:** React 19 + TypeScript + Vite 7 + Tailwind CSS 4
+- **Backend:** Supabase (auth + PostgreSQL database)
+- **Deploy:** Vercel (auto-deploys on push to `main`)
+- **PWA:** Service worker via vite-plugin-pwa
 
 **Status:** Active development
 
@@ -19,38 +24,14 @@ Before writing ANY code, you MUST:
 
 **If you complete a task without proper Git commits = TASK INCOMPLETE**
 
-        ---
+**Commit message format:**
+```bash
+git commit -m "[Type] Brief description
 
-## Critical: Git Workflow Requirements
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>"
+```
 
-**IMPORTANT**: You MUST follow the Git workflow for ALL code changes:
-
-1. **ALWAYS create a feature branch BEFORE making changes**
-        ```bash
-        git checkout -b feature/[feature-name] # or fix/[bug-name]
-        ```
-
-2. **Commit changes REGULARLY during development**
- - After completing each major step
- - When switching between different files/features
- - Before running build tests
- - Use meaningful commit messages with [Type] prefix
-
-3. **NEVER work directly on main branch**
- - All changes must go through feature branches
- - Create pull requests for review
-
-4. **Commit message format**:
-        ```bash
-        git commit -m "[Type] Brief description
-
-        Generated with [Claude Code](https://claude.ai/code)
-
-        Co-Authored-By: Claude <noreply@anthropic.com>"
-        ```
-
-**Failure to follow Git workflow = Incomplete task**
-
+---
 
 ## Commands
 
@@ -61,100 +42,205 @@ npm run preview  # Preview production build locally
 npm run lint     # ESLint
 ```
 
+---
+
 ## Tech Stack
 
 - React 19 + TypeScript + Vite 7
-- Tailwind CSS 4 (custom theme in `src/index.css`)
+- Tailwind CSS 4 (custom theme in `src/index.css` via CSS variables)
 - React Router DOM 7 for navigation
-- React Context for state management
+- React Context for global state (`AppContext`, `AuthContext`)
+- Supabase JS client for auth + data (`src/lib/supabase.ts`)
 - Recharts for visualizations
 - date-fns for date formatting, Decimal.js for precision math
+- lucide-react for icons
+
+---
 
 ## Architecture
 
-**Data Flow:**
+**Auth Flow:**
 ```
-User Action → useApp() context → localStorage sync → Re-render → useMemo calculations → UI
+Email/password signup → Supabase sends confirmation email
+→ User clicks link → redirected to app origin
+→ Supabase session established → AuthContext picks up user
+→ AppContext loads user data from Supabase
+→ OnboardingPage shown if settings.userName is empty
+→ Normal app routes rendered
 ```
 
-**Key Modules:**
+**Data Flow:**
+```
+User Action → useApp() context → Supabase write (optimistic state update first)
+→ Re-render → useMemo calculations → UI
+```
+
+**Offline / Fallback:** `localStorage` is used as cache for export/import only. Supabase is the source of truth.
+
+---
+
+## Supabase Tables
+
+| Table | Description |
+|-------|-------------|
+| `profiles` | User display name, currency, date format, theme, category colors |
+| `debts` | Debt records (name, category, balance, APR, minimum payment, due day) |
+| `payments` | Payment history (amount, principal, interest, date, type, completion) |
+| `strategy_settings` | Payoff strategy (avalanche/snowball), recurring funding, one-time fundings |
+| `budget_settings` | Income sources, monthly expenses, debt allocation amount, expense entries |
+| `custom_categories` | User-defined debt categories (name, color) |
+| `assets` | Asset tracking (name, type, balance, balance history) |
+| `subscriptions` | Subscription tracking (name, amount, billing cycle, due day) |
+| `received_paychecks` | Logged paychecks (amount, pay period, income source reference) |
+
+---
+
+## Key Modules
 
 | Module | Purpose |
 |--------|---------|
-| `types/index.ts` | All TypeScript interfaces (Debt, Payment, Strategy, Theme, Budget, etc.) |
-| `context/AppContext.tsx` | Global state + CRUD operations via `useApp()` hook |
-| `lib/calculations.ts` | Financial engine: amortization, payoff plan, income calculations |
-| `lib/storage.ts` | localStorage persistence, data migrations, import/export JSON |
-| `lib/themes.ts` | Theme presets (My Melody, Kuromi) and applyTheme() function |
-| `hooks/useTheme.ts` | Theme management hook for components |
-| `pages/` | 7 views: Home, Debts, Budget, Plan, Track, Settings, Strategy |
-| `components/layout/` | Layout wrapper, BottomNav, PageHeader |
-| `components/ui/` | DebtModal, ProgressRing, ThemeSelector, CategoryManager, IncomeSourceModal |
+| `types/index.ts` | All TypeScript interfaces and default values |
+| `context/AuthContext.tsx` | Supabase auth state (user, session, sign in/up/out, password reset) |
+| `context/AppContext.tsx` | Global app state + all CRUD operations via `useApp()` hook |
+| `lib/supabase.ts` | Supabase client initialization |
+| `lib/calculations.ts` | Financial engine: amortization, payoff plan, income/budget calculations |
+| `lib/milestones.ts` | Milestone computation, debt payoff timeline, payment streaks |
+| `lib/billDistribution.ts` | Bill distribution across pay periods |
+| `lib/storage.ts` | Data export/import (JSON + CSV), not used for persistence |
+| `lib/themes.ts` | Theme presets and `applyTheme()` function |
+| `pages/` | App views (see Routes below) |
+| `components/layout/` | `Layout.tsx`, `BottomNav.tsx` |
+| `components/ui/` | Shared UI components (see list below) |
+| `components/analytics/` | Chart components (InterestVsPrincipalChart, DebtBreakdownChart, PaymentHistorySummary) |
 
-**Routes (defined in App.tsx):**
-- `/` → HomePage (dashboard overview)
-- `/debts` → DebtsPage (add/edit/delete debts, pie chart with legend)
-- `/budget` → BudgetPage (income sources, expenses, debt allocation, strategy)
-- `/plan` → PlanPage (view generated payoff schedule)
-- `/track` → TrackPage (mark payments, view history)
-- `/settings` → SettingsPage (themes, categories, data management)
-- `/strategy` → StrategyPage (legacy, Budget page preferred)
+---
+
+## Routes
+
+```
+/           → HomePage        (dashboard: progress rings, milestones, charts)
+/debts      → DebtsPage       (add/edit/delete debts, donut chart)
+/assets     → AssetsPage      (track assets, balance history)
+/subscriptions → SubscriptionsPage (subscription management)
+/plan       → PlanPage        (budget config + payoff schedule — merged)
+/track      → TrackPage       (log paychecks, mark payments, view history)
+/settings   → SettingsPage    (themes, categories, name, data export/import, notifications)
+/strategy   → redirects to /plan
+/more       → redirects to /
+```
+
+**Special routes (no layout/nav):**
+- `OnboardingPage` — shown inside `AppRouter` when `settings.userName === ''` (new users)
+- `AuthPage` — shown when no Supabase session
+- `ResetPasswordPage` — shown when `isPasswordRecovery` flag is set
+
+---
+
+## UI Components (`src/components/ui/`)
+
+| Component | Purpose |
+|-----------|---------|
+| `DebtsyCow` | The app mascot — kawaii cow SVG |
+| `ProgressRing` | Animated circular progress indicator |
+| `DebtModal` | Add/edit debt form |
+| `AssetModal` | Add/edit asset form |
+| `PaymentModal` | Log payment form |
+| `PaycheckModal` | Log paycheck form |
+| `SubscriptionModal` | Add/edit subscription form |
+| `IncomeSourceModal` | Add/edit income source form |
+| `OneTimeFundingModal` | Add one-time extra payment form |
+| `UpdateBalanceModal` | Update asset balance with history note |
+| `ThemeSelector` | Theme picker cards |
+| `CategoryManager` | Custom category CRUD |
+| `ConfirmDialog` | Reusable confirmation modal |
+| `Toast` | Toast notification system (`useToast` hook) |
+| `EmptyState` | Empty state placeholder with call-to-action |
+| `MilestoneTracker` | Visual milestone progress tracker |
+| `DebtPayoffTimeline` | Timeline of when each debt gets paid off |
+| `DebtOverTimeChart` | Line chart of total debt over time |
+| `PaymentStreakCard` | Payment streak tracker |
+| `UpcomingBills` | Upcoming bill calendar |
+| `MiniCalendar` | Mini calendar with bill/income markers |
+| `BillDistributionPanel` | Shows bills mapped to pay periods |
+| `ExpenseTracker` | Monthly expense tracking UI |
+| `HelpTooltip` | Info tooltip helper |
+
+---
 
 ## Key Patterns
 
 - **Type imports:** Use `import type { Debt }` for type-only imports
 - **State access:** Call `useApp()` hook (component must be inside `<AppProvider>`)
+- **Auth access:** Call `useAuth()` hook (component must be inside `<AuthProvider>`)
 - **Expensive calculations:** Wrap with `useMemo` (see payoff plan generation)
 - **Dates:** Stored as ISO strings, use date-fns for display formatting
 - **IDs:** Generated with `uuid` package
-- **Mobile-first:** Bottom navigation, touch-friendly targets
+- **Mobile-first:** Bottom navigation (4 items: Home, Debts, Plan, Track), touch-friendly targets
+- **Optimistic updates:** State updates happen immediately; Supabase writes happen async after
+- **Theme CSS variables:** Themes apply via CSS custom properties in `:root`, set by `applyTheme()`
+
+---
+
+## Theme Presets
+
+`'default' | 'my-melody' | 'kuromi' | 'cinnamoroll' | 'pompompurin' | 'hello-kitty' | 'keroppi' | 'chococat' | 'maple' | 'custom'`
+
+---
+
+## Data Types Quick Reference
+
+```typescript
+// Auth
+User, Session     // from @supabase/supabase-js
+
+// Core entities
+Debt              // id, name, category, balance, originalBalance, apr, minimumPayment, dueDay, creditLimit?, notes?
+Payment           // id, debtId, amount, principal, interest, date, type, isCompleted
+Asset             // id, name, type, balance, balanceHistory, notes?
+Subscription      // id, name, amount, billingCycle, dueDay, category, notes?
+ReceivedPaycheck  // id, incomeSourceId, actualAmount, payDate, payPeriodStart, payPeriodEnd
+
+// Strategy & budget
+PayoffStrategy    // 'avalanche' | 'snowball'
+StrategySettings  // strategy + recurringFunding + oneTimeFundings[]
+BudgetSettings    // incomeSources[], monthlyExpenses, debtAllocationAmount, expenseEntries[]
+IncomeSource      // id, name, type, payFrequency, amount?, hourlyRate?, hoursPerWeek?, deductions?
+ExpenseEntry      // id, name, amount, category, dueDay?
+PayFrequency      // 'weekly' | 'bi-weekly' | 'semi-monthly' | 'monthly'
+EmploymentType    // 'salary' | 'hourly'
+
+// User
+UserSettings      // userName, currency, dateFormat, theme, categoryColors
+ThemeSettings     // preset + customColors?
+CustomCategory    // id, name, color, createdAt
+
+// Generated plans
+PayoffPlan        // debtFreeDate, totalPayments, totalInterest, steps[], monthlyBreakdown[]
+```
+
+---
 
 ## Files to Modify for Common Tasks
 
 | Task | Files |
 |------|-------|
-| Add debt field | `types/index.ts`, `DebtModal.tsx`, `DebtsPage.tsx` |
+| Add debt field | `types/index.ts`, `DebtModal.tsx`, `context/AppContext.tsx` |
 | Modify payoff calculations | `lib/calculations.ts` |
 | Change theme colors | `lib/themes.ts` (presets), `index.css` (CSS variables) |
-| Add new theme preset | `lib/themes.ts` (THEME_PRESETS + THEME_METADATA) |
-| Add new page | `pages/NewPage.tsx`, `App.tsx` (route), `BottomNav.tsx` (nav item) |
-| Change state shape | `types/index.ts`, `AppContext.tsx`, `storage.ts` (add migration) |
-| Add new context operation | `AppContext.tsx` (add to interface + implement) |
+| Add new theme preset | `lib/themes.ts` (THEME_PRESETS + THEME_METADATA + THEME_DECORATIONS), `types/index.ts` (ThemePreset union) |
+| Add new page | `pages/NewPage.tsx`, `App.tsx` (route), `BottomNav.tsx` if nav item needed |
+| Change state shape | `types/index.ts`, `AppContext.tsx`, add Supabase migration if needed |
+| Add new Supabase table op | `AppContext.tsx` (add to interface + implement with `withSync`) |
 | Add custom category feature | `CategoryManager.tsx`, `DebtModal.tsx`, `types/index.ts` |
-| Modify income calculations | `lib/calculations.ts`, `BudgetPage.tsx` |
+| Modify income/budget | `lib/calculations.ts`, `PlanPage.tsx` |
+| Modify onboarding | `pages/OnboardingPage.tsx`, `App.tsx` (AppRouter component) |
 
-## Data Types Quick Reference
-
-```typescript
-// Core entities
-Debt        // id, name, category, balance, apr, minimumPayment, dueDay
-Payment     // id, debtId, amount, principal, interest, date, type, isCompleted
-
-// Strategy
-PayoffStrategy  // 'avalanche' | 'snowball'
-StrategySettings // strategy + recurringFunding + oneTimeFundings
-
-// Theme
-ThemePreset     // 'default' | 'my-melody' | 'kuromi' | 'custom'
-ThemeColors     // primary50-900, accent, accentLight, gradientFrom, gradientTo
-ThemeSettings   // preset + customColors?
-
-// Budget & Income
-PayFrequency    // 'weekly' | 'bi-weekly' | 'semi-monthly' | 'monthly'
-EmploymentType  // 'salary' | 'hourly'
-IncomeSource    // id, name, type, payFrequency, amount?, hourlyRate?, hoursPerWeek?
-BudgetSettings  // incomeSources[], monthlyExpenses, debtAllocationAmount
-
-// Custom Categories
-CustomCategory  // id, name, color, createdAt
-
-// Generated plans
-PayoffPlan      // debtFreeDate, totalPayments, totalInterest, steps, monthlyBreakdown
-```
+---
 
 ## Notes
 
-- Avalanche = highest APR first (saves money), Snowball = lowest balance first (quick wins)
-- `DEFAULT_APP_DATA` in `types/index.ts` provides initial state structure
-- Version field in AppData supports future data migrations
-- Remember how to read screenshots. you are running in wsl so if a path is C:\Users\forel\Pictures\Screenshots\screenshot_name.png you need to read /mnt/c/Users\forel\Pictures\Screenshots\screenshot_name.png
+- Avalanche = highest APR first (saves money). Snowball = lowest balance first (psychological wins).
+- `DEFAULT_APP_DATA` in `types/index.ts` provides initial state structure.
+- WSL screenshot paths: `C:\Users\forel\Pictures\Screenshots\foo.png` → read as `/mnt/c/Users/forel/Pictures/Screenshots/foo.png`
+- Bottom nav has 4 items: Home, Debts, Plan, Track. Settings accessed via gear icon on each page header.
+- The `withSync` helper in AppContext wraps Supabase operations with sync status tracking.
