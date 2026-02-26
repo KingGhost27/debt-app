@@ -10,12 +10,13 @@ import { BottomNav } from './BottomNav';
 import { useTheme } from '../../hooks/useTheme';
 import { useApp } from '../../context/AppContext';
 import { getThemeDecorations } from '../../lib/themes';
+import { Cloud, Check } from 'lucide-react';
 
 export function Layout() {
   // Apply theme on mount and when theme changes
   useTheme();
 
-  const { settings } = useApp();
+  const { settings, syncStatus } = useApp();
   const decorations = getThemeDecorations(settings.theme);
 
   return (
@@ -69,6 +70,27 @@ export function Layout() {
         <main className="flex-1 pb-20 relative z-10">
           <Outlet />
         </main>
+
+        {/* Sync status indicator */}
+        {syncStatus !== 'idle' && (
+          <div className={`fixed bottom-[72px] left-1/2 -translate-x-1/2 z-40 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium shadow-md border transition-all duration-300 pointer-events-none ${
+            syncStatus === 'syncing'
+              ? 'bg-white/90 text-gray-500 border-gray-200'
+              : 'bg-green-50/90 text-green-600 border-green-200'
+          }`}>
+            {syncStatus === 'syncing' ? (
+              <>
+                <Cloud size={12} className="animate-pulse" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Check size={12} />
+                Saved
+              </>
+            )}
+          </div>
+        )}
 
         {/* Bottom navigation */}
         <BottomNav />

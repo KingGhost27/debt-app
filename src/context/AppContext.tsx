@@ -5,7 +5,7 @@
  * Reads/writes data from Supabase, with localStorage as offline cache.
  */
 
-import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, useRef, type ReactNode } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import type {
   AppData,
@@ -42,6 +42,7 @@ interface AppContextType {
   subscriptions: Subscription[];
   receivedPaychecks: ReceivedPaycheck[];
   isLoading: boolean;
+  syncStatus: 'idle' | 'syncing' | 'synced';
 
   addDebt: (debt: Omit<Debt, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
   updateDebt: (id: string, updates: Partial<Debt>) => Promise<void>;
@@ -265,6 +266,27 @@ export function AppProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  // Sync status indicator
+  const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'synced'>('idle');
+  const pendingRef = useRef(0);
+  const syncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const withSync = useCallback(async <T>(fn: () => Promise<T>): Promise<T> => {
+    pendingRef.current += 1;
+    setSyncStatus('syncing');
+    if (syncTimerRef.current) clearTimeout(syncTimerRef.current);
+    try {
+      const result = await fn();
+      return result;
+    } finally {
+      pendingRef.current -= 1;
+      if (pendingRef.current === 0) {
+        setSyncStatus('synced');
+        syncTimerRef.current = setTimeout(() => setSyncStatus('idle'), 2000);
+      }
+    }
+  }, []);
+
   // ==========================================
   // DEBT OPERATIONS
   // ==========================================
@@ -274,7 +296,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const now = new Date().toISOString();
     const newDebt: Debt = { ...debtData, id: uuidv4(), createdAt: now, updatedAt: now };
 
-    await supabase.from('debts').insert({
+    await withSync(() => supabase.from('debts').insert({
       id: newDebt.id,
       user_id: user.id,
       name: newDebt.name,
@@ -287,7 +309,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       credit_limit: newDebt.creditLimit ?? null,
       created_at: newDebt.createdAt,
       updated_at: newDebt.updatedAt,
-    });
+    }));
 
     update((prev) => ({ ...prev, debts: [...prev.debts, newDebt] }));
   }, [user, update]);
@@ -296,7 +318,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (!user) return;
     const now = new Date().toISOString();
 
-    await supabase.from('debts').update({
+    await withSync(() => supabase.from('debts').update({
       name: updates.name,
       category: updates.category,
       balance: updates.balance,
@@ -306,7 +328,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       due_day: updates.dueDay,
       credit_limit: updates.creditLimit ?? null,
       updated_at: now,
-    }).eq('id', id).eq('user_id', user.id);
+    }).eq('id', id).eq('user_id', user.id));
 
     update((prev) => ({
       ...prev,
@@ -316,8 +338,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const deleteDebt = useCallback(async (id: string) => {
     if (!user) return;
-    await supabase.from('debts').delete().eq('id', id).eq('user_id', user.id);
-    await supabase.from('payments').delete().eq('debt_id', id).eq('user_id', user.id);
+    await withSync(() => Promise.all([
+      supabase.from('debts').delete().eq('id', id).eq('user_id', user.id),
+      supabase.from('payments').delete().eq('debt_id', id).eq('user_id', user.id),
+    ]));
     update((prev) => ({
       ...prev,
       debts: prev.debts.filter((d) => d.id !== id),
@@ -333,7 +357,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (!user) return;
     const newPayment: Payment = { ...paymentData, id: uuidv4() };
 
-    await supabase.from('payments').insert({
+    await withSync(() => supabase.from('payments').insert({
       id: newPayment.id,
       user_id: user.id,
       debt_id: newPayment.debtId,
@@ -345,19 +369,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
       is_completed: newPayment.isCompleted,
       completed_at: newPayment.completedAt ?? null,
       note: newPayment.note ?? null,
-    });
+    }));
 
     update((prev) => ({ ...prev, payments: [...prev.payments, newPayment] }));
   }, [user, update]);
 
   const updatePayment = useCallback(async (id: string, updates: Partial<Payment>) => {
     if (!user) return;
-    await supabase.from('payments').update({
+    await withSync(() => supabase.from('payments').update({
       amount: updates.amount,
       is_completed: updates.isCompleted,
       completed_at: updates.completedAt ?? null,
       note: updates.note ?? null,
-    }).eq('id', id).eq('user_id', user.id);
+    }).eq('id', id).eq('user_id', user.id));
 
     update((prev) => ({
       ...prev,
@@ -372,7 +396,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const deletePayment = useCallback(async (id: string) => {
     if (!user) return;
-    await supabase.from('payments').delete().eq('id', id).eq('user_id', user.id);
+    await withSync(() => supabase.from('payments').delete().eq('id', id).eq('user_id', user.id));
     update((prev) => ({ ...prev, payments: prev.payments.filter((p) => p.id !== id) }));
   }, [user, update]);
 
@@ -406,14 +430,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return { ...prev, settings: next };
     });
     if (next) {
-      await supabase.from('profiles').update({
+      await withSync(() => supabase.from('profiles').update({
         user_name: next.userName,
         currency: next.currency,
         date_format: next.dateFormat,
         theme: next.theme,
         category_colors: next.categoryColors,
         updated_at: new Date().toISOString(),
-      }).eq('id', user.id);
+      }).eq('id', user.id));
     }
   }, [user, update]);
 
@@ -436,26 +460,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const addCustomCategory = useCallback(async (categoryData: Omit<CustomCategory, 'id' | 'createdAt'>) => {
     if (!user) return;
     const newCategory: CustomCategory = { ...categoryData, id: uuidv4(), createdAt: new Date().toISOString() };
-    await supabase.from('custom_categories').insert({
+    await withSync(() => supabase.from('custom_categories').insert({
       id: newCategory.id,
       user_id: user.id,
       name: newCategory.name,
       color: newCategory.color,
       icon: newCategory.icon ?? null,
       created_at: newCategory.createdAt,
-    });
+    }));
     update((prev) => ({ ...prev, customCategories: [...prev.customCategories, newCategory] }));
   }, [user, update]);
 
   const updateCustomCategory = useCallback(async (id: string, updates: Partial<CustomCategory>) => {
     if (!user) return;
-    await supabase.from('custom_categories').update({ name: updates.name, color: updates.color, icon: updates.icon ?? null }).eq('id', id).eq('user_id', user.id);
+    await withSync(() => supabase.from('custom_categories').update({ name: updates.name, color: updates.color, icon: updates.icon ?? null }).eq('id', id).eq('user_id', user.id));
     update((prev) => ({ ...prev, customCategories: prev.customCategories.map((c) => c.id === id ? { ...c, ...updates } : c) }));
   }, [user, update]);
 
   const deleteCustomCategory = useCallback(async (id: string) => {
     if (!user) return;
-    await supabase.from('custom_categories').delete().eq('id', id).eq('user_id', user.id);
+    await withSync(() => supabase.from('custom_categories').delete().eq('id', id).eq('user_id', user.id));
     update((prev) => ({ ...prev, customCategories: prev.customCategories.filter((c) => c.id !== id) }));
   }, [user, update]);
 
@@ -465,14 +489,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const saveBudget = useCallback(async (budget: BudgetSettings) => {
     if (!user) return;
-    await supabase.from('budget_settings').update({
+    await withSync(() => supabase.from('budget_settings').update({
       income_sources: budget.incomeSources,
       monthly_expenses: budget.monthlyExpenses,
       debt_allocation_amount: budget.debtAllocationAmount,
       debt_allocation_percent: budget.debtAllocationPercent ?? null,
       expense_entries: budget.expenseEntries ?? [],
       updated_at: new Date().toISOString(),
-    }).eq('user_id', user.id);
+    }).eq('user_id', user.id));
   }, [user]);
 
   const updateBudget = useCallback(async (updates: Partial<BudgetSettings>) => {
@@ -555,7 +579,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       createdAt: now,
       updatedAt: now,
     };
-    await supabase.from('assets').insert({
+    await withSync(() => supabase.from('assets').insert({
       id: newAsset.id,
       user_id: user.id,
       name: newAsset.name,
@@ -566,27 +590,27 @@ export function AppProvider({ children }: { children: ReactNode }) {
       interest_rate: newAsset.interestRate ?? null,
       created_at: newAsset.createdAt,
       updated_at: newAsset.updatedAt,
-    });
+    }));
     update((prev) => ({ ...prev, assets: [...prev.assets, newAsset] }));
   }, [user, update]);
 
   const updateAsset = useCallback(async (id: string, updates: Partial<Asset>) => {
     if (!user) return;
     const now = new Date().toISOString();
-    await supabase.from('assets').update({
+    await withSync(() => supabase.from('assets').update({
       name: updates.name,
       type: updates.type,
       balance: updates.balance,
       institution: updates.institution ?? null,
       interest_rate: updates.interestRate ?? null,
       updated_at: now,
-    }).eq('id', id).eq('user_id', user.id);
+    }).eq('id', id).eq('user_id', user.id));
     update((prev) => ({ ...prev, assets: prev.assets.map((a) => a.id === id ? { ...a, ...updates, updatedAt: now } : a) }));
   }, [user, update]);
 
   const deleteAsset = useCallback(async (id: string) => {
     if (!user) return;
-    await supabase.from('assets').delete().eq('id', id).eq('user_id', user.id);
+    await withSync(() => supabase.from('assets').delete().eq('id', id).eq('user_id', user.id));
     update((prev) => ({ ...prev, assets: prev.assets.filter((a) => a.id !== id) }));
   }, [user, update]);
 
@@ -610,7 +634,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (!user) return;
     const now = new Date().toISOString();
     const newSub: Subscription = { ...subData, id: uuidv4(), createdAt: now, updatedAt: now };
-    await supabase.from('subscriptions').insert({
+    await withSync(() => supabase.from('subscriptions').insert({
       id: newSub.id,
       user_id: user.id,
       name: newSub.name,
@@ -621,14 +645,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
       is_active: newSub.isActive,
       created_at: newSub.createdAt,
       updated_at: newSub.updatedAt,
-    });
+    }));
     update((prev) => ({ ...prev, subscriptions: [...prev.subscriptions, newSub] }));
   }, [user, update]);
 
   const updateSubscription = useCallback(async (id: string, updates: Partial<Subscription>) => {
     if (!user) return;
     const now = new Date().toISOString();
-    await supabase.from('subscriptions').update({
+    await withSync(() => supabase.from('subscriptions').update({
       name: updates.name,
       amount: updates.amount,
       frequency: updates.frequency,
@@ -636,13 +660,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
       category: updates.category,
       is_active: updates.isActive,
       updated_at: now,
-    }).eq('id', id).eq('user_id', user.id);
+    }).eq('id', id).eq('user_id', user.id));
     update((prev) => ({ ...prev, subscriptions: prev.subscriptions.map((s) => s.id === id ? { ...s, ...updates, updatedAt: now } : s) }));
   }, [user, update]);
 
   const deleteSubscription = useCallback(async (id: string) => {
     if (!user) return;
-    await supabase.from('subscriptions').delete().eq('id', id).eq('user_id', user.id);
+    await withSync(() => supabase.from('subscriptions').delete().eq('id', id).eq('user_id', user.id));
     update((prev) => ({ ...prev, subscriptions: prev.subscriptions.filter((s) => s.id !== id) }));
   }, [user, update]);
 
@@ -654,7 +678,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (!user) return;
     const now = new Date().toISOString();
     const newPaycheck: ReceivedPaycheck = { ...paycheckData, id: uuidv4(), createdAt: now, updatedAt: now };
-    await supabase.from('received_paychecks').insert({
+    await withSync(() => supabase.from('received_paychecks').insert({
       id: newPaycheck.id,
       user_id: user.id,
       income_source_id: newPaycheck.incomeSourceId,
@@ -666,24 +690,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
       note: newPaycheck.note ?? null,
       created_at: newPaycheck.createdAt,
       updated_at: newPaycheck.updatedAt,
-    });
+    }));
     update((prev) => ({ ...prev, receivedPaychecks: [...(prev.receivedPaychecks ?? []), newPaycheck] }));
   }, [user, update]);
 
   const updatePaycheck = useCallback(async (id: string, updates: Partial<ReceivedPaycheck>) => {
     if (!user) return;
     const now = new Date().toISOString();
-    await supabase.from('received_paychecks').update({
+    await withSync(() => supabase.from('received_paychecks').update({
       actual_amount: updates.actualAmount,
       note: updates.note ?? null,
       updated_at: now,
-    }).eq('id', id).eq('user_id', user.id);
+    }).eq('id', id).eq('user_id', user.id));
     update((prev) => ({ ...prev, receivedPaychecks: (prev.receivedPaychecks ?? []).map((p) => p.id === id ? { ...p, ...updates, updatedAt: now } : p) }));
   }, [user, update]);
 
   const deletePaycheck = useCallback(async (id: string) => {
     if (!user) return;
-    await supabase.from('received_paychecks').delete().eq('id', id).eq('user_id', user.id);
+    await withSync(() => supabase.from('received_paychecks').delete().eq('id', id).eq('user_id', user.id));
     update((prev) => ({ ...prev, receivedPaychecks: (prev.receivedPaychecks ?? []).filter((p) => p.id !== id) }));
   }, [user, update]);
 
@@ -732,6 +756,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     subscriptions: data.subscriptions,
     receivedPaychecks: data.receivedPaychecks ?? [],
     isLoading,
+    syncStatus,
 
     addDebt, updateDebt, deleteDebt,
     addPayment, updatePayment, markPaymentComplete, deletePayment,
