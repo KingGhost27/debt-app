@@ -22,6 +22,7 @@ import type {
   Subscription,
   ReceivedPaycheck,
 } from '../types';
+import type { MilestoneEvent, CelebrationStats } from '../types/celebrations';
 import { DEFAULT_APP_DATA, DEFAULT_STRATEGY, DEFAULT_BUDGET } from '../types';
 import { exportData, exportPaymentsCSV, importData } from '../lib/storage';
 import { supabase } from '../lib/supabase';
@@ -89,6 +90,12 @@ interface AppContextType {
   exportPaymentHistory: () => void;
   importAppData: (file: File) => Promise<void>;
   clearAllData: () => Promise<void>;
+
+  // Celebration state (local only, no Supabase sync)
+  celebrationEvent: MilestoneEvent | null;
+  celebrationStats: CelebrationStats | null;
+  triggerCelebration: (event: MilestoneEvent, stats: CelebrationStats) => void;
+  dismissCelebration: () => void;
 }
 
 // ============================================
@@ -119,6 +126,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const [data, setData] = useState<AppData>(() => loadCache());
   const [isLoading, setIsLoading] = useState(() => !localStorage.getItem('debtapp_cache'));
+
+  // Celebration state — local only, no persistence to Supabase
+  const [celebrationEvent, setCelebrationEvent] = useState<MilestoneEvent | null>(null);
+  const [celebrationStats, setCelebrationStats] = useState<CelebrationStats | null>(null);
+
+  const triggerCelebration = useCallback((event: MilestoneEvent, stats: CelebrationStats) => {
+    setCelebrationEvent(event);
+    setCelebrationStats(stats);
+  }, []);
+
+  const dismissCelebration = useCallback(() => {
+    setCelebrationEvent(null);
+    setCelebrationStats(null);
+  }, []);
 
   // ------------------------------------------
   // LOAD ALL DATA FROM SUPABASE ON LOGIN
@@ -245,6 +266,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
               dateFormat: profile.date_format ?? 'MM/DD/YYYY',
               theme: profile.theme ?? { preset: 'default', darkMode: false },
               categoryColors: profile.category_colors ?? {},
+              tutorialCompleted: profile.tutorial_completed ?? false,
             }
           : DEFAULT_APP_DATA.settings,
       };
@@ -437,6 +459,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         date_format: settled.dateFormat,
         theme: settled.theme,
         category_colors: settled.categoryColors,
+        tutorial_completed: settled.tutorialCompleted,
         updated_at: new Date().toISOString(),
       }).eq('id', user.id));
     }
@@ -770,6 +793,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     addSubscription, updateSubscription, deleteSubscription,
     addPaycheck, updatePaycheck, deletePaycheck,
     exportAppData, exportPaymentHistory, importAppData, clearAllData,
+    celebrationEvent, celebrationStats, triggerCelebration, dismissCelebration,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
