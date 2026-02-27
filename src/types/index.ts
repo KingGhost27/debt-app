@@ -286,6 +286,7 @@ export interface UserSettings {
   dateFormat: string;              // e.g., "MM/DD/YYYY"
   theme: ThemeSettings;            // Theme preference
   categoryColors: Record<string, string>; // Override colors for categories
+  tutorialCompleted: boolean;      // Whether user has seen the tutorial
 }
 
 export interface AppData {
@@ -324,6 +325,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   dateFormat: 'MM/DD/YYYY',
   theme: DEFAULT_THEME,
   categoryColors: {},
+  tutorialCompleted: false,
 };
 
 export const DEFAULT_BUDGET: BudgetSettings = {

@@ -193,7 +193,7 @@ export const THEME_METADATA: Record<Exclude<ThemePreset, 'custom'>, {
   },
   'my-melody': {
     name: 'Rose Milk',
-    description: 'Rosie the pig\'s sweet strawberry world',
+    description: 'BooBoo the pig\'s sweet strawberry world',
     emoji: '🐷',
     mascot: '🐷',
   },
@@ -217,7 +217,7 @@ export const THEME_METADATA: Record<Exclude<ThemePreset, 'custom'>, {
   },
   'hello-kitty': {
     name: 'Cherry Pop',
-    description: 'Rosie\'s bold cherry red side',
+    description: 'BooBoo\'s bold cherry red side',
     emoji: '🍒',
     mascot: '🐷',
   },

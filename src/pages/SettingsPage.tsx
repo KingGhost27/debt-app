@@ -6,7 +6,7 @@
  */
 
 import { useRef, useState } from 'react';
-import { Download, Upload, Trash2, ChevronLeft, Sparkles, Database, Heart, User, Check, LogOut, FileSpreadsheet, Bell, BellOff } from 'lucide-react';
+import { Download, Upload, Trash2, ChevronLeft, Sparkles, Database, Heart, User, Check, LogOut, FileSpreadsheet, Bell, BellOff, HelpCircle, Play } from 'lucide-react';
 import { useNotificationSettings } from '../hooks/useNotifications';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
@@ -292,6 +292,33 @@ export function SettingsPage() {
               </>
             )}
           </div>
+        </div>
+
+        {/* Help & Tutorial Section */}
+        <div className="card">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-sky-400 to-blue-500 flex items-center justify-center shadow-lg shadow-sky-300/30">
+              <HelpCircle size={20} className="text-white" />
+            </div>
+            <div>
+              <h3 className="font-bold text-gray-900">Help & Tutorial</h3>
+              <p className="text-sm text-gray-500">See how all the features work</p>
+            </div>
+          </div>
+
+          <button
+            onClick={() => navigate('/?tutorial=1')}
+            className="w-full flex items-center gap-4 p-4 bg-gradient-to-r from-sky-50 to-white dark:from-sky-900/20 dark:to-gray-800 rounded-2xl border border-sky-100/50 dark:border-sky-700/50 hover:shadow-md hover:-translate-y-0.5 transition-all text-left group"
+          >
+            <div className="w-10 h-10 bg-gradient-to-br from-sky-400 to-blue-500 rounded-xl flex items-center justify-center shadow-md shadow-sky-300/30 group-hover:scale-105 transition-transform">
+              <Play size={18} className="text-white" />
+            </div>
+            <div className="flex-1">
+              <p className="font-semibold text-gray-900">Replay Tutorial</p>
+              <p className="text-sm text-gray-500">Walk through the app guide again</p>
+            </div>
+            <Sparkles size={14} className="text-sky-300 opacity-0 group-hover:opacity-100 transition-opacity" />
+          </button>
         </div>
 
         {/* Data Management Section */}
