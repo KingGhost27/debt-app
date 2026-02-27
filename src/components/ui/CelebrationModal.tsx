@@ -126,22 +126,28 @@ export function CelebrationModal({ event, stats, themePreset, onDismiss }: Celeb
 
   // Pre-capture card on mount so buttons are sync (preserves user-gesture for share)
   const [capturedUrl, setCapturedUrl] = useState<string | null>(null);
-  const [shareLabel, setShareLabel] = useState('📤 Share');
+  const [captureError, setCaptureError] = useState(false);
+  const [showDesktopShare, setShowDesktopShare] = useState(false);
+  const [clipboardLabel, setClipboardLabel] = useState('📋 Copy Image');
+
+  const doCaptureCard = useCallback(async () => {
+    if (!cardRef.current) return;
+    setCaptureError(false);
+    try {
+      const opts = { pixelRatio: 2, skipFonts: true, cacheBust: true };
+      await toPng(cardRef.current, opts); // prime pass — loads fonts/images
+      const url = await toPng(cardRef.current, opts);
+      setCapturedUrl(url);
+    } catch (err) {
+      console.error('Card capture failed:', err);
+      setCaptureError(true);
+    }
+  }, []);
 
   useEffect(() => {
-    const timer = setTimeout(async () => {
-      if (!cardRef.current) return;
-      try {
-        const opts = { pixelRatio: 2, skipFonts: true, cacheBust: true };
-        await toPng(cardRef.current, opts); // prime pass
-        const url = await toPng(cardRef.current, opts);
-        setCapturedUrl(url);
-      } catch (err) {
-        console.error('Pre-capture failed:', err);
-      }
-    }, 400);
+    const timer = setTimeout(doCaptureCard, 400);
     return () => clearTimeout(timer);
-  }, []);
+  }, [doCaptureCard]);
 
   // Convert data URL → Blob without fetch (avoids CSP issues)
   function dataUrlToBlob(dataUrl: string): Blob {
@@ -173,30 +179,48 @@ export function CelebrationModal({ event, stats, themePreset, onDismiss }: Celeb
     const blob = dataUrlToBlob(capturedUrl);
     const file = new File([blob], 'cowculator-win.png', { type: 'image/png' });
 
-    // 1. Web Share API with files (works on mobile / some desktop)
+    // Mobile: Web Share API with files — opens native OS share sheet (Instagram, TikTok, etc.)
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
       try {
         await navigator.share({ files: [file], title: 'My Cowculator Win!', text: event.headline });
         return;
       } catch (err) {
         if ((err as Error).name === 'AbortError') return;
-        // fall through to clipboard
+        // Web Share failed — fall through to desktop options
       }
     }
 
-    // 2. Clipboard copy (desktop — shows "Copied!" feedback)
+    // Desktop: show explicit share options panel instead of silently falling through
+    setShowDesktopShare(true);
+  }, [capturedUrl, event.headline]);
+
+  const handleClipboardCopy = useCallback(async () => {
+    if (!capturedUrl) return;
+    const blob = dataUrlToBlob(capturedUrl);
     try {
       await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-      setShareLabel('✅ Copied!');
-      setTimeout(() => setShareLabel('📤 Share'), 2500);
-      return;
+      setClipboardLabel('✅ Copied!');
+      setTimeout(() => setClipboardLabel('📋 Copy Image'), 2500);
     } catch {
-      // clipboard denied — fall through to download
+      // Clipboard API not supported — fall back to download with explanation
+      triggerDownload(capturedUrl, 'cowculator-win.png');
+      setClipboardLabel('⬇️ Saved instead');
+      setTimeout(() => setClipboardLabel('📋 Copy Image'), 2500);
     }
+  }, [capturedUrl]);
 
-    // 3. Last resort: download
-    triggerDownload(capturedUrl, 'cowculator-win.png');
-  }, [capturedUrl, event.headline]);
+  const handleTwitterShare = useCallback(() => {
+    const text = encodeURIComponent(
+      `${event.headline} 🐄 Tracking my debt-free journey on cowculator.net`
+    );
+    window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank', 'noopener');
+  }, [event.headline]);
+
+  const handleFacebookShare = useCallback(() => {
+    const url = encodeURIComponent('https://cowculator.net');
+    const quote = encodeURIComponent(`${event.headline} 🐄 Tracking my debt-free journey on Cowculator!`);
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${quote}`, '_blank', 'noopener');
+  }, [event.headline]);
 
   return (
     <div
@@ -326,18 +350,18 @@ export function CelebrationModal({ event, stats, themePreset, onDismiss }: Celeb
         {/* Action buttons */}
         <div style={{ display: 'flex', gap: 12, width: '100%' }}>
           <button
-            onClick={handleDownload}
-            disabled={!capturedUrl}
+            onClick={captureError ? doCaptureCard : handleDownload}
+            disabled={!captureError && !capturedUrl}
             style={{
               flex: 1,
               padding: '14px 20px',
               borderRadius: 16,
               border: 'none',
-              background: capturedUrl ? themePrimary : '#d1d5db',
+              background: captureError ? '#ef4444' : capturedUrl ? themePrimary : '#d1d5db',
               color: 'white',
               fontSize: 15,
               fontWeight: 700,
-              cursor: capturedUrl ? 'pointer' : 'wait',
+              cursor: captureError || capturedUrl ? 'pointer' : 'wait',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -345,7 +369,7 @@ export function CelebrationModal({ event, stats, themePreset, onDismiss }: Celeb
               transition: 'background 0.3s',
             }}
           >
-            {capturedUrl ? '⬇️ Save Card' : '⏳ Preparing…'}
+            {captureError ? '⚠️ Retry' : capturedUrl ? '⬇️ Save Card' : '⏳ Preparing…'}
           </button>
           <button
             onClick={handleShare}
@@ -367,9 +391,120 @@ export function CelebrationModal({ event, stats, themePreset, onDismiss }: Celeb
               transition: 'color 0.3s, border-color 0.3s',
             }}
           >
-            {shareLabel}
+            📤 Share
           </button>
         </div>
+
+        {/* Desktop share options — shown when Web Share API unavailable */}
+        {showDesktopShare && (
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: '100%',
+              background: 'white',
+              borderRadius: 16,
+              padding: '16px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 10,
+              boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+            }}
+          >
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#374151', textAlign: 'center', marginBottom: 2 }}>
+              Share your win! 🎉
+            </div>
+            <button
+              onClick={handleClipboardCopy}
+              style={{
+                padding: '11px 16px',
+                borderRadius: 12,
+                border: `1.5px solid ${themePrimary}`,
+                background: 'white',
+                color: themePrimary,
+                fontSize: 14,
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+              }}
+            >
+              {clipboardLabel}
+              <span style={{ fontSize: 11, color: '#9ca3af', fontWeight: 400 }}>paste into Instagram, etc.</span>
+            </button>
+            <button
+              onClick={handleTwitterShare}
+              style={{
+                padding: '11px 16px',
+                borderRadius: 12,
+                border: 'none',
+                background: '#000',
+                color: 'white',
+                fontSize: 14,
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+              }}
+            >
+              𝕏 Share on X / Twitter
+            </button>
+            <button
+              onClick={handleFacebookShare}
+              style={{
+                padding: '11px 16px',
+                borderRadius: 12,
+                border: 'none',
+                background: '#1877F2',
+                color: 'white',
+                fontSize: 14,
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+              }}
+            >
+              f Share on Facebook
+            </button>
+            <button
+              onClick={handleDownload}
+              style={{
+                padding: '11px 16px',
+                borderRadius: 12,
+                border: '1.5px solid #e5e7eb',
+                background: 'white',
+                color: '#6b7280',
+                fontSize: 14,
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+              }}
+            >
+              ⬇️ Download card
+            </button>
+            <button
+              onClick={() => setShowDesktopShare(false)}
+              style={{
+                background: 'none',
+                border: 'none',
+                fontSize: 12,
+                color: '#9ca3af',
+                cursor: 'pointer',
+                padding: '4px',
+              }}
+            >
+              close
+            </button>
+          </div>
+        )}
 
         {/* Dismiss */}
         <button
