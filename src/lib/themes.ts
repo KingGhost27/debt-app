@@ -246,7 +246,7 @@ export const THEME_METADATA: Record<Exclude<ThemePreset, 'custom'>, {
 // ============================================
 
 export const THEME_DECORATIONS: Record<Exclude<ThemePreset, 'custom'>, {
-  pattern: 'stars' | 'hearts' | 'clouds' | 'flowers' | 'dots' | 'sparkles' | 'leaves' | 'beans';
+  pattern: 'stars' | 'hearts' | 'clouds' | 'flowers' | 'dots' | 'sparkles' | 'leaves' | 'beans' | 'maple-leaves';
   floatingEmojis: string[];
 }> = {
   default: {
@@ -282,7 +282,7 @@ export const THEME_DECORATIONS: Record<Exclude<ThemePreset, 'custom'>, {
     floatingEmojis: ['🐻', '☕', '🤎', '🍂'],
   },
   maple: {
-    pattern: 'leaves',
+    pattern: 'maple-leaves',
     floatingEmojis: ['🦊', '🍁', '🧡', '🌻'],
   },
 };
