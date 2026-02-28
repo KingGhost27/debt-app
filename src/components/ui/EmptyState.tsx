@@ -101,12 +101,6 @@ export function EmptyState({
         ) : null
       )}
 
-      {/* Bottom decoration */}
-      <div className="mt-8 flex justify-center gap-2 opacity-30">
-        <span className="w-2 h-2 rounded-full bg-primary-300 animate-kawaii-bounce" style={{ animationDelay: '0s' }} />
-        <span className="w-2 h-2 rounded-full bg-primary-400 animate-kawaii-bounce" style={{ animationDelay: '0.1s' }} />
-        <span className="w-2 h-2 rounded-full bg-primary-500 animate-kawaii-bounce" style={{ animationDelay: '0.2s' }} />
-      </div>
     </div>
   );
 }
