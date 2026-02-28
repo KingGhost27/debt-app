@@ -8,7 +8,7 @@
 
 import { useMemo, useRef, useState } from 'react';
 import { parseISO, format } from 'date-fns';
-import { Trophy, DollarSign, Clock, Sparkles, Calendar, PartyPopper, ChevronDown } from 'lucide-react';
+import { Trophy, DollarSign, Clock, Sparkles, Calendar, PartyPopper, ChevronDown, X } from 'lucide-react';
 import { formatTimeUntil, formatCurrency } from '../lib/calculations';
 import { useApp } from '../context/AppContext';
 import { PageHeader } from '../components/layout/PageHeader';
@@ -67,12 +67,13 @@ export function PlanPage() {
   const debtFreeDate = plan.debtFreeDate ? parseISO(plan.debtFreeDate) : null;
   const [budgetOpen, setBudgetOpen] = useState(false);
   const budgetRef = useRef<HTMLDivElement>(null);
+  const [extraModalOpen, setExtraModalOpen] = useState(false);
+  const [extraInput, setExtraInput] = useState('');
 
-  const openBudget = () => {
-    setBudgetOpen(true);
-    setTimeout(() => {
-      budgetRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 50);
+  const handleExtraModalSave = () => {
+    if (extraInput) handleExtraChange(extraInput);
+    setExtraModalOpen(false);
+    setExtraInput('');
   };
 
   const handleStrategyChange = (newStrategy: PayoffStrategy) => {
@@ -155,7 +156,7 @@ export function PlanPage() {
               <p className="text-xs text-gray-600 dark:text-gray-400">Add extra payment below to pay off faster</p>
             </div>
             <button
-              onClick={openBudget}
+              onClick={() => setExtraModalOpen(true)}
               className="text-xs font-semibold text-amber-600 hover:text-amber-700 dark:text-amber-400 transition-colors flex-shrink-0"
             >
               Set up →
@@ -261,6 +262,79 @@ export function PlanPage() {
           </div>
         </div>
       </div>
+
+      {/* Extra Payment Quick-Setup Modal */}
+      {extraModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          onClick={() => setExtraModalOpen(false)}
+        >
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" />
+
+          {/* Card */}
+          <div
+            className="relative w-full max-w-sm bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-6 animate-kawaii-bounce"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close */}
+            <button
+              onClick={() => setExtraModalOpen(false)}
+              className="absolute top-4 right-4 p-1.5 text-gray-400 hover:text-gray-600 rounded-xl hover:bg-gray-100 transition-colors"
+            >
+              <X size={18} />
+            </button>
+
+            {/* Icon + title */}
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-300/30">
+                <DollarSign size={24} className="text-white" />
+              </div>
+              <div>
+                <h3 className="font-bold text-gray-900 dark:text-white">Extra Payment</h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Added on top of your minimums each month
+                </p>
+              </div>
+            </div>
+
+            {/* Input */}
+            <div className="relative mb-2">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-semibold">$</span>
+              <input
+                type="number"
+                value={extraInput}
+                onChange={(e) => setExtraInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') handleExtraModalSave(); }}
+                placeholder="0.00"
+                step="0.01"
+                min="0"
+                autoFocus
+                className="w-full pl-8 pr-4 py-3 border-2 border-primary-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500 font-semibold text-xl text-primary-700 dark:text-primary-300 bg-white dark:bg-gray-700"
+              />
+            </div>
+            <p className="text-xs text-gray-400 mb-5">
+              Minimums ({formatCurrency(totalMinimums)}/mo) are already included
+            </p>
+
+            {/* Actions */}
+            <div className="flex gap-3">
+              <button
+                onClick={() => setExtraModalOpen(false)}
+                className="flex-1 py-2.5 rounded-2xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleExtraModalSave}
+                className="flex-1 py-2.5 rounded-2xl bg-gradient-to-r from-primary-500 to-primary-600 text-white text-sm font-semibold shadow-lg shadow-primary-500/30 hover:from-primary-600 hover:to-primary-700 transition-all hover:scale-105 active:scale-95"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
