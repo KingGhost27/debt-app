@@ -6,7 +6,7 @@
  */
 
 import { useMemo, useState } from 'react';
-import { Lightbulb, Check, ArrowRight, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Lightbulb, Check, ArrowRight, AlertTriangle, CheckCircle, ChevronDown } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { formatCurrency, formatOrdinal } from '../../lib/calculations';
 import {
@@ -26,7 +26,17 @@ export function BillDistributionPanel({
 }: BillDistributionPanelProps) {
   const { updateDebt } = useApp();
   const [appliedSuggestions, setAppliedSuggestions] = useState<Set<string>>(new Set());
-  const [dismissed, setDismissed] = useState(false);
+  const [collapsed, setCollapsed] = useState(
+    () => localStorage.getItem('bill-distribution-collapsed') === 'true'
+  );
+
+  const toggleCollapsed = () => {
+    setCollapsed((prev) => {
+      const next = !prev;
+      localStorage.setItem('bill-distribution-collapsed', String(next));
+      return next;
+    });
+  };
 
   // Analyze distribution
   const analysis = useMemo(
@@ -58,8 +68,7 @@ export function BillDistributionPanel({
     );
   };
 
-  // Don't show if dismissed or no data
-  if (dismissed) return null;
+  // Don't show if no data
   if (analysis.payPeriods.length === 0) {
     return (
       <div className="card bg-gray-50">
@@ -85,8 +94,12 @@ export function BillDistributionPanel({
 
   return (
     <div className="card p-3! sm:p-5!">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-3">
+      {/* Header — always visible, clicking toggles body */}
+      <button
+        type="button"
+        onClick={toggleCollapsed}
+        className="w-full flex items-center justify-between mb-0"
+      >
         <div className="flex items-center gap-2">
           <Lightbulb size={16} className="text-amber-500" />
           <h3 className="text-xs font-medium">Bill Distribution</h3>
@@ -101,8 +114,16 @@ export function BillDistributionPanel({
           >
             {analysis.balanceScore}% balanced
           </span>
+          <ChevronDown
+            size={14}
+            className={`text-gray-400 transition-transform duration-200 ${collapsed ? '' : 'rotate-180'}`}
+          />
         </div>
-      </div>
+      </button>
+
+      {/* Collapsible body */}
+      {!collapsed && (
+        <div className="mt-3">
 
       {/* Pay Period Breakdown */}
       <div className="space-y-2 mb-3">
@@ -245,20 +266,14 @@ export function BillDistributionPanel({
             })}
           </div>
 
-          {/* Apply All / Dismiss buttons */}
+          {/* Apply All button */}
           {analysis.suggestions.some((s) => !appliedSuggestions.has(s.debtId)) && (
-            <div className="flex gap-2 mt-3">
+            <div className="mt-3">
               <button
                 onClick={applyAllSuggestions}
-                className="flex-1 py-1.5 bg-primary-500 text-white text-xs font-medium rounded-xl hover:bg-primary-600 transition-colors"
+                className="w-full py-1.5 bg-primary-500 text-white text-xs font-medium rounded-xl hover:bg-primary-600 transition-colors"
               >
                 Apply All
-              </button>
-              <button
-                onClick={() => setDismissed(true)}
-                className="px-3 py-1.5 text-gray-500 text-xs hover:text-gray-700 transition-colors"
-              >
-                Dismiss
               </button>
             </div>
           )}
@@ -275,6 +290,8 @@ export function BillDistributionPanel({
               </p>
             </div>
           )}
+        </div>
+      )}
         </div>
       )}
     </div>
