@@ -293,10 +293,10 @@ export function DebtsPage() {
         action={
           <button
             onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-1.5 px-4 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white text-sm font-semibold rounded-2xl hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg shadow-primary-500/30 hover:shadow-primary-500/40 hover:scale-105 active:scale-95"
+            className="w-9 h-9 flex items-center justify-center rounded-2xl bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg shadow-primary-500/30 transition-all hover:scale-105 active:scale-95 sm:w-auto sm:h-auto sm:px-4 sm:py-2.5 sm:gap-1.5 sm:text-sm sm:font-semibold"
           >
             <Plus size={18} />
-            Add Debt
+            <span className="hidden sm:inline">Add Debt</span>
           </button>
         }
       />
