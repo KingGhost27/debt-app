@@ -20,10 +20,14 @@ export function MilestoneTracker({ milestones, percentPaid }: MilestoneTrackerPr
 
   return (
     <div className="space-y-4">
-      {/* Progress track */}
-      <div className="relative pt-6 pb-2">
-        {/* Track background */}
-        <div className="h-3 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+      {/* Progress track
+            Circle size = w-9 = 36px, half = 18px.
+            Track has mx-[18px] so it starts/ends exactly under the edge markers.
+            Marker left = calc(percent% + 18*(1 - 2*percent/100)px) keeps
+            markers perfectly aligned with the fill bar at every position. */}
+      <div className="relative pt-6 pb-5">
+        {/* Track background — inset by half-circle on each side */}
+        <div className="h-3 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden mx-[18px]">
           {/* Fill */}
           <div
             className="h-full bg-gradient-to-r from-primary-400 to-primary-600 rounded-full transition-all duration-1000 ease-out"
@@ -34,16 +38,21 @@ export function MilestoneTracker({ milestones, percentPaid }: MilestoneTrackerPr
         {/* Milestone markers */}
         {milestones.map((milestone) => {
           const isNext = nextMilestone?.percent === milestone.percent;
+          // offset = 18 * (1 - 2*p/100) aligns center exactly with track fill position
+          const offset = 18 * (1 - 2 * milestone.percent / 100);
           return (
             <div
               key={milestone.percent}
               className="absolute top-0"
-              style={{ left: `${milestone.percent}%`, transform: 'translateX(-50%)' }}
+              style={{
+                left: `calc(${milestone.percent}% + ${offset}px)`,
+                transform: 'translateX(-50%)',
+              }}
             >
               {/* Marker circle */}
               <div
                 className={`
-                  w-10 h-10 rounded-full flex items-center justify-center text-base
+                  w-9 h-9 rounded-full flex items-center justify-center text-sm
                   transition-all duration-500 border-2
                   ${
                     milestone.isReached
