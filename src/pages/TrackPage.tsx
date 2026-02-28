@@ -530,14 +530,14 @@ export function TrackPage() {
                     <div className="text-right flex items-center gap-2 shrink-0">
                       <button
                         onClick={() => debt && openPaymentModal(debt, undefined, undefined, payment)}
-                        className="p-1.5 text-gray-400 hover:text-primary-500 hover:bg-primary-50 rounded-xl transition-all opacity-0 group-hover:opacity-100"
+                        className="hidden group-hover:inline-flex p-1.5 text-gray-400 hover:text-primary-500 hover:bg-primary-50 rounded-xl transition-all"
                         title="Edit payment"
                       >
                         <Pencil size={14} />
                       </button>
                       <button
                         onClick={() => handleDeletePayment(payment.id, payment.debtId, payment.principal)}
-                        className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all opacity-0 group-hover:opacity-100"
+                        className="hidden group-hover:inline-flex p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
                         title="Delete payment"
                       >
                         <X size={14} />
