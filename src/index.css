@@ -1449,29 +1449,34 @@ select.input {
   animation: confetti-layer-fade 5s ease-in forwards;
 }
 
-/* Sparkle firework for small wins — gentler than the expanding ring */
-@keyframes sparkle-pop {
-  0% {
-    transform: scale(0) rotate(0deg);
-    opacity: 0;
-  }
-  20% {
-    opacity: 1;
-  }
-  60% {
-    transform: scale(1) rotate(120deg);
-    opacity: 0.9;
-  }
-  100% {
-    transform: scale(0.2) rotate(180deg);
-    opacity: 0;
-  }
+/* Twinkling star for small wins */
+@keyframes twinkle-star {
+  0%   { transform: scale(0) rotate(-15deg); opacity: 0; }
+  25%  { transform: scale(1.3) rotate(10deg); opacity: 1; }
+  70%  { transform: scale(0.9) rotate(-5deg); opacity: 0.9; }
+  100% { transform: scale(0) rotate(20deg); opacity: 0; }
 }
 
-.firework-sparkle {
+/* Coin pop for small wins */
+@keyframes coin-pop {
+  0%   { transform: translateY(0) scale(0); opacity: 0; }
+  25%  { transform: translateY(-18px) scale(1.3); opacity: 1; }
+  75%  { transform: translateY(-10px) scale(1); opacity: 0.85; }
+  100% { transform: translateY(0) scale(0); opacity: 0; }
+}
+
+.decoration-twinkle {
   position: absolute;
   pointer-events: none;
-  animation: sparkle-pop ease-out 1.2s infinite;
+  font-size: 20px;
+  animation: twinkle-star ease-in-out 2s infinite;
+}
+
+.decoration-coin {
+  position: absolute;
+  pointer-events: none;
+  font-size: 18px;
+  animation: coin-pop ease-in-out 1.8s infinite;
 }
 
 .firework-burst {

@@ -105,10 +105,15 @@ const FIREWORK_POSITIONS_BIG = [
   { top: '8%', left: '65%', delay: '1.6s', size: 55 },
 ];
 
-// Smaller, gentler sparkles for milestone wins
-const FIREWORK_POSITIONS_SMALL = [
-  { top: '8%', left: '20%', delay: '0s', size: 32 },
-  { top: '12%', left: '75%', delay: '0.6s', size: 28 },
+// Twinkling stars + coin pops for small milestone wins
+const SMALL_WIN_DECORATIONS = [
+  { className: 'decoration-twinkle', content: '⭐', top: '6%',  left: '8%',  delay: '0s' },
+  { className: 'decoration-coin',    content: '🪙', top: '4%',  left: '75%', delay: '0.4s' },
+  { className: 'decoration-twinkle', content: '✨', top: '14%', left: '88%', delay: '0.9s' },
+  { className: 'decoration-coin',    content: '💰', top: '5%',  left: '50%', delay: '1.3s' },
+  { className: 'decoration-twinkle', content: '💫', top: '12%', left: '22%', delay: '0.6s' },
+  { className: 'decoration-coin',    content: '💵', top: '9%',  left: '38%', delay: '1.7s' },
+  { className: 'decoration-twinkle', content: '⭐', top: '7%',  left: '62%', delay: '0.2s' },
 ];
 
 // ─── Props ────────────────────────────────────────────────────────
@@ -280,7 +285,7 @@ export function CelebrationModal({ event, stats, themePreset, onDismiss }: Celeb
         ))}
       </div>
 
-      {/* Fireworks layer — big rings for big wins, gentle sparkles for milestones */}
+      {/* Fireworks / decorations layer */}
       <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
         {event.isFullHerd
           ? FIREWORK_POSITIONS_BIG.map((fw, i) => (
@@ -300,21 +305,18 @@ export function CelebrationModal({ event, stats, themePreset, onDismiss }: Celeb
                 }}
               />
             ))
-          : FIREWORK_POSITIONS_SMALL.map((fw, i) => (
+          : SMALL_WIN_DECORATIONS.map((d, i) => (
               <div
                 key={i}
-                className="firework-sparkle"
+                className={d.className}
                 style={{
-                  top: fw.top,
-                  left: fw.left,
-                  width: fw.size,
-                  height: fw.size,
-                  borderRadius: '4px',
-                  background: `${CONFETTI_COLORS[i % CONFETTI_COLORS.length]}88`,
-                  animationDelay: fw.delay,
-                  animationIterationCount: '3',
+                  top: d.top,
+                  left: d.left,
+                  animationDelay: d.delay,
                 }}
-              />
+              >
+                {d.content}
+              </div>
             ))}
       </div>
 
@@ -458,22 +460,24 @@ export function CelebrationModal({ event, stats, themePreset, onDismiss }: Celeb
           </div>
         </div>
 
-        {/* Dismiss */}
-        <button
-          onClick={onDismiss}
-          style={{
-            background: 'rgba(255,255,255,0.7)',
-            border: 'none',
-            borderRadius: 999,
-            padding: '6px 20px',
-            fontSize: 12,
-            color: '#6b7280',
-            cursor: 'pointer',
-            fontWeight: 600,
-          }}
-        >
-          Keep going →
-        </button>
+        {/* Dismiss — only on big wins; small wins tap the backdrop */}
+        {event.isFullHerd && (
+          <button
+            onClick={onDismiss}
+            style={{
+              background: 'rgba(255,255,255,0.7)',
+              border: 'none',
+              borderRadius: 999,
+              padding: '6px 20px',
+              fontSize: 12,
+              color: '#6b7280',
+              cursor: 'pointer',
+              fontWeight: 600,
+            }}
+          >
+            Keep going →
+          </button>
+        )}
       </div>
     </div>
   );
