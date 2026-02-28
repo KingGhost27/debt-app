@@ -188,10 +188,10 @@ export function TrackPage() {
         action={
           <button
             onClick={() => openPaymentModal()}
-            className="flex items-center gap-1.5 px-4 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white text-sm font-semibold rounded-2xl hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg shadow-primary-500/30 hover:shadow-primary-500/40 hover:scale-105 active:scale-95"
+            className="flex items-center gap-1.5 p-2.5 sm:px-4 sm:py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white text-sm font-semibold rounded-2xl hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg shadow-primary-500/30 hover:shadow-primary-500/40 hover:scale-105 active:scale-95"
           >
             <Plus size={18} />
-            Log Payment
+            <span className="hidden sm:inline">Log Payment</span>
           </button>
         }
       />
