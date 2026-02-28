@@ -851,8 +851,8 @@ export function DebtsPage() {
                         )}
                       </div>
                       <div className="min-w-0">
-                        <p className="text-xs text-gray-500 mb-1">Minimum</p>
-                        <p className="font-bold text-gray-900">{formatCurrency(debt.minimumPayment)}</p>
+                        <p className="text-xs text-gray-500 flex items-center mb-1">Minimum</p>
+                        <p className="text-lg font-bold text-gray-900">{formatCurrency(debt.minimumPayment)}</p>
                       </div>
                       <div>
                         <p className="text-xs text-gray-500 mb-1">APR</p>
