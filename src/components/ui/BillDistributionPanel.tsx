@@ -86,14 +86,14 @@ export function BillDistributionPanel({
   return (
     <div className="card">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <Lightbulb size={18} className="text-amber-500" />
-          <h3 className="text-sm font-medium">Bill Distribution</h3>
+          <Lightbulb size={16} className="text-amber-500" />
+          <h3 className="text-xs font-medium">Bill Distribution</h3>
         </div>
         <div className="flex items-center gap-2">
           <span
-            className={`text-xs px-2 py-1 rounded-full ${
+            className={`text-xs px-2 py-0.5 rounded-full ${
               analysis.isBalanced
                 ? 'bg-green-100 text-green-700'
                 : 'bg-amber-100 text-amber-700'
@@ -105,7 +105,7 @@ export function BillDistributionPanel({
       </div>
 
       {/* Pay Period Breakdown */}
-      <div className="space-y-3 mb-4">
+      <div className="space-y-2 mb-3">
         {analysis.payPeriods.map((period, index) => {
           const barWidth =
             maxPeriodAmount > 0
@@ -118,7 +118,7 @@ export function BillDistributionPanel({
 
           return (
             <div key={period.id}>
-              <div className="flex items-center justify-between text-sm mb-1">
+              <div className="flex items-center justify-between text-xs mb-1">
                 <span className="text-gray-600">
                   Pay Period {index + 1}{' '}
                   <span className="text-gray-400">
@@ -127,12 +127,12 @@ export function BillDistributionPanel({
                 </span>
                 <span className="font-medium">
                   {formatCurrency(period.totalAmount)}
-                  <span className="text-gray-400 text-xs ml-1">
+                  <span className="text-gray-400 ml-1">
                     ({period.bills.length} bill{period.bills.length !== 1 ? 's' : ''})
                   </span>
                 </span>
               </div>
-              <div className="h-4 bg-gray-100 rounded-full overflow-hidden">
+              <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all ${
                     isOverloaded
@@ -163,7 +163,7 @@ export function BillDistributionPanel({
       </div>
 
       {/* Legend */}
-      <div className="flex items-center gap-4 text-[10px] text-gray-500 mb-4">
+      <div className="flex items-center gap-4 text-[10px] text-gray-500 mb-3">
         <div className="flex items-center gap-1">
           <div className="w-2 h-2 rounded-full bg-red-400" />
           <span>Heavy</span>
@@ -180,10 +180,10 @@ export function BillDistributionPanel({
 
       {/* Suggestions */}
       {analysis.suggestions.length > 0 && (
-        <div className="border-t border-gray-100 pt-4">
-          <div className="flex items-center gap-2 mb-3">
-            <AlertTriangle size={14} className="text-amber-500" />
-            <span className="text-sm font-medium">Suggested Changes</span>
+        <div className="border-t border-gray-100 pt-3">
+          <div className="flex items-center gap-2 mb-2">
+            <AlertTriangle size={12} className="text-amber-500" />
+            <span className="text-xs font-medium">Suggested Changes</span>
           </div>
 
           <div className="space-y-2">
@@ -193,18 +193,18 @@ export function BillDistributionPanel({
               return (
                 <div
                   key={suggestion.debtId}
-                  className={`p-3 rounded-lg ${
+                  className={`p-2 rounded-lg ${
                     isApplied ? 'bg-green-50' : 'bg-gray-50'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5">
                       {isApplied ? (
-                        <Check size={14} className="text-green-600" />
+                        <Check size={12} className="text-green-600 shrink-0" />
                       ) : (
-                        <ArrowRight size={14} className="text-amber-500" />
+                        <ArrowRight size={12} className="text-amber-500 shrink-0" />
                       )}
-                      <span className="text-sm font-medium">{suggestion.debtName}</span>
+                      <span className="text-xs font-medium truncate">{suggestion.debtName}</span>
                     </div>
                     {!isApplied && (
                       <button
@@ -215,7 +215,7 @@ export function BillDistributionPanel({
                       </button>
                     )}
                   </div>
-                  <div className="ml-6 text-xs text-gray-500">
+                  <div className="ml-5 text-xs text-gray-500">
                     <p>
                       Move from <span className="font-medium text-red-600">{formatOrdinal(suggestion.currentDueDay)}</span>
                       {' → '}
@@ -247,16 +247,16 @@ export function BillDistributionPanel({
 
           {/* Apply All / Dismiss buttons */}
           {analysis.suggestions.some((s) => !appliedSuggestions.has(s.debtId)) && (
-            <div className="flex gap-2 mt-4">
+            <div className="flex gap-2 mt-3">
               <button
                 onClick={applyAllSuggestions}
-                className="flex-1 py-2 bg-primary-500 text-white text-sm font-medium rounded-xl hover:bg-primary-600 transition-colors"
+                className="flex-1 py-1.5 bg-primary-500 text-white text-xs font-medium rounded-xl hover:bg-primary-600 transition-colors"
               >
-                Apply All Suggestions
+                Apply All
               </button>
               <button
                 onClick={() => setDismissed(true)}
-                className="px-4 py-2 text-gray-500 text-sm hover:text-gray-700 transition-colors"
+                className="px-3 py-1.5 text-gray-500 text-xs hover:text-gray-700 transition-colors"
               >
                 Dismiss
               </button>
@@ -265,12 +265,12 @@ export function BillDistributionPanel({
 
           {/* All applied message */}
           {analysis.suggestions.every((s) => appliedSuggestions.has(s.debtId)) && (
-            <div className="mt-4 p-3 bg-green-50 rounded-lg text-center">
-              <CheckCircle size={20} className="text-green-600 mx-auto mb-1" />
-              <p className="text-sm text-green-700 font-medium">
+            <div className="mt-3 p-2.5 bg-green-50 rounded-lg text-center">
+              <CheckCircle size={16} className="text-green-600 mx-auto mb-1" />
+              <p className="text-xs text-green-700 font-medium">
                 All suggestions applied!
               </p>
-              <p className="text-xs text-green-600">
+              <p className="text-[10px] text-green-600">
                 Your bills are now better balanced across pay periods.
               </p>
             </div>
