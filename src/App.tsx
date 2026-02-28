@@ -42,6 +42,16 @@ function AppRouter() {
     }
   }, [searchParams, setSearchParams]);
 
+  // Wire milestone detection — must be called unconditionally (hooks rule)
+  useMilestoneDetection({
+    debts,
+    payments,
+    strategy,
+    userName: settings.userName || 'Friend',
+    triggerCelebration,
+    currentCelebration: celebrationEvent,
+  });
+
   if (isLoading) return null;
 
   const localSkipped = user ? localStorage.getItem(ONBOARDING_SKIP_KEY(user.id)) === 'true' : false;
@@ -63,8 +73,6 @@ function AppRouter() {
     );
   }
 
-  // Tutorial is visible when: userName set, tutorial not completed (or forced via replay)
-  // Computed directly — naturally handles new users completing onboarding mid-session
   const shouldShowTutorial = (
     (!settings.tutorialCompleted && !!settings.userName) || forceShowTutorial
   ) && !needsOnboarding;
@@ -73,16 +81,6 @@ function AppRouter() {
     setForceShowTutorial(false);
     await updateSettings({ tutorialCompleted: true });
   };
-
-  // Wire milestone detection — fires celebrations when thresholds are crossed
-  useMilestoneDetection({
-    debts,
-    payments,
-    strategy,
-    userName: settings.userName || 'Friend',
-    triggerCelebration,
-    currentCelebration: celebrationEvent,
-  });
 
   return (
     <>
