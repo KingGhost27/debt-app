@@ -35,6 +35,7 @@ interface MiniCalendarProps {
 export function MiniCalendar({ debts, incomeSources = [], subscriptions = [], customCategories = [], size = 'small' }: MiniCalendarProps) {
   const isLarge = size === 'large';
   const [hoveredDay, setHoveredDay] = useState<Date | null>(null);
+  const [selectedDay, setSelectedDay] = useState<Date | null>(null);
 
   // Today's date (for highlighting current day)
   const today = useMemo(() => {
@@ -307,66 +308,63 @@ export function MiniCalendar({ debts, incomeSources = [], subscriptions = [], cu
               {/* Large calendar - show bills inline */}
               {isLarge ? (
                 <div
+                  onClick={() => hasContent && setSelectedDay(selectedDay && isSameDay(selectedDay, date) ? null : date)}
                   className={`
-                    w-full min-h-[70px] p-1 rounded-lg border transition-all duration-150
+                    w-full min-h-[52px] sm:min-h-[70px] p-1 rounded-lg border transition-all duration-150
                     ${!isInDisplayedMonth ? 'bg-gray-50 border-gray-100' : 'border-gray-200'}
                     ${isToday ? 'ring-2 ring-primary-500 border-primary-300' : ''}
                     ${hasContent ? 'cursor-pointer hover:border-primary-300' : ''}
+                    ${selectedDay && isSameDay(selectedDay, date) ? 'bg-primary-50 border-primary-300' : ''}
                   `}
                 >
                   {/* Date number */}
-                  <div className={`text-sm font-medium mb-1 ${!isInDisplayedMonth ? 'text-gray-300' : isToday ? 'text-primary-600' : 'text-gray-700'}`}>
+                  <div className={`text-xs sm:text-sm font-medium mb-1 ${!isInDisplayedMonth ? 'text-gray-300' : isToday ? 'text-primary-600' : 'text-gray-700'}`}>
                     {date.getDate()}
                   </div>
-                  {/* Bills on this day */}
-                  {isInDisplayedMonth && debtsOnDay.length > 0 && (
-                    <div className="space-y-0.5">
-                      {debtsOnDay.slice(0, 2).map((debt) => (
-                        <div
-                          key={debt.id}
-                          className="text-[10px] px-1 py-0.5 rounded bg-primary-100 text-primary-700 truncate"
-                        >
-                          {debt.name}
-                        </div>
-                      ))}
-                      {debtsOnDay.length > 2 && (
-                        <div className="text-[9px] text-gray-400 px-1">
-                          +{debtsOnDay.length - 2} more
-                        </div>
-                      )}
+
+                  {/* Mobile: colored dots only */}
+                  {isInDisplayedMonth && hasContent && (
+                    <div className="flex sm:hidden flex-wrap gap-0.5">
+                      {hasBills && <span className="w-2 h-2 rounded-full bg-primary-500 shrink-0" />}
+                      {hasPayday && <span className="w-2 h-2 rounded-full bg-green-500 shrink-0" />}
+                      {hasCycleEnd && <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0" />}
+                      {hasSubs && <span className="w-2 h-2 rounded-full bg-purple-500 shrink-0" />}
                     </div>
                   )}
-                  {/* Payday indicator */}
-                  {isInDisplayedMonth && hasPayday && (
-                    <div className="text-[10px] px-1 py-0.5 rounded bg-green-100 text-green-700 truncate mt-0.5">
-                      💰 Payday
-                    </div>
-                  )}
-                  {/* Pay cycle end */}
-                  {isInDisplayedMonth && hasCycleEnd && (
-                    <div className="text-[10px] px-1 py-0.5 rounded bg-blue-100 text-blue-700 truncate mt-0.5">
-                      📅 Cycle ends
-                    </div>
-                  )}
-                  {/* Subscriptions on this day */}
-                  {isInDisplayedMonth && subsOnDay.length > 0 && (
-                    <div className="space-y-0.5 mt-0.5">
-                      {subsOnDay.slice(0, 2).map((sub) => (
-                        <div
-                          key={sub.id}
-                          className="text-[10px] px-1 py-0.5 rounded bg-purple-100 text-purple-700 truncate flex items-center gap-1"
-                        >
-                          <RefreshCw size={8} />
-                          {sub.name}
-                        </div>
-                      ))}
-                      {subsOnDay.length > 2 && (
-                        <div className="text-[9px] text-gray-400 px-1">
-                          +{subsOnDay.length - 2} more subs
-                        </div>
-                      )}
-                    </div>
-                  )}
+
+                  {/* Desktop: text pills */}
+                  <div className="hidden sm:block">
+                    {isInDisplayedMonth && debtsOnDay.length > 0 && (
+                      <div className="space-y-0.5">
+                        {debtsOnDay.slice(0, 2).map((debt) => (
+                          <div key={debt.id} className="text-[10px] px-1 py-0.5 rounded bg-primary-100 text-primary-700 truncate">
+                            {debt.name}
+                          </div>
+                        ))}
+                        {debtsOnDay.length > 2 && (
+                          <div className="text-[9px] text-gray-400 px-1">+{debtsOnDay.length - 2} more</div>
+                        )}
+                      </div>
+                    )}
+                    {isInDisplayedMonth && hasPayday && (
+                      <div className="text-[10px] px-1 py-0.5 rounded bg-green-100 text-green-700 truncate mt-0.5">💰 Payday</div>
+                    )}
+                    {isInDisplayedMonth && hasCycleEnd && (
+                      <div className="text-[10px] px-1 py-0.5 rounded bg-blue-100 text-blue-700 truncate mt-0.5">📅 Cycle ends</div>
+                    )}
+                    {isInDisplayedMonth && subsOnDay.length > 0 && (
+                      <div className="space-y-0.5 mt-0.5">
+                        {subsOnDay.slice(0, 2).map((sub) => (
+                          <div key={sub.id} className="text-[10px] px-1 py-0.5 rounded bg-purple-100 text-purple-700 truncate flex items-center gap-1">
+                            <RefreshCw size={8} />{sub.name}
+                          </div>
+                        ))}
+                        {subsOnDay.length > 2 && (
+                          <div className="text-[9px] text-gray-400 px-1">+{subsOnDay.length - 2} more</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
               ) : (
                 /* Small calendar - original compact view */
@@ -486,6 +484,41 @@ export function MiniCalendar({ debts, incomeSources = [], subscriptions = [], cu
         })}
         </div>
       </div>
+
+      {/* Mobile tap-to-see details panel */}
+      {isLarge && selectedDay && (
+        <div className="sm:hidden mt-3 p-3 bg-gray-50 rounded-2xl border border-gray-100 text-sm">
+          <p className="font-semibold text-gray-700 mb-2">{format(selectedDay, 'MMMM d, yyyy')}</p>
+          {getDebtsForDay(selectedDay).map((debt) => (
+            <div key={debt.id} className="flex items-center gap-2 py-1">
+              <span className="w-2 h-2 rounded-full bg-primary-500 shrink-0" />
+              <span className="text-gray-800 font-medium">{debt.name}</span>
+              <span className="ml-auto text-xs text-gray-500">Bill due</span>
+            </div>
+          ))}
+          {getPaydaysForDay(selectedDay).map((source) => (
+            <div key={source.id} className="flex items-center gap-2 py-1">
+              <span className="w-2 h-2 rounded-full bg-green-500 shrink-0" />
+              <span className="text-gray-800 font-medium">{source.name}</span>
+              <span className="ml-auto text-xs text-green-600">💰 Payday</span>
+            </div>
+          ))}
+          {getCycleEndsForDay(selectedDay).map((source) => (
+            <div key={source.id} className="flex items-center gap-2 py-1">
+              <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0" />
+              <span className="text-gray-800 font-medium">{source.name}</span>
+              <span className="ml-auto text-xs text-blue-600">Cycle ends</span>
+            </div>
+          ))}
+          {getSubscriptionsForDay(selectedDay).map((sub) => (
+            <div key={sub.id} className="flex items-center gap-2 py-1">
+              <span className="w-2 h-2 rounded-full bg-purple-500 shrink-0" />
+              <span className="text-gray-800 font-medium">{sub.name}</span>
+              <span className="ml-auto text-xs text-purple-600">Subscription</span>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Legend */}
       <div className="mt-2 pt-2 border-t border-gray-100 flex items-center justify-center flex-wrap gap-x-3 gap-y-1 text-[10px] text-gray-500">
