@@ -528,6 +528,20 @@ export function TrackPage() {
                       )}
                     </div>
                     <div className="text-right flex items-center gap-2 shrink-0">
+                      <button
+                        onClick={() => debt && openPaymentModal(debt, undefined, undefined, payment)}
+                        className="p-1.5 text-gray-400 hover:text-primary-500 hover:bg-primary-50 rounded-xl transition-all opacity-0 group-hover:opacity-100"
+                        title="Edit payment"
+                      >
+                        <Pencil size={14} />
+                      </button>
+                      <button
+                        onClick={() => handleDeletePayment(payment.id, payment.debtId, payment.principal)}
+                        className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all opacity-0 group-hover:opacity-100"
+                        title="Delete payment"
+                      >
+                        <X size={14} />
+                      </button>
                       <div>
                         <p className="text-sm font-bold text-green-600">
                           {formatCurrency(payment.amount)}
@@ -548,20 +562,6 @@ export function TrackPage() {
                             : 'Min'}
                         </span>
                       </div>
-                      <button
-                        onClick={() => debt && openPaymentModal(debt, undefined, undefined, payment)}
-                        className="p-1.5 text-gray-400 hover:text-primary-500 hover:bg-primary-50 rounded-xl transition-all opacity-0 group-hover:opacity-100"
-                        title="Edit payment"
-                      >
-                        <Pencil size={14} />
-                      </button>
-                      <button
-                        onClick={() => handleDeletePayment(payment.id, payment.debtId, payment.principal)}
-                        className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all opacity-0 group-hover:opacity-100"
-                        title="Delete payment"
-                      >
-                        <X size={14} />
-                      </button>
                     </div>
                   </div>
                 );
