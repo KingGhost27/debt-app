@@ -6,7 +6,7 @@
  * Features cute animations, soft gradients, and delightful interactions.
  */
 
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { parseISO, format } from 'date-fns';
 import { Trophy, DollarSign, Clock, Sparkles, Calendar, PartyPopper, ChevronDown } from 'lucide-react';
 import { formatTimeUntil, formatCurrency } from '../lib/calculations';
@@ -66,6 +66,14 @@ export function PlanPage() {
 
   const debtFreeDate = plan.debtFreeDate ? parseISO(plan.debtFreeDate) : null;
   const [budgetOpen, setBudgetOpen] = useState(false);
+  const budgetRef = useRef<HTMLDivElement>(null);
+
+  const openBudget = () => {
+    setBudgetOpen(true);
+    setTimeout(() => {
+      budgetRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+  };
 
   const handleStrategyChange = (newStrategy: PayoffStrategy) => {
     updateStrategy({ strategy: newStrategy });
@@ -147,7 +155,7 @@ export function PlanPage() {
               <p className="text-xs text-gray-600 dark:text-gray-400">Add extra payment below to pay off faster</p>
             </div>
             <button
-              onClick={() => setBudgetOpen(true)}
+              onClick={openBudget}
               className="text-xs font-semibold text-amber-600 hover:text-amber-700 dark:text-amber-400 transition-colors flex-shrink-0"
             >
               Set up →
@@ -193,7 +201,7 @@ export function PlanPage() {
 
           {/* Budget sidebar — DOM-first so it's above steps on mobile */}
           {/* lg:order-last keeps it visually on the right on desktop */}
-          <div className="lg:col-span-1 lg:order-last mb-6 lg:mb-0">
+          <div ref={budgetRef} className="lg:col-span-1 lg:order-last mb-6 lg:mb-0">
             {/* Mobile toggle header — hidden on lg+ */}
             <button
               type="button"
