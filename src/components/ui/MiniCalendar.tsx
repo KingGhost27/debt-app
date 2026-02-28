@@ -284,7 +284,7 @@ export function MiniCalendar({ debts, incomeSources = [], subscriptions = [], cu
 
         {/* Calendar grid */}
         <div className={`grid grid-cols-7 ${isLarge ? 'gap-2' : 'gap-1'} justify-items-center`}>
-        {calendarDays.map((date) => {
+        {calendarDays.map((date, dayIndex) => {
           const isInDisplayedMonth = isSameMonth(date, displayedMonth);
           const isToday = isSameDay(date, today);
           const debtsOnDay = getDebtsForDay(date);
@@ -297,6 +297,22 @@ export function MiniCalendar({ debts, incomeSources = [], subscriptions = [], cu
           const hasSubs = subsOnDay.length > 0;
           const isHovered = hoveredDay && isSameDay(date, hoveredDay);
           const hasContent = hasBills || hasPayday || hasCycleEnd || hasSubs;
+
+          // Tooltip edge-aware positioning
+          const col = dayIndex % 7;
+          const row = Math.floor(dayIndex / 7);
+          const totalRows = Math.ceil(calendarDays.length / 7);
+          const isFirstRow = row === 0;
+          const isLastRow = row === totalRows - 1;
+          const isFirstCol = col === 0;
+          const isLastCol = col === 6;
+          // Vertical: open downward on first row, upward on last row, else upward
+          const tooltipV = isFirstRow ? 'top-full mt-1' : 'bottom-full mb-1';
+          // Horizontal: left-align on last col, right-align on first col, else center
+          const tooltipH = isLastCol ? 'right-0' : isFirstCol ? 'left-0' : 'left-1/2 -translate-x-1/2';
+          // Caret: flip arrow direction and position to match
+          const caretV = isFirstRow ? 'bottom-full border-b-gray-900' : 'top-full border-t-gray-900';
+          const caretH = isLastCol ? 'right-3' : isFirstCol ? 'left-3' : 'left-1/2 -translate-x-1/2';
 
           return (
             <div
@@ -410,7 +426,7 @@ export function MiniCalendar({ debts, incomeSources = [], subscriptions = [], cu
 
               {/* Tooltip */}
               {isHovered && hasContent && (
-                <div className="absolute z-10 bottom-full left-1/2 -translate-x-1/2 mb-1 bg-gray-900 text-white text-[10px] rounded-md px-2 py-1.5 whitespace-nowrap shadow-lg">
+                <div className={`absolute z-50 ${tooltipV} ${tooltipH} bg-gray-900 text-white text-[10px] rounded-md px-2 py-1.5 whitespace-nowrap shadow-lg`}>
                   {/* Bills section */}
                   {hasBills && (
                     <>
@@ -476,7 +492,7 @@ export function MiniCalendar({ debts, incomeSources = [], subscriptions = [], cu
                       ))}
                     </>
                   )}
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900" />
+                  <div className={`absolute ${caretV} ${caretH} border-4 border-transparent`} />
                 </div>
               )}
             </div>
