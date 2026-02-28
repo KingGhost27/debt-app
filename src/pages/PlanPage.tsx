@@ -8,7 +8,7 @@
 
 import { useMemo, useRef, useState } from 'react';
 import { parseISO, format } from 'date-fns';
-import { Trophy, DollarSign, Clock, Sparkles, Calendar, PartyPopper, ChevronDown, X } from 'lucide-react';
+import { Trophy, DollarSign, Clock, Sparkles, PartyPopper, ChevronDown, X } from 'lucide-react';
 import { formatTimeUntil, formatCurrency } from '../lib/calculations';
 import { useApp } from '../context/AppContext';
 import { PageHeader } from '../components/layout/PageHeader';
@@ -166,31 +166,17 @@ export function PlanPage() {
 
         {/* Debt-Free Countdown */}
         {debtFreeDate && (
-          <div className="relative card bg-gradient-to-r from-primary-600 to-primary-500 text-white mb-6 rounded-3xl overflow-hidden shadow-lg shadow-primary-400/30">
-            {/* Decorative elements */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/4" />
-            <div className="absolute bottom-0 left-0 w-20 h-20 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/4" />
-            <Sparkles size={16} className="absolute top-4 right-16 text-white/30 animate-kawaii-pulse" />
-
-            <div className="relative z-10 flex items-center gap-4">
-              <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-lg">
-                <Clock size={26} className="text-white" />
+          <div className="card bg-gradient-to-r from-primary-600 to-primary-500 text-white mb-6 rounded-3xl shadow-lg shadow-primary-400/30 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3 min-w-0">
+              <Clock size={18} className="text-primary-200 flex-shrink-0" />
+              <div className="min-w-0">
+                <p className="font-bold text-lg leading-tight truncate">{formatTimeUntil(debtFreeDate)}</p>
+                <p className="text-primary-200 text-xs">{format(debtFreeDate, 'MMM d, yyyy')}</p>
               </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <Calendar size={14} className="text-primary-200" />
-                  <p className="text-primary-200 text-xs font-semibold tracking-wider uppercase">Debt-Free Countdown</p>
-                </div>
-                <p className="text-2xl font-bold">{formatTimeUntil(debtFreeDate)}</p>
-                <p className="text-primary-200 text-sm flex items-center gap-1">
-                  <Sparkles size={12} className="animate-kawaii-pulse" />
-                  {format(debtFreeDate, 'MMMM d, yyyy')}
-                </p>
-              </div>
-              <div className="text-right bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-3">
-                <p className="text-primary-200 text-xs font-medium">Total Interest</p>
-                <p className="text-xl font-bold">{formatCurrency(plan.totalInterest)}</p>
-              </div>
+            </div>
+            <div className="text-right flex-shrink-0">
+              <p className="font-bold text-base">{formatCurrency(plan.totalInterest)}</p>
+              <p className="text-primary-200 text-xs">in interest</p>
             </div>
           </div>
         )}
