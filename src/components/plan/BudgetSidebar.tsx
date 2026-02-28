@@ -6,7 +6,7 @@
  */
 
 import { useState } from 'react';
-import { Plus, Pencil, Trash2, DollarSign, Gift, Calendar } from 'lucide-react';
+import { Plus, Pencil, Trash2, DollarSign, Gift, Calendar, ChevronDown } from 'lucide-react';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { useConfirmDialog } from '../../hooks/useConfirmDialog';
 import { ExpenseTracker } from '../ui/ExpenseTracker';
@@ -53,6 +53,7 @@ export function BudgetSidebar({
   const [editingSource, setEditingSource] = useState<IncomeSource | null>(null);
   const [isFundingModalOpen, setIsFundingModalOpen] = useState(false);
   const [editingFunding, setEditingFunding] = useState<OneTimeFunding | null>(null);
+  const [windfallsOpen, setWindfallsOpen] = useState(false);
   const { confirm, dialogProps } = useConfirmDialog();
 
   const availableForDebt = Math.max(0, totalMonthlyIncome - budget.monthlyExpenses);
@@ -285,27 +286,50 @@ export function BudgetSidebar({
         </div>
       </div>
 
-      {/* One-time Fundings */}
+      {/* Windfalls (One-time Fundings) — collapsed by default */}
       <div className="card">
-        <div className="flex items-center justify-between mb-3">
+        <button
+          type="button"
+          onClick={() => setWindfallsOpen((v) => !v)}
+          className="w-full flex items-center justify-between group"
+        >
           <div className="flex items-center gap-2">
             <Gift size={18} className="text-amber-500" />
-            <h3 className="font-semibold text-gray-900 ">One-time Fundings</h3>
+            <div className="text-left">
+              <h3 className="font-semibold text-gray-900 text-sm">Windfalls 🎁</h3>
+              <p className="text-xs text-gray-500">Tax refunds, bonuses, lump sums</p>
+            </div>
           </div>
-          <button
-            onClick={() => setIsFundingModalOpen(true)}
-            className="flex items-center gap-1 text-sm text-amber-600 hover:text-amber-700"
-          >
-            <Plus size={16} />
-            Add
-          </button>
-        </div>
+          <div className="flex items-center gap-2">
+            {strategy.oneTimeFundings.filter((f) => !f.isApplied).length > 0 && (
+              <span className="text-xs font-semibold text-amber-600 bg-amber-50 rounded-full px-2 py-0.5">
+                {strategy.oneTimeFundings.filter((f) => !f.isApplied).length}
+              </span>
+            )}
+            <ChevronDown
+              size={16}
+              className={`text-gray-400 group-hover:text-gray-600 transition-transform duration-200 ${windfallsOpen ? 'rotate-180' : ''}`}
+            />
+          </div>
+        </button>
+
+        {windfallsOpen && (
+          <div className="mt-3 pt-3 border-t border-gray-100">
+            <div className="flex justify-end mb-2">
+              <button
+                onClick={() => setIsFundingModalOpen(true)}
+                className="flex items-center gap-1 text-sm text-amber-600 hover:text-amber-700"
+              >
+                <Plus size={16} />
+                Add
+              </button>
+            </div>
 
         {strategy.oneTimeFundings.length === 0 ? (
           <div className="text-center py-4">
-            <p className="text-gray-500 text-sm mb-2">No fundings planned</p>
+            <p className="text-gray-500 text-sm mb-2">No windfalls planned</p>
             <p className="text-xs text-gray-400">
-              Add tax refunds, bonuses, or other windfalls
+              Add tax refunds, bonuses, or unexpected money
             </p>
           </div>
         ) : (
@@ -364,6 +388,8 @@ export function BudgetSidebar({
                 </span>
               </div>
             )}
+          </div>
+        )}
           </div>
         )}
       </div>

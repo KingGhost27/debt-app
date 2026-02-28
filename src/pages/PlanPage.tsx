@@ -23,25 +23,6 @@ import type { PayoffStrategy } from '../types';
 export function PlanPage() {
   const { debts, strategy, budget, updateStrategy, updateBudget } = useApp();
 
-  // Generate both plans for comparison
-  const avalanchePlan = useMemo(
-    () => generatePayoffPlan(debts, { ...strategy, strategy: 'avalanche' }),
-    [debts, strategy.recurringFunding, strategy.oneTimeFundings]
-  );
-
-  const snowballPlan = useMemo(
-    () => generatePayoffPlan(debts, { ...strategy, strategy: 'snowball' }),
-    [debts, strategy.recurringFunding, strategy.oneTimeFundings]
-  );
-
-  // Use the selected strategy's plan for the step-by-step view
-  const plan = strategy.strategy === 'avalanche' ? avalanchePlan : snowballPlan;
-
-  const sortedDebts = useMemo(
-    () => sortDebtsByStrategy(debts, strategy.strategy),
-    [debts, strategy.strategy]
-  );
-
   const totalMonthlyIncome = useMemo(
     () => calculateTotalMonthlyIncome(budget.incomeSources),
     [budget.incomeSources]
@@ -50,6 +31,37 @@ export function PlanPage() {
   const totalMinimums = useMemo(
     () => debts.reduce((sum, d) => sum + d.minimumPayment, 0),
     [debts]
+  );
+
+  // Always show a plan — floor funding at minimums so the page is never blank.
+  // isMinimumOnly drives the nudge banner.
+  const isMinimumOnly = strategy.recurringFunding.amount === 0;
+
+  // Generate both plans for comparison, using at least the minimum payments
+  const avalanchePlan = useMemo(() => {
+    const effectiveAmount = Math.max(totalMinimums, strategy.recurringFunding.amount);
+    return generatePayoffPlan(debts, {
+      ...strategy,
+      strategy: 'avalanche',
+      recurringFunding: { ...strategy.recurringFunding, amount: effectiveAmount },
+    });
+  }, [debts, strategy.recurringFunding, strategy.oneTimeFundings, totalMinimums]);
+
+  const snowballPlan = useMemo(() => {
+    const effectiveAmount = Math.max(totalMinimums, strategy.recurringFunding.amount);
+    return generatePayoffPlan(debts, {
+      ...strategy,
+      strategy: 'snowball',
+      recurringFunding: { ...strategy.recurringFunding, amount: effectiveAmount },
+    });
+  }, [debts, strategy.recurringFunding, strategy.oneTimeFundings, totalMinimums]);
+
+  // Use the selected strategy's plan for the step-by-step view
+  const plan = strategy.strategy === 'avalanche' ? avalanchePlan : snowballPlan;
+
+  const sortedDebts = useMemo(
+    () => sortDebtsByStrategy(debts, strategy.strategy),
+    [debts, strategy.strategy]
   );
 
   const debtFreeDate = plan.debtFreeDate ? parseISO(plan.debtFreeDate) : null;
@@ -109,45 +121,6 @@ export function PlanPage() {
     );
   }
 
-  // No funding set - show setup prompt
-  if (strategy.recurringFunding.amount === 0) {
-    return (
-      <div className="min-h-screen bg-gray-50 animate-page-enter">
-        <PageHeader title="Payoff Plan" subtitle="Your debt-free roadmap" emoji="📋" />
-        <div className="px-4 py-6">
-          {/* Setup prompt */}
-          <div className="card bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/30 dark:to-orange-900/20 border border-amber-100 text-center py-8 mb-6 rounded-3xl relative overflow-hidden">
-            {/* Decorative elements */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-amber-200/30 rounded-full -translate-y-1/2 translate-x-1/2" />
-            <Sparkles size={14} className="absolute top-4 left-8 text-amber-300 animate-kawaii-pulse" />
-
-            <div className="relative z-10">
-              <div className="w-20 h-20 bg-gradient-to-br from-amber-400 to-orange-500 rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-amber-300/40">
-                <DollarSign size={36} className="text-white" />
-              </div>
-              <h3 className="font-bold text-gray-900 text-lg mb-2">Set Your Monthly Payment</h3>
-              <p className="text-sm text-gray-600 max-w-xs mx-auto">
-                Configure your income and set how much you can put toward debt each month.
-              </p>
-            </div>
-          </div>
-
-          {/* Budget sidebar for setup */}
-          <BudgetSidebar
-            budget={budget}
-            strategy={strategy}
-            totalMonthlyIncome={totalMonthlyIncome}
-            totalMinimums={totalMinimums}
-            onExpenseChange={handleExpenseChange}
-            onBudgetChange={updateBudget}
-            onAllocationChange={handleAllocationChange}
-            onExtraChange={handleExtraChange}
-          />
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gray-50 animate-page-enter">
       <PageHeader title="Payoff Plan" subtitle="Your debt-free roadmap" emoji="📋" />
@@ -162,6 +135,25 @@ export function PlanPage() {
             onStrategyChange={handleStrategyChange}
           />
         </div>
+
+        {/* Soft nudge when no extra payment is set yet */}
+        {isMinimumOnly && (
+          <div className="flex items-center gap-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/30 rounded-3xl px-4 py-3 mb-6">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center flex-shrink-0 shadow-md shadow-amber-300/30">
+              <DollarSign size={20} className="text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-gray-900 text-sm">Minimums-only plan</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400">Add extra payment below to pay off faster</p>
+            </div>
+            <button
+              onClick={() => setBudgetOpen(true)}
+              className="text-xs font-semibold text-amber-600 hover:text-amber-700 dark:text-amber-400 transition-colors flex-shrink-0"
+            >
+              Set up →
+            </button>
+          </div>
+        )}
 
         {/* Debt-Free Countdown */}
         {debtFreeDate && (
@@ -194,10 +186,42 @@ export function PlanPage() {
           </div>
         )}
 
-        {/* Main content: Plan + Budget sidebar */}
-        {/* On mobile: stacked (plan first, then budget) */}
-        {/* On desktop: side-by-side grid */}
+        {/* Main content: Budget sidebar + Plan steps */}
+        {/* Mobile: Budget toggle first (configure → see result flow), then steps */}
+        {/* Desktop: 3-col grid — steps on left (col-span-2), sidebar on right */}
         <div className="lg:grid lg:grid-cols-3 lg:gap-6">
+
+          {/* Budget sidebar — DOM-first so it's above steps on mobile */}
+          {/* lg:order-last keeps it visually on the right on desktop */}
+          <div className="lg:col-span-1 lg:order-last mb-6 lg:mb-0">
+            {/* Mobile toggle header — hidden on lg+ */}
+            <button
+              type="button"
+              onClick={() => setBudgetOpen((v) => !v)}
+              className="lg:hidden w-full flex items-center justify-between px-4 py-3 rounded-2xl bg-white border border-primary-100 shadow-sm mb-3"
+            >
+              <span className="font-semibold text-gray-700 text-sm">Budget & Income</span>
+              <ChevronDown
+                size={18}
+                className={`text-primary-400 transition-transform duration-200 ${budgetOpen ? 'rotate-180' : ''}`}
+              />
+            </button>
+
+            {/* Content: always visible on desktop, toggled on mobile */}
+            <div className={`lg:block ${budgetOpen ? 'block' : 'hidden'}`}>
+              <BudgetSidebar
+                budget={budget}
+                strategy={strategy}
+                totalMonthlyIncome={totalMonthlyIncome}
+                totalMinimums={totalMinimums}
+                onExpenseChange={handleExpenseChange}
+                onBudgetChange={updateBudget}
+                onAllocationChange={handleAllocationChange}
+                onExtraChange={handleExtraChange}
+              />
+            </div>
+          </div>
+
           {/* Main plan content - takes 2 columns on desktop */}
           <div className="lg:col-span-2 space-y-6">
             {/* Step-by-step Plan */}
@@ -226,37 +250,6 @@ export function PlanPage() {
                 </div>
               </div>
             )}
-          </div>
-
-          {/* Budget sidebar - takes 1 column on desktop */}
-          {/* On mobile: collapsible toggle; on desktop: always visible sidebar */}
-          <div className="mt-6 lg:mt-0">
-            {/* Mobile toggle header — hidden on lg+ */}
-            <button
-              type="button"
-              onClick={() => setBudgetOpen((v) => !v)}
-              className="lg:hidden w-full flex items-center justify-between px-4 py-3 rounded-2xl bg-white border border-primary-100 shadow-sm mb-3"
-            >
-              <span className="font-semibold text-gray-700 text-sm">Budget & Income</span>
-              <ChevronDown
-                size={18}
-                className={`text-primary-400 transition-transform duration-200 ${budgetOpen ? 'rotate-180' : ''}`}
-              />
-            </button>
-
-            {/* Content: always visible on desktop, toggled on mobile */}
-            <div className={`lg:block ${budgetOpen ? 'block' : 'hidden'}`}>
-              <BudgetSidebar
-                budget={budget}
-                strategy={strategy}
-                totalMonthlyIncome={totalMonthlyIncome}
-                totalMinimums={totalMinimums}
-                onExpenseChange={handleExpenseChange}
-                onBudgetChange={updateBudget}
-                onAllocationChange={handleAllocationChange}
-                onExtraChange={handleExtraChange}
-              />
-            </div>
           </div>
         </div>
       </div>
