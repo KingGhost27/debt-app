@@ -357,29 +357,29 @@ export function HomePage() {
 
           {/* Progress Rings — grid-cols-2 matches stat grid below */}
           <div className="grid grid-cols-2 gap-3 mb-6">
-            {/* Left col: Payoff Ring (sits above Total Interest) */}
-            <div className="flex flex-col items-center gap-2">
+            {/* Left col: Payoff Ring */}
+            <div className="flex flex-col items-center gap-2 min-w-0">
               <ProgressRing
                 percentage={summary.percentPaid}
                 size={100}
                 strokeWidth={11}
                 showSparkle
               />
-              <div className="flex gap-4">
-                <div className="text-center">
+              <div className="grid grid-cols-2 gap-1 w-full">
+                <div className="text-center min-w-0">
                   <p className="text-[10px] text-gray-500">Paid Off</p>
-                  <p className="text-sm font-bold text-primary-600">{formatCurrency(summary.principalPaid)}</p>
+                  <p className="text-xs font-bold text-primary-600 truncate">{formatCurrency(summary.principalPaid)}</p>
                 </div>
-                <div className="text-center">
+                <div className="text-center min-w-0">
                   <p className="text-[10px] text-gray-500">Remaining</p>
-                  <p className="text-sm font-bold text-gray-900">{formatCurrency(summary.totalBalance)}</p>
+                  <p className="text-xs font-bold text-gray-900 truncate">{formatCurrency(summary.totalBalance)}</p>
                 </div>
               </div>
             </div>
 
-            {/* Right col: Credit Ring (sits above Monthly Payment) */}
+            {/* Right col: Credit Ring */}
             {summary.totalCreditLimit > 0 ? (
-              <div className="flex flex-col items-center gap-2">
+              <div className="flex flex-col items-center gap-2 min-w-0">
                 <div className="relative">
                   <ProgressRing
                     percentage={summary.creditUtilization}
@@ -395,9 +395,9 @@ export function HomePage() {
                     <span className="text-[9px] text-gray-400">used</span>
                   </div>
                 </div>
-                <div className="text-center">
+                <div className="text-center w-full min-w-0">
                   <p className="text-[10px] text-gray-500 font-medium">Credit Used</p>
-                  <p className="text-[10px] text-gray-400 leading-tight">
+                  <p className="text-[10px] text-gray-400 leading-tight truncate">
                     {formatCurrency(debts.filter(d => d.creditLimit).reduce((s, d) => s + d.balance, 0))}
                     {' / '}
                     {formatCurrency(summary.totalCreditLimit)}
