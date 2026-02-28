@@ -232,36 +232,36 @@ export function PaycheckModal({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-gradient-to-r from-primary-100 to-primary-50 dark:from-primary-900/40 dark:to-primary-800/30 px-6 py-4 border-b border-primary-200 dark:border-primary-700/50 rounded-t-3xl">
+        <div className="bg-gradient-to-r from-primary-100 to-primary-50 dark:from-primary-900/40 dark:to-primary-800/30 px-4 py-3 border-b border-primary-200 dark:border-primary-700/50 rounded-t-3xl">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-white/80 dark:bg-gray-900/30 flex items-center justify-center shadow-sm">
-                <DollarSign className="w-5 h-5 text-primary-600" />
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-full bg-white/80 dark:bg-gray-900/30 flex items-center justify-center shadow-sm shrink-0">
+                <DollarSign className="w-4 h-4 text-primary-600" />
               </div>
               <div>
-                <h2 className="text-lg font-bold text-primary-900">
+                <h2 className="text-sm font-bold text-primary-900 leading-tight">
                   {isEditing ? 'Edit Paycheck' : 'Log Paycheck'}
                 </h2>
-                <p className="text-sm text-primary-600">
+                <p className="text-xs text-primary-600 leading-tight">
                   Record your actual take-home pay
                 </p>
               </div>
             </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-white/50 rounded-full transition-colors"
+              className="p-1.5 hover:bg-white/50 rounded-full transition-colors"
             >
-              <X className="w-5 h-5 text-primary-600" />
+              <X className="w-4 h-4 text-primary-600" />
             </button>
           </div>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+        <form onSubmit={handleSubmit} className="p-4 space-y-4">
           {/* No income sources warning */}
           {incomeSources.length === 0 && (
-            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-center">
-              <p className="text-amber-800 text-sm">
+            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-3 text-center">
+              <p className="text-amber-800 text-xs">
                 You need to add an income source first in the Budget page.
               </p>
             </div>
@@ -269,14 +269,14 @@ export function PaycheckModal({
 
           {/* Income Source */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-xs font-semibold text-gray-700 mb-1.5">
               Income Source
             </label>
             <select
               name="incomeSourceId"
               value={formData.incomeSourceId}
               onChange={handleChange}
-              className={`w-full px-4 py-3 rounded-xl border-2 transition-all focus:outline-none focus:ring-2 focus:ring-primary-300 ${
+              className={`w-full px-3 py-2 rounded-xl border-2 text-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary-300 ${
                 errors.incomeSourceId
                   ? 'border-red-300 bg-red-50'
                   : 'border-gray-200 focus:border-primary-400'
@@ -291,13 +291,13 @@ export function PaycheckModal({
               ))}
             </select>
             {errors.incomeSourceId && (
-              <p className="mt-1 text-sm text-red-500">{errors.incomeSourceId}</p>
+              <p className="mt-1 text-xs text-red-500">{errors.incomeSourceId}</p>
             )}
           </div>
 
           {/* Pay Date */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-xs font-semibold text-gray-700 mb-1.5">
               <Calendar className="w-4 h-4 inline mr-1" />
               Pay Date
             </label>
@@ -306,21 +306,21 @@ export function PaycheckModal({
               name="payDate"
               value={formData.payDate}
               onChange={handleChange}
-              className={`w-full px-4 py-3 rounded-xl border-2 transition-all focus:outline-none focus:ring-2 focus:ring-primary-300 ${
+              className={`w-full px-3 py-2 rounded-xl border-2 text-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary-300 ${
                 errors.payDate
                   ? 'border-red-300 bg-red-50'
                   : 'border-gray-200 focus:border-primary-400'
               }`}
             />
             {errors.payDate && (
-              <p className="mt-1 text-sm text-red-500">{errors.payDate}</p>
+              <p className="mt-1 text-xs text-red-500">{errors.payDate}</p>
             )}
           </div>
 
           {/* Pay Period */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-xs font-semibold text-gray-700 mb-1.5">
                 Period Start
               </label>
               <input
@@ -328,7 +328,7 @@ export function PaycheckModal({
                 name="payPeriodStart"
                 value={formData.payPeriodStart}
                 onChange={handleChange}
-                className={`w-full px-4 py-3 rounded-xl border-2 transition-all focus:outline-none focus:ring-2 focus:ring-primary-300 ${
+                className={`w-full px-3 py-2 rounded-xl border-2 text-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary-300 ${
                   errors.payPeriodStart
                     ? 'border-red-300 bg-red-50'
                     : 'border-gray-200 focus:border-primary-400'
@@ -336,7 +336,7 @@ export function PaycheckModal({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-xs font-semibold text-gray-700 mb-1.5">
                 Period End
               </label>
               <input
@@ -344,7 +344,7 @@ export function PaycheckModal({
                 name="payPeriodEnd"
                 value={formData.payPeriodEnd}
                 onChange={handleChange}
-                className={`w-full px-4 py-3 rounded-xl border-2 transition-all focus:outline-none focus:ring-2 focus:ring-primary-300 ${
+                className={`w-full px-3 py-2 rounded-xl border-2 text-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary-300 ${
                   errors.payPeriodEnd
                     ? 'border-red-300 bg-red-50'
                     : 'border-gray-200 focus:border-primary-400'
@@ -355,10 +355,10 @@ export function PaycheckModal({
 
           {/* Expected Amount Display */}
           {selectedSource && (
-            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+            <div className="bg-gray-50 rounded-xl p-3 border border-gray-200">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Expected Amount</span>
-                <span className="font-semibold text-gray-900">
+                <span className="text-xs text-gray-600">Expected Amount</span>
+                <span className="text-sm font-semibold text-gray-900">
                   {formatCurrency(expectedAmount)}
                 </span>
               </div>
@@ -367,7 +367,7 @@ export function PaycheckModal({
 
           {/* Actual Amount */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-xs font-semibold text-gray-700 mb-1.5">
               <DollarSign className="w-4 h-4 inline mr-1" />
               Actual Amount Received
             </label>
@@ -383,7 +383,7 @@ export function PaycheckModal({
                 placeholder="0.00"
                 step="0.01"
                 min="0"
-                className={`w-full pl-8 pr-4 py-3 rounded-xl border-2 transition-all focus:outline-none focus:ring-2 focus:ring-primary-300 ${
+                className={`w-full pl-7 pr-3 py-2 rounded-xl border-2 text-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary-300 ${
                   errors.actualAmount
                     ? 'border-red-300 bg-red-50'
                     : 'border-gray-200 focus:border-primary-400'
@@ -391,13 +391,13 @@ export function PaycheckModal({
               />
             </div>
             {errors.actualAmount && (
-              <p className="mt-1 text-sm text-red-500">{errors.actualAmount}</p>
+              <p className="mt-1 text-xs text-red-500">{errors.actualAmount}</p>
             )}
             {selectedSource && expectedAmount > 0 && (
               <button
                 type="button"
                 onClick={handleUseExpected}
-                className="mt-2 text-sm text-primary-600 hover:text-primary-700 font-medium"
+                className="mt-1.5 text-xs text-primary-600 hover:text-primary-700 font-medium"
               >
                 Use expected amount
               </button>
@@ -407,7 +407,7 @@ export function PaycheckModal({
           {/* Variance Display */}
           {formData.actualAmount && expectedAmount > 0 && (
             <div
-              className={`rounded-xl p-4 border ${
+              className={`rounded-xl p-3 border ${
                 variance >= 0
                   ? 'bg-emerald-50 border-emerald-200'
                   : 'bg-red-50 border-red-200'
@@ -415,7 +415,7 @@ export function PaycheckModal({
             >
               <div className="flex items-center justify-between">
                 <span
-                  className={`text-sm ${
+                  className={`text-xs ${
                     variance >= 0 ? 'text-emerald-700' : 'text-red-700'
                   }`}
                 >
@@ -435,7 +435,7 @@ export function PaycheckModal({
 
           {/* Note */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-xs font-semibold text-gray-700 mb-1.5">
               Note (optional)
             </label>
             <input
@@ -444,7 +444,7 @@ export function PaycheckModal({
               value={formData.note}
               onChange={handleChange}
               placeholder="e.g., Overtime pay, Holiday bonus"
-              className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-300 transition-all"
+              className="w-full px-3 py-2 rounded-xl border-2 text-sm border-gray-200 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-300 transition-all"
             />
           </div>
 
@@ -452,9 +452,9 @@ export function PaycheckModal({
           <button
             type="submit"
             disabled={incomeSources.length === 0}
-            className="w-full py-4 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:from-primary-600 hover:to-primary-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white text-sm font-bold rounded-xl shadow-lg hover:shadow-xl hover:from-primary-600 hover:to-primary-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            <Sparkles className="w-5 h-5" />
+            <Sparkles className="w-4 h-4" />
             {isEditing ? 'Update Paycheck' : 'Log Paycheck'}
           </button>
         </form>
