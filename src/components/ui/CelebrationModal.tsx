@@ -304,6 +304,7 @@ export function CelebrationModal({ event, stats, themePreset, onDismiss }: Celeb
           flexDirection: 'column',
           alignItems: 'center',
           gap: 16,
+          paddingTop: 20,
         }}
         onClick={(e) => e.stopPropagation()}
         className="animate-celebration-slide-up"
