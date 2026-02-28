@@ -22,12 +22,13 @@ export function MilestoneTracker({ milestones, percentPaid }: MilestoneTrackerPr
     <div className="space-y-4">
       {/* Progress track
             Circle size = w-9 = 36px, half = 18px.
-            Track has mx-[18px] so it starts/ends exactly under the edge markers.
-            Marker left = calc(percent% + 18*(1 - 2*percent/100)px) keeps
-            markers perfectly aligned with the fill bar at every position. */}
+            Track is flush-left (ml-0) and inset 18px on the right (mr-[18px])
+            so the bar aligns with the card header and the 100% circle stays inside.
+            Marker left = calc(percent% - percent*18/100 px) syncs markers
+            with the fill bar at every position. */}
       <div className="relative pt-6 pb-5">
-        {/* Track background — inset by half-circle on each side */}
-        <div className="h-3 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden mx-[18px]">
+        {/* Track background — flush left, 18px inset on right */}
+        <div className="h-3 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden mr-[18px]">
           {/* Fill */}
           <div
             className="h-full bg-gradient-to-r from-primary-400 to-primary-600 rounded-full transition-all duration-1000 ease-out"
@@ -38,8 +39,9 @@ export function MilestoneTracker({ milestones, percentPaid }: MilestoneTrackerPr
         {/* Milestone markers */}
         {milestones.map((milestone) => {
           const isNext = nextMilestone?.percent === milestone.percent;
-          // offset = 18 * (1 - 2*p/100) aligns center exactly with track fill position
-          const offset = 18 * (1 - 2 * milestone.percent / 100);
+          // offset = -(percent * 18/100) pulls marker left to stay in sync
+          // with a track that ends 18px before the right edge
+          const offset = -(milestone.percent * 18 / 100);
           return (
             <div
               key={milestone.percent}
