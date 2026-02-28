@@ -208,37 +208,33 @@ export function TrackPage() {
             </div>
             <span className="text-sm text-gray-400 font-medium">{format(new Date(), 'MMMM yyyy')}</span>
           </div>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <div className="text-center p-3 bg-green-50 rounded-2xl">
-              <p className="text-base sm:text-2xl font-bold text-green-600 truncate">
+              <p className="text-xl sm:text-2xl font-bold text-green-600">
                 {formatCurrency(thisMonthStats.paid)}
               </p>
-              <p className="text-xs text-green-600/70/70 font-medium mt-1">Paid</p>
+              <p className="text-xs text-green-600/70 font-medium mt-1">Paid</p>
             </div>
             <div className="text-center p-3 bg-gray-50 rounded-2xl">
-              <p className="text-base sm:text-2xl font-bold text-gray-700 truncate">
+              <p className="text-xl sm:text-2xl font-bold text-gray-700">
                 {formatCurrency(thisMonthStats.remaining)}
               </p>
               <p className="text-xs text-gray-500 font-medium mt-1">Remaining</p>
             </div>
-            <div className="text-center p-3 rounded-2xl">
+            <div className="col-span-2 sm:col-span-1 text-center p-3 rounded-2xl">
               {thisMonthStats.onTrack ? (
-                <div className="bg-green-50 rounded-2xl p-3 -m-3">
-                  <div className="flex justify-center">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-lg shadow-green-300/40">
-                      <CheckCircle size={22} className="text-white" />
-                    </div>
+                <div className="bg-green-50 rounded-2xl p-3 -m-3 flex sm:flex-col items-center justify-center gap-3 sm:gap-0">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-lg shadow-green-300/40">
+                    <CheckCircle size={22} className="text-white" />
                   </div>
-                  <p className="text-xs text-green-600 font-semibold mt-2">On Track</p>
+                  <p className="text-xs text-green-600 font-semibold sm:mt-2">On Track</p>
                 </div>
               ) : (
-                <div className="bg-red-50 rounded-2xl p-3 -m-3">
-                  <div className="flex justify-center">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-400 to-red-500 flex items-center justify-center shadow-lg shadow-red-300/40">
-                      <AlertCircle size={22} className="text-white" />
-                    </div>
+                <div className="bg-red-50 rounded-2xl p-3 -m-3 flex sm:flex-col items-center justify-center gap-3 sm:gap-0">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-400 to-red-500 flex items-center justify-center shadow-lg shadow-red-300/40">
+                    <AlertCircle size={22} className="text-white" />
                   </div>
-                  <p className="text-xs text-red-600 font-semibold mt-2">
+                  <p className="text-xs text-red-600 font-semibold sm:mt-2">
                     {thisMonthStats.overdueCount} Overdue
                   </p>
                 </div>
