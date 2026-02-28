@@ -352,24 +352,24 @@ export function CelebrationModal({ event, stats, themePreset, onDismiss }: Celeb
         />
 
         {/* Action buttons */}
-        <div style={{ display: 'flex', gap: 12, width: '100%' }}>
+        <div style={{ display: 'flex', gap: 10, width: '100%' }}>
           <button
             onClick={captureError ? doCaptureCard : handleDownload}
             disabled={!captureError && !capturedUrl}
             style={{
               flex: 1,
-              padding: '14px 20px',
-              borderRadius: 16,
+              padding: '10px 16px',
+              borderRadius: 14,
               border: 'none',
               background: captureError ? '#ef4444' : capturedUrl ? themePrimary : '#d1d5db',
               color: 'white',
-              fontSize: 15,
+              fontSize: 14,
               fontWeight: 700,
               cursor: captureError || capturedUrl ? 'pointer' : 'wait',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: 8,
+              gap: 6,
               transition: 'background 0.3s',
             }}
           >
@@ -380,18 +380,18 @@ export function CelebrationModal({ event, stats, themePreset, onDismiss }: Celeb
             disabled={!capturedUrl}
             style={{
               flex: 1,
-              padding: '14px 20px',
-              borderRadius: 16,
+              padding: '10px 16px',
+              borderRadius: 14,
               border: `2px solid ${capturedUrl ? themePrimary : '#d1d5db'}`,
               background: 'white',
               color: capturedUrl ? themePrimary : '#9ca3af',
-              fontSize: 15,
+              fontSize: 14,
               fontWeight: 700,
               cursor: capturedUrl ? 'pointer' : 'wait',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: 8,
+              gap: 6,
               transition: 'color 0.3s, border-color 0.3s',
             }}
           >
@@ -406,11 +406,11 @@ export function CelebrationModal({ event, stats, themePreset, onDismiss }: Celeb
             style={{
               width: '100%',
               background: 'white',
-              borderRadius: 20,
-              padding: '20px 20px 14px',
+              borderRadius: 16,
+              padding: '12px 14px 10px',
               display: 'flex',
               flexDirection: 'column',
-              gap: 8,
+              gap: 6,
               boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
             }}
           >
@@ -423,8 +423,8 @@ export function CelebrationModal({ event, stats, themePreset, onDismiss }: Celeb
                 onClick={handleTwitterShare}
                 style={{
                   flex: 1,
-                  padding: '10px 8px',
-                  borderRadius: 12,
+                  padding: '8px 8px',
+                  borderRadius: 10,
                   border: 'none',
                   background: '#000',
                   color: 'white',
@@ -443,8 +443,8 @@ export function CelebrationModal({ event, stats, themePreset, onDismiss }: Celeb
                 onClick={handleFacebookShare}
                 style={{
                   flex: 1,
-                  padding: '10px 8px',
-                  borderRadius: 12,
+                  padding: '8px 8px',
+                  borderRadius: 10,
                   border: 'none',
                   background: '#1877F2',
                   color: 'white',
@@ -464,8 +464,8 @@ export function CelebrationModal({ event, stats, themePreset, onDismiss }: Celeb
             <button
               onClick={handleClipboardCopy}
               style={{
-                padding: '10px 16px',
-                borderRadius: 12,
+                padding: '7px 16px',
+                borderRadius: 10,
                 border: `1.5px solid ${themePrimary}`,
                 background: 'white',
                 color: themePrimary,
@@ -510,8 +510,8 @@ export function CelebrationModal({ event, stats, themePreset, onDismiss }: Celeb
             background: 'rgba(255,255,255,0.7)',
             border: 'none',
             borderRadius: 999,
-            padding: '8px 24px',
-            fontSize: 13,
+            padding: '6px 20px',
+            fontSize: 12,
             color: '#6b7280',
             cursor: 'pointer',
             fontWeight: 600,
