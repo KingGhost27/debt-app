@@ -365,14 +365,14 @@ export function HomePage() {
                 strokeWidth={11}
                 showSparkle
               />
-              <div className="grid grid-cols-2 gap-1 w-full">
+              <div className="grid grid-cols-2 gap-1 w-full items-start">
                 <div className="text-center min-w-0">
-                  <p className="text-[10px] text-gray-500">Paid Off</p>
-                  <p className="text-xs font-bold text-primary-600 truncate">{formatCurrency(summary.principalPaid)}</p>
+                  <p className="text-[10px] text-gray-500 leading-tight">Paid Off</p>
+                  <p className="text-[11px] font-bold text-primary-600 truncate leading-tight">{formatCurrency(summary.principalPaid)}</p>
                 </div>
                 <div className="text-center min-w-0">
-                  <p className="text-[10px] text-gray-500">Remaining</p>
-                  <p className="text-xs font-bold text-gray-900 truncate">{formatCurrency(summary.totalBalance)}</p>
+                  <p className="text-[10px] text-gray-500 leading-tight">Remaining</p>
+                  <p className="text-[11px] font-bold text-gray-900 truncate leading-tight">{formatCurrency(summary.totalBalance)}</p>
                 </div>
               </div>
             </div>
