@@ -300,7 +300,7 @@ export function CelebrationModal({ event, stats, themePreset, onDismiss }: Celeb
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: 20,
+          gap: 16,
         }}
         onClick={(e) => e.stopPropagation()}
         className="animate-celebration-slide-up"
@@ -402,103 +402,96 @@ export function CelebrationModal({ event, stats, themePreset, onDismiss }: Celeb
             style={{
               width: '100%',
               background: 'white',
-              borderRadius: 16,
-              padding: '16px',
+              borderRadius: 20,
+              padding: '20px 20px 14px',
               display: 'flex',
               flexDirection: 'column',
-              gap: 10,
-              boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+              gap: 8,
+              boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
             }}
           >
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#374151', textAlign: 'center', marginBottom: 2 }}>
-              Share your win! 🎉
+            <div style={{ fontSize: 13, fontWeight: 600, color: '#6b7280', textAlign: 'center', marginBottom: 4 }}>
+              Share your win 🎉
             </div>
+            {/* Social buttons row */}
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button
+                onClick={handleTwitterShare}
+                style={{
+                  flex: 1,
+                  padding: '10px 8px',
+                  borderRadius: 12,
+                  border: 'none',
+                  background: '#000',
+                  color: 'white',
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 6,
+                }}
+              >
+                𝕏 Twitter
+              </button>
+              <button
+                onClick={handleFacebookShare}
+                style={{
+                  flex: 1,
+                  padding: '10px 8px',
+                  borderRadius: 12,
+                  border: 'none',
+                  background: '#1877F2',
+                  color: 'white',
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 6,
+                }}
+              >
+                f Facebook
+              </button>
+            </div>
+            {/* Copy image — full width with hint inside */}
             <button
               onClick={handleClipboardCopy}
               style={{
-                padding: '11px 16px',
+                padding: '10px 16px',
                 borderRadius: 12,
                 border: `1.5px solid ${themePrimary}`,
                 background: 'white',
                 color: themePrimary,
-                fontSize: 14,
+                fontSize: 13,
                 fontWeight: 600,
                 cursor: 'pointer',
                 display: 'flex',
+                flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: 8,
+                gap: 2,
+                width: '100%',
               }}
             >
-              {clipboardLabel}
-              <span style={{ fontSize: 11, color: '#9ca3af', fontWeight: 400 }}>paste into Instagram, etc.</span>
+              <span>{clipboardLabel}</span>
+              <span style={{ fontSize: 10, color: '#9ca3af', fontWeight: 400 }}>
+                paste into Instagram, Discord, etc.
+              </span>
             </button>
-            <button
-              onClick={handleTwitterShare}
-              style={{
-                padding: '11px 16px',
-                borderRadius: 12,
-                border: 'none',
-                background: '#000',
-                color: 'white',
-                fontSize: 14,
-                fontWeight: 600,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 8,
-              }}
-            >
-              𝕏 Share on X / Twitter
-            </button>
-            <button
-              onClick={handleFacebookShare}
-              style={{
-                padding: '11px 16px',
-                borderRadius: 12,
-                border: 'none',
-                background: '#1877F2',
-                color: 'white',
-                fontSize: 14,
-                fontWeight: 600,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 8,
-              }}
-            >
-              f Share on Facebook
-            </button>
-            <button
-              onClick={handleDownload}
-              style={{
-                padding: '11px 16px',
-                borderRadius: 12,
-                border: '1.5px solid #e5e7eb',
-                background: 'white',
-                color: '#6b7280',
-                fontSize: 14,
-                fontWeight: 600,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 8,
-              }}
-            >
-              ⬇️ Download card
-            </button>
+            {/* Dismiss */}
             <button
               onClick={() => setShowDesktopShare(false)}
               style={{
                 background: 'none',
                 border: 'none',
-                fontSize: 12,
-                color: '#9ca3af',
+                fontSize: 11,
+                color: '#d1d5db',
                 cursor: 'pointer',
-                padding: '4px',
+                padding: '2px',
+                marginTop: 2,
               }}
             >
               close
