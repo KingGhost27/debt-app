@@ -394,9 +394,9 @@ export function DebtsPage() {
                   </button>
                 </div>
               </div>
-              <div className="flex items-center gap-6">
-                {/* Donut chart - larger size */}
-                <div className="relative w-32 h-32 flex-shrink-0">
+              <div className="flex items-center gap-3 sm:gap-6">
+                {/* Donut chart - smaller on mobile */}
+                <div className="relative w-24 h-24 sm:w-32 sm:h-32 flex-shrink-0">
                   <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
                     {(() => {
                       const radius = 40;
@@ -432,7 +432,7 @@ export function DebtsPage() {
                 </div>
 
                 {/* Enhanced Legend with amounts and progress bars */}
-                <div className="flex-1 space-y-2 overflow-y-auto max-h-40 pr-4">
+                <div className="flex-1 space-y-2 overflow-y-auto max-h-40 pr-2 sm:pr-4">
                   {(chartView === 'category' ? categoryTotals : debtTotals).map((item) => {
                     const percent = totalBalance > 0 ? (item.balance / totalBalance) * 100 : 0;
                     const key = 'id' in item ? item.id : item.category;
@@ -445,7 +445,7 @@ export function DebtsPage() {
                           style={{ backgroundColor: item.color }}
                         />
                         <div className="flex-1 min-w-0">
-                          <div className="flex justify-between text-sm">
+                          <div className="flex justify-between text-xs sm:text-sm">
                             <span className="text-gray-700 truncate group-hover:text-gray-900 transition-colors">{label}</span>
                             <span className="font-semibold text-gray-900 ml-2 flex-shrink-0">
                               {formatCurrency(item.balance)}
