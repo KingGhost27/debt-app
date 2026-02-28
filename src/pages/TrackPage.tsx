@@ -598,9 +598,9 @@ export function TrackPage() {
                 setEditingPaycheck(undefined);
                 setIsPaycheckModalOpen(true);
               }}
-              className="w-full py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl hover:from-emerald-600 hover:to-teal-600 transition-all flex items-center justify-center gap-2"
+              className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm font-bold rounded-2xl shadow-lg hover:shadow-xl hover:from-emerald-600 hover:to-teal-600 transition-all flex items-center justify-center gap-2"
             >
-              <Plus size={20} />
+              <Plus size={16} />
               Log Paycheck
             </button>
 
@@ -621,11 +621,11 @@ export function TrackPage() {
 
             {/* Recent Paychecks List */}
             <div className="space-y-3">
-              <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                <Receipt size={18} className="text-emerald-500" />
+              <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
+                <Receipt size={16} className="text-emerald-500" />
                 Recent Paychecks
               </h3>
-              <p className="text-sm text-gray-500 -mt-2">
+              <p className="text-xs text-gray-500 -mt-2">
                 Tap a paycheck to see your remaining balance after bills
               </p>
 
@@ -652,30 +652,30 @@ export function TrackPage() {
                         {/* Paycheck Card */}
                         <div
                           onClick={() => setSelectedPaycheck(isExpanded ? undefined : paycheck)}
-                          className={`card rounded-2xl flex items-center gap-4 transition-all cursor-pointer ${
+                          className={`card p-3! rounded-2xl flex items-center gap-3 transition-all cursor-pointer ${
                             isExpanded
                               ? 'bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/30 dark:to-teal-900/20 border-2 border-emerald-300'
                               : 'bg-white hover:shadow-md'
                           }`}
                         >
-                          <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-300/40">
-                            <span className="text-xl">💰</span>
+                          <div className="w-9 h-9 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-xl flex items-center justify-center shadow-md shadow-emerald-300/40 shrink-0">
+                            <span className="text-base">💰</span>
                           </div>
-                          <div className="flex-1">
-                            <p className="font-semibold text-gray-900">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-gray-900 truncate">
                               {source?.name || 'Unknown Source'}
                             </p>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-xs text-gray-500 whitespace-nowrap">
                               {format(new Date(paycheck.payDate + (paycheck.payDate.length === 10 ? 'T12:00:00' : '')), 'MMM d, yyyy')}
                             </p>
                             {paycheck.note && (
-                              <p className="text-xs text-gray-400 mt-1">
+                              <p className="text-xs text-gray-400 truncate">
                                 {paycheck.note}
                               </p>
                             )}
                           </div>
-                          <div className="text-right">
-                            <p className="font-bold text-gray-900">
+                          <div className="text-right shrink-0">
+                            <p className="text-sm font-bold text-gray-900">
                               {formatCurrency(paycheck.actualAmount)}
                             </p>
                             {variance !== 0 && (
@@ -691,32 +691,32 @@ export function TrackPage() {
                               </p>
                             )}
                           </div>
-                          <div className="flex gap-1">
+                          <div className="flex gap-0.5 shrink-0">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setEditingPaycheck(paycheck);
                                 setIsPaycheckModalOpen(true);
                               }}
-                              className="p-2 text-gray-400 hover:text-primary-500 hover:bg-primary-50 rounded-xl transition-all"
+                              className="p-1.5 text-gray-400 hover:text-primary-500 hover:bg-primary-50 rounded-lg transition-all"
                               title="Edit paycheck"
                             >
-                              <Pencil size={16} />
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (selectedPaycheck?.id === paycheck.id) {
-                                setSelectedPaycheck(undefined);
-                              }
-                              deletePaycheck(paycheck.id);
-                            }}
-                            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
-                            title="Delete paycheck"
-                          >
-                            <X size={18} />
-                          </button>
-                        </div>
+                              <Pencil size={14} />
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (selectedPaycheck?.id === paycheck.id) {
+                                  setSelectedPaycheck(undefined);
+                                }
+                                deletePaycheck(paycheck.id);
+                              }}
+                              className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                              title="Delete paycheck"
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
                         </div>
 
                         {/* Inline Pay Period Summary */}
