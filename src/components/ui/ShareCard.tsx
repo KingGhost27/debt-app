@@ -28,7 +28,7 @@ export const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
       <div
         ref={ref}
         style={{
-          width: 380,
+          width: '100%',
           background: 'white',
           borderRadius: 24,
           overflow: 'hidden',

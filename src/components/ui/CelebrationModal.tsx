@@ -342,100 +342,92 @@ export function CelebrationModal({ event, stats, themePreset, onDismiss }: Celeb
           )}
         </div>
 
-        {/* Share card */}
-        <ShareCard
-          ref={cardRef}
-          event={event}
-          stats={stats}
-          themePrimary={themePrimary}
-          animalEmojis={animalEmojis}
-        />
+        {/* Card + buttons side by side */}
+        <div style={{ display: 'flex', gap: 10, width: '100%', alignItems: 'stretch' }}>
 
-        {/* Action area — swaps between default buttons and share options in-place */}
-        <div style={{ width: '100%' }} onClick={(e) => e.stopPropagation()}>
-          {showDesktopShare ? (
-            /* Share options — replaces the buttons, same slot, no layout shift */
-            <div style={{
-              background: 'white',
-              borderRadius: 16,
-              padding: '10px 12px 8px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 6,
-              boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
-            }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: '#9ca3af', textAlign: 'center' }}>
-                Share your win 🎉
-              </div>
-              {/* Social row */}
-              <div style={{ display: 'flex', gap: 8 }}>
-                <button onClick={handleDownload} style={{ flex: 1, padding: '8px 6px', borderRadius: 10, border: 'none', background: themePrimary, color: 'white', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
-                  ⬇️ Save
-                </button>
-                <button onClick={handleTwitterShare} style={{ flex: 1, padding: '8px 6px', borderRadius: 10, border: 'none', background: '#000', color: 'white', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+          {/* ShareCard — takes most of the width */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <ShareCard
+              ref={cardRef}
+              event={event}
+              stats={stats}
+              themePrimary={themePrimary}
+              animalEmojis={animalEmojis}
+            />
+          </div>
+
+          {/* Narrow button column — fixed 96px wide */}
+          <div style={{
+            width: 96,
+            flexShrink: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 8,
+            justifyContent: 'center',
+          }}>
+            {showDesktopShare ? (
+              /* Share options — stacked vertically in the same narrow column */
+              <>
+                <button onClick={handleTwitterShare} style={{ width: '100%', padding: '9px 6px', borderRadius: 12, border: 'none', background: '#000', color: 'white', fontSize: 11, fontWeight: 700, cursor: 'pointer', lineHeight: 1.2 }}>
                   𝕏 Twitter
                 </button>
-                <button onClick={handleFacebookShare} style={{ flex: 1, padding: '8px 6px', borderRadius: 10, border: 'none', background: '#1877F2', color: 'white', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                <button onClick={handleFacebookShare} style={{ width: '100%', padding: '9px 6px', borderRadius: 12, border: 'none', background: '#1877F2', color: 'white', fontSize: 11, fontWeight: 700, cursor: 'pointer', lineHeight: 1.2 }}>
                   f Facebook
                 </button>
-              </div>
-              {/* Copy image */}
-              <button onClick={handleClipboardCopy} style={{ padding: '7px 12px', borderRadius: 10, border: `1.5px solid ${themePrimary}`, background: 'white', color: themePrimary, fontSize: 12, fontWeight: 600, cursor: 'pointer', width: '100%' }}>
-                {clipboardLabel} <span style={{ fontSize: 10, color: '#9ca3af', fontWeight: 400 }}>— paste into Instagram, etc.</span>
-              </button>
-              <button onClick={() => setShowDesktopShare(false)} style={{ background: 'none', border: 'none', fontSize: 11, color: '#d1d5db', cursor: 'pointer', padding: '0' }}>
-                ← back
-              </button>
-            </div>
-          ) : (
-            /* Default: Save + Share buttons */
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button
-                onClick={captureError ? doCaptureCard : handleDownload}
-                disabled={!captureError && !capturedUrl}
-                style={{
-                  flex: 1,
-                  padding: '10px 16px',
-                  borderRadius: 14,
-                  border: 'none',
-                  background: captureError ? '#ef4444' : capturedUrl ? themePrimary : '#d1d5db',
-                  color: 'white',
-                  fontSize: 14,
-                  fontWeight: 700,
-                  cursor: captureError || capturedUrl ? 'pointer' : 'wait',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 6,
-                  transition: 'background 0.3s',
-                }}
-              >
-                {captureError ? '⚠️ Retry' : capturedUrl ? '⬇️ Save Card' : '⏳ Preparing…'}
-              </button>
-              <button
-                onClick={handleShare}
-                disabled={!capturedUrl}
-                style={{
-                  flex: 1,
-                  padding: '10px 16px',
-                  borderRadius: 14,
-                  border: `2px solid ${capturedUrl ? themePrimary : '#d1d5db'}`,
-                  background: 'white',
-                  color: capturedUrl ? themePrimary : '#9ca3af',
-                  fontSize: 14,
-                  fontWeight: 700,
-                  cursor: capturedUrl ? 'pointer' : 'wait',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 6,
-                  transition: 'color 0.3s, border-color 0.3s',
-                }}
-              >
-                📤 Share
-              </button>
-            </div>
-          )}
+                <button onClick={handleClipboardCopy} style={{ width: '100%', padding: '9px 6px', borderRadius: 12, border: `1.5px solid ${themePrimary}`, background: 'white', color: themePrimary, fontSize: 11, fontWeight: 700, cursor: 'pointer', lineHeight: 1.2 }}>
+                  {clipboardLabel}
+                </button>
+                <button onClick={handleDownload} style={{ width: '100%', padding: '9px 6px', borderRadius: 12, border: '1.5px solid #e5e7eb', background: 'white', color: '#6b7280', fontSize: 11, fontWeight: 700, cursor: 'pointer', lineHeight: 1.2 }}>
+                  ⬇️ Save
+                </button>
+                <button onClick={() => setShowDesktopShare(false)} style={{ background: 'none', border: 'none', fontSize: 10, color: '#d1d5db', cursor: 'pointer', padding: '2px' }}>
+                  ← back
+                </button>
+              </>
+            ) : (
+              /* Default: Save + Share stacked */
+              <>
+                <button
+                  onClick={captureError ? doCaptureCard : handleDownload}
+                  disabled={!captureError && !capturedUrl}
+                  style={{
+                    width: '100%',
+                    padding: '12px 6px',
+                    borderRadius: 12,
+                    border: 'none',
+                    background: captureError ? '#ef4444' : capturedUrl ? themePrimary : '#d1d5db',
+                    color: 'white',
+                    fontSize: 12,
+                    fontWeight: 700,
+                    cursor: captureError || capturedUrl ? 'pointer' : 'wait',
+                    lineHeight: 1.3,
+                    transition: 'background 0.3s',
+                  }}
+                >
+                  {captureError ? '⚠️ Retry' : capturedUrl ? '⬇️ Save Card' : '⏳ Getting ready…'}
+                </button>
+                <button
+                  onClick={handleShare}
+                  disabled={!capturedUrl}
+                  style={{
+                    width: '100%',
+                    padding: '12px 6px',
+                    borderRadius: 12,
+                    border: `2px solid ${capturedUrl ? themePrimary : '#d1d5db'}`,
+                    background: 'white',
+                    color: capturedUrl ? themePrimary : '#9ca3af',
+                    fontSize: 12,
+                    fontWeight: 700,
+                    cursor: capturedUrl ? 'pointer' : 'wait',
+                    lineHeight: 1.3,
+                    transition: 'color 0.3s, border-color 0.3s',
+                  }}
+                >
+                  📤 Share
+                </button>
+              </>
+            )}
+          </div>
         </div>
 
         {/* Dismiss */}
