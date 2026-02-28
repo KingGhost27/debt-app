@@ -351,157 +351,92 @@ export function CelebrationModal({ event, stats, themePreset, onDismiss }: Celeb
           animalEmojis={animalEmojis}
         />
 
-        {/* Action buttons */}
-        <div style={{ display: 'flex', gap: 10, width: '100%' }}>
-          <button
-            onClick={captureError ? doCaptureCard : handleDownload}
-            disabled={!captureError && !capturedUrl}
-            style={{
-              flex: 1,
-              padding: '10px 16px',
-              borderRadius: 14,
-              border: 'none',
-              background: captureError ? '#ef4444' : capturedUrl ? themePrimary : '#d1d5db',
-              color: 'white',
-              fontSize: 14,
-              fontWeight: 700,
-              cursor: captureError || capturedUrl ? 'pointer' : 'wait',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 6,
-              transition: 'background 0.3s',
-            }}
-          >
-            {captureError ? '⚠️ Retry' : capturedUrl ? '⬇️ Save Card' : '⏳ Preparing…'}
-          </button>
-          <button
-            onClick={handleShare}
-            disabled={!capturedUrl}
-            style={{
-              flex: 1,
-              padding: '10px 16px',
-              borderRadius: 14,
-              border: `2px solid ${capturedUrl ? themePrimary : '#d1d5db'}`,
-              background: 'white',
-              color: capturedUrl ? themePrimary : '#9ca3af',
-              fontSize: 14,
-              fontWeight: 700,
-              cursor: capturedUrl ? 'pointer' : 'wait',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 6,
-              transition: 'color 0.3s, border-color 0.3s',
-            }}
-          >
-            📤 Share
-          </button>
-        </div>
-
-        {/* Desktop share options — shown when Web Share API unavailable */}
-        {showDesktopShare && (
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              width: '100%',
+        {/* Action area — swaps between default buttons and share options in-place */}
+        <div style={{ width: '100%' }} onClick={(e) => e.stopPropagation()}>
+          {showDesktopShare ? (
+            /* Share options — replaces the buttons, same slot, no layout shift */
+            <div style={{
               background: 'white',
               borderRadius: 16,
-              padding: '12px 14px 10px',
+              padding: '10px 12px 8px',
               display: 'flex',
               flexDirection: 'column',
               gap: 6,
               boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
-            }}
-          >
-            <div style={{ fontSize: 13, fontWeight: 600, color: '#6b7280', textAlign: 'center', marginBottom: 4 }}>
-              Share your win 🎉
+            }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#9ca3af', textAlign: 'center' }}>
+                Share your win 🎉
+              </div>
+              {/* Social row */}
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button onClick={handleDownload} style={{ flex: 1, padding: '8px 6px', borderRadius: 10, border: 'none', background: themePrimary, color: 'white', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                  ⬇️ Save
+                </button>
+                <button onClick={handleTwitterShare} style={{ flex: 1, padding: '8px 6px', borderRadius: 10, border: 'none', background: '#000', color: 'white', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                  𝕏 Twitter
+                </button>
+                <button onClick={handleFacebookShare} style={{ flex: 1, padding: '8px 6px', borderRadius: 10, border: 'none', background: '#1877F2', color: 'white', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                  f Facebook
+                </button>
+              </div>
+              {/* Copy image */}
+              <button onClick={handleClipboardCopy} style={{ padding: '7px 12px', borderRadius: 10, border: `1.5px solid ${themePrimary}`, background: 'white', color: themePrimary, fontSize: 12, fontWeight: 600, cursor: 'pointer', width: '100%' }}>
+                {clipboardLabel} <span style={{ fontSize: 10, color: '#9ca3af', fontWeight: 400 }}>— paste into Instagram, etc.</span>
+              </button>
+              <button onClick={() => setShowDesktopShare(false)} style={{ background: 'none', border: 'none', fontSize: 11, color: '#d1d5db', cursor: 'pointer', padding: '0' }}>
+                ← back
+              </button>
             </div>
-            {/* Social buttons row */}
-            <div style={{ display: 'flex', gap: 8 }}>
+          ) : (
+            /* Default: Save + Share buttons */
+            <div style={{ display: 'flex', gap: 10 }}>
               <button
-                onClick={handleTwitterShare}
+                onClick={captureError ? doCaptureCard : handleDownload}
+                disabled={!captureError && !capturedUrl}
                 style={{
                   flex: 1,
-                  padding: '8px 8px',
-                  borderRadius: 10,
+                  padding: '10px 16px',
+                  borderRadius: 14,
                   border: 'none',
-                  background: '#000',
+                  background: captureError ? '#ef4444' : capturedUrl ? themePrimary : '#d1d5db',
                   color: 'white',
-                  fontSize: 13,
-                  fontWeight: 600,
-                  cursor: 'pointer',
+                  fontSize: 14,
+                  fontWeight: 700,
+                  cursor: captureError || capturedUrl ? 'pointer' : 'wait',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: 6,
+                  transition: 'background 0.3s',
                 }}
               >
-                𝕏 Twitter
+                {captureError ? '⚠️ Retry' : capturedUrl ? '⬇️ Save Card' : '⏳ Preparing…'}
               </button>
               <button
-                onClick={handleFacebookShare}
+                onClick={handleShare}
+                disabled={!capturedUrl}
                 style={{
                   flex: 1,
-                  padding: '8px 8px',
-                  borderRadius: 10,
-                  border: 'none',
-                  background: '#1877F2',
-                  color: 'white',
-                  fontSize: 13,
-                  fontWeight: 600,
-                  cursor: 'pointer',
+                  padding: '10px 16px',
+                  borderRadius: 14,
+                  border: `2px solid ${capturedUrl ? themePrimary : '#d1d5db'}`,
+                  background: 'white',
+                  color: capturedUrl ? themePrimary : '#9ca3af',
+                  fontSize: 14,
+                  fontWeight: 700,
+                  cursor: capturedUrl ? 'pointer' : 'wait',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: 6,
+                  transition: 'color 0.3s, border-color 0.3s',
                 }}
               >
-                f Facebook
+                📤 Share
               </button>
             </div>
-            {/* Copy image — full width with hint inside */}
-            <button
-              onClick={handleClipboardCopy}
-              style={{
-                padding: '7px 16px',
-                borderRadius: 10,
-                border: `1.5px solid ${themePrimary}`,
-                background: 'white',
-                color: themePrimary,
-                fontSize: 13,
-                fontWeight: 600,
-                cursor: 'pointer',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 2,
-                width: '100%',
-              }}
-            >
-              <span>{clipboardLabel}</span>
-              <span style={{ fontSize: 10, color: '#9ca3af', fontWeight: 400 }}>
-                paste into Instagram, Discord, etc.
-              </span>
-            </button>
-            {/* Dismiss */}
-            <button
-              onClick={() => setShowDesktopShare(false)}
-              style={{
-                background: 'none',
-                border: 'none',
-                fontSize: 11,
-                color: '#d1d5db',
-                cursor: 'pointer',
-                padding: '2px',
-                marginTop: 2,
-              }}
-            >
-              close
-            </button>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Dismiss */}
         <button
