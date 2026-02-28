@@ -366,13 +366,13 @@ export function HomePage() {
                 showSparkle
               />
               <div className="grid grid-cols-2 gap-1 w-full items-start">
-                <div className="text-center min-w-0">
+                <div className="text-center">
                   <p className="text-[10px] text-gray-500 leading-tight">Paid Off</p>
-                  <p className="text-[11px] font-bold text-primary-600 truncate leading-tight">{formatCurrency(summary.principalPaid)}</p>
+                  <p className="text-[11px] font-bold text-primary-600 leading-tight">{formatCurrency(summary.principalPaid)}</p>
                 </div>
-                <div className="text-center min-w-0">
+                <div className="text-center">
                   <p className="text-[10px] text-gray-500 leading-tight">Remaining</p>
-                  <p className="text-[11px] font-bold text-gray-900 truncate leading-tight">{formatCurrency(summary.totalBalance)}</p>
+                  <p className="text-[11px] font-bold text-gray-900 leading-tight">{formatCurrency(summary.totalBalance)}</p>
                 </div>
               </div>
             </div>
