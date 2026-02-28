@@ -210,13 +210,13 @@ export function TrackPage() {
           </div>
           <div className="grid grid-cols-3 gap-4">
             <div className="text-center p-3 bg-green-50 rounded-2xl">
-              <p className="text-2xl font-bold text-green-600">
+              <p className="text-base sm:text-2xl font-bold text-green-600 truncate">
                 {formatCurrency(thisMonthStats.paid)}
               </p>
               <p className="text-xs text-green-600/70/70 font-medium mt-1">Paid</p>
             </div>
             <div className="text-center p-3 bg-gray-50 rounded-2xl">
-              <p className="text-2xl font-bold text-gray-700">
+              <p className="text-base sm:text-2xl font-bold text-gray-700 truncate">
                 {formatCurrency(thisMonthStats.remaining)}
               </p>
               <p className="text-xs text-gray-500 font-medium mt-1">Remaining</p>
