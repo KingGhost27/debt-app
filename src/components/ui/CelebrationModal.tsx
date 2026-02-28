@@ -97,12 +97,18 @@ function generateConfetti() {
 const CONFETTI_PIECES = generateConfetti();
 
 // ─── Fireworks ────────────────────────────────────────────────────
-const FIREWORK_POSITIONS = [
+const FIREWORK_POSITIONS_BIG = [
   { top: '10%', left: '15%', delay: '0s', size: 60 },
   { top: '20%', left: '80%', delay: '0.4s', size: 50 },
   { top: '5%', left: '50%', delay: '0.8s', size: 70 },
   { top: '15%', left: '35%', delay: '1.2s', size: 45 },
   { top: '8%', left: '65%', delay: '1.6s', size: 55 },
+];
+
+// Smaller, gentler sparkles for milestone wins
+const FIREWORK_POSITIONS_SMALL = [
+  { top: '8%', left: '20%', delay: '0s', size: 32 },
+  { top: '12%', left: '75%', delay: '0.6s', size: 28 },
 ];
 
 // ─── Props ────────────────────────────────────────────────────────
@@ -249,9 +255,12 @@ export function CelebrationModal({ event, stats, themePreset, onDismiss }: Celeb
         }}
       />
 
-      {/* Confetti layer */}
-      <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
-        {CONFETTI_PIECES.map((p) => (
+      {/* Confetti layer — infinite rain for big wins, one-pass fade for milestones */}
+      <div
+        style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}
+        className={event.isFullHerd ? undefined : 'confetti-layer-finite'}
+      >
+        {(event.isFullHerd ? CONFETTI_PIECES : CONFETTI_PIECES.slice(0, 40)).map((p) => (
           <div
             key={p.id}
             className="confetti-piece"
@@ -264,31 +273,49 @@ export function CelebrationModal({ event, stats, themePreset, onDismiss }: Celeb
               borderRadius: p.isCircle ? '50%' : '2px',
               animationDelay: p.delay,
               animationDuration: p.duration,
+              animationIterationCount: event.isFullHerd ? 'infinite' : '1',
               ['--drift' as string]: p.drift,
             }}
           />
         ))}
       </div>
 
-      {/* Fireworks layer */}
+      {/* Fireworks layer — big rings for big wins, gentle sparkles for milestones */}
       <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
-        {FIREWORK_POSITIONS.map((fw, i) => (
-          <div
-            key={i}
-            className="firework-burst"
-            style={{
-              top: fw.top,
-              left: fw.left,
-              width: fw.size,
-              height: fw.size,
-              borderRadius: '50%',
-              border: `3px solid ${CONFETTI_COLORS[i % CONFETTI_COLORS.length]}`,
-              animationDelay: fw.delay,
-              animationDuration: '1.5s',
-              animationIterationCount: 'infinite',
-            }}
-          />
-        ))}
+        {event.isFullHerd
+          ? FIREWORK_POSITIONS_BIG.map((fw, i) => (
+              <div
+                key={i}
+                className="firework-burst"
+                style={{
+                  top: fw.top,
+                  left: fw.left,
+                  width: fw.size,
+                  height: fw.size,
+                  borderRadius: '50%',
+                  border: `3px solid ${CONFETTI_COLORS[i % CONFETTI_COLORS.length]}`,
+                  animationDelay: fw.delay,
+                  animationDuration: '1.5s',
+                  animationIterationCount: 'infinite',
+                }}
+              />
+            ))
+          : FIREWORK_POSITIONS_SMALL.map((fw, i) => (
+              <div
+                key={i}
+                className="firework-sparkle"
+                style={{
+                  top: fw.top,
+                  left: fw.left,
+                  width: fw.size,
+                  height: fw.size,
+                  borderRadius: '4px',
+                  background: `${CONFETTI_COLORS[i % CONFETTI_COLORS.length]}88`,
+                  animationDelay: fw.delay,
+                  animationIterationCount: '3',
+                }}
+              />
+            ))}
       </div>
 
       {/* Content card */}
