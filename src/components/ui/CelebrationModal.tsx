@@ -76,19 +76,20 @@ const FULL_HERD_EMOJIS = ['🐰', '🐷', '🌙', '🦦', '🐥', '🐄', '🐱'
 
 // ─── Confetti generator ────────────────────────────────────────────
 const CONFETTI_COLORS = ['#a855f7', '#f9a8d4', '#fbbf24', '#34d399', '#60a5fa', '#fb923c'];
-const CONFETTI_COUNT = 60;
+const CONFETTI_COUNT = 80;
 
 function generateConfetti() {
   return Array.from({ length: CONFETTI_COUNT }, (_, i) => ({
     id: i,
     left: `${Math.random() * 100}%`,
-    delay: `${Math.random() * 3}s`,
-    duration: `${2 + Math.random() * 2}s`,
+    delay: `${Math.random() * 4}s`,
+    duration: `${2.5 + Math.random() * 2.5}s`,
     color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
-    width: `${6 + Math.floor(Math.random() * 6)}px`,
-    height: `${6 + Math.floor(Math.random() * 6)}px`,
+    width: `${6 + Math.floor(Math.random() * 7)}px`,
+    height: `${6 + Math.floor(Math.random() * 7)}px`,
     isCircle: Math.random() > 0.5,
     rotate: `${Math.floor(Math.random() * 360)}deg`,
+    drift: `${10 + Math.floor(Math.random() * 24)}px`,
   }));
 }
 
@@ -261,9 +262,9 @@ export function CelebrationModal({ event, stats, themePreset, onDismiss }: Celeb
               height: p.height,
               backgroundColor: p.color,
               borderRadius: p.isCircle ? '50%' : '2px',
-              transform: `rotate(${p.rotate})`,
               animationDelay: p.delay,
               animationDuration: p.duration,
+              ['--drift' as string]: p.drift,
             }}
           />
         ))}
