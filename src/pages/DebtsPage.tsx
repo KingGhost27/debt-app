@@ -520,7 +520,8 @@ export function DebtsPage() {
                   <HelpCircle size={16} />
                 </button>
                 {showAPRTooltip && (
-                  <div className="absolute z-20 right-0 bottom-full mb-2 w-64 p-4 bg-gray-900 text-white text-xs rounded-2xl shadow-xl">
+                  <div className="absolute z-20 right-0 top-8 w-56 p-4 bg-gray-900 text-white text-xs rounded-2xl shadow-xl">
+                    <div className="absolute -top-2 right-4 border-8 border-transparent border-b-gray-900" />
                     <p className="font-semibold mb-2 flex items-center gap-1">
                       <Sparkles size={12} className="text-primary-400" />
                       What is APR?
@@ -534,7 +535,6 @@ export function DebtsPage() {
                       <span className="text-amber-400 font-medium">Amber</span> = Medium (10-20%)<br/>
                       <span className="text-red-400 font-medium">Red</span> = High (&gt;20%)
                     </p>
-                    <div className="absolute top-full right-4 border-8 border-transparent border-t-gray-900" />
                   </div>
                 )}
               </div>
