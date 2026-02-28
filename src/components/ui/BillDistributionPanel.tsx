@@ -84,7 +84,7 @@ export function BillDistributionPanel({
   }
 
   return (
-    <div className="card">
+    <div className="card p-3! sm:p-5!">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
@@ -221,7 +221,7 @@ export function BillDistributionPanel({
                       {' → '}
                       <span className="font-medium text-green-600">{formatOrdinal(suggestion.suggestedDueDay)}</span>
                     </p>
-                    <p className="mt-0.5 text-gray-400">
+                    <p className="mt-0.5 text-gray-400 hidden sm:block">
                       {(() => {
                         // Find which periods are involved
                         const fromPeriod = analysis.payPeriods.find(
