@@ -23,6 +23,9 @@ interface StepProgressData {
   paidThisStep: number;
   percentComplete: number;
   monthCount: number;
+  avgMonthlyPayment: number;
+  stepPrincipal: number;
+  stepInterest: number;
 }
 
 /**
@@ -74,6 +77,11 @@ function calculateStepProgress(
       ? ((initialTotalBalance - endingBalance) / initialTotalBalance) * 100
       : 0;
 
+  const totalStepPayment = stepMonths.reduce((sum, m) => sum + m.totalPayment, 0);
+  const stepPrincipal = stepMonths.reduce((sum, m) => sum + m.totalPrincipal, 0);
+  const stepInterest = stepMonths.reduce((sum, m) => sum + m.totalInterest, 0);
+  const avgMonthlyPayment = stepMonths.length > 0 ? totalStepPayment / stepMonths.length : 0;
+
   return {
     stepNumber: currentStep.stepNumber,
     startingBalance,
@@ -81,6 +89,9 @@ function calculateStepProgress(
     paidThisStep,
     percentComplete,
     monthCount: stepMonths.length,
+    avgMonthlyPayment,
+    stepPrincipal,
+    stepInterest,
   };
 }
 
@@ -163,6 +174,14 @@ export function PayoffSteps({ plan, sortedDebts }: PayoffStepsProps) {
                       {formatTimeUntil(stepDate)}
                     </p>
                   </div>
+                  {stepProgress.avgMonthlyPayment > 0 && (
+                    <div className="text-right flex-shrink-0">
+                      <p className="text-base font-bold text-gray-800">
+                        {formatCurrency(stepProgress.avgMonthlyPayment)}
+                      </p>
+                      <p className="text-xs text-gray-400">/mo this step</p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Milestones (debts paid off in this step) */}
@@ -212,12 +231,19 @@ export function PayoffSteps({ plan, sortedDebts }: PayoffStepsProps) {
                 {/* Progress visualization */}
                 <div className="mt-5 pt-5 border-t border-gray-100">
                   {/* Balance decrease summary */}
-                  <div className="flex items-center justify-between text-sm mb-3">
+                  <div className="flex items-center justify-between text-sm mb-1">
                     <span className="text-gray-600">Paid this step</span>
                     <span className="font-bold text-gray-900">
                       {formatCurrency(stepProgress.paidThisStep)}
                     </span>
                   </div>
+                  {stepProgress.stepPrincipal > 0 && (
+                    <div className="flex items-center justify-end gap-2 text-xs text-gray-400 mb-3">
+                      <span>{formatCurrency(stepProgress.stepPrincipal)} principal</span>
+                      <span>·</span>
+                      <span className="text-rose-400">{formatCurrency(stepProgress.stepInterest)} interest</span>
+                    </div>
+                  )}
 
                   {/* Progress bar showing step completion */}
                   <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
