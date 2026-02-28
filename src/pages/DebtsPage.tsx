@@ -802,7 +802,7 @@ export function DebtsPage() {
                     )}
 
                     <div className="flex-1 grid grid-cols-2 gap-x-4 gap-y-3">
-                      <div>
+                      <div className="min-w-0">
                         <p className="text-xs text-gray-500 flex items-center gap-1 mb-1">
                           Balance
                           {recalibratingDebtId !== debt.id && (
@@ -847,10 +847,10 @@ export function DebtsPage() {
                             </button>
                           </div>
                         ) : (
-                          <p className="text-xl font-bold text-gray-900">{formatCurrency(debt.balance)}</p>
+                          <p className="text-lg font-bold text-gray-900">{formatCurrency(debt.balance)}</p>
                         )}
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <p className="text-xs text-gray-500 mb-1">Minimum</p>
                         <p className="font-bold text-gray-900">{formatCurrency(debt.minimumPayment)}</p>
                       </div>
