@@ -510,13 +510,13 @@ export function TrackPage() {
                 const debt = debts.find((d) => d.id === payment.debtId);
 
                 return (
-                  <div key={payment.id} className="card bg-white rounded-2xl flex items-center gap-4 hover:shadow-md transition-all group">
-                    <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-500 rounded-2xl flex items-center justify-center shadow-lg shadow-green-300/40">
-                      <Check size={22} className="text-white" />
+                  <div key={payment.id} className="card bg-white rounded-2xl flex items-center gap-3 hover:shadow-md transition-all group">
+                    <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-emerald-500 rounded-2xl flex items-center justify-center shadow-lg shadow-green-300/40 shrink-0">
+                      <Check size={18} className="text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-gray-900">{debt?.name || 'Unknown'}</p>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm font-semibold text-gray-900 truncate">{debt?.name || 'Unknown'}</p>
+                      <p className="text-xs text-gray-500">
                         {payment.completedAt
                           ? format(parseISO(payment.completedAt), 'MMM d, yyyy')
                           : 'N/A'}
@@ -527,13 +527,13 @@ export function TrackPage() {
                         </p>
                       )}
                     </div>
-                    <div className="text-right flex items-center gap-3">
+                    <div className="text-right flex items-center gap-2 shrink-0">
                       <div>
-                        <p className="font-bold text-green-600">
+                        <p className="text-sm font-bold text-green-600">
                           {formatCurrency(payment.amount)}
                         </p>
                         <span
-                          className={`text-xs px-2.5 py-1 rounded-xl font-medium ${
+                          className={`text-xs px-2 py-0.5 rounded-lg font-medium ${
                             payment.type === 'extra'
                               ? 'bg-primary-100 text-primary-700'
                               : payment.type === 'one_time'
@@ -545,22 +545,22 @@ export function TrackPage() {
                             ? 'Extra'
                             : payment.type === 'one_time'
                             ? 'One-time'
-                            : 'Minimum'}
+                            : 'Min'}
                         </span>
                       </div>
                       <button
                         onClick={() => debt && openPaymentModal(debt, undefined, undefined, payment)}
-                        className="p-2 text-gray-400 hover:text-primary-500 hover:bg-primary-50 rounded-xl transition-all opacity-0 group-hover:opacity-100"
+                        className="p-1.5 text-gray-400 hover:text-primary-500 hover:bg-primary-50 rounded-xl transition-all opacity-0 group-hover:opacity-100"
                         title="Edit payment"
                       >
-                        <Pencil size={16} />
+                        <Pencil size={14} />
                       </button>
                       <button
                         onClick={() => handleDeletePayment(payment.id, payment.debtId, payment.principal)}
-                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all opacity-0 group-hover:opacity-100"
+                        className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all opacity-0 group-hover:opacity-100"
                         title="Delete payment"
                       >
-                        <X size={18} />
+                        <X size={14} />
                       </button>
                     </div>
                   </div>
