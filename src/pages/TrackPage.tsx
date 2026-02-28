@@ -382,37 +382,36 @@ export function TrackPage() {
                           }`}
                         >
                           <div
-                            className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
+                            className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 ${
                               alreadyPaid
                                 ? 'bg-gradient-to-br from-green-400 to-emerald-500 shadow-lg shadow-green-300/40'
                                 : 'bg-gray-100'
                             }`}
                           >
                             {alreadyPaid ? (
-                              <Check size={22} className="text-white" />
+                              <Check size={18} className="text-white" />
                             ) : (
-                              <span className="text-xl">💳</span>
+                              <span className="text-base">💳</span>
                             )}
                           </div>
-                          <div className="flex-1">
-                            <p className="font-semibold text-gray-900">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-gray-900 truncate">
                               {payment.debtName}
                               {alreadyPaid && (
-                                <span className="ml-2 text-xs text-green-600 font-bold">Paid</span>
+                                <span className="ml-1.5 text-xs text-green-600 font-bold">✓</span>
                               )}
                             </p>
-                            <p className="text-sm text-gray-500">
-                              {format(monthDate, 'MMM')} {debt.dueDay},{' '}
-                              {format(monthDate, 'yyyy')}
+                            <p className="text-xs text-gray-500">
+                              {format(monthDate, 'MMM')} {debt.dueDay}, {format(monthDate, 'yyyy')}
                             </p>
                           </div>
-                          <div className="text-right flex items-center gap-3">
+                          <div className="text-right flex items-center gap-2 shrink-0">
                             <div>
-                              <p className={`font-bold ${alreadyPaid ? 'text-green-600' : 'text-gray-900'}`}>
+                              <p className={`text-sm font-bold ${alreadyPaid ? 'text-green-600' : 'text-gray-900'}`}>
                                 {formatCurrency(alreadyPaid && paidPayment ? paidPayment.amount : payment.amount)}
                               </p>
                               <span
-                                className={`text-xs px-2.5 py-1 rounded-xl font-medium ${
+                                className={`text-xs px-2 py-0.5 rounded-lg font-medium ${
                                   (alreadyPaid && paidPayment ? paidPayment.type : payment.type) === 'extra'
                                     ? 'bg-primary-100 text-primary-700'
                                     : (alreadyPaid && paidPayment ? paidPayment.type : payment.type) === 'one_time'
@@ -424,7 +423,7 @@ export function TrackPage() {
                                   ? 'Extra'
                                   : (alreadyPaid && paidPayment ? paidPayment.type : payment.type) === 'one_time'
                                   ? 'One-time'
-                                  : 'Minimum'}
+                                  : 'Min'}
                               </span>
                             </div>
                             {!alreadyPaid ? (
@@ -436,26 +435,26 @@ export function TrackPage() {
                                     payment.type as PaymentType
                                   )
                                 }
-                                className="p-2.5 bg-gradient-to-br from-green-400 to-emerald-500 text-white rounded-xl hover:from-green-500 hover:to-emerald-600 transition-all shadow-lg shadow-green-300/40 hover:scale-105 active:scale-95"
+                                className="p-2 bg-gradient-to-br from-green-400 to-emerald-500 text-white rounded-xl hover:from-green-500 hover:to-emerald-600 transition-all shadow-lg shadow-green-300/40 hover:scale-105 active:scale-95"
                                 title="Mark as paid (click to edit amount)"
                               >
-                                <Check size={18} />
+                                <Check size={16} />
                               </button>
                             ) : (
                               <div className="flex gap-1">
                                 <button
                                   onClick={() => paidPayment && openPaymentModal(debt, undefined, undefined, paidPayment)}
-                                  className="p-2 bg-white/80 dark:bg-gray-900/30 text-gray-500 rounded-xl hover:bg-primary-100 hover:text-primary-600 transition-all"
+                                  className="p-1.5 bg-white/80 dark:bg-gray-900/30 text-gray-500 rounded-xl hover:bg-primary-100 hover:text-primary-600 transition-all"
                                   title="Edit payment"
                                 >
-                                  <Pencil size={16} />
+                                  <Pencil size={14} />
                                 </button>
                                 <button
                                   onClick={() => paidPayment && handleDeletePayment(paidPayment.id, paidPayment.debtId, paidPayment.principal)}
-                                  className="p-2 bg-white/80 dark:bg-gray-900/30 text-gray-500 rounded-xl hover:bg-red-100 hover:text-red-500 transition-all"
+                                  className="p-1.5 bg-white/80 dark:bg-gray-900/30 text-gray-500 rounded-xl hover:bg-red-100 hover:text-red-500 transition-all"
                                   title="Undo payment"
                                 >
-                                  <Undo2 size={18} />
+                                  <Undo2 size={14} />
                                 </button>
                               </div>
                             )}
