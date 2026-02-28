@@ -51,18 +51,12 @@ export const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
             justifyContent: 'center',
             flexWrap: 'wrap',
             gap: animalEmojis.length > 2 ? 4 : 8,
-            marginBottom: 6,
+            marginBottom: 10,
             lineHeight: 1,
             fontSize: animalEmojis.length > 2 ? 28 : 44,
           }}>
             {animalEmojis.map((emoji, i) => (
               <span key={i}>{emoji}</span>
-            ))}
-          </div>
-          {/* Money emoji row */}
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 5, marginBottom: 8, fontSize: 13, opacity: 0.85 }}>
-            {['💰', '🪙', '💵', '💸', '🪙', '💰'].map((e, i) => (
-              <span key={i}>{e}</span>
             ))}
           </div>
           <h2

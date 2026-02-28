@@ -105,6 +105,20 @@ const FIREWORK_POSITIONS_BIG = [
   { top: '8%', left: '65%', delay: '1.6s', size: 55 },
 ];
 
+// Money decorations for big wins (debt paid off / debt free) — layered with ring fireworks
+const BIG_WIN_MONEY_DECORATIONS = [
+  { className: 'decoration-coin',    content: '💰', top: '6%',  left: '5%',  delay: '0s' },
+  { className: 'decoration-twinkle', content: '⭐', top: '3%',  left: '28%', delay: '0.3s' },
+  { className: 'decoration-coin',    content: '🪙', top: '8%',  left: '55%', delay: '0.7s' },
+  { className: 'decoration-twinkle', content: '✨', top: '5%',  left: '72%', delay: '1.1s' },
+  { className: 'decoration-coin',    content: '💵', top: '4%',  left: '88%', delay: '0.5s' },
+  { className: 'decoration-twinkle', content: '💫', top: '18%', left: '3%',  delay: '1.4s' },
+  { className: 'decoration-coin',    content: '💸', top: '16%', left: '40%', delay: '0.9s' },
+  { className: 'decoration-twinkle', content: '⭐', top: '20%', left: '92%', delay: '0.2s' },
+  { className: 'decoration-coin',    content: '🪙', top: '22%', left: '18%', delay: '1.8s' },
+  { className: 'decoration-twinkle', content: '✨', top: '25%', left: '65%', delay: '1.6s' },
+];
+
 // Twinkling stars + coin pops for small milestone wins
 const SMALL_WIN_DECORATIONS = [
   { className: 'decoration-twinkle', content: '⭐', top: '6%',  left: '8%',  delay: '0s' },
@@ -288,23 +302,30 @@ export function CelebrationModal({ event, stats, themePreset, onDismiss }: Celeb
       {/* Fireworks / decorations layer */}
       <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
         {event.isFullHerd
-          ? FIREWORK_POSITIONS_BIG.map((fw, i) => (
-              <div
-                key={i}
-                className="firework-burst"
-                style={{
-                  top: fw.top,
-                  left: fw.left,
-                  width: fw.size,
-                  height: fw.size,
-                  borderRadius: '50%',
-                  border: `3px solid ${CONFETTI_COLORS[i % CONFETTI_COLORS.length]}`,
-                  animationDelay: fw.delay,
-                  animationDuration: '1.5s',
-                  animationIterationCount: 'infinite',
-                }}
-              />
-            ))
+          ? <>
+              {FIREWORK_POSITIONS_BIG.map((fw, i) => (
+                <div
+                  key={`fw-${i}`}
+                  className="firework-burst"
+                  style={{
+                    top: fw.top,
+                    left: fw.left,
+                    width: fw.size,
+                    height: fw.size,
+                    borderRadius: '50%',
+                    border: `3px solid ${CONFETTI_COLORS[i % CONFETTI_COLORS.length]}`,
+                    animationDelay: fw.delay,
+                    animationDuration: '1.5s',
+                    animationIterationCount: 'infinite',
+                  }}
+                />
+              ))}
+              {BIG_WIN_MONEY_DECORATIONS.map((d, i) => (
+                <div key={`money-${i}`} className={d.className} style={{ top: d.top, left: d.left, animationDelay: d.delay }}>
+                  {d.content}
+                </div>
+              ))}
+            </>
           : SMALL_WIN_DECORATIONS.map((d, i) => (
               <div
                 key={i}
