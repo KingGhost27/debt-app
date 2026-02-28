@@ -301,9 +301,7 @@ export function MiniCalendar({ debts, incomeSources = [], subscriptions = [], cu
           // Tooltip edge-aware positioning
           const col = dayIndex % 7;
           const row = Math.floor(dayIndex / 7);
-          const totalRows = Math.ceil(calendarDays.length / 7);
           const isFirstRow = row === 0;
-          const isLastRow = row === totalRows - 1;
           const isFirstCol = col === 0;
           const isLastCol = col === 6;
           // Vertical: open downward on first row, upward on last row, else upward
