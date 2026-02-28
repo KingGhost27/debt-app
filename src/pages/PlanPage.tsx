@@ -224,11 +224,11 @@ export function PlanPage() {
 
           {/* Main plan content - takes 2 columns on desktop */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Step-by-step Plan */}
-            <PayoffSteps plan={plan} sortedDebts={sortedDebts} />
-
             {/* What-If Scenario Tool */}
             <WhatIfScenario debts={debts} strategy={strategy} />
+
+            {/* Step-by-step Plan */}
+            <PayoffSteps plan={plan} sortedDebts={sortedDebts} />
 
             {/* Debt-free celebration */}
             {debtFreeDate && (
