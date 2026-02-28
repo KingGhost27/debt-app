@@ -380,7 +380,7 @@ export function HomePage() {
             {/* Right col: Credit Ring */}
             {summary.totalCreditLimit > 0 ? (
               <div className="flex flex-col items-center gap-2 min-w-0">
-                <div className="relative">
+                <div className="relative flex items-center justify-center">
                   <ProgressRing
                     percentage={summary.creditUtilization}
                     size={100}
