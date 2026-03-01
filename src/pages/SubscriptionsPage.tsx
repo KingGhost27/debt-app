@@ -7,7 +7,7 @@
  */
 
 import { useState, useMemo } from 'react';
-import { Plus, Pencil, Trash2, RefreshCw, Calendar, Sparkles, Pause, Play } from 'lucide-react';
+import { Plus, Pencil, Trash2, RefreshCw, Calendar, Pause, Play } from 'lucide-react';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { useConfirmDialog } from '../hooks/useConfirmDialog';
 import { format, parseISO, differenceInDays, addDays, addWeeks, addMonths, addYears, isBefore } from 'date-fns';
@@ -234,7 +234,6 @@ export function SubscriptionsPage({ embedded = false }: { embedded?: boolean }) 
                 {subs.map((subscription) => {
                   const nextBilling = getNextBillingDate(subscription);
                   const daysUntil = differenceInDays(nextBilling, new Date());
-                  const monthlyAmount = getMonthlyAmount(subscription.amount, subscription.frequency);
                   return (
                     <div key={subscription.id} className={`card p-2.5! bg-white rounded-xl shadow-sm hover:shadow-md transition-all group overflow-hidden ${!subscription.isActive ? 'opacity-60' : ''}`}>
                       <div className="h-0.5 -mx-2.5 -mt-2.5 mb-2" style={{ backgroundColor: categoryInfo?.color || '#6b7280' }} />
