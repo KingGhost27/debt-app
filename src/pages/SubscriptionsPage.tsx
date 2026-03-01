@@ -189,25 +189,24 @@ export function SubscriptionsPage({ embedded = false }: { embedded?: boolean }) 
   const sharedContent = (
     <>
       {/* Summary Card */}
-      <div className="card p-3! bg-gradient-to-br from-primary-50 to-white dark:from-primary-900/30 dark:to-gray-800 rounded-3xl border border-primary-100 dark:border-primary-700/50 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-primary-200/30 rounded-full -translate-y-1/2 translate-x-1/2" />
-        <Sparkles size={14} className="absolute top-3 right-4 text-primary-300 animate-kawaii-pulse" />
+      <div className="card p-3! bg-gradient-to-br from-primary-50 to-white dark:from-primary-900/30 dark:to-gray-800 rounded-2xl border border-primary-100 dark:border-primary-700/50 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-24 h-24 bg-primary-200/30 rounded-full -translate-y-1/2 translate-x-1/2" />
         <div className="relative z-10">
-          <div className="flex items-center gap-2 mb-3">
-            <RefreshCw size={16} className="text-primary-500" />
-            <p className="text-xs text-gray-500 font-semibold uppercase tracking-wide">Recurring Costs</p>
+          <div className="flex items-center gap-1.5 mb-2">
+            <RefreshCw size={13} className="text-primary-500" />
+            <p className="text-[10px] text-gray-500 font-semibold uppercase tracking-wide">Recurring Costs</p>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="p-3 bg-white/60 dark:bg-gray-800/60 rounded-2xl">
-              <p className="text-xs text-gray-500 mb-0.5">Monthly</p>
-              <p className="text-xl font-bold text-primary-600">{formatCurrency(monthlyTotal)}</p>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="p-2 bg-white/60 dark:bg-gray-800/60 rounded-xl">
+              <p className="text-[10px] text-gray-500 mb-0.5">Monthly</p>
+              <p className="text-base font-bold text-primary-600">{formatCurrency(monthlyTotal)}</p>
             </div>
-            <div className="p-3 bg-white/60 dark:bg-gray-800/60 rounded-2xl">
-              <p className="text-xs text-gray-500 mb-0.5">Annual</p>
-              <p className="text-xl font-bold text-gray-900">{formatCurrency(annualTotal)}</p>
+            <div className="p-2 bg-white/60 dark:bg-gray-800/60 rounded-xl">
+              <p className="text-[10px] text-gray-500 mb-0.5">Annual</p>
+              <p className="text-base font-bold text-gray-900">{formatCurrency(annualTotal)}</p>
             </div>
           </div>
-          <div className="mt-3 flex items-center justify-between text-xs">
+          <div className="mt-2 flex items-center justify-between text-[10px]">
             <span className="text-gray-500">{activeSubscriptions.length} active subscription{activeSubscriptions.length !== 1 ? 's' : ''}</span>
             {subscriptions.length > activeSubscriptions.length && (
               <span className="text-gray-400">{subscriptions.length - activeSubscriptions.length} paused</span>
@@ -217,58 +216,58 @@ export function SubscriptionsPage({ embedded = false }: { embedded?: boolean }) 
       </div>
 
       {/* Subscriptions List */}
-      <div className="space-y-3">
+      <div className="space-y-2">
         {Object.entries(subscriptionsByCategory).map(([category, subs]) => {
           const categoryInfo = SUBSCRIPTION_CATEGORY_INFO[category as keyof typeof SUBSCRIPTION_CATEGORY_INFO];
           return (
             <div key={category}>
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: categoryInfo?.color || '#6b7280' }} />
-                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{categoryInfo?.label || category}</h3>
+              <div className="flex items-center gap-1.5 mb-1.5">
+                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: categoryInfo?.color || '#6b7280' }} />
+                <h3 className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">{categoryInfo?.label || category}</h3>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 {subs.map((subscription) => {
                   const nextBilling = getNextBillingDate(subscription);
                   const daysUntil = differenceInDays(nextBilling, new Date());
                   const monthlyAmount = getMonthlyAmount(subscription.amount, subscription.frequency);
                   return (
-                    <div key={subscription.id} className={`card p-3! bg-white rounded-2xl shadow-sm hover:shadow-md transition-all group overflow-hidden ${!subscription.isActive ? 'opacity-60' : ''}`}>
-                      <div className="h-1 -mx-3 -mt-3 mb-2.5" style={{ backgroundColor: categoryInfo?.color || '#6b7280' }} />
+                    <div key={subscription.id} className={`card p-2.5! bg-white rounded-xl shadow-sm hover:shadow-md transition-all group overflow-hidden ${!subscription.isActive ? 'opacity-60' : ''}`}>
+                      <div className="h-0.5 -mx-2.5 -mt-2.5 mb-2" style={{ backgroundColor: categoryInfo?.color || '#6b7280' }} />
 
                       {/* Top row: name + amount */}
-                      <div className="flex items-center justify-between gap-2 mb-1">
+                      <div className="flex items-center justify-between gap-2 mb-0.5">
                         <div className="flex items-center gap-1.5 min-w-0">
-                          <h4 className="text-sm font-semibold text-gray-900 truncate">{subscription.name}</h4>
+                          <h4 className="text-xs font-semibold text-gray-900 truncate">{subscription.name}</h4>
                           {!subscription.isActive && <span className="px-1.5 py-0.5 text-[10px] font-medium bg-gray-100 text-gray-500 rounded-full shrink-0">Paused</span>}
                         </div>
-                        <p className="text-sm font-bold text-gray-900 shrink-0">{formatCurrency(subscription.amount)}</p>
+                        <p className="text-xs font-bold text-gray-900 shrink-0">{formatCurrency(subscription.amount)}</p>
                       </div>
 
                       {/* Bottom row: date/frequency + action buttons */}
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-xs text-gray-500 min-w-0">
+                        <div className="flex items-center gap-1.5 text-[10px] text-gray-500 min-w-0">
                           <span className="shrink-0">{formatFrequency(subscription.frequency)}</span>
                           {subscription.isActive && (
                             <>
                               <span className="text-gray-300">·</span>
-                              <span className="flex items-center gap-1 shrink-0">
-                                <Calendar size={11} className="text-gray-400" />
+                              <span className="flex items-center gap-0.5 shrink-0">
+                                <Calendar size={10} className="text-gray-400" />
                                 {format(nextBilling, 'MMM d')}
                               </span>
                               {daysUntil <= 7 && daysUntil >= 0 && (
-                                <span className={`px-1.5 py-0.5 text-[10px] font-medium rounded-full shrink-0 ${daysUntil === 0 ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'}`}>
+                                <span className={`px-1 py-0.5 text-[10px] font-medium rounded-full shrink-0 ${daysUntil === 0 ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'}`}>
                                   {daysUntil === 0 ? 'Today' : `${daysUntil}d`}
                                 </span>
                               )}
                             </>
                           )}
                         </div>
-                        <div className="flex gap-0.5 shrink-0">
-                          <button onClick={() => handleToggleActive(subscription)} className="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-gray-100 rounded-lg transition-colors" title={subscription.isActive ? 'Pause' : 'Resume'}>
-                            {subscription.isActive ? <Pause size={13} /> : <Play size={13} />}
+                        <div className="flex gap-0 shrink-0">
+                          <button onClick={() => handleToggleActive(subscription)} className="p-1 text-gray-400 hover:text-primary-600 hover:bg-gray-100 rounded-lg transition-colors" title={subscription.isActive ? 'Pause' : 'Resume'}>
+                            {subscription.isActive ? <Pause size={12} /> : <Play size={12} />}
                           </button>
-                          <button onClick={() => handleEdit(subscription)} className="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-gray-100 rounded-lg transition-colors"><Pencil size={13} /></button>
-                          <button onClick={() => handleDelete(subscription)} className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-gray-100 rounded-lg transition-colors"><Trash2 size={13} /></button>
+                          <button onClick={() => handleEdit(subscription)} className="p-1 text-gray-400 hover:text-primary-600 hover:bg-gray-100 rounded-lg transition-colors"><Pencil size={12} /></button>
+                          <button onClick={() => handleDelete(subscription)} className="p-1 text-gray-400 hover:text-red-500 hover:bg-gray-100 rounded-lg transition-colors"><Trash2 size={12} /></button>
                         </div>
                       </div>
                     </div>
