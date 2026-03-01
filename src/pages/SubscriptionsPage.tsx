@@ -234,37 +234,41 @@ export function SubscriptionsPage({ embedded = false }: { embedded?: boolean }) 
                   return (
                     <div key={subscription.id} className={`card p-3! bg-white rounded-2xl shadow-sm hover:shadow-md transition-all group overflow-hidden ${!subscription.isActive ? 'opacity-60' : ''}`}>
                       <div className="h-1 -mx-3 -mt-3 mb-2.5" style={{ backgroundColor: categoryInfo?.color || '#6b7280' }} />
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1.5">
-                            <h4 className="text-sm font-semibold text-gray-900 truncate">{subscription.name}</h4>
-                            {!subscription.isActive && <span className="px-1.5 py-0.5 text-[10px] font-medium bg-gray-100 text-gray-500 rounded-full shrink-0">Paused</span>}
-                          </div>
-                          <p className="text-xs text-gray-500 mt-0.5">{formatCurrency(subscription.amount)} · {formatFrequency(subscription.frequency)}</p>
+
+                      {/* Top row: name + amount */}
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <h4 className="text-sm font-semibold text-gray-900 truncate">{subscription.name}</h4>
+                          {!subscription.isActive && <span className="px-1.5 py-0.5 text-[10px] font-medium bg-gray-100 text-gray-500 rounded-full shrink-0">Paused</span>}
+                        </div>
+                        <p className="text-sm font-bold text-gray-900 shrink-0">{formatCurrency(subscription.amount)}</p>
+                      </div>
+
+                      {/* Bottom row: date/frequency + action buttons */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-xs text-gray-500 min-w-0">
+                          <span className="shrink-0">{formatFrequency(subscription.frequency)}</span>
                           {subscription.isActive && (
-                            <div className="flex items-center gap-1.5 mt-1">
-                              <Calendar size={12} className="text-gray-400" />
-                              <span className="text-xs text-gray-500">{format(nextBilling, 'MMM d, yyyy')}</span>
+                            <>
+                              <span className="text-gray-300">·</span>
+                              <span className="flex items-center gap-1 shrink-0">
+                                <Calendar size={11} className="text-gray-400" />
+                                {format(nextBilling, 'MMM d')}
+                              </span>
                               {daysUntil <= 7 && daysUntil >= 0 && (
-                                <span className={`ml-1 px-1.5 py-0.5 text-[10px] font-medium rounded-full ${daysUntil === 0 ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'}`}>
+                                <span className={`px-1.5 py-0.5 text-[10px] font-medium rounded-full shrink-0 ${daysUntil === 0 ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'}`}>
                                   {daysUntil === 0 ? 'Today' : `${daysUntil}d`}
                                 </span>
                               )}
-                            </div>
+                            </>
                           )}
                         </div>
-                        <div className="flex items-start gap-1 shrink-0">
-                          <div className="text-right">
-                            <p className="text-sm font-bold text-gray-900">{formatCurrency(subscription.amount)}</p>
-                            <p className="text-xs text-gray-400">~{formatCurrency(monthlyAmount)}/mo</p>
-                          </div>
-                          <div className="flex gap-0.5 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-                            <button onClick={() => handleToggleActive(subscription)} className="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-gray-100 rounded-lg transition-colors" title={subscription.isActive ? 'Pause' : 'Resume'}>
-                              {subscription.isActive ? <Pause size={14} /> : <Play size={14} />}
-                            </button>
-                            <button onClick={() => handleEdit(subscription)} className="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-gray-100 rounded-lg transition-colors"><Pencil size={14} /></button>
-                            <button onClick={() => handleDelete(subscription)} className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-gray-100 rounded-lg transition-colors"><Trash2 size={14} /></button>
-                          </div>
+                        <div className="flex gap-0.5 shrink-0">
+                          <button onClick={() => handleToggleActive(subscription)} className="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-gray-100 rounded-lg transition-colors" title={subscription.isActive ? 'Pause' : 'Resume'}>
+                            {subscription.isActive ? <Pause size={13} /> : <Play size={13} />}
+                          </button>
+                          <button onClick={() => handleEdit(subscription)} className="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-gray-100 rounded-lg transition-colors"><Pencil size={13} /></button>
+                          <button onClick={() => handleDelete(subscription)} className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-gray-100 rounded-lg transition-colors"><Trash2 size={13} /></button>
                         </div>
                       </div>
                     </div>
