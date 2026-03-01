@@ -67,9 +67,14 @@ function getNextBillingDate(subscription: Subscription): Date {
 function formatFrequency(frequency: SubscriptionFrequency): string {
   const { value, unit } = frequency;
   if (value === 1) {
-    const unitSingular = unit.slice(0, -1); // Remove 's'
-    return `Every ${unitSingular}`;
+    const labels: Record<string, string> = {
+      days: 'Daily', weeks: 'Weekly', months: 'Monthly', years: 'Yearly',
+    };
+    return labels[unit] ?? unit;
   }
+  if (value === 2 && unit === 'weeks') return 'Bi-weekly';
+  if (value === 3 && unit === 'months') return 'Quarterly';
+  if (value === 6 && unit === 'months') return 'Semi-annual';
   return `Every ${value} ${unit}`;
 }
 
