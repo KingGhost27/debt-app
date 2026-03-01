@@ -239,41 +239,39 @@ export function SubscriptionsPage({ embedded = false }: { embedded?: boolean }) 
                     <div key={subscription.id} className={`card p-2.5! bg-white rounded-xl shadow-sm hover:shadow-md transition-all group overflow-hidden ${!subscription.isActive ? 'opacity-60' : ''}`}>
                       <div className="h-0.5 -mx-2.5 -mt-2.5 mb-2" style={{ backgroundColor: categoryInfo?.color || '#6b7280' }} />
 
-                      {/* Top row: name + amount */}
-                      <div className="flex items-center justify-between gap-2 mb-0.5">
-                        <div className="flex items-center gap-1.5 min-w-0">
+                      {/* Top row: name + amount + buttons */}
+                      <div className="flex items-center gap-1.5 mb-0.5">
+                        <div className="flex items-center gap-1.5 flex-1 min-w-0">
                           <h4 className="text-xs font-semibold text-gray-900 truncate">{subscription.name}</h4>
                           {!subscription.isActive && <span className="px-1.5 py-0.5 text-[10px] font-medium bg-gray-100 text-gray-500 rounded-full shrink-0">Paused</span>}
                         </div>
                         <p className="text-xs font-bold text-gray-900 shrink-0">{formatCurrency(subscription.amount)}</p>
-                      </div>
-
-                      {/* Bottom row: date/frequency + action buttons */}
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1.5 text-[10px] text-gray-500 min-w-0">
-                          <span className="shrink-0">{formatFrequency(subscription.frequency)}</span>
-                          {subscription.isActive && (
-                            <>
-                              <span className="text-gray-300">·</span>
-                              <span className="flex items-center gap-0.5 shrink-0">
-                                <Calendar size={10} className="text-gray-400" />
-                                {format(nextBilling, 'MMM d')}
-                              </span>
-                              {daysUntil <= 7 && daysUntil >= 0 && (
-                                <span className={`px-1 py-0.5 text-[10px] font-medium rounded-full shrink-0 ${daysUntil === 0 ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'}`}>
-                                  {daysUntil === 0 ? 'Today' : `${daysUntil}d`}
-                                </span>
-                              )}
-                            </>
-                          )}
-                        </div>
-                        <div className="flex gap-0 shrink-0">
+                        <div className="flex shrink-0">
                           <button onClick={() => handleToggleActive(subscription)} className="p-1 text-gray-400 hover:text-primary-600 hover:bg-gray-100 rounded-lg transition-colors" title={subscription.isActive ? 'Pause' : 'Resume'}>
                             {subscription.isActive ? <Pause size={12} /> : <Play size={12} />}
                           </button>
                           <button onClick={() => handleEdit(subscription)} className="p-1 text-gray-400 hover:text-primary-600 hover:bg-gray-100 rounded-lg transition-colors"><Pencil size={12} /></button>
                           <button onClick={() => handleDelete(subscription)} className="p-1 text-gray-400 hover:text-red-500 hover:bg-gray-100 rounded-lg transition-colors"><Trash2 size={12} /></button>
                         </div>
+                      </div>
+
+                      {/* Bottom row: date/frequency info only */}
+                      <div className="flex items-center gap-1.5 text-[10px] text-gray-500">
+                        <span>{formatFrequency(subscription.frequency)}</span>
+                        {subscription.isActive && (
+                          <>
+                            <span className="text-gray-300">·</span>
+                            <span className="flex items-center gap-0.5">
+                              <Calendar size={10} className="text-gray-400" />
+                              {format(nextBilling, 'MMM d')}
+                            </span>
+                            {daysUntil <= 7 && daysUntil >= 0 && (
+                              <span className={`px-1 py-0.5 text-[10px] font-medium rounded-full ${daysUntil === 0 ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'}`}>
+                                {daysUntil === 0 ? 'Today' : `${daysUntil}d`}
+                              </span>
+                            )}
+                          </>
+                        )}
                       </div>
                     </div>
                   );
