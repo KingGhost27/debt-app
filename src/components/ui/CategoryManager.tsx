@@ -92,34 +92,35 @@ export function CategoryManager() {
   };
 
   return (
-    <div className="space-y-6">
-      <h3 className="text-lg font-semibold flex items-center gap-2">
-        <Tag size={20} />
+    <div className="space-y-4 sm:space-y-6">
+      <h3 className="text-sm sm:text-lg font-semibold flex items-center gap-1.5 sm:gap-2">
+        <Tag size={16} className="sm:hidden" />
+        <Tag size={20} className="hidden sm:block" />
         Categories
       </h3>
 
       {/* Built-in categories with color override */}
       <div>
-        <h4 className="text-sm font-medium text-gray-500 mb-3">Built-in Categories</h4>
-        <div className="space-y-2">
+        <h4 className="text-xs sm:text-sm font-medium text-gray-500 mb-2 sm:mb-3">Built-in Categories</h4>
+        <div className="space-y-1.5 sm:space-y-2">
           {builtInCategories.map(([id, info]) => (
             <div
               key={id}
-              className="flex items-center justify-between p-3 bg-gray-50 rounded-xl"
+              className="flex items-center justify-between p-2 sm:p-3 bg-gray-50 rounded-lg sm:rounded-xl"
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3">
                 <div
-                  className="w-4 h-4 rounded-full"
+                  className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full"
                   style={{ backgroundColor: getEffectiveColor(id, info.color) }}
                 />
-                <span className="font-medium">{info.label}</span>
+                <span className="text-xs sm:text-base font-medium">{info.label}</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 sm:gap-2">
                 <input
                   type="color"
                   value={getEffectiveColor(id, info.color)}
                   onChange={(e) => handleBuiltInColorChange(id, e.target.value)}
-                  className="w-8 h-8 rounded cursor-pointer border border-gray-200"
+                  className="w-6 h-6 sm:w-8 sm:h-8 rounded cursor-pointer border border-gray-200"
                   title="Change color"
                 />
                 {settings.categoryColors[id] && (
@@ -139,36 +140,37 @@ export function CategoryManager() {
 
       {/* Custom categories */}
       <div>
-        <div className="flex items-center justify-between mb-3">
-          <h4 className="text-sm font-medium text-gray-500">Custom Categories</h4>
+        <div className="flex items-center justify-between mb-2 sm:mb-3">
+          <h4 className="text-xs sm:text-sm font-medium text-gray-500">Custom Categories</h4>
           {!isAdding && (
             <button
               onClick={() => setIsAdding(true)}
-              className="flex items-center gap-1 text-sm text-primary-600 hover:text-primary-700"
+              className="flex items-center gap-1 text-xs sm:text-sm text-primary-600 hover:text-primary-700"
             >
-              <Plus size={16} />
+              <Plus size={14} className="sm:hidden" />
+              <Plus size={16} className="hidden sm:block" />
               Add
             </button>
           )}
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-1.5 sm:space-y-2">
           {/* Add new category form */}
           {isAdding && (
-            <div className="p-3 bg-primary-50 rounded-xl border-2 border-primary-200">
-              <div className="flex items-center gap-3 mb-3">
+            <div className="p-2.5 sm:p-3 bg-primary-50 rounded-lg sm:rounded-xl border-2 border-primary-200">
+              <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
                 <input
                   type="color"
                   value={newCategoryColor}
                   onChange={(e) => setNewCategoryColor(e.target.value)}
-                  className="w-8 h-8 rounded cursor-pointer"
+                  className="w-6 h-6 sm:w-8 sm:h-8 rounded cursor-pointer"
                 />
                 <input
                   type="text"
                   value={newCategoryName}
                   onChange={(e) => setNewCategoryName(e.target.value)}
                   placeholder="Category name"
-                  className="flex-1 px-3 py-2 border border-gray-200 rounded-lg"
+                  className="flex-1 px-2.5 py-1.5 sm:px-3 sm:py-2 border border-gray-200 rounded-lg text-sm"
                   autoFocus
                 />
               </div>
@@ -178,14 +180,14 @@ export function CategoryManager() {
                     setIsAdding(false);
                     setNewCategoryName('');
                   }}
-                  className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800"
+                  className="px-2.5 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm text-gray-600 hover:text-gray-800"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleAddCategory}
                   disabled={!newCategoryName.trim()}
-                  className="px-3 py-1.5 text-sm bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-2.5 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Add Category
                 </button>
@@ -197,59 +199,61 @@ export function CategoryManager() {
           {customCategories.map((category) => (
             <div
               key={category.id}
-              className="flex items-center justify-between p-3 bg-gray-50 rounded-xl"
+              className="flex items-center justify-between p-2 sm:p-3 bg-gray-50 rounded-lg sm:rounded-xl"
             >
               {editingId === category.id ? (
                 // Edit mode
-                <div className="flex-1 flex items-center gap-3">
+                <div className="flex-1 flex items-center gap-2 sm:gap-3">
                   <input
                     type="color"
                     value={editColor}
                     onChange={(e) => setEditColor(e.target.value)}
-                    className="w-8 h-8 rounded cursor-pointer"
+                    className="w-6 h-6 sm:w-8 sm:h-8 rounded cursor-pointer"
                   />
                   <input
                     type="text"
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
-                    className="flex-1 px-3 py-1 border border-gray-200 rounded-lg"
+                    className="flex-1 px-2.5 py-1 sm:px-3 border border-gray-200 rounded-lg text-sm"
                     autoFocus
                   />
                   <button
                     onClick={handleSaveEdit}
                     className="p-1 text-green-600 hover:text-green-700"
                   >
-                    <Check size={18} />
+                    <Check size={16} />
                   </button>
                   <button
                     onClick={() => setEditingId(null)}
                     className="p-1 text-gray-400 hover:text-gray-600"
                   >
-                    <X size={18} />
+                    <X size={16} />
                   </button>
                 </div>
               ) : (
                 // Display mode
                 <>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 sm:gap-3">
                     <div
-                      className="w-4 h-4 rounded-full"
+                      className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full"
                       style={{ backgroundColor: category.color }}
                     />
-                    <span className="font-medium">{category.name}</span>
+                    <span className="text-xs sm:text-base font-medium">{category.name}</span>
                   </div>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-0.5 sm:gap-1">
                     <button
                       onClick={() => handleStartEdit(category)}
-                      className="p-2 text-gray-400 hover:text-gray-600"
+                      className="p-1.5 sm:p-2 text-gray-400 hover:text-gray-600"
                     >
-                      <Pencil size={16} />
+                      <Pencil size={14} className="sm:hidden" />
+                      <Pencil size={16} className="hidden sm:block" />
                     </button>
                     <button
                       onClick={() => handleDelete(category.id, category.name)}
-                      className="p-2 text-gray-400 hover:text-red-500"
+                      className="p-1.5 sm:p-2 text-gray-400 hover:text-red-500"
                     >
-                      <Trash2 size={16} />
+                      <Trash2 size={14} className="sm:hidden" />
+                      <Trash2 size={16} className="hidden sm:block" />
                     </button>
                   </div>
                 </>
@@ -258,7 +262,7 @@ export function CategoryManager() {
           ))}
 
           {customCategories.length === 0 && !isAdding && (
-            <p className="text-sm text-gray-500 text-center py-4">
+            <p className="text-xs sm:text-sm text-gray-500 text-center py-3 sm:py-4">
               No custom categories yet. Add one above!
             </p>
           )}

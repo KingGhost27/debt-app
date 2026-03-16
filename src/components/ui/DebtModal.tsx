@@ -28,16 +28,6 @@ interface FormData {
   creditLimit: string;
 }
 
-// Convert a day-of-month number (1-31) to a YYYY-MM-DD string for the date input
-function dueDayToDateString(day: number): string {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth() + 1;
-  const maxDay = new Date(year, month, 0).getDate();
-  const clamped = Math.min(Math.max(day, 1), maxDay);
-  return `${year}-${String(month).padStart(2, '0')}-${String(clamped).padStart(2, '0')}`;
-}
-
 function getInitialFormData(): FormData {
   return {
     name: '',
@@ -46,7 +36,7 @@ function getInitialFormData(): FormData {
     originalBalance: '',
     apr: '',
     minimumPayment: '',
-    dueDay: dueDayToDateString(1),
+    dueDay: '1',
     creditLimit: '',
   };
 }
@@ -70,7 +60,7 @@ export function DebtModal({ isOpen, onClose, debt }: DebtModalProps) {
         originalBalance: debt.originalBalance.toString(),
         apr: debt.apr.toString(),
         minimumPayment: debt.minimumPayment.toString(),
-        dueDay: dueDayToDateString(debt.dueDay),
+        dueDay: debt.dueDay.toString(),
         creditLimit: debt.creditLimit?.toString() || '',
       });
     } else {
@@ -127,8 +117,9 @@ export function DebtModal({ isOpen, onClose, debt }: DebtModalProps) {
       newErrors.minimumPayment = 'Valid minimum payment is required';
     }
 
-    if (!formData.dueDay) {
-      newErrors.dueDay = 'Due date is required';
+    const dueDay = parseInt(formData.dueDay, 10);
+    if (isNaN(dueDay) || dueDay < 1 || dueDay > 31) {
+      newErrors.dueDay = 'Due day must be between 1 and 31';
     }
 
     if (formData.creditLimit) {
@@ -164,7 +155,7 @@ export function DebtModal({ isOpen, onClose, debt }: DebtModalProps) {
       originalBalance: isEditing ? parseFloat(formData.originalBalance) || balance : originalBalance,
       apr: parseFloat(formData.apr),
       minimumPayment: parseFloat(formData.minimumPayment),
-      dueDay: parseInt(formData.dueDay.split('-')[2] ?? '1', 10),
+      dueDay: parseInt(formData.dueDay, 10),
       creditLimit: formData.creditLimit ? parseFloat(formData.creditLimit) : undefined,
     };
 
@@ -406,13 +397,17 @@ export function DebtModal({ isOpen, onClose, debt }: DebtModalProps) {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                Due Date <span className="text-primary-400">*</span>
+                Due Day <span className="text-primary-400">*</span>
               </label>
               <input
-                type="date"
+                type="number"
                 name="dueDay"
                 value={formData.dueDay}
                 onChange={handleChange}
+                placeholder="1–31"
+                min="1"
+                max="31"
+                step="1"
                 className={`input ${errors.dueDay ? 'border-red-400' : ''}`}
               />
               {errors.dueDay && (

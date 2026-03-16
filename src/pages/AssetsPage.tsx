@@ -136,7 +136,7 @@ export function AssetsPage() {
             className="flex items-center gap-1.5 px-4 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white text-sm font-semibold rounded-2xl hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg shadow-primary-500/30 hover:shadow-primary-500/40 hover:scale-105 active:scale-95"
           >
             <Plus size={18} />
-            Add Asset
+            <span className="hidden sm:inline">Add Asset</span>
           </button>
         }
       />
@@ -152,59 +152,61 @@ export function AssetsPage() {
           {netWorth > 0 && (
             <>
               {/* Corner floaters */}
-              <span className="absolute top-8 left-6 text-xl animate-money-float" style={{ animationDelay: '0s' }}>💰</span>
-              <span className="absolute top-12 left-16 text-lg animate-money-float" style={{ animationDelay: '0.5s' }}>✨</span>
-              <span className="absolute top-6 right-16 text-xl animate-money-float" style={{ animationDelay: '0.3s' }}>💵</span>
-              <span className="absolute top-14 right-8 text-lg animate-money-pop" style={{ animationDelay: '0.8s' }}>🪙</span>
-              <span className="absolute top-20 left-10 text-sm animate-money-pop" style={{ animationDelay: '1.2s' }}>💎</span>
-              <span className="absolute top-16 right-20 text-sm animate-money-float" style={{ animationDelay: '1.5s' }}>⭐</span>
+              <span className="absolute top-8 left-6 text-sm sm:text-xl animate-money-float" style={{ animationDelay: '0s' }}>💰</span>
+              <span className="absolute top-12 left-16 text-xs sm:text-lg animate-money-float" style={{ animationDelay: '0.5s' }}>✨</span>
+              <span className="absolute top-6 right-16 text-sm sm:text-xl animate-money-float" style={{ animationDelay: '0.3s' }}>💵</span>
+              <span className="absolute top-14 right-8 text-xs sm:text-lg animate-money-pop" style={{ animationDelay: '0.8s' }}>🪙</span>
+              <span className="absolute top-20 left-10 text-xs sm:text-sm animate-money-pop" style={{ animationDelay: '1.2s' }}>💎</span>
+              <span className="absolute top-16 right-20 text-xs sm:text-sm animate-money-float" style={{ animationDelay: '1.5s' }}>⭐</span>
 
               {/* Money shower framing the center text */}
               <div className="absolute inset-x-0 top-0 flex justify-center pointer-events-none overflow-hidden h-full">
                 {/* Left side - near center but not covering */}
-                <span className="absolute text-2xl animate-money-shower" style={{ left: '5%', animationDelay: '0s' }}>💵</span>
-                <span className="absolute text-xl animate-money-bounce-fall" style={{ left: '12%', animationDelay: '0.4s' }}>💴</span>
-                <span className="absolute text-2xl animate-money-shower" style={{ left: '20%', animationDelay: '0.8s' }}>💶</span>
-                <span className="absolute text-lg animate-money-bounce-fall" style={{ left: '8%', animationDelay: '1.2s' }}>🤑</span>
-                <span className="absolute text-xl animate-money-shower" style={{ left: '25%', animationDelay: '1.6s' }}>💎</span>
-                <span className="absolute text-sm animate-money-shower" style={{ left: '15%', animationDelay: '2.4s' }}>✨</span>
-                <span className="absolute text-sm animate-money-bounce-fall" style={{ left: '28%', animationDelay: '2.6s' }}>⭐</span>
+                <span className="absolute text-base sm:text-2xl animate-money-shower" style={{ left: '5%', animationDelay: '0s' }}>💵</span>
+                <span className="absolute text-sm sm:text-xl animate-money-bounce-fall" style={{ left: '12%', animationDelay: '0.4s' }}>💴</span>
+                <span className="absolute text-base sm:text-2xl animate-money-shower" style={{ left: '20%', animationDelay: '0.8s' }}>💶</span>
+                <span className="absolute text-xs sm:text-lg animate-money-bounce-fall" style={{ left: '8%', animationDelay: '1.2s' }}>🤑</span>
+                <span className="absolute text-sm sm:text-xl animate-money-shower" style={{ left: '25%', animationDelay: '1.6s' }}>💎</span>
+                <span className="absolute text-xs sm:text-sm animate-money-shower hidden sm:block" style={{ left: '15%', animationDelay: '2.4s' }}>✨</span>
+                <span className="absolute text-xs sm:text-sm animate-money-bounce-fall hidden sm:block" style={{ left: '28%', animationDelay: '2.6s' }}>⭐</span>
 
                 {/* Right side - near center but not covering */}
-                <span className="absolute text-2xl animate-money-shower" style={{ right: '5%', animationDelay: '0.6s' }}>💰</span>
-                <span className="absolute text-xl animate-money-bounce-fall" style={{ right: '12%', animationDelay: '1s' }}>💸</span>
-                <span className="absolute text-lg animate-money-shower" style={{ right: '20%', animationDelay: '1.4s' }}>🪙</span>
-                <span className="absolute text-xl animate-money-shower" style={{ right: '8%', animationDelay: '1.8s' }}>💳</span>
-                <span className="absolute text-lg animate-money-bounce-fall" style={{ right: '25%', animationDelay: '2s' }}>🏧</span>
-                <span className="absolute text-xl animate-money-shower" style={{ right: '15%', animationDelay: '2.2s' }}>💹</span>
-                <span className="absolute text-sm animate-money-shower" style={{ right: '28%', animationDelay: '2.8s' }}>🌟</span>
-                <span className="absolute text-sm animate-money-bounce-fall" style={{ right: '18%', animationDelay: '3s' }}>💫</span>
+                <span className="absolute text-base sm:text-2xl animate-money-shower" style={{ right: '5%', animationDelay: '0.6s' }}>💰</span>
+                <span className="absolute text-sm sm:text-xl animate-money-bounce-fall" style={{ right: '12%', animationDelay: '1s' }}>💸</span>
+                <span className="absolute text-xs sm:text-lg animate-money-shower" style={{ right: '20%', animationDelay: '1.4s' }}>🪙</span>
+                <span className="absolute text-sm sm:text-xl animate-money-shower" style={{ right: '8%', animationDelay: '1.8s' }}>💳</span>
+                <span className="absolute text-xs sm:text-lg animate-money-bounce-fall" style={{ right: '25%', animationDelay: '2s' }}>🏧</span>
+                <span className="absolute text-sm sm:text-xl animate-money-shower" style={{ right: '15%', animationDelay: '2.2s' }}>💹</span>
+                <span className="absolute text-xs sm:text-sm animate-money-shower hidden sm:block" style={{ right: '28%', animationDelay: '2.8s' }}>🌟</span>
+                <span className="absolute text-xs sm:text-sm animate-money-bounce-fall hidden sm:block" style={{ right: '18%', animationDelay: '3s' }}>💫</span>
               </div>
             </>
           )}
 
-          <div className="relative z-10 text-center mb-5">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <PiggyBank size={18} className="text-primary-500" />
-              <p className="text-sm text-gray-500 font-semibold uppercase tracking-wide">Net Worth</p>
+          <div className="relative z-10 text-center mb-3 sm:mb-5">
+            <div className="flex items-center justify-center gap-1.5 mb-1 sm:mb-2">
+              <PiggyBank size={14} className="text-primary-500 sm:hidden" />
+              <PiggyBank size={18} className="text-primary-500 hidden sm:block" />
+              <p className="text-xs sm:text-sm text-gray-500 font-semibold uppercase tracking-wide">Net Worth</p>
             </div>
             <p
-              className={`text-4xl font-bold ${
+              className={`text-2xl sm:text-4xl font-bold ${
                 netWorth >= 0 ? 'text-green-600' : 'text-red-600'
               }`}
             >
               {formatCurrency(netWorth)}
             </p>
             {netWorth > 0 && (
-              <p className="text-sm text-green-500 font-medium mt-1 flex items-center justify-center gap-1">
-                <Sparkles size={12} className="animate-kawaii-pulse" />
+              <p className="text-xs sm:text-sm text-green-500 font-medium mt-1 flex items-center justify-center gap-1">
+                <Sparkles size={10} className="animate-kawaii-pulse sm:hidden" />
+                <Sparkles size={12} className="animate-kawaii-pulse hidden sm:block" />
                 You're in the green!
               </p>
             )}
           </div>
 
           {/* Assets vs Debts bar */}
-          <div className="relative h-4 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden mb-4">
+          <div className="relative h-3 sm:h-4 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden mb-3 sm:mb-4">
             {totalAssets + totalDebt > 0 && (
               <>
                 <div
@@ -223,16 +225,16 @@ export function AssetsPage() {
             )}
           </div>
 
-          <div className="flex justify-between text-sm">
-            <div className="flex items-center gap-2 px-3 py-2 bg-green-50 dark:bg-green-900/30 rounded-xl">
-              <TrendingUp size={16} className="text-green-500" />
+          <div className="grid grid-cols-2 gap-2 text-xs sm:text-sm">
+            <div className="flex items-center gap-1.5 sm:gap-2 px-2 py-1.5 sm:px-3 sm:py-2 bg-green-50 dark:bg-green-900/30 rounded-xl">
+              <TrendingUp size={14} className="text-green-500 shrink-0" />
               <span className="text-gray-600">Assets:</span>
               <span className="font-bold text-green-600">
                 {formatCurrency(totalAssets)}
               </span>
             </div>
-            <div className="flex items-center gap-2 px-3 py-2 bg-red-50 dark:bg-red-900/30 rounded-xl">
-              <TrendingDown size={16} className="text-red-400" />
+            <div className="flex items-center gap-1.5 sm:gap-2 px-2 py-1.5 sm:px-3 sm:py-2 bg-red-50 dark:bg-red-900/30 rounded-xl">
+              <TrendingDown size={14} className="text-red-400 shrink-0" />
               <span className="text-gray-600">Debts:</span>
               <span className="font-bold text-red-500">
                 {formatCurrency(totalDebt)}
@@ -325,8 +327,9 @@ export function AssetsPage() {
 
         {/* Asset Cards */}
         <div className="space-y-4">
-          <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide flex items-center gap-2">
-            <Wallet size={14} />
+          <h3 className="text-xs sm:text-sm font-semibold text-gray-500 uppercase tracking-wide flex items-center gap-1.5">
+            <Wallet size={12} className="sm:hidden" />
+            <Wallet size={14} className="hidden sm:block" />
             Your Accounts
           </h3>
           {assets.map((asset) => {
@@ -336,21 +339,22 @@ export function AssetsPage() {
               <div key={asset.id} className="card bg-white rounded-3xl shadow-sm hover:shadow-md transition-all group overflow-hidden">
                 {/* Type color bar */}
                 <div
-                  className="h-1.5 -mx-4 -mt-4 mb-4"
+                  className="h-1 sm:h-1.5 -mx-4 -mt-4 mb-3 sm:mb-4"
                   style={{ backgroundColor: typeInfo.color }}
                 />
 
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-3">
+                <div className="flex items-start justify-between mb-3 sm:mb-4">
+                  <div className="flex items-center gap-2 sm:gap-3">
                     <div
-                      className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm"
+                      className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-sm"
                       style={{ backgroundColor: `${typeInfo.color}20` }}
                     >
-                      <Wallet size={22} style={{ color: typeInfo.color }} />
+                      <Wallet size={16} className="sm:hidden" style={{ color: typeInfo.color }} />
+                      <Wallet size={22} className="hidden sm:block" style={{ color: typeInfo.color }} />
                     </div>
                     <div>
-                      <p className="font-bold text-gray-900">{asset.name}</p>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm sm:text-base font-bold text-gray-900">{asset.name}</p>
+                      <p className="text-xs sm:text-sm text-gray-500">
                         <span
                           className="px-2 py-0.5 rounded-full text-xs font-medium"
                           style={{
@@ -382,39 +386,43 @@ export function AssetsPage() {
 
                 <div className="flex items-end justify-between">
                   <div>
-                    <p className="text-2xl font-bold text-gray-900">
+                    <p className="text-lg sm:text-2xl font-bold text-gray-900">
                       {formatCurrency(asset.balance)}
                     </p>
                     {asset.interestRate && (
-                      <p className="text-sm text-green-600 font-semibold flex items-center gap-1">
-                        <TrendingUp size={14} />
+                      <p className="text-xs sm:text-sm text-green-600 font-semibold flex items-center gap-1">
+                        <TrendingUp size={12} className="sm:hidden" />
+                        <TrendingUp size={14} className="hidden sm:block" />
                         {asset.interestRate}% APY
                       </p>
                     )}
                   </div>
-                  <button
-                    onClick={() => setUpdatingAsset(asset)}
-                    className="flex items-center gap-1.5 px-4 py-2.5 text-sm font-semibold text-primary-600 bg-primary-50 rounded-xl hover:bg-primary-100 transition-all"
-                  >
-                    <RefreshCw size={14} />
-                    Update
-                  </button>
+                  <div className="flex flex-col items-end gap-1.5">
+                    <button
+                      onClick={() => setUpdatingAsset(asset)}
+                      className="flex items-center gap-1 sm:gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm font-semibold text-primary-600 bg-primary-50 rounded-xl hover:bg-primary-100 transition-all"
+                    >
+                      <RefreshCw size={12} className="sm:hidden" />
+                      <RefreshCw size={14} className="hidden sm:block" />
+                      Update
+                    </button>
+                    <button
+                      onClick={() =>
+                        setShowHistory(showHistory === asset.id ? null : asset.id)
+                      }
+                      className="text-xs text-primary-600 hover:text-primary-700 flex items-center gap-1 font-medium px-3 sm:px-4"
+                    >
+                      <History size={12} />
+                      History
+                    </button>
+                  </div>
                 </div>
 
                 {/* Last updated */}
-                <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
-                  <p className="text-xs text-gray-400">
+                <div className="mt-3 pt-3 sm:mt-4 sm:pt-4 border-t border-gray-100">
+                  <p className="text-[10px] sm:text-xs text-gray-400">
                     Updated {format(parseISO(asset.updatedAt), 'MMM d, yyyy')}
                   </p>
-                  <button
-                    onClick={() =>
-                      setShowHistory(showHistory === asset.id ? null : asset.id)
-                    }
-                    className="text-xs text-primary-600 hover:text-primary-700 flex items-center gap-1 font-medium"
-                  >
-                    <History size={12} />
-                    History
-                  </button>
                 </div>
 
                 {/* History dropdown */}
