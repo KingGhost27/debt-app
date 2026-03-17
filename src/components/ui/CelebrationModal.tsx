@@ -343,32 +343,16 @@ export function CelebrationModal({ event, stats, themePreset, onDismiss }: Celeb
 
       {/* Content card */}
       <div
-        style={{
-          position: 'relative',
-          zIndex: 1,
-          maxWidth: 420,
-          width: '100%',
-          maxHeight: 'calc(100dvh - 32px)',
-          overflowY: 'auto',
-          overflowX: 'hidden',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: 16,
-          paddingTop: 20,
-        }}
+        className="animate-celebration-slide-up relative z-[1] w-full max-w-[320px] sm:max-w-[420px] max-h-[calc(100dvh-32px)] overflow-y-auto overflow-x-hidden flex flex-col items-center gap-3 sm:gap-4 pt-3 sm:pt-5"
         onClick={(e) => e.stopPropagation()}
-        className="animate-celebration-slide-up"
       >
-        {/* Animal parade */}
+        {/* Animal parade — offset right by button column width so it centers over the card */}
         <div
+          className="flex items-end justify-center flex-wrap sm:flex-nowrap pr-0 sm:pr-[106px]"
           style={{
-            display: 'flex',
-            alignItems: 'flex-end',
-            justifyContent: 'center',
-            gap: event.isFullHerd ? 4 : 16,
+            gap: event.isFullHerd ? 3 : 10,
             flexWrap: event.isFullHerd ? 'wrap' : 'nowrap',
-            maxWidth: event.isFullHerd ? 340 : 200,
+            maxWidth: event.isFullHerd ? 260 : 160,
           }}
         >
           {event.isFullHerd ? (
@@ -378,26 +362,26 @@ export function CelebrationModal({ event, stats, themePreset, onDismiss }: Celeb
                 className="animate-mascot-bounce-in"
                 style={{ animationDelay: `${delay}ms` }}
               >
-                <Component size={56} animated />
+                <Component size={36} animated />
               </div>
             ))
           ) : (
             <>
               <div className="animate-mascot-bounce-in" style={{ animationDelay: '0ms' }}>
-                <ThemeMascot size={80} animated />
+                <ThemeMascot size={56} animated />
               </div>
               <div className="animate-mascot-bounce-in" style={{ animationDelay: '150ms' }}>
-                <DebtsyCow size={80} animated />
+                <DebtsyCow size={56} animated />
               </div>
             </>
           )}
         </div>
 
-        {/* Card + buttons side by side */}
-        <div style={{ display: 'flex', gap: 10, width: '100%', alignItems: 'stretch' }}>
+        {/* Card + buttons — stacked on mobile, side by side on desktop */}
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-[10px] w-full items-stretch">
 
           {/* ShareCard — takes most of the width */}
-          <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="flex-1 min-w-0">
             <ShareCard
               ref={cardRef}
               event={event}
@@ -407,15 +391,8 @@ export function CelebrationModal({ event, stats, themePreset, onDismiss }: Celeb
             />
           </div>
 
-          {/* Narrow button column — fixed 96px wide */}
-          <div style={{
-            width: 96,
-            flexShrink: 0,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 8,
-            justifyContent: 'center',
-          }}>
+          {/* Button column — horizontal on mobile, vertical on desktop */}
+          <div className="flex flex-row sm:flex-col gap-2 sm:gap-2 justify-center sm:w-[96px] sm:flex-shrink-0">
             {showDesktopShare ? (
               /* Share options — stacked vertically in the same narrow column */
               <>
@@ -441,9 +418,10 @@ export function CelebrationModal({ event, stats, themePreset, onDismiss }: Celeb
                 <button
                   onClick={captureError ? doCaptureCard : handleDownload}
                   disabled={!captureError && !capturedUrl}
+                  className="flex-1 sm:flex-none"
                   style={{
-                    width: '100%',
-                    padding: '12px 6px',
+                    width: undefined,
+                    padding: '10px 12px',
                     borderRadius: 12,
                     border: 'none',
                     background: captureError ? '#ef4444' : capturedUrl ? themePrimary : '#d1d5db',
@@ -460,9 +438,10 @@ export function CelebrationModal({ event, stats, themePreset, onDismiss }: Celeb
                 <button
                   onClick={handleShare}
                   disabled={!capturedUrl}
+                  className="flex-1 sm:flex-none"
                   style={{
-                    width: '100%',
-                    padding: '12px 6px',
+                    width: undefined,
+                    padding: '10px 12px',
                     borderRadius: 12,
                     border: `2px solid ${capturedUrl ? themePrimary : '#d1d5db'}`,
                     background: 'white',
@@ -481,24 +460,6 @@ export function CelebrationModal({ event, stats, themePreset, onDismiss }: Celeb
           </div>
         </div>
 
-        {/* Dismiss — only on big wins; small wins tap the backdrop */}
-        {event.isFullHerd && (
-          <button
-            onClick={onDismiss}
-            style={{
-              background: 'rgba(255,255,255,0.7)',
-              border: 'none',
-              borderRadius: 999,
-              padding: '6px 20px',
-              fontSize: 12,
-              color: '#6b7280',
-              cursor: 'pointer',
-              fontWeight: 600,
-            }}
-          >
-            Keep going →
-          </button>
-        )}
       </div>
     </div>
   );

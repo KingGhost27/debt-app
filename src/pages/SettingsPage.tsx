@@ -6,7 +6,9 @@
  */
 
 import { useRef, useState } from 'react';
-import { Download, Upload, Trash2, ChevronLeft, Sparkles, Database, Heart, User, Check, LogOut, FileSpreadsheet, Bell, BellOff, HelpCircle, Play } from 'lucide-react';
+import { Download, Upload, Trash2, ChevronLeft, Sparkles, Database, Heart, User, Check, LogOut, FileSpreadsheet, Bell, BellOff, HelpCircle, Play, FlaskConical } from 'lucide-react';
+import { CelebrationModal } from '../components/ui/CelebrationModal';
+import type { MilestoneEvent, CelebrationStats } from '../types/celebrations';
 import { useNotificationSettings } from '../hooks/useNotifications';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
@@ -27,6 +29,31 @@ export function SettingsPage() {
   const [nameSaved, setNameSaved] = useState(false);
   const { confirm, dialogProps } = useConfirmDialog();
   const { settings: notifSettings, save: saveNotif, requestPermission, permissionState } = useNotificationSettings();
+  const [testMilestone, setTestMilestone] = useState<MilestoneEvent | null>(null);
+
+  const testStats: CelebrationStats = {
+    userName: settings.userName || 'Flora',
+    totalOriginal: 22000,
+    totalPaid: 10520.75,
+    percentPaid: 47.8,
+    interestSaved: 1234.56,
+    debtFreeDate: '2027-06-15',
+    paidOffDebtName: 'Chase Credit Card',
+  };
+
+  const TEST_MILESTONES: Array<{ event: MilestoneEvent; label: string; color: string }> = [
+    { label: 'First Payment', color: 'bg-green-100 text-green-700', event: { type: 'first_payment', isFullHerd: false, headline: 'First Payment Made!', subtext: 'Every journey starts with a single step 🐄' } },
+    { label: '25% Progress', color: 'bg-blue-100 text-blue-700', event: { type: 'progress_25', isFullHerd: false, headline: 'Quarter of the Way There!', subtext: "You've crushed 25% of your debt!" } },
+    { label: '50% Progress', color: 'bg-purple-100 text-purple-700', event: { type: 'progress_50', isFullHerd: false, headline: 'Halfway Point!', subtext: "You've demolished HALF your debt!" } },
+    { label: '75% Progress', color: 'bg-orange-100 text-orange-700', event: { type: 'progress_75', isFullHerd: false, headline: 'Almost There!', subtext: "75% done — the finish line is in sight!" } },
+    { label: '3-Month Streak', color: 'bg-yellow-100 text-yellow-700', event: { type: 'streak_3', isFullHerd: false, headline: '3-Month Streak!', subtext: 'Three months of consistent payments!' } },
+    { label: '6-Month Streak', color: 'bg-amber-100 text-amber-700', event: { type: 'streak_6', isFullHerd: false, headline: '6-Month Streak!', subtext: 'Half a year of crushing it!' } },
+    { label: '$500 Interest Saved', color: 'bg-emerald-100 text-emerald-700', event: { type: 'interest_500', isFullHerd: false, headline: '$500 in Interest Saved!', subtext: "That's money that stays in YOUR pocket!" } },
+    { label: '$1K Interest Saved', color: 'bg-teal-100 text-teal-700', event: { type: 'interest_1000', isFullHerd: false, headline: '$1,000 in Interest Saved!', subtext: 'A thousand reasons to celebrate!' } },
+    { label: '$5K Interest Saved', color: 'bg-cyan-100 text-cyan-700', event: { type: 'interest_5000', isFullHerd: false, headline: '$5,000 in Interest Saved!', subtext: "You're a debt-fighting legend!" } },
+    { label: 'Debt Paid Off (Full Herd)', color: 'bg-pink-100 text-pink-700', event: { type: 'debt_paid_off', isFullHerd: true, headline: 'Chase Credit Card — PAID OFF!', subtext: 'One down, the herd celebrates with you!', debtName: 'Chase Credit Card' } },
+    { label: '100% DEBT FREE (Full Herd)', color: 'bg-red-100 text-red-700 font-bold', event: { type: 'debt_free', isFullHerd: true, headline: "YOU'RE DEBT FREE!", subtext: 'The entire herd is celebrating!' } },
+  ];
 
   const handleSaveName = () => {
     updateSettings({ userName: nameInput.trim() });
@@ -417,6 +444,48 @@ export function SettingsPage() {
           </div>
         </div>
 
+        {/* Milestone Card Testing */}
+        <div className="card">
+          <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-5">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-gradient-to-br from-violet-400 to-fuchsia-500 flex items-center justify-center shadow-lg shadow-violet-300/30">
+              <FlaskConical size={16} className="text-white sm:hidden" />
+              <FlaskConical size={20} className="text-white hidden sm:block" />
+            </div>
+            <div>
+              <h3 className="text-sm sm:text-base font-bold text-gray-900">Test Celebrations</h3>
+              <p className="text-xs sm:text-sm text-gray-500">Preview all milestone card types</p>
+            </div>
+          </div>
+
+          <div className="space-y-1.5 sm:space-y-2">
+            <p className="text-[10px] sm:text-xs font-semibold text-gray-400 uppercase tracking-wide">Two Animals (Theme + Debtsy)</p>
+            <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
+              {TEST_MILESTONES.filter(m => !m.event.isFullHerd).map((m) => (
+                <button
+                  key={m.event.type}
+                  onClick={() => setTestMilestone(m.event)}
+                  className={`px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-semibold transition-all hover:scale-[1.02] active:scale-95 ${m.color}`}
+                >
+                  {m.label}
+                </button>
+              ))}
+            </div>
+
+            <p className="text-[10px] sm:text-xs font-semibold text-gray-400 uppercase tracking-wide pt-2">Full Herd (All 10 Animals)</p>
+            <div className="grid grid-cols-1 gap-1.5 sm:gap-2">
+              {TEST_MILESTONES.filter(m => m.event.isFullHerd).map((m) => (
+                <button
+                  key={m.event.type}
+                  onClick={() => setTestMilestone(m.event)}
+                  className={`px-2 py-2 sm:px-3 sm:py-2.5 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold transition-all hover:scale-[1.01] active:scale-95 ${m.color}`}
+                >
+                  {m.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
         {/* App Info */}
         <div className="text-center py-4 sm:py-6">
           <div className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 bg-primary-50/50 rounded-full mb-2 sm:mb-3">
@@ -430,6 +499,15 @@ export function SettingsPage() {
       </div>
 
       <ConfirmDialog {...dialogProps} />
+
+      {testMilestone && (
+        <CelebrationModal
+          event={testMilestone}
+          stats={testMilestone.type === 'debt_free' ? { ...testStats, percentPaid: 100, totalPaid: 22000 } : testStats}
+          themePreset={settings.theme.preset}
+          onDismiss={() => setTestMilestone(null)}
+        />
+      )}
     </div>
   );
 }
