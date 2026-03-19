@@ -5,3 +5,4 @@ export { CategoryManager } from './CategoryManager';
 export { IncomeSourceModal } from './IncomeSourceModal';
 export { CelebrationModal } from './CelebrationModal';
 export { ShareCard } from './ShareCard';
+export { UpgradeModal } from './UpgradeModal';

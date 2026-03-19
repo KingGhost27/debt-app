@@ -6,7 +6,9 @@
  */
 
 import { useRef, useState } from 'react';
-import { Download, Upload, Trash2, ChevronLeft, Sparkles, Database, Heart, User, Check, LogOut, FileSpreadsheet, Bell, BellOff, HelpCircle, Play, FlaskConical } from 'lucide-react';
+import { Download, Upload, Trash2, ChevronLeft, Sparkles, Database, Heart, User, Check, LogOut, FileSpreadsheet, Bell, BellOff, HelpCircle, Play, FlaskConical, Crown } from 'lucide-react';
+import { useSubscription } from '../hooks/useSubscription';
+import { UpgradeModal } from '../components/ui/UpgradeModal';
 import { CelebrationModal } from '../components/ui/CelebrationModal';
 import type { MilestoneEvent, CelebrationStats } from '../types/celebrations';
 import { useNotificationSettings } from '../hooks/useNotifications';
@@ -30,6 +32,30 @@ export function SettingsPage() {
   const { confirm, dialogProps } = useConfirmDialog();
   const { settings: notifSettings, save: saveNotif, requestPermission, permissionState } = useNotificationSettings();
   const [testMilestone, setTestMilestone] = useState<MilestoneEvent | null>(null);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const { isPro, planType, stripeCustomerId, currentPeriodEnd, cancelAtPeriodEnd, isLoading: subLoading } = useSubscription();
+  const [portalLoading, setPortalLoading] = useState(false);
+
+  const handleManageSubscription = async () => {
+    if (!stripeCustomerId) return;
+    setPortalLoading(true);
+    try {
+      const res = await fetch('/api/create-portal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customerId: stripeCustomerId,
+          returnUrl: window.location.href,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.url) window.location.href = data.url;
+    } catch {
+      showToast('Failed to open subscription portal', 'error');
+    } finally {
+      setPortalLoading(false);
+    }
+  };
 
   const testStats: CelebrationStats = {
     userName: settings.userName || 'Flora',
@@ -205,6 +231,69 @@ export function SettingsPage() {
               </button>
             </div>
           </div>
+        </div>
+
+        {/* Subscription / Plan Section */}
+        <div className="card">
+          <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-5">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center shadow-lg shadow-amber-300/30">
+              <Crown size={16} className="text-white sm:hidden" />
+              <Crown size={20} className="text-white hidden sm:block" />
+            </div>
+            <div>
+              <h3 className="text-sm sm:text-base font-bold text-gray-900">Your Plan</h3>
+              <p className="text-xs sm:text-sm text-gray-500">
+                {subLoading ? 'Loading...' : isPro ? 'Pro member' : 'Free plan'}
+              </p>
+            </div>
+          </div>
+
+          {!subLoading && (
+            <div className="space-y-3">
+              {isPro ? (
+                <>
+                  <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 rounded-xl">
+                    <Crown size={16} className="text-amber-500" />
+                    <span className="text-sm font-semibold text-amber-700">
+                      Pro — {planType === 'lifetime' ? 'Lifetime' : planType === 'annual' ? 'Annual' : 'Monthly'}
+                    </span>
+                    {cancelAtPeriodEnd && (
+                      <span className="text-[10px] bg-red-100 text-red-600 px-2 py-0.5 rounded-full ml-auto">
+                        Cancels at period end
+                      </span>
+                    )}
+                  </div>
+                  {currentPeriodEnd && planType !== 'lifetime' && (
+                    <p className="text-xs text-gray-400">
+                      {cancelAtPeriodEnd ? 'Access until' : 'Renews'}: {new Date(currentPeriodEnd).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                    </p>
+                  )}
+                  {stripeCustomerId && planType !== 'lifetime' && (
+                    <button
+                      onClick={handleManageSubscription}
+                      disabled={portalLoading}
+                      className="w-full px-4 py-2.5 rounded-xl text-sm font-semibold border-2 border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      {portalLoading ? 'Opening...' : 'Manage Subscription'}
+                    </button>
+                  )}
+                </>
+              ) : (
+                <>
+                  <p className="text-xs text-gray-500">
+                    You're on the free plan. Upgrade to unlock unlimited debts, all themes, and more!
+                  </p>
+                  <button
+                    onClick={() => setShowUpgradeModal(true)}
+                    className="w-full px-4 py-2.5 rounded-xl text-sm font-bold bg-gradient-to-r from-amber-400 to-yellow-500 text-white hover:from-amber-500 hover:to-yellow-600 shadow-lg shadow-amber-300/30 transition-all"
+                  >
+                    <Crown size={14} className="inline mr-1.5 -mt-0.5" />
+                    Upgrade to Pro
+                  </button>
+                </>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Theme Section */}
@@ -507,6 +596,10 @@ export function SettingsPage() {
           themePreset={settings.theme.preset}
           onDismiss={() => setTestMilestone(null)}
         />
+      )}
+
+      {showUpgradeModal && (
+        <UpgradeModal onDismiss={() => setShowUpgradeModal(false)} />
       )}
     </div>
   );
