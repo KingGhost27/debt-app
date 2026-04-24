@@ -6,3 +6,5 @@ export { IncomeSourceModal } from './IncomeSourceModal';
 export { CelebrationModal } from './CelebrationModal';
 export { ShareCard } from './ShareCard';
 export { UpgradeModal } from './UpgradeModal';
+export { ProLockBadge } from './ProLockBadge';
+export { ProLockedOverlay } from './ProLockedOverlay';

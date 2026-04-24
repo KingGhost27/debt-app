@@ -24,6 +24,9 @@ import { PaycheckModal } from '../components/ui/PaycheckModal';
 import { PayPeriodSummary } from '../components/ui/PayPeriodSummary';
 import { BillDistributionPanel } from '../components/ui/BillDistributionPanel';
 import { EmptyState } from '../components/ui/EmptyState';
+import { ProLockedOverlay } from '../components/ui/ProLockedOverlay';
+import { useFeatureGate } from '../hooks/useFeatureGate';
+import { PRO_FEATURE_COPY } from '../lib/tierLimits';
 import { formatCurrency, generatePayoffPlan } from '../lib/calculations';
 import { computePaymentStreak } from '../lib/milestones';
 import type { Debt, PaymentType, Payment, ReceivedPaycheck } from '../types';
@@ -32,6 +35,7 @@ type TabType = 'upcoming' | 'complete' | 'calendar' | 'paychecks' | 'subs';
 
 export function TrackPage() {
   const { debts, strategy, payments, budget, deletePayment, updateDebt, customCategories, receivedPaychecks, deletePaycheck, subscriptions } = useApp();
+  const { isBillCalendarLocked, isBillDistributionLocked } = useFeatureGate();
   const [activeTab, setActiveTab] = useState<TabType>('upcoming');
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [preselectedDebt, setPreselectedDebt] = useState<Debt | undefined>();
@@ -573,19 +577,34 @@ export function TrackPage() {
         {/* Calendar Tab */}
         {activeTab === 'calendar' && (
           <div className="space-y-4">
-            <MiniCalendar
-              debts={debts}
-              incomeSources={budget.incomeSources}
-              subscriptions={subscriptions}
-              customCategories={customCategories}
-              size="large"
-            />
+            {isBillCalendarLocked ? (
+              <ProLockedOverlay
+                title={PRO_FEATURE_COPY.bill_calendar.title}
+                description={PRO_FEATURE_COPY.bill_calendar.description}
+              />
+            ) : (
+              <MiniCalendar
+                debts={debts}
+                incomeSources={budget.incomeSources}
+                subscriptions={subscriptions}
+                customCategories={customCategories}
+                size="large"
+              />
+            )}
 
             {/* Bill Distribution Analysis */}
-            <BillDistributionPanel
-              debts={debts}
-              incomeSources={budget.incomeSources}
-            />
+            {isBillDistributionLocked ? (
+              <ProLockedOverlay
+                title={PRO_FEATURE_COPY.bill_distribution.title}
+                description={PRO_FEATURE_COPY.bill_distribution.description}
+                compact
+              />
+            ) : (
+              <BillDistributionPanel
+                debts={debts}
+                incomeSources={budget.incomeSources}
+              />
+            )}
           </div>
         )}
 

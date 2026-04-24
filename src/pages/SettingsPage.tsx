@@ -234,64 +234,57 @@ export function SettingsPage() {
         </div>
 
         {/* Subscription / Plan Section */}
-        <div className="card">
-          <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-5">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center shadow-lg shadow-amber-300/30">
-              <Crown size={16} className="text-white sm:hidden" />
-              <Crown size={20} className="text-white hidden sm:block" />
+        <div className="card !p-3 sm:!p-4">
+          {subLoading ? (
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-gray-100 animate-pulse" />
+              <span className="text-xs text-gray-400">Loading plan...</span>
             </div>
-            <div>
-              <h3 className="text-sm sm:text-base font-bold text-gray-900">Your Plan</h3>
-              <p className="text-xs sm:text-sm text-gray-500">
-                {subLoading ? 'Loading...' : isPro ? 'Pro member' : 'Free plan'}
-              </p>
-            </div>
-          </div>
-
-          {!subLoading && (
-            <div className="space-y-3">
-              {isPro ? (
-                <>
-                  <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 rounded-xl">
-                    <Crown size={16} className="text-amber-500" />
-                    <span className="text-sm font-semibold text-amber-700">
-                      Pro — {planType === 'lifetime' ? 'Lifetime' : planType === 'annual' ? 'Annual' : 'Monthly'}
-                    </span>
-                    {cancelAtPeriodEnd && (
-                      <span className="text-[10px] bg-red-100 text-red-600 px-2 py-0.5 rounded-full ml-auto">
-                        Cancels at period end
-                      </span>
-                    )}
-                  </div>
-                  {currentPeriodEnd && planType !== 'lifetime' && (
-                    <p className="text-xs text-gray-400">
-                      {cancelAtPeriodEnd ? 'Access until' : 'Renews'}: {new Date(currentPeriodEnd).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-                    </p>
-                  )}
-                  {stripeCustomerId && planType !== 'lifetime' && (
-                    <button
-                      onClick={handleManageSubscription}
-                      disabled={portalLoading}
-                      className="w-full px-4 py-2.5 rounded-xl text-sm font-semibold border-2 border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors"
-                    >
-                      {portalLoading ? 'Opening...' : 'Manage Subscription'}
-                    </button>
-                  )}
-                </>
-              ) : (
-                <>
-                  <p className="text-xs text-gray-500">
-                    You're on the free plan. Upgrade to unlock unlimited debts, all themes, and more!
+          ) : isPro ? (
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center shadow-sm shadow-amber-300/30 flex-shrink-0">
+                <Crown size={14} className="text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-bold text-amber-700 leading-tight">
+                  Pro — {planType === 'lifetime' ? 'Lifetime' : planType === 'annual' ? 'Annual' : 'Monthly'}
+                </p>
+                {currentPeriodEnd && planType !== 'lifetime' && (
+                  <p className="text-[10px] text-gray-400 leading-tight">
+                    {cancelAtPeriodEnd ? 'Until' : 'Renews'} {new Date(currentPeriodEnd).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                   </p>
-                  <button
-                    onClick={() => setShowUpgradeModal(true)}
-                    className="w-full px-4 py-2.5 rounded-xl text-sm font-bold bg-gradient-to-r from-amber-400 to-yellow-500 text-white hover:from-amber-500 hover:to-yellow-600 shadow-lg shadow-amber-300/30 transition-all"
-                  >
-                    <Crown size={14} className="inline mr-1.5 -mt-0.5" />
-                    Upgrade to Pro
-                  </button>
-                </>
+                )}
+              </div>
+              {cancelAtPeriodEnd && (
+                <span className="text-[9px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full font-semibold">
+                  Canceling
+                </span>
               )}
+              {stripeCustomerId && planType !== 'lifetime' && (
+                <button
+                  onClick={handleManageSubscription}
+                  disabled={portalLoading}
+                  className="text-[11px] font-semibold text-gray-600 hover:text-gray-900 underline underline-offset-2 flex-shrink-0"
+                >
+                  {portalLoading ? '...' : 'Manage'}
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center shadow-sm shadow-amber-300/30 flex-shrink-0">
+                <Crown size={14} className="text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-bold text-gray-900 leading-tight">Free plan</p>
+                <p className="text-[10px] text-gray-500 leading-tight">Unlock unlimited debts + all themes</p>
+              </div>
+              <button
+                onClick={() => setShowUpgradeModal(true)}
+                className="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-gradient-to-r from-amber-400 to-yellow-500 text-white hover:from-amber-500 hover:to-yellow-600 shadow-sm shadow-amber-300/30 transition-all flex-shrink-0"
+              >
+                Upgrade
+              </button>
             </div>
           )}
         </div>
@@ -457,7 +450,7 @@ export function SettingsPage() {
           <div className="space-y-3">
             {/* Export */}
             <button
-              onClick={exportAppData}
+              onClick={() => (isPro ? exportAppData() : setShowUpgradeModal(true))}
               className="w-full flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-gradient-to-r from-primary-50 to-white dark:from-primary-900/30 dark:to-gray-800 rounded-xl sm:rounded-2xl border border-primary-100/50 dark:border-primary-700/50 hover:shadow-md hover:-translate-y-0.5 transition-all text-left group"
             >
               <div className="w-9 h-9 sm:w-12 sm:h-12 bg-gradient-to-br from-primary-400 to-primary-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg shadow-primary-300/30 group-hover:scale-105 transition-transform">
@@ -465,7 +458,14 @@ export function SettingsPage() {
                 <Download size={22} className="text-white hidden sm:block" />
               </div>
               <div className="flex-1">
-                <p className="text-sm sm:text-base font-semibold text-gray-900">Export Data</p>
+                <p className="text-sm sm:text-base font-semibold text-gray-900 flex items-center gap-1.5">
+                  Export Data
+                  {!isPro && (
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 text-white">
+                      PRO
+                    </span>
+                  )}
+                </p>
                 <p className="text-xs sm:text-sm text-gray-500">Download your data as a backup</p>
               </div>
               <Sparkles size={16} className="text-primary-300 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -473,7 +473,7 @@ export function SettingsPage() {
 
             {/* Export Payment History */}
             <button
-              onClick={exportPaymentHistory}
+              onClick={() => (isPro ? exportPaymentHistory() : setShowUpgradeModal(true))}
               className="w-full flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-gradient-to-r from-purple-50 to-white dark:from-purple-900/30 dark:to-gray-800 rounded-xl sm:rounded-2xl border border-purple-100/50 dark:border-purple-700/50 hover:shadow-md hover:-translate-y-0.5 transition-all text-left group"
             >
               <div className="w-9 h-9 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg shadow-purple-300/30 group-hover:scale-105 transition-transform">
@@ -481,7 +481,14 @@ export function SettingsPage() {
                 <FileSpreadsheet size={22} className="text-white hidden sm:block" />
               </div>
               <div className="flex-1">
-                <p className="text-sm sm:text-base font-semibold text-gray-900">Export Payment History</p>
+                <p className="text-sm sm:text-base font-semibold text-gray-900 flex items-center gap-1.5">
+                  Export Payment History
+                  {!isPro && (
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 text-white">
+                      PRO
+                    </span>
+                  )}
+                </p>
                 <p className="text-xs sm:text-sm text-gray-500">Download payments as CSV spreadsheet</p>
               </div>
               <Sparkles size={16} className="text-purple-300 opacity-0 group-hover:opacity-100 transition-opacity" />

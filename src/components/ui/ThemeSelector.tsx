@@ -6,10 +6,12 @@
  */
 
 import { useState } from 'react';
-import { Check, Palette, Moon, Sun, Sparkles } from 'lucide-react';
+import { Check, Palette, Moon, Sun, Sparkles, Crown } from 'lucide-react';
 import { useTheme, THEME_PRESETS, THEME_METADATA } from '../../hooks/useTheme';
 import type { ThemePreset } from '../../types';
 import { THEME_DECORATIONS } from '../../lib/themes';
+import { useFeatureGate } from '../../hooks/useFeatureGate';
+import { UpgradeModal } from './UpgradeModal';
 
 export function ThemeSelector() {
   const { currentPreset, setPreset, setCustomFromColor, theme, isDarkMode, toggleDarkMode } = useTheme();
@@ -17,10 +19,16 @@ export function ThemeSelector() {
   const [customColor, setCustomColor] = useState(
     theme?.customColors?.primary500 || '#a855f7'
   );
+  const [showUpgrade, setShowUpgrade] = useState(false);
+  const { isThemeLocked } = useFeatureGate();
 
   const presetKeys = Object.keys(THEME_PRESETS) as Exclude<ThemePreset, 'custom'>[];
 
   const handlePresetSelect = (preset: Exclude<ThemePreset, 'custom'>) => {
+    if (isThemeLocked(preset)) {
+      setShowUpgrade(true);
+      return;
+    }
     setShowCustom(false);
     setPreset(preset);
   };
@@ -110,6 +118,7 @@ export function ThemeSelector() {
             const colors = THEME_PRESETS[preset];
             const decorations = THEME_DECORATIONS[preset];
             const isSelected = currentPreset === preset && !showCustom;
+            const locked = isThemeLocked(preset);
 
             return (
               <button
@@ -118,6 +127,8 @@ export function ThemeSelector() {
                 className={`relative p-2.5 sm:p-4 rounded-xl sm:rounded-2xl border-2 text-left transition-all duration-300 group overflow-hidden ${
                   isSelected
                     ? 'border-primary-400 bg-primary-50 shadow-lg shadow-primary-200/50'
+                    : locked
+                    ? 'border-amber-200 bg-white hover:border-amber-300 hover:shadow-md'
                     : 'border-gray-100 bg-white hover:border-primary-200 hover:shadow-md'
                 }`}
               >
@@ -131,8 +142,15 @@ export function ThemeSelector() {
                   }}
                 />
 
+                {/* Locked crown badge */}
+                {locked && (
+                  <div className="absolute top-2 right-2 z-20 w-6 h-6 rounded-full bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center shadow-md shadow-amber-300/50">
+                    <Crown size={12} className="text-white" strokeWidth={2.5} />
+                  </div>
+                )}
+
                 {/* Content */}
-                <div className="relative z-10">
+                <div className={`relative z-10 ${locked ? 'opacity-60' : ''}`}>
                   {/* Color dots */}
                   <div className="flex -space-x-1 mb-2 sm:mb-3">
                     <div
@@ -262,6 +280,8 @@ export function ThemeSelector() {
           </div>
         )}
       </div>
+
+      {showUpgrade && <UpgradeModal onDismiss={() => setShowUpgrade(false)} />}
     </div>
   );
 }

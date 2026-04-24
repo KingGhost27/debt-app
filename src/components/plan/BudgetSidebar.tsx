@@ -6,7 +6,7 @@
  */
 
 import { useState } from 'react';
-import { Plus, Pencil, Trash2, DollarSign, Gift, Calendar, ChevronDown } from 'lucide-react';
+import { Plus, Pencil, Trash2, DollarSign, Gift, Calendar, ChevronDown, Lock } from 'lucide-react';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { useConfirmDialog } from '../../hooks/useConfirmDialog';
 import { ExpenseTracker } from '../ui/ExpenseTracker';
@@ -14,6 +14,9 @@ import { format, parseISO } from 'date-fns';
 import { useApp } from '../../context/AppContext';
 import { IncomeSourceModal } from '../ui/IncomeSourceModal';
 import { OneTimeFundingModal } from '../ui/OneTimeFundingModal';
+import { UpgradeModal } from '../ui/UpgradeModal';
+import { useFeatureGate } from '../../hooks/useFeatureGate';
+import { FREE_LIMITS } from '../../lib/tierLimits';
 import {
   formatCurrency,
   calculateNetMonthlyIncome,
@@ -54,7 +57,17 @@ export function BudgetSidebar({
   const [isFundingModalOpen, setIsFundingModalOpen] = useState(false);
   const [editingFunding, setEditingFunding] = useState<OneTimeFunding | null>(null);
   const [windfallsOpen, setWindfallsOpen] = useState(false);
+  const [showUpgrade, setShowUpgrade] = useState(false);
   const { confirm, dialogProps } = useConfirmDialog();
+  const { canAddIncomeSource, isPro } = useFeatureGate();
+
+  const handleAddIncomeClick = () => {
+    if (!canAddIncomeSource) {
+      setShowUpgrade(true);
+      return;
+    }
+    setIsIncomeModalOpen(true);
+  };
 
   const availableForDebt = Math.max(0, totalMonthlyIncome - budget.monthlyExpenses);
 
@@ -114,10 +127,15 @@ export function BudgetSidebar({
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-semibold text-gray-900 ">Income</h3>
           <button
-            onClick={() => setIsIncomeModalOpen(true)}
+            onClick={handleAddIncomeClick}
             className="flex items-center gap-1 text-sm text-primary-600 hover:text-primary-700"
+            title={
+              !canAddIncomeSource
+                ? `Free plan is limited to ${FREE_LIMITS.INCOME_SOURCES} income sources`
+                : 'Add an income source'
+            }
           >
-            <Plus size={16} />
+            {!isPro && !canAddIncomeSource ? <Lock size={14} /> : <Plus size={16} />}
             Add
           </button>
         </div>
@@ -126,7 +144,7 @@ export function BudgetSidebar({
           <div className="text-center py-4">
             <p className="text-gray-500 text-sm mb-3">No income sources yet</p>
             <button
-              onClick={() => setIsIncomeModalOpen(true)}
+              onClick={handleAddIncomeClick}
               className="inline-flex items-center gap-2 px-4 py-2 bg-primary-500 text-white text-sm font-medium rounded-xl hover:bg-primary-600"
             >
               <Plus size={16} />
@@ -411,6 +429,8 @@ export function BudgetSidebar({
       />
 
       <ConfirmDialog {...dialogProps} />
+
+      {showUpgrade && <UpgradeModal onDismiss={() => setShowUpgrade(false)} />}
     </div>
   );
 }

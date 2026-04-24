@@ -27,6 +27,9 @@ import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { useConfirmDialog } from '../hooks/useConfirmDialog';
 import { UpdateBalanceModal } from '../components/ui/UpdateBalanceModal';
 import { EmptyState } from '../components/ui/EmptyState';
+import { ProLockedOverlay } from '../components/ui/ProLockedOverlay';
+import { useFeatureGate } from '../hooks/useFeatureGate';
+import { PRO_FEATURE_COPY } from '../lib/tierLimits';
 import {
   formatCurrency,
   calculateTotalAssets,
@@ -46,6 +49,21 @@ export function AssetsPage() {
   const [updatingAsset, setUpdatingAsset] = useState<Asset | null>(null);
   const [showHistory, setShowHistory] = useState<string | null>(null);
   const { confirm, dialogProps } = useConfirmDialog();
+  const { isAssetTrackingLocked, isLoading: gateLoading } = useFeatureGate();
+
+  if (!gateLoading && isAssetTrackingLocked) {
+    return (
+      <div className="min-h-screen bg-gray-50 animate-page-enter">
+        <PageHeader title="Assets" subtitle="Track your savings & investments" emoji="💎" />
+        <div className="px-4 py-10">
+          <ProLockedOverlay
+            title={PRO_FEATURE_COPY.asset_tracking.title}
+            description={PRO_FEATURE_COPY.asset_tracking.description}
+          />
+        </div>
+      </div>
+    );
+  }
 
   // Calculate totals
   const totalAssets = useMemo(() => calculateTotalAssets(assets), [assets]);

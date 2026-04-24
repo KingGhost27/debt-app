@@ -187,6 +187,59 @@ User Action → useApp() context → Supabase write (optimistic state update fir
 
 ---
 
+## Monetization — Pro Tier Gating
+
+**Tier strategy** (launch): Free + Pro. Three Pro SKUs: Monthly $4.99, Annual $39.99, OG Heifer $19 one-time (first 200–300 members).
+
+**Free-tier caps** (source: `src/lib/tierLimits.ts`):
+- 4 debts, 2 income sources, 10 expense entries, 3 custom categories
+- 3 free themes: `default` (Lavender Dream), `my-melody` (Rose Milk), `cinnamoroll` (Cloud Nine)
+- Strategy Comparison chart is **always free** (core value — explicit decision, do not gate).
+
+**Pro-only features** (soft-gate, not hard-disable):
+- Asset tracking page, Interest vs Principal chart, Payment Streak, Payment History, Bill Calendar, Bill Distribution Panel, CSV/JSON data export, 7 remaining themes.
+
+**UX pattern:** Soft-gate. Features remain visible; clicking triggers `UpgradeModal`. Avoid heavy paywalls — reason: Flora's explicit preference based on frustration with competitor apps.
+
+**Key files:**
+| File | Purpose |
+|---|---|
+| `src/lib/tierLimits.ts` | Single source of truth: `FREE_LIMITS`, `FREE_THEMES`, `PRO_FEATURE_COPY` |
+| `src/hooks/useFeatureGate.ts` | Unified gate hook — exposes `canAddDebt`, `isAssetTrackingLocked`, `isThemeLocked(preset)`, etc. |
+| `src/hooks/useSubscription.ts` | Queries `user_subscriptions` table, exposes `isPro`, `isLoading` |
+| `src/components/ui/ProLockedOverlay.tsx` | Soft-gate overlay with gradient card + "Upgrade to Pro" CTA |
+| `src/components/ui/ProLockBadge.tsx` | Small crown/lock pill (variants) |
+| `src/components/ui/UpgradeModal.tsx` | 3-plan picker → calls `/api/create-checkout` |
+
+**Stripe serverless endpoints** (`api/`):
+- `create-checkout.ts` — creates Stripe Checkout session (expects `STRIPE_PRICE_MONTHLY`, `STRIPE_PRICE_ANNUAL`, `STRIPE_PRICE_LIFETIME`)
+- `create-portal.ts` — customer portal session
+- `stripe-webhook.ts` — handles `checkout.session.completed`, `customer.subscription.updated/deleted` → writes `user_subscriptions` table via service role
+
+**Supabase:** `user_subscriptions` table tracks Pro status (see `migrations/2026-04-23_user_subscriptions.sql`). RLS allows users to read own row; only service role writes (via webhook).
+
+**Env vars for Stripe** (in `.env.local`, NOT `VITE_`-prefixed except publishable key):
+```
+VITE_STRIPE_PUBLISHABLE_KEY=pk_test_...     # client
+STRIPE_SECRET_KEY=sk_test_...                # server
+STRIPE_PRICE_MONTHLY=price_...               # server
+STRIPE_PRICE_ANNUAL=price_...                # server
+STRIPE_PRICE_LIFETIME=price_...              # server (mapped from "OG Heifer" SKU)
+STRIPE_WEBHOOK_SECRET=whsec_...              # server
+```
+
+---
+
+## Local Dev Server Notes
+
+- **Dev command:** `vercel dev` is required to serve `/api/*` routes locally (Vite alone 404s them). Bind `0.0.0.0:5173` for WSL → Windows browser access: `vercel dev --listen 0.0.0.0:5173`.
+- **Env loading:** `vercel dev` sometimes doesn't auto-load `.env.local`. If Stripe SDK throws "Neither apiKey nor config.authenticator provided", start with `bash -c 'set -a; source .env.local; set +a; exec vercel dev'`.
+- **vite.config.ts** has `server.host: true` so Vite binds all interfaces (needed for WSL).
+- **vercel.json** uses negative-lookahead rewrite `/((?!api/).*)` → `/index.html` so SPA catch-all doesn't swallow `/api/*` requests.
+- **Stripe webhook testing locally:** `stripe listen --forward-to localhost:5173/api/stripe-webhook`. Whsec persists across `stripe listen` restarts for the same CLI session.
+
+---
+
 ## Data Types Quick Reference
 
 ```typescript
@@ -234,6 +287,9 @@ PayoffPlan        // debtFreeDate, totalPayments, totalInterest, steps[], monthl
 | Add custom category feature | `CategoryManager.tsx`, `DebtModal.tsx`, `types/index.ts` |
 | Modify income/budget | `lib/calculations.ts`, `PlanPage.tsx` |
 | Modify onboarding | `pages/OnboardingPage.tsx`, `App.tsx` (AppRouter component) |
+| Change free-tier limits | `lib/tierLimits.ts` (single source of truth) |
+| Add Pro-gated feature | `hooks/useFeatureGate.ts` (add new gate), wrap with `ProLockedOverlay` in consuming page |
+| Add new Stripe plan | `api/create-checkout.ts` (price map), `UpgradeModal.tsx` (PLANS array), `.env.local` (new price ID) |
 
 ---
 
