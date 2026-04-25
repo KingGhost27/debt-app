@@ -36,11 +36,13 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>"
 ## Commands
 
 ```bash
-npm run dev      # Start dev server (Vite HMR on http://localhost:5173)
+npm run dev      # ⭐ DEFAULT — start dev server (Vite HMR on http://localhost:5173). Use this for normal frontend work.
 npm run build    # TypeScript check + production build
 npm run preview  # Preview production build locally
 npm run lint     # ESLint
 ```
+
+**⚠️ Stripe / API testing only:** `npm run dev` runs Vite alone and does NOT serve `/api/*` serverless functions (checkout, webhook). For Stripe testing use `vercel dev` instead — see "Local Dev Server Notes" below.
 
 ---
 

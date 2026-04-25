@@ -5,14 +5,14 @@
  * and data import/export with delightful styling.
  */
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Download, Upload, Trash2, ChevronLeft, Sparkles, Database, Heart, User, Check, LogOut, FileSpreadsheet, Bell, BellOff, HelpCircle, Play, FlaskConical, Crown } from 'lucide-react';
 import { useSubscription } from '../hooks/useSubscription';
 import { UpgradeModal } from '../components/ui/UpgradeModal';
 import { CelebrationModal } from '../components/ui/CelebrationModal';
 import type { MilestoneEvent, CelebrationStats } from '../types/celebrations';
 import { useNotificationSettings } from '../hooks/useNotifications';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/ui/Toast';
@@ -33,8 +33,38 @@ export function SettingsPage() {
   const { settings: notifSettings, save: saveNotif, requestPermission, permissionState } = useNotificationSettings();
   const [testMilestone, setTestMilestone] = useState<MilestoneEvent | null>(null);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-  const { isPro, planType, stripeCustomerId, currentPeriodEnd, cancelAtPeriodEnd, isLoading: subLoading } = useSubscription();
+  const { isPro, planType, stripeCustomerId, currentPeriodEnd, cancelAtPeriodEnd, isLoading: subLoading, refetch: refetchSubscription } = useSubscription();
   const [portalLoading, setPortalLoading] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.get('upgraded') !== '1') return;
+
+    let cancelled = false;
+    let attempts = 0;
+    const maxAttempts = 10;
+
+    const poll = async () => {
+      while (!cancelled && attempts < maxAttempts) {
+        attempts += 1;
+        await refetchSubscription();
+        if (cancelled) return;
+        await new Promise((r) => setTimeout(r, 1500));
+      }
+    };
+
+    showToast('Welcome to Pro! 🎉 Updating your account…', 'success');
+    poll();
+
+    const params = new URLSearchParams(searchParams);
+    params.delete('upgraded');
+    setSearchParams(params, { replace: true });
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleManageSubscription = async () => {
     if (!stripeCustomerId) return;

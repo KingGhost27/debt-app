@@ -256,6 +256,7 @@ These are the technical items needed to execute the plans above:
 | 🟡 5 | **14-day Pro trial on signup** | Bumps conversion from ~2–5% to ~12%. |
 | 🟢 6 | **Referral mechanic** | Dropbox model — refer a friend → unlock premium theme. |
 | 🟢 7 | **UTM parameter support** | Analytics — need to know which channels actually convert. |
+| 🟢 8 | **Pro purchase celebration animation** | When a user successfully upgrades and lands back on Settings (`?upgraded=1`), trigger a delightful animation — confetti / herd cheer / Debtsy crown reveal. Currently only a toast fires. Idea: reuse CelebrationModal full-herd mode with a new "welcome_to_pro" milestone type. |
 
 ---
 
