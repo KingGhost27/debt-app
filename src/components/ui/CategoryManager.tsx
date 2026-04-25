@@ -6,11 +6,14 @@
  */
 
 import { useState } from 'react';
-import { Plus, Pencil, Trash2, X, Check, Tag } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Check, Tag, Lock } from 'lucide-react';
 import { ConfirmDialog } from './ConfirmDialog';
 import { useConfirmDialog } from '../../hooks/useConfirmDialog';
 import { useApp } from '../../context/AppContext';
 import { useToast } from './Toast';
+import { UpgradeModal } from './UpgradeModal';
+import { useFeatureGate } from '../../hooks/useFeatureGate';
+import { FREE_LIMITS } from '../../lib/tierLimits';
 import { CATEGORY_INFO } from '../../types';
 import type { DebtCategory, CustomCategory } from '../../types';
 
@@ -32,7 +35,17 @@ export function CategoryManager() {
   const [newCategoryColor, setNewCategoryColor] = useState('#8b5cf6');
   const [editName, setEditName] = useState('');
   const [editColor, setEditColor] = useState('');
+  const [showUpgrade, setShowUpgrade] = useState(false);
   const { confirm, dialogProps } = useConfirmDialog();
+  const { canAddCustomCategory, isPro } = useFeatureGate();
+
+  const handleAddClick = () => {
+    if (!canAddCustomCategory) {
+      setShowUpgrade(true);
+      return;
+    }
+    setIsAdding(true);
+  };
 
   const builtInCategories = Object.entries(CATEGORY_INFO) as [DebtCategory, { label: string; color: string }][];
 
@@ -144,11 +157,22 @@ export function CategoryManager() {
           <h4 className="text-xs sm:text-sm font-medium text-gray-500">Custom Categories</h4>
           {!isAdding && (
             <button
-              onClick={() => setIsAdding(true)}
+              onClick={handleAddClick}
               className="flex items-center gap-1 text-xs sm:text-sm text-primary-600 hover:text-primary-700"
+              title={
+                !canAddCustomCategory
+                  ? `Free plan is limited to ${FREE_LIMITS.CUSTOM_CATEGORIES} custom categories`
+                  : 'Add a custom category'
+              }
             >
-              <Plus size={14} className="sm:hidden" />
-              <Plus size={16} className="hidden sm:block" />
+              {!isPro && !canAddCustomCategory ? (
+                <Lock size={14} />
+              ) : (
+                <>
+                  <Plus size={14} className="sm:hidden" />
+                  <Plus size={16} className="hidden sm:block" />
+                </>
+              )}
               Add
             </button>
           )}
@@ -270,6 +294,8 @@ export function CategoryManager() {
       </div>
 
       <ConfirmDialog {...dialogProps} />
+
+      {showUpgrade && <UpgradeModal onDismiss={() => setShowUpgrade(false)} />}
     </div>
   );
 }

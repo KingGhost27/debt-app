@@ -31,6 +31,9 @@ import { EmptyState } from '../components/ui/EmptyState';
 import { InterestVsPrincipalChart } from '../components/analytics/InterestVsPrincipalChart';
 import { DebtBreakdownChart } from '../components/analytics/DebtBreakdownChart';
 import { PaymentHistorySummary } from '../components/analytics/PaymentHistorySummary';
+import { ProLockedOverlay } from '../components/ui/ProLockedOverlay';
+import { useFeatureGate } from '../hooks/useFeatureGate';
+import { PRO_FEATURE_COPY } from '../lib/tierLimits';
 import { CATEGORY_INFO } from '../types';
 
 // Encouraging messages based on progress
@@ -85,6 +88,7 @@ function CollapsibleSection({
 
 export function HomePage() {
   const { debts, strategy, settings, customCategories, budget, payments, subscriptions, receivedPaychecks } = useApp();
+  const { isInterestVsPrincipalLocked, isPaymentHistoryLocked, isBillCalendarLocked } = useFeatureGate();
 
   // Calculate summary stats
   const summary = useMemo(() => calculateDebtSummary(debts), [debts]);
@@ -510,7 +514,15 @@ export function HomePage() {
         )}
 
         {/* Payment Streak */}
-        <PaymentStreakCard streak={streakData} />
+        {isPaymentHistoryLocked ? (
+          <ProLockedOverlay
+            title={PRO_FEATURE_COPY.payment_history.title}
+            description={PRO_FEATURE_COPY.payment_history.description}
+            compact
+          />
+        ) : (
+          <PaymentStreakCard streak={streakData} />
+        )}
 
         {/* Paycheck Summary Card */}
         {paycheckSummary && (
@@ -633,7 +645,15 @@ export function HomePage() {
                   <PieChartIcon size={14} className="text-primary-500" />
                   Interest vs Principal
                 </p>
-                <InterestVsPrincipalChart monthlyBreakdown={plan.monthlyBreakdown} />
+                {isInterestVsPrincipalLocked ? (
+                  <ProLockedOverlay
+                    title={PRO_FEATURE_COPY.interest_vs_principal_chart.title}
+                    description={PRO_FEATURE_COPY.interest_vs_principal_chart.description}
+                    compact
+                  />
+                ) : (
+                  <InterestVsPrincipalChart monthlyBreakdown={plan.monthlyBreakdown} />
+                )}
               </div>
               {debts.length > 1 && (
                 <div className="border-t border-gray-100 pt-5">
@@ -649,12 +669,28 @@ export function HomePage() {
         )}
 
         {/* Mini Calendar */}
-        <MiniCalendar debts={debts} incomeSources={budget.incomeSources} customCategories={customCategories} />
+        {isBillCalendarLocked ? (
+          <ProLockedOverlay
+            title={PRO_FEATURE_COPY.bill_calendar.title}
+            description={PRO_FEATURE_COPY.bill_calendar.description}
+            compact
+          />
+        ) : (
+          <MiniCalendar debts={debts} incomeSources={budget.incomeSources} customCategories={customCategories} />
+        )}
 
         {/* Payment History */}
         {payments.filter((p) => p.isCompleted).length > 0 && (
           <CollapsibleSection title="Payment History" subtitle="Your actual payments" icon={<Receipt size={20} className="text-white" />} iconGradient="from-green-400 to-emerald-500">
-            <PaymentHistorySummary payments={payments} />
+            {isPaymentHistoryLocked ? (
+              <ProLockedOverlay
+                title={PRO_FEATURE_COPY.payment_history.title}
+                description={PRO_FEATURE_COPY.payment_history.description}
+                compact
+              />
+            ) : (
+              <PaymentHistorySummary payments={payments} />
+            )}
           </CollapsibleSection>
         )}
 

@@ -120,6 +120,20 @@ create table received_paychecks (
   updated_at timestamptz not null
 );
 
+-- USER SUBSCRIPTIONS (Stripe billing — Pro tier tracking)
+create table user_subscriptions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users(id) on delete cascade not null unique,
+  stripe_customer_id text not null,
+  stripe_subscription_id text,
+  plan_type text not null check (plan_type in ('monthly', 'annual', 'lifetime')),
+  status text not null default 'active' check (status in ('active', 'canceled', 'past_due', 'incomplete', 'trialing')),
+  current_period_end timestamptz,
+  cancel_at_period_end boolean default false,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
 -- =============================================
 -- ROW LEVEL SECURITY (RLS)
 -- Ensures users can only access their own data
@@ -134,6 +148,7 @@ alter table custom_categories enable row level security;
 alter table assets enable row level security;
 alter table subscriptions enable row level security;
 alter table received_paychecks enable row level security;
+alter table user_subscriptions enable row level security;
 
 -- PROFILES
 create policy "profiles_select" on profiles for select using (auth.uid() = id);
@@ -185,6 +200,9 @@ create policy "paychecks_select" on received_paychecks for select using (auth.ui
 create policy "paychecks_insert" on received_paychecks for insert with check (auth.uid() = user_id);
 create policy "paychecks_update" on received_paychecks for update using (auth.uid() = user_id);
 create policy "paychecks_delete" on received_paychecks for delete using (auth.uid() = user_id);
+
+-- USER SUBSCRIPTIONS (users can read own, only service role can write via webhook)
+create policy "subscriptions_select_own" on user_subscriptions for select using (auth.uid() = user_id);
 
 -- =============================================
 -- AUTO-CREATE PROFILE + SETTINGS ON SIGNUP

@@ -5,12 +5,14 @@
  * and data import/export with delightful styling.
  */
 
-import { useRef, useState } from 'react';
-import { Download, Upload, Trash2, ChevronLeft, Sparkles, Database, Heart, User, Check, LogOut, FileSpreadsheet, Bell, BellOff, HelpCircle, Play, FlaskConical } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Download, Upload, Trash2, ChevronLeft, Sparkles, Database, Heart, User, Check, LogOut, FileSpreadsheet, Bell, BellOff, HelpCircle, Play, FlaskConical, Crown } from 'lucide-react';
+import { useSubscription } from '../hooks/useSubscription';
+import { UpgradeModal } from '../components/ui/UpgradeModal';
 import { CelebrationModal } from '../components/ui/CelebrationModal';
 import type { MilestoneEvent, CelebrationStats } from '../types/celebrations';
 import { useNotificationSettings } from '../hooks/useNotifications';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/ui/Toast';
@@ -30,6 +32,60 @@ export function SettingsPage() {
   const { confirm, dialogProps } = useConfirmDialog();
   const { settings: notifSettings, save: saveNotif, requestPermission, permissionState } = useNotificationSettings();
   const [testMilestone, setTestMilestone] = useState<MilestoneEvent | null>(null);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const { isPro, planType, stripeCustomerId, currentPeriodEnd, cancelAtPeriodEnd, isLoading: subLoading, refetch: refetchSubscription } = useSubscription();
+  const [portalLoading, setPortalLoading] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.get('upgraded') !== '1') return;
+
+    let cancelled = false;
+    let attempts = 0;
+    const maxAttempts = 10;
+
+    const poll = async () => {
+      while (!cancelled && attempts < maxAttempts) {
+        attempts += 1;
+        await refetchSubscription();
+        if (cancelled) return;
+        await new Promise((r) => setTimeout(r, 1500));
+      }
+    };
+
+    showToast('Welcome to Pro! 🎉 Updating your account…', 'success');
+    poll();
+
+    const params = new URLSearchParams(searchParams);
+    params.delete('upgraded');
+    setSearchParams(params, { replace: true });
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleManageSubscription = async () => {
+    if (!stripeCustomerId) return;
+    setPortalLoading(true);
+    try {
+      const res = await fetch('/api/create-portal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customerId: stripeCustomerId,
+          returnUrl: window.location.href,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.url) window.location.href = data.url;
+    } catch {
+      showToast('Failed to open subscription portal', 'error');
+    } finally {
+      setPortalLoading(false);
+    }
+  };
 
   const testStats: CelebrationStats = {
     userName: settings.userName || 'Flora',
@@ -207,6 +263,62 @@ export function SettingsPage() {
           </div>
         </div>
 
+        {/* Subscription / Plan Section */}
+        <div className="card !p-3 sm:!p-4">
+          {subLoading ? (
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-gray-100 animate-pulse" />
+              <span className="text-xs text-gray-400">Loading plan...</span>
+            </div>
+          ) : isPro ? (
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center shadow-sm shadow-amber-300/30 flex-shrink-0">
+                <Crown size={14} className="text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-bold text-amber-700 leading-tight">
+                  Pro — {planType === 'lifetime' ? 'Lifetime' : planType === 'annual' ? 'Annual' : 'Monthly'}
+                </p>
+                {currentPeriodEnd && planType !== 'lifetime' && (
+                  <p className="text-[10px] text-gray-400 leading-tight">
+                    {cancelAtPeriodEnd ? 'Until' : 'Renews'} {new Date(currentPeriodEnd).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                  </p>
+                )}
+              </div>
+              {cancelAtPeriodEnd && (
+                <span className="text-[9px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full font-semibold">
+                  Canceling
+                </span>
+              )}
+              {stripeCustomerId && planType !== 'lifetime' && (
+                <button
+                  onClick={handleManageSubscription}
+                  disabled={portalLoading}
+                  className="text-[11px] font-semibold text-gray-600 hover:text-gray-900 underline underline-offset-2 flex-shrink-0"
+                >
+                  {portalLoading ? '...' : 'Manage'}
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center shadow-sm shadow-amber-300/30 flex-shrink-0">
+                <Crown size={14} className="text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-bold text-gray-900 leading-tight">Free plan</p>
+                <p className="text-[10px] text-gray-500 leading-tight">Unlock unlimited debts + all themes</p>
+              </div>
+              <button
+                onClick={() => setShowUpgradeModal(true)}
+                className="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-gradient-to-r from-amber-400 to-yellow-500 text-white hover:from-amber-500 hover:to-yellow-600 shadow-sm shadow-amber-300/30 transition-all flex-shrink-0"
+              >
+                Upgrade
+              </button>
+            </div>
+          )}
+        </div>
+
         {/* Theme Section */}
         <div className="card">
           <ThemeSelector />
@@ -368,7 +480,7 @@ export function SettingsPage() {
           <div className="space-y-3">
             {/* Export */}
             <button
-              onClick={exportAppData}
+              onClick={() => (isPro ? exportAppData() : setShowUpgradeModal(true))}
               className="w-full flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-gradient-to-r from-primary-50 to-white dark:from-primary-900/30 dark:to-gray-800 rounded-xl sm:rounded-2xl border border-primary-100/50 dark:border-primary-700/50 hover:shadow-md hover:-translate-y-0.5 transition-all text-left group"
             >
               <div className="w-9 h-9 sm:w-12 sm:h-12 bg-gradient-to-br from-primary-400 to-primary-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg shadow-primary-300/30 group-hover:scale-105 transition-transform">
@@ -376,7 +488,14 @@ export function SettingsPage() {
                 <Download size={22} className="text-white hidden sm:block" />
               </div>
               <div className="flex-1">
-                <p className="text-sm sm:text-base font-semibold text-gray-900">Export Data</p>
+                <p className="text-sm sm:text-base font-semibold text-gray-900 flex items-center gap-1.5">
+                  Export Data
+                  {!isPro && (
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 text-white">
+                      PRO
+                    </span>
+                  )}
+                </p>
                 <p className="text-xs sm:text-sm text-gray-500">Download your data as a backup</p>
               </div>
               <Sparkles size={16} className="text-primary-300 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -384,7 +503,7 @@ export function SettingsPage() {
 
             {/* Export Payment History */}
             <button
-              onClick={exportPaymentHistory}
+              onClick={() => (isPro ? exportPaymentHistory() : setShowUpgradeModal(true))}
               className="w-full flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-gradient-to-r from-purple-50 to-white dark:from-purple-900/30 dark:to-gray-800 rounded-xl sm:rounded-2xl border border-purple-100/50 dark:border-purple-700/50 hover:shadow-md hover:-translate-y-0.5 transition-all text-left group"
             >
               <div className="w-9 h-9 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg shadow-purple-300/30 group-hover:scale-105 transition-transform">
@@ -392,7 +511,14 @@ export function SettingsPage() {
                 <FileSpreadsheet size={22} className="text-white hidden sm:block" />
               </div>
               <div className="flex-1">
-                <p className="text-sm sm:text-base font-semibold text-gray-900">Export Payment History</p>
+                <p className="text-sm sm:text-base font-semibold text-gray-900 flex items-center gap-1.5">
+                  Export Payment History
+                  {!isPro && (
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 text-white">
+                      PRO
+                    </span>
+                  )}
+                </p>
                 <p className="text-xs sm:text-sm text-gray-500">Download payments as CSV spreadsheet</p>
               </div>
               <Sparkles size={16} className="text-purple-300 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -507,6 +633,10 @@ export function SettingsPage() {
           themePreset={settings.theme.preset}
           onDismiss={() => setTestMilestone(null)}
         />
+      )}
+
+      {showUpgradeModal && (
+        <UpgradeModal onDismiss={() => setShowUpgradeModal(false)} />
       )}
     </div>
   );

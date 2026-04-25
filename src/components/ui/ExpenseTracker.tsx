@@ -7,11 +7,14 @@
  */
 
 import { useState } from 'react';
-import { Plus, Trash2, ChevronDown, ChevronUp, DollarSign } from 'lucide-react';
+import { Plus, Trash2, ChevronDown, ChevronUp, DollarSign, Lock } from 'lucide-react';
 import { v4 as uuid } from 'uuid';
 import { formatCurrency } from '../../lib/calculations';
 import type { ExpenseEntry, ExpenseCategory, BudgetSettings } from '../../types';
 import { EXPENSE_CATEGORY_INFO } from '../../types';
+import { UpgradeModal } from './UpgradeModal';
+import { useFeatureGate } from '../../hooks/useFeatureGate';
+import { FREE_LIMITS } from '../../lib/tierLimits';
 
 interface ExpenseTrackerProps {
   budget: BudgetSettings;
@@ -27,6 +30,16 @@ export function ExpenseTracker({ budget, onBudgetChange }: ExpenseTrackerProps) 
   const [newName, setNewName] = useState('');
   const [newAmount, setNewAmount] = useState('');
   const [newCategory, setNewCategory] = useState<ExpenseCategory>('other');
+  const [showUpgrade, setShowUpgrade] = useState(false);
+  const { canAddExpenseEntry, isPro } = useFeatureGate();
+
+  const handleAddClick = () => {
+    if (!canAddExpenseEntry) {
+      setShowUpgrade(true);
+      return;
+    }
+    setIsAdding(true);
+  };
 
   const totalFromEntries = entries.reduce((sum, e) => sum + e.amount, 0);
 
@@ -228,11 +241,16 @@ export function ExpenseTracker({ budget, onBudgetChange }: ExpenseTrackerProps) 
           ) : (
             <button
               type="button"
-              onClick={() => setIsAdding(true)}
+              onClick={handleAddClick}
               className="w-full py-2 text-sm font-medium text-primary-500 hover:text-primary-600 bg-primary-50 dark:bg-primary-900/20 hover:bg-primary-100 dark:hover:bg-primary-900/30 rounded-xl transition-colors flex items-center justify-center gap-1.5"
+              title={
+                !canAddExpenseEntry
+                  ? `Free plan is limited to ${FREE_LIMITS.EXPENSE_ENTRIES} expense entries`
+                  : 'Add an expense'
+              }
             >
-              <Plus size={16} />
-              Add Expense
+              {!isPro && !canAddExpenseEntry ? <Lock size={16} /> : <Plus size={16} />}
+              {!isPro && !canAddExpenseEntry ? 'Upgrade for more' : 'Add Expense'}
             </button>
           )}
 
@@ -245,6 +263,8 @@ export function ExpenseTracker({ budget, onBudgetChange }: ExpenseTrackerProps) 
           </div>
         </div>
       )}
+
+      {showUpgrade && <UpgradeModal onDismiss={() => setShowUpgrade(false)} />}
     </div>
   );
 }

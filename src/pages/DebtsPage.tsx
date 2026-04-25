@@ -7,7 +7,7 @@
  */
 
 import React, { useState, useMemo, useRef } from 'react';
-import { Plus, Search, Pencil, Trash2, ChevronDown, ArrowUpDown, Calendar, HelpCircle, RefreshCw, Check, X, Sparkles, TrendingDown, Flame } from 'lucide-react';
+import { Plus, Search, Pencil, Trash2, ChevronDown, ArrowUpDown, Calendar, HelpCircle, RefreshCw, Check, X, Sparkles, TrendingDown, Flame, Lock } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { useApp } from '../context/AppContext';
 import { PageHeader } from '../components/layout/PageHeader';
@@ -15,7 +15,10 @@ import { ProgressRing } from '../components/ui/ProgressRing';
 import { DebtModal } from '../components/ui/DebtModal';
 import { EmptyState } from '../components/ui/EmptyState';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
+import { UpgradeModal } from '../components/ui/UpgradeModal';
 import { useConfirmDialog } from '../hooks/useConfirmDialog';
+import { useFeatureGate } from '../hooks/useFeatureGate';
+import { FREE_LIMITS } from '../lib/tierLimits';
 import {
   formatCurrency,
   formatCompactCurrency,
@@ -58,6 +61,16 @@ export function DebtsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingDebt, setEditingDebt] = useState<Debt | null>(null);
   const [showAPRTooltip, setShowAPRTooltip] = useState(false);
+  const [showUpgrade, setShowUpgrade] = useState(false);
+  const { canAddDebt, isPro } = useFeatureGate();
+
+  const handleAddDebtClick = () => {
+    if (!canAddDebt) {
+      setShowUpgrade(true);
+      return;
+    }
+    setIsModalOpen(true);
+  };
   const [recalibratingDebtId, setRecalibratingDebtId] = useState<string | null>(null);
   const [newBalanceInput, setNewBalanceInput] = useState('');
   const [insightsExpanded, setInsightsExpanded] = useState(false);
@@ -292,11 +305,21 @@ export function DebtsPage() {
         emoji="💳"
         action={
           <button
-            onClick={() => setIsModalOpen(true)}
-            className="w-9 h-9 flex items-center justify-center rounded-2xl bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg shadow-primary-500/30 transition-all hover:scale-105 active:scale-95 sm:w-auto sm:h-auto sm:px-4 sm:py-2.5 sm:gap-1.5 sm:text-sm sm:font-semibold"
+            onClick={handleAddDebtClick}
+            className="relative w-9 h-9 flex items-center justify-center rounded-2xl bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg shadow-primary-500/30 transition-all hover:scale-105 active:scale-95 sm:w-auto sm:h-auto sm:px-4 sm:py-2.5 sm:gap-1.5 sm:text-sm sm:font-semibold"
+            title={
+              !canAddDebt
+                ? `Free plan is limited to ${FREE_LIMITS.DEBTS} debts — upgrade for unlimited`
+                : 'Add a new debt'
+            }
           >
             <Plus size={18} />
             <span className="hidden sm:inline">Add Debt</span>
+            {!isPro && !canAddDebt && (
+              <span className="absolute -top-1.5 -right-1.5 rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 p-1 shadow-md">
+                <Lock size={10} strokeWidth={3} className="text-white" />
+              </span>
+            )}
           </button>
         }
       />
@@ -923,6 +946,8 @@ export function DebtsPage() {
       />
 
       <ConfirmDialog {...dialogProps} />
+
+      {showUpgrade && <UpgradeModal onDismiss={() => setShowUpgrade(false)} />}
     </div>
   );
 }

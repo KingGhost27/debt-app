@@ -464,6 +464,26 @@ export const SUBSCRIPTION_CATEGORY_INFO: Record<SubscriptionCategory, { label: s
 };
 
 // ============================================
+// SUBSCRIPTION (STRIPE) TYPES
+// ============================================
+
+export type SubscriptionPlanType = 'monthly' | 'annual' | 'lifetime';
+export type SubscriptionStatus = 'active' | 'canceled' | 'past_due' | 'incomplete' | 'trialing';
+
+export interface UserSubscription {
+  id: string;
+  userId: string;
+  stripeCustomerId: string;
+  stripeSubscriptionId?: string;         // null for lifetime (one-time purchase)
+  planType: SubscriptionPlanType;
+  status: SubscriptionStatus;
+  currentPeriodEnd?: string;             // ISO date — null for lifetime
+  cancelAtPeriodEnd: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ============================================
 // PAYCHECK TRACKING TYPES
 // ============================================
 

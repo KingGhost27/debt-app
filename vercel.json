@@ -1,5 +1,8 @@
 {
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/((?!api/|src/|node_modules/|@vite/|@react-refresh|@id/|@fs/|sw\\.js|registerSW\\.js|workbox-|manifest\\.webmanifest|.*\\.(?:js|ts|tsx|jsx|css|png|jpg|jpeg|svg|ico|webmanifest|woff|woff2|map)).*)",
+      "destination": "/index.html"
+    }
   ]
 }
