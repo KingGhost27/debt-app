@@ -27,9 +27,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'Missing customerId' });
     }
 
+    // Allowlist return_url origins to prevent phishing via attacker-supplied URL.
+    const ALLOWED_ORIGINS = [
+      'https://cowculator.net',
+      'https://www.cowculator.net',
+      'http://localhost:5173',
+      'http://localhost:3000',
+    ];
+    let safeReturnUrl = 'https://cowculator.net/settings';
+    if (returnUrl) {
+      try {
+        const u = new URL(returnUrl);
+        const o = `${u.protocol}//${u.host}`;
+        if (ALLOWED_ORIGINS.includes(o)) safeReturnUrl = returnUrl;
+      } catch {
+        // fall through to default
+      }
+    }
+
     const session = await stripe.billingPortal.sessions.create({
       customer: customerId,
-      return_url: returnUrl || 'https://cowculator.net/settings',
+      return_url: safeReturnUrl,
     });
 
     return res.status(200).json({ url: session.url });

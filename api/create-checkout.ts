@@ -42,7 +42,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const isLifetime = plan === 'lifetime';
-    const origin = returnUrl || req.headers.origin || 'https://cowculator.net';
+
+    // Allowlist origins to prevent phishing via attacker-supplied returnUrl.
+    const ALLOWED_ORIGINS = [
+      'https://cowculator.net',
+      'https://www.cowculator.net',
+      'http://localhost:5173',
+      'http://localhost:3000',
+    ];
+    const safeOrigin = (candidate: string | undefined): string | null => {
+      if (!candidate) return null;
+      try {
+        const u = new URL(candidate);
+        const o = `${u.protocol}//${u.host}`;
+        return ALLOWED_ORIGINS.includes(o) ? o : null;
+      } catch {
+        return null;
+      }
+    };
+    const origin =
+      safeOrigin(returnUrl) ||
+      safeOrigin(req.headers.origin as string | undefined) ||
+      'https://cowculator.net';
 
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       mode: isLifetime ? 'payment' : 'subscription',
