@@ -5,11 +5,12 @@
  * Features: Cute animations, encouraging messages, progress celebration.
  */
 
-import { useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { format, parseISO } from 'date-fns';
 import { Target, Sparkles, TrendingDown, Calendar, Wallet, Receipt, ChevronRight, ChevronDown, Trophy, BarChart3, PieChart as PieChartIcon, ClipboardList, Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
+import { useToast } from '../components/ui/Toast';
 import {
   calculateDebtSummary,
   generatePayoffPlan,
@@ -87,8 +88,24 @@ function CollapsibleSection({
 }
 
 export function HomePage() {
-  const { debts, strategy, settings, customCategories, budget, payments, subscriptions, receivedPaychecks } = useApp();
+  const { debts, strategy, settings, customCategories, budget, payments, subscriptions, receivedPaychecks, landingHandoff, consumeLandingHandoff } = useApp();
   const { isInterestVsPrincipalLocked, isPaymentHistoryLocked, isBillCalendarLocked } = useFeatureGate();
+  const { showToast } = useToast();
+
+  // Landing-page welcome — fires once if a brand-new account just had its
+  // public-calculator debts seeded into Supabase by AppContext. The ref guard
+  // protects against StrictMode double-effect + any re-render race.
+  const landingToastFiredRef = useRef(false);
+  useEffect(() => {
+    if (!landingHandoff || landingToastFiredRef.current) return;
+    landingToastFiredRef.current = true;
+    const n = landingHandoff.count;
+    showToast(
+      `Welcome to Cowculator! 🐄 We saved your ${n} debt${n === 1 ? '' : 's'} so you don't have to re-enter them.`,
+      'success'
+    );
+    consumeLandingHandoff();
+  }, [landingHandoff, consumeLandingHandoff, showToast]);
 
   // Calculate summary stats
   const summary = useMemo(() => calculateDebtSummary(debts), [debts]);

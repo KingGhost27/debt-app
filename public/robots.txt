@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Disallow: /auth
+Disallow: /dashboard
+Disallow: /debts
+Disallow: /assets
+Disallow: /subscriptions
+Disallow: /plan
+Disallow: /track
+Disallow: /settings
+Disallow: /api/
+
+Sitemap: https://cowculator.net/sitemap.xml

@@ -25,7 +25,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   {
-    to: '/',
+    to: '/dashboard',
     label: 'Home',
     icon: <Home size={22} strokeWidth={2} />,
     activeIcon: <Home size={22} strokeWidth={2.5} fill="currentColor" />,

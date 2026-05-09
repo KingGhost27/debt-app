@@ -11,6 +11,8 @@ import { AppProvider, useApp } from './context/AppContext';
 import { ToastProvider } from './components/ui/Toast';
 import { Layout } from './components/layout/Layout';
 import { AuthPage } from './pages/AuthPage';
+import { LandingPage } from './pages/LandingPage';
+import { FontsShowcasePage } from './pages/FontsShowcasePage';
 import { OnboardingPage } from './pages/OnboardingPage';
 import { HomePage } from './pages/HomePage';
 import { DebtsPage } from './pages/DebtsPage';
@@ -62,12 +64,12 @@ function AppRouter() {
       <OnboardingPage
         onComplete={async (name) => {
           await updateSettings({ userName: name });
-          navigate('/');
+          navigate('/dashboard');
         }}
         onSkip={() => {
           if (user) localStorage.setItem(ONBOARDING_SKIP_KEY(user.id), 'true');
           setHasSkipped(true);
-          navigate('/');
+          navigate('/dashboard');
         }}
       />
     );
@@ -86,7 +88,8 @@ function AppRouter() {
     <>
       <Routes>
         <Route path="/" element={<Layout />}>
-          <Route index element={<HomePage />} />
+          <Route index element={<Navigate to="/dashboard" replace />} />
+          <Route path="dashboard" element={<HomePage />} />
           <Route path="debts" element={<DebtsPage />} />
           <Route path="assets" element={<AssetsPage />} />
           <Route path="subscriptions" element={<SubscriptionsPage />} />
@@ -94,7 +97,7 @@ function AppRouter() {
           <Route path="plan" element={<PlanPage />} />
           <Route path="track" element={<TrackPage />} />
           <Route path="settings" element={<SettingsPage />} />
-          <Route path="more" element={<Navigate to="/" replace />} />
+          <Route path="more" element={<Navigate to="/dashboard" replace />} />
         </Route>
       </Routes>
       {shouldShowTutorial && (
@@ -110,6 +113,21 @@ function AppRouter() {
       )}
     </>
   );
+}
+
+function PublicLandingOrRedirect() {
+  const { user, isLoading } = useAuth();
+  if (isLoading) return null;
+  if (user) return <Navigate to="/dashboard" replace />;
+  return <LandingPage />;
+}
+
+function PublicAuthOrRedirect() {
+  const { user, isLoading, isPasswordRecovery } = useAuth();
+  if (isLoading) return null;
+  if (isPasswordRecovery) return <ResetPasswordPage />;
+  if (user) return <Navigate to="/dashboard" replace />;
+  return <AuthPage />;
 }
 
 function ProtectedRoutes() {
@@ -131,7 +149,7 @@ function ProtectedRoutes() {
   }
 
   if (!user) {
-    return <AuthPage />;
+    return <Navigate to="/auth" replace />;
   }
 
   return (
@@ -147,7 +165,12 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <ProtectedRoutes />
+        <Routes>
+          <Route path="/" element={<PublicLandingOrRedirect />} />
+          <Route path="/fonts" element={<FontsShowcasePage />} />
+          <Route path="/auth" element={<PublicAuthOrRedirect />} />
+          <Route path="/*" element={<ProtectedRoutes />} />
+        </Routes>
       </AuthProvider>
     </BrowserRouter>
   );

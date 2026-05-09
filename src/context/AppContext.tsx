@@ -96,6 +96,10 @@ interface AppContextType {
   celebrationStats: CelebrationStats | null;
   triggerCelebration: (event: MilestoneEvent, stats: CelebrationStats) => void;
   dismissCelebration: () => void;
+
+  // Landing-page handoff (one-shot signal, cleared after consumption)
+  landingHandoff: { count: number } | null;
+  consumeLandingHandoff: () => void;
 }
 
 // ============================================
@@ -140,6 +144,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setCelebrationEvent(null);
     setCelebrationStats(null);
   }, []);
+
+  // Landing-page handoff signal — set by load() when we seed debts from the
+  // public calculator into a brand-new account. Dashboard consumes it to fire
+  // a one-time welcome toast.
+  const [landingHandoff, setLandingHandoff] = useState<{ count: number } | null>(null);
+  const consumeLandingHandoff = useCallback(() => setLandingHandoff(null), []);
 
   // ------------------------------------------
   // LOAD ALL DATA FROM SUPABASE ON LOGIN
@@ -274,6 +284,62 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setData(loaded);
       saveCache(loaded);
       setIsLoading(false);
+
+      // Landing-page handoff: if this account has no debts AND we have stashed
+      // landing debts in localStorage, seed them into Supabase.
+      if (loaded.debts.length === 0) {
+        try {
+          const raw = localStorage.getItem('cowculator_landing_debts');
+          if (raw) {
+            const drafts: Array<{ name: string; balance: string; apr: string; minimumPayment: string }> = JSON.parse(raw);
+            const valid = drafts.filter((d) => {
+              const b = parseFloat(d.balance);
+              const a = parseFloat(d.apr);
+              const m = parseFloat(d.minimumPayment);
+              return b > 0 && !isNaN(a) && a >= 0 && m > 0;
+            });
+            if (valid.length > 0) {
+              const now = new Date().toISOString();
+              for (const d of valid) {
+                const balance = parseFloat(d.balance);
+                const newDebt: Debt = {
+                  id: uuidv4(),
+                  name: d.name || 'Debt',
+                  category: 'credit_card',
+                  balance,
+                  originalBalance: balance,
+                  apr: parseFloat(d.apr),
+                  minimumPayment: parseFloat(d.minimumPayment),
+                  dueDay: 1,
+                  createdAt: now,
+                  updatedAt: now,
+                };
+                await supabase.from('debts').insert({
+                  id: newDebt.id,
+                  user_id: user.id,
+                  name: newDebt.name,
+                  category: newDebt.category,
+                  balance: newDebt.balance,
+                  original_balance: newDebt.originalBalance,
+                  apr: newDebt.apr,
+                  minimum_payment: newDebt.minimumPayment,
+                  due_day: newDebt.dueDay,
+                  created_at: now,
+                  updated_at: now,
+                });
+                loaded.debts.push(newDebt);
+              }
+              setData({ ...loaded });
+              saveCache(loaded);
+              localStorage.removeItem('cowculator_landing_debts');
+              localStorage.removeItem('cowculator_landing_funding');
+              setLandingHandoff({ count: valid.length });
+            }
+          }
+        } catch (err) {
+          console.warn('Landing handoff failed:', err);
+        }
+      }
     };
 
     load();
@@ -794,6 +860,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     addPaycheck, updatePaycheck, deletePaycheck,
     exportAppData, exportPaymentHistory, importAppData, clearAllData,
     celebrationEvent, celebrationStats, triggerCelebration, dismissCelebration,
+    landingHandoff, consumeLandingHandoff,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
