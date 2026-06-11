@@ -152,11 +152,30 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   }
 }
 
+/**
+ * Lifetime plans are one-time purchases — they have no Stripe subscription
+ * lifecycle. A stale subscription event for the same customer (e.g. an old
+ * monthly sub finishing its cancellation) must never downgrade them.
+ */
+async function isLifetimeRow(customerId: string): Promise<boolean> {
+  const { data } = await supabase
+    .from('user_subscriptions')
+    .select('plan_type')
+    .eq('stripe_customer_id', customerId)
+    .maybeSingle();
+  return data?.plan_type === 'lifetime';
+}
+
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   const customerId =
     typeof subscription.customer === 'string'
       ? subscription.customer
       : subscription.customer.id;
+
+  if (await isLifetimeRow(customerId)) {
+    console.log('Skipping subscription update for lifetime plan customer');
+    return;
+  }
 
   // Map Stripe status to our status
   const statusMap: Record<string, string> = {
@@ -199,6 +218,11 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
     typeof subscription.customer === 'string'
       ? subscription.customer
       : subscription.customer.id;
+
+  if (await isLifetimeRow(customerId)) {
+    console.log('Skipping subscription deletion for lifetime plan customer');
+    return;
+  }
 
   const { error } = await supabase
     .from('user_subscriptions')
