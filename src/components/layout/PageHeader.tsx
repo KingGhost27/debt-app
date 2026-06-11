@@ -28,7 +28,7 @@ export function PageHeader({
   const isSettingsPage = location.pathname === '/settings';
   return (
     <header
-      className={`page-header px-4 pt-12 pb-8 relative overflow-hidden ${
+      className={`page-header px-4 pt-12 md:pt-8 pb-8 relative overflow-hidden ${
         gradient
           ? 'bg-gradient-to-b from-primary-200 to-primary-100/50'
           : 'bg-white'
