@@ -15,6 +15,7 @@ import { useNotificationSettings } from '../hooks/useNotifications';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
+import { supabase } from '../lib/supabase';
 import { useToast } from '../components/ui/Toast';
 import { ThemeSelector } from '../components/ui/ThemeSelector';
 import { CategoryManager } from '../components/ui/CategoryManager';
@@ -70,11 +71,18 @@ export function SettingsPage() {
     if (!stripeCustomerId) return;
     setPortalLoading(true);
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        showToast('Please sign in again to manage your subscription', 'error');
+        return;
+      }
       const res = await fetch('/api/create-portal', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
         body: JSON.stringify({
-          customerId: stripeCustomerId,
           returnUrl: window.location.href,
         }),
       });

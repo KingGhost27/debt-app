@@ -13,7 +13,7 @@ import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-04-30.basil',
+  apiVersion: '2025-04-30.basil' as Stripe.LatestApiVersion,
 });
 
 // Service role client — bypasses RLS for webhook writes
@@ -61,21 +61,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       process.env.STRIPE_WEBHOOK_SECRET!
     );
   } catch (err) {
-    // Dev-only fallback: vercel dev pre-parses the body, breaking signature
-    // verification. Trust the Stripe CLI listener locally and parse from req.body.
-    if (process.env.NODE_ENV !== 'production') {
-      const body = (req as unknown as { body: unknown }).body;
-      if (body && typeof body === 'object') {
-        event = body as Stripe.Event;
-        console.warn('Webhook signature verification bypassed (dev mode)');
-      } else {
-        console.error('Webhook signature verification failed:', err);
-        return res.status(400).json({ error: 'Invalid signature' });
-      }
-    } else {
-      console.error('Webhook signature verification failed:', err);
-      return res.status(400).json({ error: 'Invalid signature' });
-    }
+    // Signature verification is unconditional in every environment.
+    // Local testing requires the Stripe CLI listener, which signs events
+    // with the webhook secret it prints on startup.
+    console.error('Webhook signature verification failed:', err);
+    return res.status(400).json({ error: 'Invalid signature' });
   }
 
   try {

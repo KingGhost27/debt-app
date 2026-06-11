@@ -9,6 +9,7 @@
 import { useState, useCallback } from 'react';
 import { X, Crown, Sparkles, Zap, Star } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { supabase } from '../../lib/supabase';
 
 interface UpgradeModalProps {
   onDismiss: () => void;
@@ -73,13 +74,18 @@ export function UpgradeModal({ onDismiss }: UpgradeModalProps) {
     setError(null);
 
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('Please sign in again to upgrade');
+      }
       const res = await fetch('/api/create-checkout', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
         body: JSON.stringify({
           plan: planId,
-          userId: user.id,
-          userEmail: user.email,
           returnUrl: window.location.origin,
         }),
       });

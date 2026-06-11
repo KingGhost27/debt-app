@@ -3,14 +3,25 @@
  *
  * Creates a checkout session for monthly, annual, or lifetime Pro plans.
  * Called from the client UpgradeModal when user selects a plan.
+ *
+ * Identity comes exclusively from the verified Supabase JWT — the client
+ * sends only the plan and an optional return URL.
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import Stripe from 'stripe';
+import { createClient } from '@supabase/supabase-js';
+import { getAuthenticatedUser } from './_lib/auth';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-04-30.basil',
+  apiVersion: '2025-04-30.basil' as Stripe.LatestApiVersion,
 });
+
+// Service role client — reuse the caller's existing Stripe customer if any
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.VITE_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 // Plan → Stripe Price ID mapping (set in Vercel env vars)
 const PRICE_MAP: Record<string, string | undefined> = {
@@ -25,15 +36,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { plan, userId, userEmail, returnUrl } = req.body as {
+    const user = await getAuthenticatedUser(req);
+    if (!user) {
+      return res.status(401).json({ error: 'Not authenticated' });
+    }
+
+    const { plan, returnUrl } = (req.body ?? {}) as {
       plan: string;
-      userId: string;
-      userEmail?: string;
       returnUrl?: string;
     };
 
-    if (!plan || !userId) {
-      return res.status(400).json({ error: 'Missing plan or userId' });
+    if (!plan) {
+      return res.status(400).json({ error: 'Missing plan' });
     }
 
     const priceId = PRICE_MAP[plan];
@@ -65,14 +79,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       safeOrigin(req.headers.origin as string | undefined) ||
       'https://cowculator.net';
 
+    // Reuse the existing Stripe customer when one exists to avoid duplicates.
+    const { data: subscription } = await supabase
+      .from('user_subscriptions')
+      .select('stripe_customer_id')
+      .eq('user_id', user.id)
+      .maybeSingle();
+    const existingCustomerId = subscription?.stripe_customer_id || undefined;
+
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       mode: isLifetime ? 'payment' : 'subscription',
       line_items: [{ price: priceId, quantity: 1 }],
       success_url: `${origin}/settings?upgraded=1`,
       cancel_url: `${origin}/settings`,
-      client_reference_id: userId,
-      metadata: { userId, plan },
-      ...(userEmail && { customer_email: userEmail }),
+      client_reference_id: user.id,
+      metadata: { userId: user.id, plan },
+      ...(existingCustomerId
+        ? { customer: existingCustomerId }
+        : user.email && { customer_email: user.email }),
     };
 
     const session = await stripe.checkout.sessions.create(sessionParams);
