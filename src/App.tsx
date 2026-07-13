@@ -4,15 +4,19 @@
  * Sets up routing and wraps the app with context providers.
  */
 
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { AppProvider, useApp } from './context/AppContext';
 import { ToastProvider } from './components/ui/Toast';
 import { Layout } from './components/layout/Layout';
+import { AuthErrorScreen } from './components/AuthErrorScreen';
 import { AuthPage } from './pages/AuthPage';
 import { LandingPage } from './pages/LandingPage';
-import { FontsShowcasePage } from './pages/FontsShowcasePage';
+// Dev-only font lab — lazy so its Google Fonts loader never ships in the prod bundle
+const FontsShowcasePage = lazy(() =>
+  import('./pages/FontsShowcasePage').then((m) => ({ default: m.FontsShowcasePage }))
+);
 import { OnboardingPage } from './pages/OnboardingPage';
 import { HomePage } from './pages/HomePage';
 import { DebtsPage } from './pages/DebtsPage';
@@ -123,15 +127,16 @@ function PublicLandingOrRedirect() {
 }
 
 function PublicAuthOrRedirect() {
-  const { user, isLoading, isPasswordRecovery } = useAuth();
+  const { user, isLoading, authError, isPasswordRecovery } = useAuth();
   if (isLoading) return null;
   if (isPasswordRecovery) return <ResetPasswordPage />;
+  if (authError && !user) return <AuthErrorScreen />;
   if (user) return <Navigate to="/dashboard" replace />;
   return <AuthPage />;
 }
 
 function ProtectedRoutes() {
-  const { user, isLoading, isPasswordRecovery } = useAuth();
+  const { user, isLoading, authError, isPasswordRecovery } = useAuth();
 
   if (isLoading) {
     return (
@@ -146,6 +151,10 @@ function ProtectedRoutes() {
 
   if (isPasswordRecovery) {
     return <ResetPasswordPage />;
+  }
+
+  if (authError && !user) {
+    return <AuthErrorScreen />;
   }
 
   if (!user) {
@@ -167,7 +176,17 @@ function App() {
       <AuthProvider>
         <Routes>
           <Route path="/" element={<PublicLandingOrRedirect />} />
-          <Route path="/fonts" element={<FontsShowcasePage />} />
+          {/* Dev-only font lab — loads candidate fonts from Google; must not ship to prod (self-hosted fonts only) */}
+          {import.meta.env.DEV && (
+            <Route
+              path="/fonts"
+              element={
+                <Suspense fallback={null}>
+                  <FontsShowcasePage />
+                </Suspense>
+              }
+            />
+          )}
           <Route path="/auth" element={<PublicAuthOrRedirect />} />
           <Route path="/*" element={<ProtectedRoutes />} />
         </Routes>

@@ -283,7 +283,7 @@ export function LandingPage() {
             <DebtsyCow size={36} animated />
             <span
               className="text-2xl font-bold tracking-tight transition-colors"
-              style={{ fontFamily: '"Bagel Fat One", "Fredoka", system-ui, sans-serif', color: theme.primary700 }}
+              style={{ fontFamily: '"Bagel Fat One", "Fredoka", "Bagel Fat One Fallback", "Fredoka Fallback", system-ui, sans-serif', color: theme.primary700 }}
             >
               Cowculator
             </span>
@@ -328,7 +328,7 @@ export function LandingPage() {
               </div>
               <h1
                 className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-[1.05] tracking-tight"
-                style={{ fontFamily: '"Bagel Fat One", "Fredoka", system-ui, sans-serif', color: '#1e1b4b' }}
+                style={{ fontFamily: '"Bagel Fat One", "Fredoka", "Bagel Fat One Fallback", "Fredoka Fallback", system-ui, sans-serif', color: '#1e1b4b' }}
               >
                 Free debt payoff{' '}
                 <span style={{ color: theme.primary600 }}>calculator</span>
@@ -340,14 +340,14 @@ export function LandingPage() {
               <div className="mt-7 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
                 <a
                   href="#calculator"
-                  className="px-7 py-3.5 rounded-full text-white font-semibold text-base shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all"
+                  className="px-7 py-3.5 rounded-full text-white font-semibold text-base whitespace-nowrap shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all"
                   style={{ backgroundColor: theme.primary600 }}
                 >
                   Try the Cowculator
                 </a>
                 <button
                   onClick={() => navigate('/auth')}
-                  className="px-7 py-3.5 rounded-full bg-white/80 text-slate-800 font-semibold text-base border border-white shadow-sm hover:bg-white transition-all"
+                  className="px-7 py-3.5 rounded-full bg-white/80 text-slate-800 font-semibold text-base whitespace-nowrap border border-white shadow-sm hover:bg-white transition-all"
                 >
                   Save my plan — free
                 </button>
@@ -379,7 +379,7 @@ export function LandingPage() {
                   <div>
                     <p
                       className="text-5xl sm:text-6xl font-bold tracking-tight"
-                      style={{ fontFamily: '"Bagel Fat One", "Fredoka", system-ui, sans-serif', color: theme.primary700 }}
+                      style={{ fontFamily: '"Bagel Fat One", "Fredoka", "Bagel Fat One Fallback", "Fredoka Fallback", system-ui, sans-serif', color: theme.primary700 }}
                     >
                       {formatDate(avalanchePlan.debtFreeDate)}
                     </p>
@@ -430,7 +430,7 @@ export function LandingPage() {
             ].map((b) => (
               <div key={b.title} className="px-4">
                 <div className="text-4xl mb-2">{b.icon}</div>
-                <h3 className="font-bold text-slate-900 text-base" style={{ fontFamily: '"Bagel Fat One", "Fredoka", system-ui, sans-serif' }}>
+                <h3 className="font-bold text-slate-900 text-base" style={{ fontFamily: '"Bagel Fat One", "Fredoka", "Bagel Fat One Fallback", "Fredoka Fallback", system-ui, sans-serif' }}>
                   {b.title}
                 </h3>
                 <p className="mt-1 text-sm text-slate-600 leading-relaxed">{b.desc}</p>
@@ -447,7 +447,7 @@ export function LandingPage() {
           <div className="text-center mb-10">
             <h2
               className="text-3xl sm:text-5xl font-bold tracking-tight"
-              style={{ fontFamily: '"Bagel Fat One", "Fredoka", system-ui, sans-serif', color: '#1e1b4b' }}
+              style={{ fontFamily: '"Bagel Fat One", "Fredoka", "Bagel Fat One Fallback", "Fredoka Fallback", system-ui, sans-serif', color: '#1e1b4b' }}
             >
               Run the numbers
             </h2>
@@ -461,7 +461,7 @@ export function LandingPage() {
             <div className="lg:col-span-3">
               <div className="rounded-3xl bg-white shadow-xl border border-slate-100 p-5 sm:p-7">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-bold text-lg text-slate-900" style={{ fontFamily: '"Bagel Fat One", "Fredoka", system-ui, sans-serif' }}>
+                  <h3 className="font-bold text-lg text-slate-900" style={{ fontFamily: '"Bagel Fat One", "Fredoka", "Bagel Fat One Fallback", "Fredoka Fallback", system-ui, sans-serif' }}>
                     Your debts
                   </h3>
                   <span className="text-xs text-slate-500 font-medium">{debts.length} / 5</span>
@@ -562,7 +562,7 @@ export function LandingPage() {
                       <ComparisonRow label="Avalanche" plan={avalanchePlan} />
                       <div className="pt-3 border-t border-white/20">
                         <p className="text-xs text-white/70 uppercase tracking-wider font-semibold">Avalanche saves you</p>
-                        <p className="text-3xl font-bold mt-1" style={{ fontFamily: '"Bagel Fat One", "Fredoka", system-ui, sans-serif' }}>
+                        <p className="text-3xl font-bold mt-1" style={{ fontFamily: '"Bagel Fat One", "Fredoka", "Bagel Fat One Fallback", "Fredoka Fallback", system-ui, sans-serif' }}>
                           {formatCurrency(Math.max(0, snowballPlan.totalInterest - avalanchePlan.totalInterest))}
                         </p>
                         <p className="text-xs text-white/70 mt-1">in interest, vs snowball</p>
@@ -601,7 +601,7 @@ export function LandingPage() {
         <div className="mx-auto max-w-4xl px-4 sm:px-6">
           <h2
             className="text-3xl sm:text-5xl font-bold tracking-tight text-center"
-            style={{ fontFamily: '"Bagel Fat One", "Fredoka", system-ui, sans-serif', color: '#1e1b4b' }}
+            style={{ fontFamily: '"Bagel Fat One", "Fredoka", "Bagel Fat One Fallback", "Fredoka Fallback", system-ui, sans-serif', color: '#1e1b4b' }}
           >
             Snowball vs Avalanche — what's the difference?
           </h2>
@@ -613,7 +613,7 @@ export function LandingPage() {
           <div className="mt-10 grid md:grid-cols-2 gap-6">
             <article className="rounded-3xl bg-white border border-slate-100 shadow-md p-6 sm:p-7">
               <div className="text-3xl mb-3">⛄</div>
-              <h3 className="text-2xl font-bold text-slate-900" style={{ fontFamily: '"Bagel Fat One", "Fredoka", system-ui, sans-serif' }}>
+              <h3 className="text-2xl font-bold text-slate-900" style={{ fontFamily: '"Bagel Fat One", "Fredoka", "Bagel Fat One Fallback", "Fredoka Fallback", system-ui, sans-serif' }}>
                 Snowball
               </h3>
               <p className="mt-1 text-sm font-semibold" style={{ color: theme.primary600 }}>Smallest balance first</p>
@@ -628,7 +628,7 @@ export function LandingPage() {
 
             <article className="rounded-3xl bg-white border border-slate-100 shadow-md p-6 sm:p-7">
               <div className="text-3xl mb-3">🏔️</div>
-              <h3 className="text-2xl font-bold text-slate-900" style={{ fontFamily: '"Bagel Fat One", "Fredoka", system-ui, sans-serif' }}>
+              <h3 className="text-2xl font-bold text-slate-900" style={{ fontFamily: '"Bagel Fat One", "Fredoka", "Bagel Fat One Fallback", "Fredoka Fallback", system-ui, sans-serif' }}>
                 Avalanche
               </h3>
               <p className="mt-1 text-sm font-semibold" style={{ color: theme.primary600 }}>Highest APR first</p>
@@ -657,7 +657,7 @@ export function LandingPage() {
         <div className="mx-auto max-w-3xl px-4 sm:px-6">
           <h2
             className="text-3xl sm:text-5xl font-bold tracking-tight text-center"
-            style={{ fontFamily: '"Bagel Fat One", "Fredoka", system-ui, sans-serif', color: '#1e1b4b' }}
+            style={{ fontFamily: '"Bagel Fat One", "Fredoka", "Bagel Fat One Fallback", "Fredoka Fallback", system-ui, sans-serif', color: '#1e1b4b' }}
           >
             Questions?
           </h2>
@@ -693,7 +693,7 @@ export function LandingPage() {
           </div>
           <h2
             className="text-3xl sm:text-5xl font-bold tracking-tight"
-            style={{ fontFamily: '"Bagel Fat One", "Fredoka", system-ui, sans-serif', color: '#1e1b4b' }}
+            style={{ fontFamily: '"Bagel Fat One", "Fredoka", "Bagel Fat One Fallback", "Fredoka Fallback", system-ui, sans-serif', color: '#1e1b4b' }}
           >
             Your debt-free date is closer than you think.
           </h2>
@@ -725,7 +725,7 @@ export function LandingPage() {
             <DebtsyCow size={28} animated={false} />
             <span
               className="font-bold"
-              style={{ fontFamily: '"Bagel Fat One", "Fredoka", system-ui, sans-serif', color: theme.primary800 }}
+              style={{ fontFamily: '"Bagel Fat One", "Fredoka", "Bagel Fat One Fallback", "Fredoka Fallback", system-ui, sans-serif', color: theme.primary800 }}
             >
               Cowculator
             </span>
@@ -793,7 +793,7 @@ function ComparisonRow({ label, plan, accent }: { label: string; plan: { debtFre
   return (
     <div className={`rounded-2xl p-4 ${accent ? 'bg-white/15' : 'bg-white/10'}`}>
       <p className="text-xs uppercase tracking-wider font-semibold opacity-80">{label}</p>
-      <p className="text-2xl font-bold mt-1" style={{ fontFamily: '"Bagel Fat One", "Fredoka", system-ui, sans-serif' }}>
+      <p className="text-2xl font-bold mt-1" style={{ fontFamily: '"Bagel Fat One", "Fredoka", "Bagel Fat One Fallback", "Fredoka Fallback", system-ui, sans-serif' }}>
         {formatDate(plan.debtFreeDate)}
       </p>
       <p className="text-xs opacity-80 mt-1">{formatCurrency(plan.totalInterest)} total interest</p>
@@ -806,7 +806,7 @@ function SinglePlanView({ plan }: { plan: { debtFreeDate: string; totalInterest:
     <div className="space-y-4">
       <div>
         <p className="text-xs uppercase tracking-wider font-semibold opacity-80">Debt free</p>
-        <p className="text-4xl font-bold mt-1" style={{ fontFamily: '"Bagel Fat One", "Fredoka", system-ui, sans-serif' }}>
+        <p className="text-4xl font-bold mt-1" style={{ fontFamily: '"Bagel Fat One", "Fredoka", "Bagel Fat One Fallback", "Fredoka Fallback", system-ui, sans-serif' }}>
           {formatDate(plan.debtFreeDate)}
         </p>
       </div>

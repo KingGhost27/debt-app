@@ -1,5 +1,21 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Quicksand:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
+
+/* Metric-matched fallbacks (B3/B4): if a self-hosted font ever fails to apply,
+   size-adjusted system fallbacks keep hero/headings from overlapping and avoid CLS. */
+@font-face {
+  font-family: 'Bagel Fat One Fallback';
+  src: local('Arial'), local('Liberation Sans');
+  size-adjust: 112%;
+  ascent-override: 95%;
+  descent-override: 25%;
+}
+@font-face {
+  font-family: 'Fredoka Fallback';
+  src: local('Arial'), local('Liberation Sans');
+  size-adjust: 107%;
+  ascent-override: 97%;
+  descent-override: 24%;
+}
 
 /* Use class-based dark mode to match the app's .dark class toggle */
 @custom-variant dark (&:where(.dark, .dark *));
