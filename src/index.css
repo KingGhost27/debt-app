@@ -21,6 +21,36 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /*
+ * Safe-area utilities.
+ *
+ * index.html sets `viewport-fit=cover`, which extends the page under the device's
+ * system UI — the Android gesture bar, the iOS home indicator, and display cutouts.
+ * Without these, the fixed bottom nav sits UNDERNEATH the gesture bar and becomes
+ * partly untappable on most modern phones.
+ *
+ * `pb-safe` was already in use on BottomNav but had never been defined anywhere, so it
+ * compiled to nothing: `env(safe-area-inset-*)` appeared zero times in the built CSS.
+ * These are the real implementations. Matters most for the Play Store TWA build, where
+ * the app runs full-bleed with no browser chrome to absorb the inset.
+ */
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+@utility pl-safe {
+  padding-left: env(safe-area-inset-left, 0px);
+}
+@utility pr-safe {
+  padding-right: env(safe-area-inset-right, 0px);
+}
+/* Additive variant: keeps an existing padding and adds the inset on top. */
+@utility pb-safe-plus {
+  padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
+}
+
+/*
  * Kawaii Design System
  * A delightful, cute, and customizable theme for making finance fun!
  * Features: Soft pastels, playful animations, decorative patterns

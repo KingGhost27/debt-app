@@ -22,6 +22,7 @@ import { CategoryManager } from '../components/ui/CategoryManager';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { useConfirmDialog } from '../hooks/useConfirmDialog';
 import { DeleteAccountSection } from '../components/settings/DeleteAccountSection';
+import { isRunningInTwa } from '../lib/twa';
 
 export function SettingsPage() {
   const navigate = useNavigate();
@@ -37,6 +38,8 @@ export function SettingsPage() {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const { isPro, planType, stripeCustomerId, currentPeriodEnd, cancelAtPeriodEnd, isLoading: subLoading, refetch: refetchSubscription } = useSubscription();
   const [portalLoading, setPortalLoading] = useState(false);
+  // Play consumption-only: no purchase or checkout link-out inside the Android wrapper.
+  const inTwa = isRunningInTwa();
   const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
@@ -315,7 +318,9 @@ export function SettingsPage() {
                   Canceling
                 </span>
               )}
-              {stripeCustomerId && planType !== 'lifetime' && (
+              {/* The billing portal is a link out to Stripe — not permitted inside the
+                  Play-distributed wrapper under the consumption-only exception. */}
+              {stripeCustomerId && planType !== 'lifetime' && !inTwa && (
                 <button
                   onClick={handleManageSubscription}
                   disabled={portalLoading}
@@ -323,6 +328,13 @@ export function SettingsPage() {
                 >
                   {portalLoading ? '...' : 'Manage'}
                 </button>
+              )}
+              {stripeCustomerId && planType !== 'lifetime' && inTwa && (
+                <span className="text-[10px] text-gray-400 flex-shrink-0 text-right leading-tight">
+                  Manage at
+                  <br />
+                  cowculator.net
+                </span>
               )}
             </div>
           ) : (
@@ -332,14 +344,18 @@ export function SettingsPage() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-bold text-gray-900 leading-tight">Free plan</p>
-                <p className="text-[10px] text-gray-500 leading-tight">Unlock unlimited debts + all themes</p>
+                <p className="text-[10px] text-gray-500 leading-tight">
+                  {inTwa ? 'Pro is managed on cowculator.net' : 'Unlock unlimited debts + all themes'}
+                </p>
               </div>
-              <button
-                onClick={() => setShowUpgradeModal(true)}
-                className="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-gradient-to-r from-amber-400 to-yellow-500 text-white hover:from-amber-500 hover:to-yellow-600 shadow-sm shadow-amber-300/30 transition-all flex-shrink-0"
-              >
-                Upgrade
-              </button>
+              {!inTwa && (
+                <button
+                  onClick={() => setShowUpgradeModal(true)}
+                  className="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-gradient-to-r from-amber-400 to-yellow-500 text-white hover:from-amber-500 hover:to-yellow-600 shadow-sm shadow-amber-300/30 transition-all flex-shrink-0"
+                >
+                  Upgrade
+                </button>
+              )}
             </div>
           )}
         </div>

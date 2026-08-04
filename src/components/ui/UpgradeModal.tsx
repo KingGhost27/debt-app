@@ -10,6 +10,7 @@ import { useState, useCallback } from 'react';
 import { X, Crown, Sparkles, Zap, Star } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
+import { isRunningInTwa } from '../../lib/twa';
 
 interface UpgradeModalProps {
   onDismiss: () => void;
@@ -67,8 +68,13 @@ export function UpgradeModal({ onDismiss }: UpgradeModalProps) {
   const { user } = useAuth();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // Play consumption-only: no purchase flow inside the Android wrapper.
+  const inTwa = isRunningInTwa();
 
   const handleSelectPlan = useCallback(async (planId: string) => {
+    // Defence in depth — the plan buttons are not rendered in the TWA, but if a future
+    // change reintroduces a caller, checkout must still refuse to start there.
+    if (isRunningInTwa()) return;
     if (!user) return;
     setLoadingPlan(planId);
     setError(null);
@@ -148,7 +154,33 @@ export function UpgradeModal({ onDismiss }: UpgradeModalProps) {
           </div>
         </div>
 
-        {/* Plan cards — clearly separated buttons */}
+        {/*
+          Google Play consumption-only compliance: inside the Android wrapper we may not
+          present a purchase flow, and may not link out to one. Plain text only — the
+          absence of a tappable path to checkout is the point, so do not "helpfully" turn
+          cowculator.net into a link here.
+        */}
+        {inTwa ? (
+          <div className="px-4 py-4">
+            <p className="text-sm text-gray-700 leading-relaxed">
+              Pro is managed on the Cowculator website. Visit{' '}
+              <span className="font-semibold text-gray-900">cowculator.net</span> in your
+              browser to see plans.
+            </p>
+            <p className="text-xs text-gray-500 mt-2 leading-relaxed">
+              Already have Pro? Sign in here with the same account and your features unlock
+              automatically.
+            </p>
+            <button
+              type="button"
+              onClick={onDismiss}
+              className="mt-4 w-full py-2.5 rounded-xl bg-primary-500 hover:bg-primary-600 text-white text-sm font-bold transition-colors"
+            >
+              Got it
+            </button>
+          </div>
+        ) : (
+        /* Plan cards — clearly separated buttons */
         <div className="px-4 py-3 space-y-2">
           {PLANS.map((plan) => (
             <button
@@ -204,9 +236,10 @@ export function UpgradeModal({ onDismiss }: UpgradeModalProps) {
             </button>
           ))}
         </div>
+        )}
 
         {/* Error */}
-        {error && (
+        {error && !inTwa && (
           <div className="px-4 pb-2">
             <p className="text-[10px] text-red-500 text-center">{error}</p>
           </div>
