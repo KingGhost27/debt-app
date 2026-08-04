@@ -18,7 +18,7 @@ import {
   sortDebtsByStrategy,
   calculateTotalMonthlyIncome,
 } from '../lib/calculations';
-import type { PayoffStrategy } from '../types';
+import type { PayoffPlan, PayoffStrategy } from '../types';
 
 export function PlanPage() {
   const { debts, strategy, budget, updateStrategy, updateBudget } = useApp();
@@ -65,6 +65,7 @@ export function PlanPage() {
   );
 
   const debtFreeDate = plan.debtFreeDate ? parseISO(plan.debtFreeDate) : null;
+  const showStalledPlanWarning = plan.neverPaysOff && plan.stalledDebts.length > 0;
   const [budgetOpen, setBudgetOpen] = useState(false);
   const budgetRef = useRef<HTMLDivElement>(null);
   const [extraModalOpen, setExtraModalOpen] = useState(false);
@@ -165,7 +166,9 @@ export function PlanPage() {
         )}
 
         {/* Debt-Free Countdown */}
-        {debtFreeDate && (
+        {showStalledPlanWarning ? (
+          <StalledPlanWarning stalledDebts={plan.stalledDebts} className="mb-6" />
+        ) : debtFreeDate ? (
           <div className="card bg-gradient-to-r from-primary-600 to-primary-500 text-white mb-6 rounded-3xl shadow-lg shadow-primary-400/30 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3 min-w-0">
               <Clock size={18} className="text-primary-200 flex-shrink-0" />
@@ -179,7 +182,7 @@ export function PlanPage() {
               <p className="text-primary-200 text-xs">in interest</p>
             </div>
           </div>
-        )}
+        ) : null}
 
         {/* Main content: Budget sidebar + Plan steps */}
         {/* Mobile: Budget toggle first (configure → see result flow), then steps */}
@@ -226,7 +229,9 @@ export function PlanPage() {
             <PayoffSteps plan={plan} sortedDebts={sortedDebts} />
 
             {/* Debt-free celebration */}
-            {debtFreeDate && (
+            {showStalledPlanWarning ? (
+              <StalledPlanWarning stalledDebts={plan.stalledDebts} />
+            ) : debtFreeDate ? (
               <div className="card bg-gradient-to-br from-green-50 to-primary-50 dark:from-green-900/30 dark:to-primary-900/20 border border-green-200 rounded-3xl relative overflow-hidden">
                 {/* Decorative sparkles */}
                 <Sparkles size={14} className="absolute top-4 right-6 text-green-300 animate-kawaii-pulse" />
@@ -244,7 +249,7 @@ export function PlanPage() {
                   <p className="text-gray-600">{format(debtFreeDate, 'MMMM d, yyyy')}</p>
                 </div>
               </div>
-            )}
+            ) : null}
           </div>
         </div>
       </div>
@@ -321,6 +326,45 @@ export function PlanPage() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function StalledPlanWarning({
+  stalledDebts,
+  className = '',
+}: {
+  stalledDebts: PayoffPlan['stalledDebts'];
+  className?: string;
+}) {
+  const rankedDebts = [...stalledDebts].sort(
+    (a, b) => b.minimumNeeded - a.minimumNeeded
+  );
+
+  return (
+    <div
+      role="alert"
+      className={`card bg-gradient-to-r from-amber-50 to-red-50 dark:from-amber-900/20 dark:to-red-900/10 border border-amber-200 dark:border-amber-700/30 rounded-3xl ${className}`.trim()}
+    >
+      <div className="flex items-start gap-4">
+        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center flex-shrink-0 shadow-md shadow-amber-300/30">
+          <DollarSign size={20} className="text-white" />
+        </div>
+        <div className="min-w-0">
+          <p className="font-semibold text-gray-900 dark:text-amber-50">
+            This payment plan never pays off.
+          </p>
+          <div className="mt-2 space-y-1">
+            {rankedDebts.map((debt) => (
+              <p key={debt.debtId} className="text-sm text-amber-900 dark:text-amber-100">
+                <span className="font-semibold">{debt.debtName}</span> charges{' '}
+                <span className="font-semibold">{formatCurrency(debt.minimumNeeded)}/mo</span>{' '}
+                in interest alone — you have to pay more than that before the balance moves at all.
+              </p>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

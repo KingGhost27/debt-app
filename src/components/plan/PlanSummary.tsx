@@ -31,8 +31,17 @@ export function PlanSummary({
     : null;
 
   // Determine which is better for each metric (lower is better)
-  const betterTime =
-    avalanchePlan.debtFreeDate <= snowballPlan.debtFreeDate ? 'avalanche' : 'snowball';
+  const betterTime: PayoffStrategy = (() => {
+    if (avalanchePlan.debtFreeDate && snowballPlan.debtFreeDate) {
+      return avalanchePlan.debtFreeDate <= snowballPlan.debtFreeDate
+        ? 'avalanche'
+        : 'snowball';
+    }
+    if (avalanchePlan.debtFreeDate) return 'avalanche';
+    if (snowballPlan.debtFreeDate) return 'snowball';
+    // Both plans stall, so there is no meaningful time winner.
+    return 'avalanche';
+  })();
   const betterInterest =
     avalanchePlan.totalInterest <= snowballPlan.totalInterest ? 'avalanche' : 'snowball';
   const betterTotal =

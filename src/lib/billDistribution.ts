@@ -201,6 +201,8 @@ export function generateSuggestions(
   }
 
   // For each overloaded period, suggest moving bills to underloaded periods
+  const simulatedLoads = new Map(payPeriods.map((period) => [period, period.totalAmount]));
+
   overloaded.forEach((period) => {
     const sortedBills = [...period.bills].sort(
       (a, b) => a.minimumPayment - b.minimumPayment
@@ -212,7 +214,7 @@ export function generateSuggestions(
       if (amountToMove <= 0) return;
 
       const targetPeriod = underloaded.find(
-        (p) => p.totalAmount + bill.minimumPayment <= avgAmount * 1.1
+        (p) => (simulatedLoads.get(p) ?? p.totalAmount) + bill.minimumPayment <= avgAmount * 1.1
       );
 
       if (targetPeriod) {
@@ -231,7 +233,10 @@ export function generateSuggestions(
         });
 
         amountToMove -= bill.minimumPayment;
-        targetPeriod.totalAmount += bill.minimumPayment;
+        simulatedLoads.set(
+          targetPeriod,
+          (simulatedLoads.get(targetPeriod) ?? targetPeriod.totalAmount) + bill.minimumPayment
+        );
       }
     });
   });

@@ -60,7 +60,9 @@ export function DebtPayoffTimeline({ timeline }: DebtPayoffTimelineProps) {
                   <p className="text-xs text-gray-500 dark:text-gray-400">
                     {entry.isCompleted
                       ? 'Paid off!'
-                      : `${format(parseISO(entry.payoffDate), 'MMM yyyy')} · ${formatCurrency(entry.currentBalance)} left`
+                      : entry.payoffDate
+                        ? `${format(parseISO(entry.payoffDate), 'MMM yyyy')} · ${formatCurrency(entry.currentBalance)} left`
+                        : `Plan stalls · ${formatCurrency(entry.currentBalance)} left`
                     }
                   </p>
                 </div>

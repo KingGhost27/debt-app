@@ -91,11 +91,18 @@ export function useMilestoneDetection({
     const streakMonths = streakData.consecutiveMonths;
 
     // Payoff date from plan
-    let debtFreeDate = 'Unknown';
+    let debtFreeDate: string | null = null;
     try {
       const plan = generatePayoffPlan(debts, strategy);
       debtFreeDate = plan.debtFreeDate;
-    } catch {}
+    } catch (error) {
+      console.error('Failed to generate payoff plan during milestone detection.', {
+        error,
+        strategy: strategy.strategy,
+        debtCount: debts.length,
+        debtIds: debts.map((debt) => debt.id),
+      });
+    }
 
     const stats: CelebrationStats = {
       userName,

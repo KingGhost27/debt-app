@@ -12,7 +12,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import { generatePayoffPlan } from '../lib/calculations';
-import type { Debt, ThemePreset } from '../types';
+import type { Debt, PayoffPlan, ThemePreset } from '../types';
 import {
   LunaBunny,
   BooBoo,
@@ -105,7 +105,8 @@ function formatCurrency(n: number): string {
   return n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
 }
 
-function formatDate(iso: string): string {
+function formatDate(iso: string | null): string {
+  if (!iso) return 'Never pays off';
   const d = new Date(iso + 'T00:00:00');
   return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 }
@@ -789,7 +790,9 @@ function NumberField({
   );
 }
 
-function ComparisonRow({ label, plan, accent }: { label: string; plan: { debtFreeDate: string; totalInterest: number }; accent?: boolean }) {
+type LandingPlanPreview = Pick<PayoffPlan, 'debtFreeDate' | 'totalInterest' | 'totalPayments'>;
+
+function ComparisonRow({ label, plan, accent }: { label: string; plan: LandingPlanPreview; accent?: boolean }) {
   return (
     <div className={`rounded-2xl p-4 ${accent ? 'bg-white/15' : 'bg-white/10'}`}>
       <p className="text-xs uppercase tracking-wider font-semibold opacity-80">{label}</p>
@@ -801,7 +804,7 @@ function ComparisonRow({ label, plan, accent }: { label: string; plan: { debtFre
   );
 }
 
-function SinglePlanView({ plan }: { plan: { debtFreeDate: string; totalInterest: number; totalPayments: number } }) {
+function SinglePlanView({ plan }: { plan: LandingPlanPreview }) {
   return (
     <div className="space-y-4">
       <div>

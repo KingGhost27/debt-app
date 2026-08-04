@@ -241,9 +241,15 @@ export interface PayoffStep {
 }
 
 export interface PayoffPlan {
-  debtFreeDate: string;            // When all debts are paid
+  debtFreeDate: string | null;     // When all debts are paid
   totalPayments: number;           // Total amount paid
   totalInterest: number;           // Total interest paid
+  neverPaysOff: boolean;
+  stalledDebts: {
+    debtId: string;
+    debtName: string;
+    minimumNeeded: number;
+  }[];
   steps: PayoffStep[];
   monthlyBreakdown: MonthlyPayment[];
 }

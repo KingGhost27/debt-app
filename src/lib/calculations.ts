@@ -124,7 +124,7 @@ export function generateAmortization(
   debt: Debt,
   monthlyPayment: number,
   startDate: Date = new Date()
-): AmortizationRow[] {
+): AmortizationRow[] & { neverPaysOff: boolean; minimumNeeded: number | null } {
   const schedule: AmortizationRow[] = [];
   let balance = debt.balance;
   let currentDate = startDate;
@@ -150,7 +150,19 @@ export function generateAmortization(
     currentDate = addMonths(currentDate, 1);
   }
 
-  return schedule;
+  const neverPaysOff = balance > 0.01;
+  // Interest on the debt's CURRENT balance, not the loop's balance. On a negatively
+  // amortizing debt the loop balance balloons over 360 months, so quoting interest on
+  // it would show a number thousands of times too large.
+  const minimumNeeded = neverPaysOff
+    ? round(calculateMonthlyInterest(debt.balance, debt.apr))
+    : null;
+
+  // The harness and existing callers index into this as a plain array, so the metadata rides on the array object.
+  return Object.assign(schedule, {
+    neverPaysOff,
+    minimumNeeded,
+  });
 }
 
 /**
@@ -160,7 +172,13 @@ export function calculatePayoffDate(
   debt: Debt,
   monthlyPayment: number,
   startDate: Date = new Date()
-): { date: Date; months: number; totalInterest: number } {
+): {
+  date: Date;
+  months: number;
+  totalInterest: number;
+  neverPaysOff: boolean;
+  minimumNeeded: number | null;
+} {
   let balance = debt.balance;
   let months = 0;
   let totalInterest = 0;
@@ -176,10 +194,17 @@ export function calculatePayoffDate(
     months++;
   }
 
+  const neverPaysOff = balance > 0.01;
+
   return {
     date: addMonths(startDate, months),
     months,
     totalInterest: round(totalInterest),
+    neverPaysOff,
+    // Interest on the debt's CURRENT balance — see generateAmortization for why not `balance`.
+    minimumNeeded: neverPaysOff
+      ? round(calculateMonthlyInterest(debt.balance, debt.apr))
+      : null,
   };
 }
 
@@ -224,6 +249,8 @@ export function generatePayoffPlan(
       debtFreeDate: format(startDate, 'yyyy-MM-dd'),
       totalPayments: 0,
       totalInterest: 0,
+      neverPaysOff: false,
+      stalledDebts: [],
       steps: [],
       monthlyBreakdown: [],
     };
@@ -234,12 +261,6 @@ export function generatePayoffPlan(
   const sortedPriority = sortDebtsByStrategy(debts, settings.strategy);
 
   const monthlyFunding = settings.recurringFunding.amount;
-  const totalMinimums = debts.reduce((sum, d) => sum + d.minimumPayment, 0);
-
-  // If funding is less than minimums, we can't make progress
-  if (monthlyFunding < totalMinimums) {
-    console.warn('Monthly funding is less than total minimum payments');
-  }
 
   const steps: PayoffStep[] = [];
   const monthlyBreakdown: MonthlyPayment[] = [];
@@ -360,10 +381,21 @@ export function generatePayoffPlan(
     steps.push(currentStep);
   }
 
+  const neverPaysOff = activeDebts.length > 0;
+  const stalledDebts = neverPaysOff
+    ? activeDebts.map((debt) => ({
+        debtId: debt.id,
+        debtName: debt.name,
+        minimumNeeded: round(calculateMonthlyInterest(debt.balance, debt.apr)),
+      }))
+    : [];
+
   return {
-    debtFreeDate: format(addMonths(currentDate, -1), 'yyyy-MM-dd'),
+    debtFreeDate: neverPaysOff ? null : format(addMonths(currentDate, -1), 'yyyy-MM-dd'),
     totalPayments: round(totalPayments),
     totalInterest: round(totalInterest),
+    neverPaysOff,
+    stalledDebts,
     steps,
     monthlyBreakdown,
   };

@@ -24,7 +24,7 @@ export interface OverallMilestone {
 export interface DebtTimelineEntry {
   debtId: string;
   debtName: string;
-  payoffDate: string;
+  payoffDate: string | null;
   currentBalance: number;
   originalBalance: number;
   percentPaid: number;
@@ -115,7 +115,7 @@ export function computeDebtPayoffTimeline(
       return {
         debtId: debt.id,
         debtName: debt.name,
-        payoffDate: milestone?.payoffDate || plan.debtFreeDate,
+        payoffDate: milestone?.payoffDate ?? plan.debtFreeDate,
         currentBalance: debt.balance,
         originalBalance: debt.originalBalance,
         percentPaid,
@@ -125,7 +125,10 @@ export function computeDebtPayoffTimeline(
     .sort((a, b) => {
       // Completed debts first, then by payoff date
       if (a.isCompleted !== b.isCompleted) return a.isCompleted ? -1 : 1;
-      return a.payoffDate.localeCompare(b.payoffDate);
+      if (a.payoffDate && b.payoffDate) return a.payoffDate.localeCompare(b.payoffDate);
+      if (a.payoffDate) return -1;
+      if (b.payoffDate) return 1;
+      return a.debtName.localeCompare(b.debtName);
     });
 }
 

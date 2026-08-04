@@ -35,6 +35,6 @@ export interface CelebrationStats {
   totalPaid: number;
   percentPaid: number;
   interestSaved: number;
-  debtFreeDate: string;
+  debtFreeDate: string | null;
   paidOffDebtName?: string;
 }
