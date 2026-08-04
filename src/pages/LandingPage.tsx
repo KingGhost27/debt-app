@@ -750,6 +750,20 @@ export function LandingPage() {
             >
               FAQ
             </a>
+            <a
+              href="/privacy"
+              className="font-medium transition-opacity hover:opacity-70"
+              style={{ color: theme.primary700 }}
+            >
+              Privacy
+            </a>
+            <a
+              href="/terms"
+              className="font-medium transition-opacity hover:opacity-70"
+              style={{ color: theme.primary700 }}
+            >
+              Terms
+            </a>
           </div>
         </div>
       </footer>

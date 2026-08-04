@@ -13,6 +13,8 @@ import { Layout } from './components/layout/Layout';
 import { AuthErrorScreen } from './components/AuthErrorScreen';
 import { AuthPage } from './pages/AuthPage';
 import { LandingPage } from './pages/LandingPage';
+import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
+import { TermsPage } from './pages/TermsPage';
 // Dev-only font lab — lazy so its Google Fonts loader never ships in the prod bundle
 const FontsShowcasePage = lazy(() =>
   import('./pages/FontsShowcasePage').then((m) => ({ default: m.FontsShowcasePage }))
@@ -188,6 +190,13 @@ function App() {
             />
           )}
           <Route path="/auth" element={<PublicAuthOrRedirect />} />
+          {/*
+            Legal pages are public and must render without an auth check. Google Play
+            fetches the privacy policy URL while signed out during review; putting these
+            behind ProtectedRoutes would fail that check.
+          */}
+          <Route path="/privacy" element={<PrivacyPolicyPage />} />
+          <Route path="/terms" element={<TermsPage />} />
           <Route path="/*" element={<ProtectedRoutes />} />
         </Routes>
       </AuthProvider>

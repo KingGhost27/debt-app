@@ -268,6 +268,22 @@ export function SettingsPage() {
                 Sign Out
               </button>
             </div>
+
+            {/* Legal — must stay reachable in-app for app store review */}
+            <div className="flex items-center gap-4 pt-3 border-t border-gray-100 dark:border-gray-800 text-xs">
+              <a
+                href="/privacy"
+                className="text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+              >
+                Privacy Policy
+              </a>
+              <a
+                href="/terms"
+                className="text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+              >
+                Terms of Service
+              </a>
+            </div>
           </div>
         </div>
 
