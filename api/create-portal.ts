@@ -11,7 +11,12 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
-import { getAuthenticatedUser } from './_lib/auth';
+// NOTE: package.json sets "type": "module", so this relative specifier MUST carry
+// the .js extension. Node's ESM loader rejects extensionless relative imports with
+// ERR_MODULE_NOT_FOUND, which surfaces on Vercel as FUNCTION_INVOCATION_FAILED (500)
+// on every request — including ones that should return 401. tsc never catches it
+// because no tsconfig includes api/.
+import { getAuthenticatedUser } from './_lib/auth.js';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-04-30.basil' as Stripe.LatestApiVersion,

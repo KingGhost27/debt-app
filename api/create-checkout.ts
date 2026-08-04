@@ -11,7 +11,9 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
-import { getAuthenticatedUser } from './_lib/auth';
+// NOTE: package.json sets "type": "module" — this relative specifier MUST carry the
+// .js extension. See the matching note in create-portal.ts.
+import { getAuthenticatedUser } from './_lib/auth.js';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-04-30.basil' as Stripe.LatestApiVersion,

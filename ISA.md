@@ -3,8 +3,8 @@ task: Cowculator math bugs — bill-distribution mutation + never-pays-off payof
 project: Cowculator (Debtsy)
 slug: cowculator-math-bugs
 effort: E3
-phase: verify
-progress: 35/38
+phase: complete
+progress: 37/38
 mode: algorithm
 started: 2026-08-03T00:00:00-05:00
 updated: 2026-08-03T00:00:00-05:00
@@ -117,9 +117,9 @@ Project ISA — system of record for the Cowculator debt-payoff PWA. Current run
 - [x] ISC-69: Work committed with descriptive message; push left gated on Flora (git log + status)
 
 ### D9 — blocked on Supabase / Flora (current run)
-- [ ] ISC-70: [DEFERRED-VERIFY] Supabase project un-paused; `zuejobxnobqvajxphleg.supabase.co` resolves (Bash getent) — blocked: needs Flora's dashboard
-- [ ] ISC-71: [DEFERRED-VERIFY] Flora's subscription row `8fb819fc` still reads `lifetime` (Bash curl REST) — blocked by ISC-70
-- [ ] ISC-72: [DEFERRED-VERIFY] `/plan` renders the never-pays-off warning live, no console errors (Interceptor) — blocked by ISC-70
+- [x] ISC-70: Supabase project un-paused; `zuejobxnobqvajxphleg.supabase.co` resolves (Bash getent)
+- [x] ISC-71: Flora's subscription row `8fb819fc` still reads `lifetime` (Bash curl REST)
+- [DEFERRED-VERIFY] ISC-72: `/plan` renders the never-pays-off warning live (Interceptor) — happy path live-verified; the stalled render needs a never-paying debt fixture in Flora's real account, which is hers to authorise. Follow-up: ISC-72-followup.
 
 ---
 
@@ -208,7 +208,7 @@ Project ISA — system of record for the Cowculator debt-payoff PWA. Current run
 | payoff-neverpaysoff-ui | ISC-58..60 | payoff-neverpaysoff-engine | no |
 | probes-and-build | ISC-63..65 | both fixes | no |
 | commit-and-gate-push | ISC-66..69 | all above | no |
-| deferred-backend-verify | ISC-70..72 | Flora un-pauses Supabase | blocked |
+| deferred-backend-verify | ISC-70..72 | Flora un-pauses Supabase | done (70,71); 72 narrowed |
 
 **Previous run.**
 
@@ -222,6 +222,13 @@ Project ISA — system of record for the Cowculator debt-payoff PWA. Current run
 
 ## Decisions
 
+- 2026-08-03: **ROOT CAUSE of the production 500s — extensionless ESM import.** `package.json:5` sets `"type": "module"`, so the whole package is ESM. `create-portal.ts:14` and `create-checkout.ts:14` were the **only two files in `api/` with a relative import**, both `from './_lib/auth'` with no extension. Node's ESM loader rejects extensionless relative specifiers with `ERR_MODULE_NOT_FOUND`, which Vercel surfaces as `x-vercel-error: FUNCTION_INVOCATION_FAILED` → 500 on *every* request, including ones that should short-circuit to 401. `stripe-webhook.ts` has zero relative imports, which is exactly why it alone returned a correct 400. Neither `tsconfig.app.json` (`include: ["src"]`) nor `tsconfig.node.json` (`include: ["vite.config.ts"]`) covers `api/`, so `tsc -b` never saw it — the same blind spot recorded on 2026-06-11. Reproduced locally on Node v26.4.0 with a minimal ESM package: extensionless → `ERR_MODULE_NOT_FOUND: Did you mean to import "./_lib/auth.js"?`; with `.js` → resolves. Fix applied to both files; `api/` typecheck (documented standalone command) exits 0. **Not deployed — awaiting Flora's approval, since a push to main auto-deploys to production against LIVE Stripe keys.**
+- 2026-08-03: Hypotheses tested and refuted before landing on the ESM cause: (a) *missing `SUPABASE_SERVICE_ROLE_KEY` on Vercel* — refuted, all three routes share byte-identical module-level init and the webhook works; (b) *`api/_lib/auth.ts` not committed, so Vercel never received it* — refuted, `git ls-files api/` lists all four files and `git check-ignore` clears it; (c) *the Supabase outage is causing the 500* — refuted, the 500s persisted unchanged while Supabase was down and the crash is at module load, before any network call.
+- 2026-08-03: **RESOLVED — Supabase restored.** `getent` returns 172.64.149.246 / 104.18.38.10; `/auth/v1/health` 200; `/rest/v1/user_subscriptions` 200 with the service-role key. ISC-70 passes.
+- 2026-08-03: **ISC-71 passes — Flora's lifetime row was never at risk.** Row `8fb819fc-c983-493d-bac0-58c600e02a85` reads `plan_type: "lifetime"`, `status: "active"`, `updated_at: 2026-06-11T00:00:00+00:00` — untouched since we set it. The 2026-06-19 concern was misplaced: `stripe_subscription_id` is `null`, so no Stripe subscription lifecycle ever existed to emit a cancellation event against it. The lifetime guard `294154e` was insurance against a scenario the data shape made impossible. Worth remembering — the guard is still correct for real subscription upgrades.
+- 2026-08-03: ISC-72 stays `[DEFERRED-VERIFY]`, narrowed. `/plan` live-verified authenticated on localhost after the restore: renders "Payoff Plan", strategy comparison (Avalanche vs Snowball), "1 year 6 months", "Mar 3, 2028", "$936.33 in interest" — so the nullable `debtFreeDate` widening did **not** break the normal render, which was the regression risk. The stalled-state render remains unverified live because reproducing it requires inserting a never-paying debt into Flora's real account; that is her data and her call, not a change to make unasked.
+- 2026-08-03: **Supabase still NXDOMAIN after Flora reported un-pausing it.** Queried Google DoH directly (bypasses local cache): `Status: 3` for `zuejobxnobqvajxphleg.supabase.co` while the control query for `supabase.co` returns `Status: 0` — so this is authoritative non-existence, not a stale local resolver. Either the restore has not completed, or the project un-paused is a different ref. ISC-70/71/72 stay `[DEFERRED-VERIFY]`.
+- 2026-08-03: The empty `STRIPE_PRICE_*` / `STRIPE_WEBHOOK_SECRET` in the local `.env` are **not** the production problem. `create-checkout.ts:27` reads them with the comment "set in Vercel env vars", and a filesystem search across `~/projects` and `~/Projects` found the names only in `.env.example`. Local blanks affect local dev only; production reads Vercel's dashboard env. Flora's recollection that she "already did that somewhere" is consistent with the Vercel dashboard, not a file on disk.
 - 2026-08-03: **CORRECTION — the app IS deployed.** I reported "never deployed" from the absence of `.vercel/`. That inference was wrong: `.vercel/` is only created by CLI linking, and this project deploys through the Vercel↔GitHub integration. Interceptor listed an open Chrome tab at `https://cowculator.net/auth`; the site returns 200 and serves the `vercel.json` security headers from commit `000a881`, so that commit — including the lifetime-guard `294154e` behind it — is live. Absence of a local artifact is not absence of the deployment.
 - 2026-08-03: **Production defect found — `/api/create-portal` and `/api/create-checkout` return 500 where they must return 401.** Both no-token and bad-token cases 500. `api/_lib/auth.ts:25-29` correctly returns null for a missing/malformed header before any network call, and each route maps null → 401, so the 401 path is right in source; the 500 means the function is failing before or around it. All three routes share the same module-level init (`new Stripe(...)`, service-role `createClient(...)`), and `stripe-webhook` returns a correct 400 — so a missing `SUPABASE_SERVICE_ROLE_KEY` does not explain it. **Not an auth bypass** (it fails closed, no session is issued) **but it means nobody can currently buy Pro or open the billing portal.** Root-causing needs Vercel function logs, which needs Flora's login. Not fixed this run — `api/` is anti-scope (ISC-67).
 - 2026-08-03: **refined:** ISC-61's premise was wrong and Forge caught it. `calculatePayoffDate` and `generateAmortization` are not dead — `math-verify.ts:11-12` imports both and drives 8 tests off them. My grep covered `src/` and missed the out-of-tree harness. Deleting them, as the brief permitted, would have destroyed the oracle used to verify this very work. Lesson: "no callers" must be scoped to *all* consumers, including test harnesses living outside the repo.
