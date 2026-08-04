@@ -66,9 +66,10 @@ export function TermsPage() {
           already paid for. Lifetime purchases are one-time and do not renew.
         </p>
         <p>
-          If Pro is not what you expected, email us within 14 days of purchase and we will refund
-          you. Beyond that window, refunds are at our discretion — but ask, and we will be
-          reasonable about it.
+          If Pro is not what you expected, email us within 30 days of purchase and we will refund
+          you. A debt payoff plan takes a real billing cycle to live with, so we would rather give
+          you a full month to decide than rush you. Beyond that window, refunds are at our
+          discretion — but ask, and we will be reasonable about it.
         </p>
         <p>
           If we ever change what Pro includes in a way that removes something you paid for, we

@@ -21,6 +21,7 @@ import { ThemeSelector } from '../components/ui/ThemeSelector';
 import { CategoryManager } from '../components/ui/CategoryManager';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { useConfirmDialog } from '../hooks/useConfirmDialog';
+import { DeleteAccountSection } from '../components/settings/DeleteAccountSection';
 
 export function SettingsPage() {
   const navigate = useNavigate();
@@ -635,6 +636,9 @@ export function SettingsPage() {
             </div>
           </div>
         </div>
+
+        {/* Danger zone — self-serve deletion, as promised in the privacy policy */}
+        <DeleteAccountSection />
 
         {/* App Info */}
         <div className="text-center py-4 sm:py-6">

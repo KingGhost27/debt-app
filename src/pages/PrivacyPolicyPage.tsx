@@ -146,16 +146,21 @@ export function PrivacyPolicyPage() {
           any time, and that removes them from our database.
         </p>
         <p>
-          To delete your entire account and all associated data, email{' '}
+          To delete your entire account, open <strong>Settings → Delete account</strong>. Deletion
+          is immediate and permanent: your account and every debt, payment, income record, asset,
+          and tracked subscription are removed straight away, and any active Pro subscription is
+          cancelled first so you are not billed again. Some records may persist briefly in
+          encrypted backups until those expire on their normal rotation.
+        </p>
+        <p>
+          If you would rather we do it for you, or you cannot sign in, email{' '}
           <a
             href="mailto:support@cowculator.net"
             className="font-medium text-primary-700 dark:text-primary-300 underline"
           >
             support@cowculator.net
           </a>{' '}
-          from the address on your account. We will delete everything within 30 days and confirm
-          when it is done. Some records may persist briefly in encrypted backups before those
-          expire on their normal rotation.
+          from the address on your account and we will delete everything within 30 days.
         </p>
         <p>
           Billing records that we are legally required to retain are kept by Stripe under their
