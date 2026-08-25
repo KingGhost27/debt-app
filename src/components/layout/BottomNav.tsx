@@ -29,7 +29,7 @@ export function BottomNav() {
               to={item.to}
               className={({ isActive }) => {
                 const active = isActive || !!isMatchPath;
-                return `nav-item relative flex flex-col items-center justify-center px-4 py-2 rounded-2xl transition-all duration-300 ${
+                return `nav-item relative flex flex-col items-center justify-center px-2 py-2 rounded-2xl transition-all duration-300 ${
                   active
                     ? 'text-primary-600 bg-primary-50/80'
                     : 'text-gray-400 hover:text-primary-400 hover:bg-primary-50/50'
@@ -60,7 +60,7 @@ export function BottomNav() {
                     <span className={`text-[10px] mt-1 font-semibold tracking-wide transition-all duration-200 ${
                       active ? 'text-primary-600' : ''
                     }`}>
-                      {item.label}
+                      {item.shortLabel ?? item.label}
                     </span>
 
                     {/* Active bottom indicator */}
