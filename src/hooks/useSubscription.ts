@@ -7,11 +7,14 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
+import { resolveEntitlement } from '../lib/entitlement';
 import { useAuth } from '../context/AuthContext';
+import type { EntitlementProvider } from '../lib/entitlement';
 import type { SubscriptionPlanType, SubscriptionStatus } from '../types';
 
 export interface SubscriptionInfo {
   isPro: boolean;
+  provider: EntitlementProvider | null;
   planType: SubscriptionPlanType | null;
   status: SubscriptionStatus | null;
   stripeCustomerId: string | null;
@@ -24,6 +27,7 @@ export interface SubscriptionInfo {
 export function useSubscription(): SubscriptionInfo {
   const { user } = useAuth();
   const [isPro, setIsPro] = useState(false);
+  const [provider, setProvider] = useState<EntitlementProvider | null>(null);
   const [planType, setPlanType] = useState<SubscriptionPlanType | null>(null);
   const [status, setStatus] = useState<SubscriptionStatus | null>(null);
   const [stripeCustomerId, setStripeCustomerId] = useState<string | null>(null);
@@ -34,6 +38,7 @@ export function useSubscription(): SubscriptionInfo {
   const fetchSubscription = useCallback(async () => {
     if (!user) {
       setIsPro(false);
+      setProvider(null);
       setPlanType(null);
       setStatus(null);
       setStripeCustomerId(null);
@@ -52,20 +57,17 @@ export function useSubscription(): SubscriptionInfo {
 
       if (error || !data) {
         setIsPro(false);
+        setProvider(null);
         setPlanType(null);
         setStatus(null);
         setStripeCustomerId(null);
         setCurrentPeriodEnd(null);
         setCancelAtPeriodEnd(false);
       } else {
-        // Pro if active/trialing, or lifetime regardless of period
-        const isActive =
-          data.status === 'active' || data.status === 'trialing';
-        const isLifetime = data.plan_type === 'lifetime';
-        const notExpired =
-          isLifetime || !data.current_period_end || new Date(data.current_period_end) > new Date();
+        const entitlement = resolveEntitlement(data);
 
-        setIsPro(isActive && notExpired);
+        setIsPro(entitlement.isPro);
+        setProvider(entitlement.provider);
         setPlanType(data.plan_type);
         setStatus(data.status);
         setStripeCustomerId(data.stripe_customer_id);
@@ -74,6 +76,7 @@ export function useSubscription(): SubscriptionInfo {
       }
     } catch {
       setIsPro(false);
+      setProvider(null);
     } finally {
       setIsLoading(false);
     }
@@ -85,6 +88,7 @@ export function useSubscription(): SubscriptionInfo {
 
   return {
     isPro,
+    provider,
     planType,
     status,
     stripeCustomerId,

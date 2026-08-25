@@ -120,18 +120,21 @@ create table received_paychecks (
   updated_at timestamptz not null
 );
 
--- USER SUBSCRIPTIONS (Stripe billing — Pro tier tracking)
+-- USER SUBSCRIPTIONS (billing providers — Pro tier tracking)
 create table user_subscriptions (
   id uuid primary key default gen_random_uuid(),
   user_id uuid references auth.users(id) on delete cascade not null unique,
-  stripe_customer_id text not null,
+  stripe_customer_id text,
   stripe_subscription_id text,
+  provider text not null default 'stripe' check (provider in ('stripe', 'play')),
   plan_type text not null check (plan_type in ('monthly', 'annual', 'lifetime')),
   status text not null default 'active' check (status in ('active', 'canceled', 'past_due', 'incomplete', 'trialing')),
   current_period_end timestamptz,
   cancel_at_period_end boolean default false,
   created_at timestamptz default now(),
-  updated_at timestamptz default now()
+  updated_at timestamptz default now(),
+  constraint user_subscriptions_stripe_requires_customer
+    check (provider <> 'stripe' or stripe_customer_id is not null)
 );
 
 -- =============================================

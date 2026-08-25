@@ -481,6 +481,7 @@ export interface UserSubscription {
   userId: string;
   stripeCustomerId: string;
   stripeSubscriptionId?: string;         // null for lifetime (one-time purchase)
+  provider?: 'stripe' | 'play';          // DB default 'stripe'; 'play' reserved for Play Billing
   planType: SubscriptionPlanType;
   status: SubscriptionStatus;
   currentPeriodEnd?: string;             // ISO date — null for lifetime
