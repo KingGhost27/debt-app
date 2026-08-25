@@ -1,14 +1,14 @@
 ---
-task: Cowculator math bugs — bill-distribution mutation + never-pays-off payoff state
+task: Provider-agnostic entitlements (Play Billing groundwork) + TWA deploy
 project: Cowculator (Debtsy)
-slug: cowculator-math-bugs
+slug: cowculator-provider-entitlements
 effort: E3
 phase: complete
-progress: 37/38
+progress: 8/8
 mode: algorithm
-started: 2026-08-03T00:00:00-05:00
-updated: 2026-08-03T00:00:00-05:00
-previous_run: cowculator-p0-unbreak (34/34, complete 2026-07-13)
+started: 2026-08-25
+updated: 2026-08-25
+previous_run: cowculator-math-bugs (37/38, complete 2026-08-03)
 ---
 
 # ISA — Cowculator (Debtsy)
@@ -17,7 +17,11 @@ Project ISA — system of record for the Cowculator debt-payoff PWA. Current run
 
 ## Problem
 
-**Current run (2026-08-03) — two math display bugs that lie to the user about money.**
+**Current run (2026-08-25) — entitlements are Stripe-shaped.** The Pro decision lived inline in `useSubscription.ts:62-68` and the schema hardwired `stripe_customer_id NOT NULL` — so adding Google Play Billing later (decision brief: consumption-only now, revisit at the Dec 29 flywheel gate) would force a schema migration plus resolver rewrite under time pressure (~40h → ~55h). Also this run: `8a6188b` (TWA consumption-only + safe-area) pushed and deploy-verified.
+
+---
+
+**Previous run (2026-08-03) — two math display bugs that lie to the user about money.**
 
 **M1 — bill-distribution mutation.** `src/lib/billDistribution.ts:234` — `generateSuggestions` writes `targetPeriod.totalAmount += bill.minimumPayment` on the *same* period objects `analyzeBillDistribution` returns to the UI. Whenever suggestions fire, `BillDistributionPanel.tsx:150` renders inflated pay-period totals and `:133-138` draws bar heights + overloaded/underloaded badges off the same corrupted field. Harness proof: displayed **$2,610 vs real $1,760 (+$850 phantom)**.
 
@@ -72,6 +76,17 @@ Project ISA — system of record for the Cowculator debt-payoff PWA. Current run
 **Previous run.** App boots against the restored Supabase project on localhost; an unreachable Supabase produces a friendly retryable error screen (never a blank page); all four fonts are served locally with zero runtime Google Fonts requests; the hero survives fallback rendering without overlap — verified with Interceptor screenshots, typecheck, and build.
 
 ## Criteria
+
+### Run 2026-08-25 — provider entitlements (IDs prefixed P, no collision with prior runs)
+
+- [x] ISC-P1: `8a6188b` pushed to origin/main; prod serves the new bundle
+- [x] ISC-P2: Deploy verified in real Chrome — new CSS asset loaded, `safe-area-inset-bottom` rule active, no 4xx/5xx
+- [x] ISC-P3: `src/lib/entitlement.ts` exists, zero imports, `resolveEntitlement` behavior-identical to old inline logic (140/140 differential)
+- [x] ISC-P4: `useSubscription` consumes resolver, exposes `provider`; missing column resolves to `'stripe'` (deploy-order independent)
+- [x] ISC-P5: Migration file adds `provider` (NOT NULL DEFAULT 'stripe', CHECK stripe|play), relaxes `stripe_customer_id`, paired CHECK keeps Stripe-row invariant
+- [x] ISC-P6: `supabase-schema.sql` mirrors migration for fresh installs
+- [x] ISC-P7: tsc 0, vite build ok, math harness 37/38 baseline, 6/6 entitlement fixtures incl. lifetime-row shape
+- [x] ISC-P8: Anti: `api/`, `twa.ts`, `UpgradeModal.tsx` untouched; commit `8debc88` local-only, NOT pushed
 
 > ISC-1..34 below are the previous run (P0 unbreak), all passed and retained as project system-of-record. Current run adds ISC-35..72.
 
@@ -222,6 +237,13 @@ Project ISA — system of record for the Cowculator debt-payoff PWA. Current run
 
 ## Decisions
 
+- 2026-08-25: Webhook deliberately untouched for provider stamping — the column DEFAULT does it. Kills deploy-order coupling between code and hand-applied migration (client reads `select('*')`; resolver coerces missing/unknown provider → 'stripe').
+- 2026-08-25: Advisor catch adopted — bare `DROP NOT NULL` on `stripe_customer_id` traded an invariant for nothing; paired CHECK (`provider <> 'stripe' OR stripe_customer_id IS NOT NULL`) keeps Stripe-row strictness while unblocking future Play rows.
+- 2026-08-25: Unknown provider values label as 'stripe' (not deny) — acceptable because `isPro` never depends on `provider`; the DB CHECK constrains writes. Revisit if a third provider ever lands.
+- 2026-08-25: Forge deviation accepted — schema header comment "(Stripe billing)" → "(billing providers)"; old text became inaccurate.
+- 2026-08-25: `UserSubscription.stripeCustomerId` stays `string` (declared-but-unreferenced interface); widen to optional when Play rows actually land.
+- 2026-08-25: PENDING — `migrations/2026-08-25_provider_column.sql` must be run by Flora via Supabase Dashboard SQL editor; commit `8debc88` awaits her push OK.
+
 - 2026-08-03: **ROOT CAUSE of the production 500s — extensionless ESM import.** `package.json:5` sets `"type": "module"`, so the whole package is ESM. `create-portal.ts:14` and `create-checkout.ts:14` were the **only two files in `api/` with a relative import**, both `from './_lib/auth'` with no extension. Node's ESM loader rejects extensionless relative specifiers with `ERR_MODULE_NOT_FOUND`, which Vercel surfaces as `x-vercel-error: FUNCTION_INVOCATION_FAILED` → 500 on *every* request, including ones that should short-circuit to 401. `stripe-webhook.ts` has zero relative imports, which is exactly why it alone returned a correct 400. Neither `tsconfig.app.json` (`include: ["src"]`) nor `tsconfig.node.json` (`include: ["vite.config.ts"]`) covers `api/`, so `tsc -b` never saw it — the same blind spot recorded on 2026-06-11. Reproduced locally on Node v26.4.0 with a minimal ESM package: extensionless → `ERR_MODULE_NOT_FOUND: Did you mean to import "./_lib/auth.js"?`; with `.js` → resolves. Fix applied to both files; `api/` typecheck (documented standalone command) exits 0. **Not deployed — awaiting Flora's approval, since a push to main auto-deploys to production against LIVE Stripe keys.**
 - 2026-08-03: Hypotheses tested and refuted before landing on the ESM cause: (a) *missing `SUPABASE_SERVICE_ROLE_KEY` on Vercel* — refuted, all three routes share byte-identical module-level init and the webhook works; (b) *`api/_lib/auth.ts` not committed, so Vercel never received it* — refuted, `git ls-files api/` lists all four files and `git check-ignore` clears it; (c) *the Supabase outage is causing the 500* — refuted, the 500s persisted unchanged while Supabase was down and the crash is at module load, before any network call.
 - 2026-08-03: **SHIPPED + CONFIRMED — the ESM fix un-broke checkout in production.** Commit `3960a2f` pushed (`680b76f..3960a2f`), Vercel deploy live in ~60s. Production now returns `401 {"error":"Not authenticated"}` on `/api/create-portal` and `/api/create-checkout` for both no-token and bad-token, and `405` on GET. The JSON body proves the response comes from the route handler, not a Vercel edge default — the handler is now actually executing, which it had never done in production. Deploy checklist items 1-3 all pass; the unsigned webhook still returns 400 and all six security headers survived the deploy.
@@ -254,6 +276,16 @@ Project ISA — system of record for the Cowculator debt-payoff PWA. Current run
 - 2026-07-13: DISCOVERY — Flora's Chrome blocks webfont *rendering* machine-wide (woff2 fetch 200/16KB, FontFace loaded, canvas measures proportional, but paint falls back to mono/grotesque; fc-match is clean Noto). App delivery is correct; users unaffected. Follow-up for Flora: uBlock "block remote fonts" switch or chrome://settings/fonts on the rice.
 
 ## Verification
+
+### Run 2026-08-25
+
+- ISC-P1: Bash — `git push` output `0a62f5a..8a6188b main -> main`; `git log origin/main -1` = `8a6188b`.
+- ISC-P2: Interceptor (real Chrome) — `performance.getEntriesByType('resource')` shows `index-DFGhYuCm.css` loaded; `document.styleSheets` probe `safeArea: true`; full landing text extracted; net log free of 4xx/5xx. Screenshot RPC wedged (known Wayland covered-window gotcha) — numeric-probe fallback per skill doctrine.
+- ISC-P3: Forge differential harness 140/140 (7 statuses × 4 plans × 5 period shapes) + my grep: zero import lines in `entitlement.ts`.
+- ISC-P4: Read of `useSubscription.ts` diff — resolver call, `provider` in interface/state/all reset paths; fixture probe `no provider col → 'stripe'` PASS.
+- ISC-P5/P6: Read-back of both SQL files post-edit; constraint text mirrored.
+- ISC-P7: `bunx tsc -b --noEmit --force` exit 0; `bun run build` produced dist; `math-verify.ts` → "37 passed, 1 failed" (T10.2 pre-existing); 6/6 fixtures ALL PASS.
+- ISC-P8: `git status --porcelain` — only the 5 intended files; `git status -sb` = `ahead 1` (local).
 
 **Current run (2026-08-03) — ISC-35..69.**
 
