@@ -34,7 +34,9 @@ export function Sidebar() {
       <div className="mx-6 h-px bg-gradient-to-r from-transparent via-primary-200 to-transparent" />
 
       {/* Nav items */}
-      <nav className="flex-1 px-4 py-6 space-y-1.5">
+      {/* `min-h-0` + `overflow-y-auto` so the pinned sidebar scrolls its own list
+          on short viewports instead of pushing Settings out of reach. */}
+      <nav className="flex-1 min-h-0 overflow-y-auto px-4 py-6 space-y-1.5">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isMatchPath = item.matchPaths?.some((p) =>

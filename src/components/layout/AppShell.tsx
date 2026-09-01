@@ -30,8 +30,12 @@ export function AppShell() {
   const { settings, syncStatus } = useApp();
   const decorations = getThemeDecorations(settings.theme);
 
+  // Shell uses `overflow-x-clip`, NOT `overflow-hidden`: `overflow: hidden` makes
+  // this div a scroll container, which silently kills `position: sticky` on the
+  // Sidebar — the desktop nav scrolled away with the page. `clip` keeps the
+  // horizontal clipping without creating a scrollport, so sticky works again.
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-950 flex flex-col md:flex-row relative overflow-hidden">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-950 flex flex-col md:flex-row relative overflow-x-clip">
       {/* Background emojis for wider screens */}
       <div
         className="hidden sm:block fixed inset-0 pointer-events-none z-0"

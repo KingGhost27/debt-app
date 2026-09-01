@@ -1,14 +1,14 @@
 ---
-task: Provider-agnostic entitlements (Play Billing groundwork) + TWA deploy
+task: Freeze the desktop navigation so it stays pinned on scroll
 project: Cowculator (Debtsy)
-slug: cowculator-provider-entitlements
-effort: E3
-phase: complete
-progress: 8/8
+slug: cowculator-sticky-desktop-nav
+effort: E2
+phase: verify
+progress: 17/18
 mode: algorithm
-started: 2026-08-25
-updated: 2026-08-25
-previous_run: cowculator-math-bugs (37/38, complete 2026-08-03)
+started: 2026-09-01
+updated: 2026-09-01
+previous_run: cowculator-provider-entitlements (8/8, complete 2026-08-25)
 ---
 
 # ISA — Cowculator (Debtsy)
@@ -17,7 +17,9 @@ Project ISA — system of record for the Cowculator debt-payoff PWA. Current run
 
 ## Problem
 
-**Current run (2026-08-25) — entitlements are Stripe-shaped.** The Pro decision lived inline in `useSubscription.ts:62-68` and the schema hardwired `stripe_customer_id NOT NULL` — so adding Google Play Billing later (decision brief: consumption-only now, revisit at the Dec 29 flywheel gate) would force a schema migration plus resolver rewrite under time pressure (~40h → ~55h). Also this run: `8a6188b` (TWA consumption-only + safe-area) pushed and deploy-verified.
+**Current run (2026-09-01) — the desktop sidebar nav scrolls away.** Flora reported the navigation bar disappearing as she scrolled `cowculator.net/dashboard` on desktop. `Sidebar.tsx` already declared `sticky top-0 h-screen`, so the naive read ("it isn't sticky, add sticky") was wrong. The real cause is one class in `AppShell.tsx`: the shell wrapper carried `overflow-hidden`, and `overflow: hidden` makes an element a scroll container. A `position: sticky` child sticks relative to its *nearest scrolling ancestor* — which became that wrapper, not the document. The wrapper never scrolls (the document does), so the sidebar had no scrollport to stick within and simply translated away with the content. Live probe pre-fix: after `scrollTo(0, 900)` the `aside` sat at `rect.top = -900` — fully off-screen — while still reporting `position: sticky`.
+
+**Prior run (2026-08-25) — entitlements are Stripe-shaped.** The Pro decision lived inline in `useSubscription.ts:62-68` and the schema hardwired `stripe_customer_id NOT NULL` — so adding Google Play Billing later (decision brief: consumption-only now, revisit at the Dec 29 flywheel gate) would force a schema migration plus resolver rewrite under time pressure (~40h → ~55h). Also this run: `8a6188b` (TWA consumption-only + safe-area) pushed and deploy-verified.
 
 ---
 
@@ -69,7 +71,11 @@ Project ISA — system of record for the Cowculator debt-payoff PWA. Current run
 
 ## Goal
 
-`generateSuggestions` stops mutating the pay-period objects the UI renders, so displayed period totals equal the real assigned-bill totals (harness T14.1 flips to PASS, overall ≥37/38); and `generatePayoffPlan` detects a plan that never pays off within its 360-month horizon, returning an explicit `neverPaysOff` flag plus the per-debt monthly minimum that would fix it, which the Plan UI renders as a warning instead of a fabricated debt-free date — all proven by the recomputation harness, targeted probes on the $10k @ 30% / $200-mo and $25k @ 19.99% cases, clean typecheck, and a green build.
+**Current run.** The desktop sidebar stays visually pinned at the top of the viewport through any amount of page scrolling at `md` and above, achieved by removing the `overflow: hidden` scroll container that was suppressing the already-declared `position: sticky` — without introducing horizontal page overflow, without altering the mobile `BottomNav` surface, and without touching the landing page's separate sticky header. Proven by a live in-browser rect probe on the real deployed app before and after the CSS change, a green `bun run build`, and grep evidence that the emitted bundle carries the new classes and none of the old one.
+
+---
+
+**Previous run.** `generateSuggestions` stops mutating the pay-period objects the UI renders, so displayed period totals equal the real assigned-bill totals (harness T14.1 flips to PASS, overall ≥37/38); and `generatePayoffPlan` detects a plan that never pays off within its 360-month horizon, returning an explicit `neverPaysOff` flag plus the per-debt monthly minimum that would fix it, which the Plan UI renders as a warning instead of a fabricated debt-free date — all proven by the recomputation harness, targeted probes on the $10k @ 30% / $200-mo and $25k @ 19.99% cases, clean typecheck, and a green build.
 
 ---
 
@@ -182,9 +188,39 @@ Project ISA — system of record for the Cowculator debt-payoff PWA. Current run
 - [x] ISC-33: No unapproved push — repo left ahead 2, approval requested from Flora (git status)
 - [x] ISC-34: Anti: no edits to stripe/webhook/api code this run (git diff scope)
 
+### Run 2026-09-01 — sticky desktop nav (ISC-73..90)
+
+**D1 — reproduce and root-cause**
+- [x] ISC-73: `aside` reports computed `position: sticky` / `top: 0px` on live prod (rules out "sticky was never declared")
+- [x] ISC-74: Pre-fix, `aside.getBoundingClientRect().top` = `-900` after `scrollTo(0,900)` — failure reproduced numerically
+- [x] ISC-75: Shell ancestor `div.min-h-screen…md:flex-row` reports computed `overflow: hidden` pre-fix — root cause named
+- [x] ISC-76: Live `style inject` of `overflow-x: clip; overflow-y: visible` yields `aside` `rect.top` = `0` at `scrollY` 900 — fix validated before any code edit
+- [x] ISC-77: That injection introduces no horizontal overflow (`scrollWidth` 1700 ≤ `innerWidth` 1708)
+- [x] ISC-78: Injected test stylesheet removed from the live session afterwards (`style remove` → `removed: true`)
+
+**D2 — source change**
+- [x] ISC-79: `AppShell.tsx` shell div no longer carries `overflow-hidden`
+- [x] ISC-80: `AppShell.tsx` shell div carries `overflow-x-clip`
+- [x] ISC-81: Comment above `return` explains why `clip` and not `hidden`, so the class is not "cleaned up" back into the bug later
+- [x] ISC-82: `Sidebar.tsx` `<nav>` carries `min-h-0 overflow-y-auto` so a pinned sidebar scrolls its own list on short viewports instead of burying Settings
+
+**D3 — build evidence**
+- [x] ISC-83: `bun run build` exits 0 (tsc + vite + PWA generate)
+- [x] ISC-84: Emitted CSS contains `.overflow-x-clip{overflow-x:clip}`
+- [x] ISC-85: Emitted JS bundle contains the shell class string ending `relative overflow-x-clip`
+- [x] ISC-86: Emitted JS bundle contains `flex-1 min-h-0 overflow-y-auto px-4 py-6 space-y-1.5`
+
+**D4 — scope containment**
+- [x] ISC-87: Anti: zero occurrences of `md:flex-row relative overflow-hidden` remain in `dist/assets/*.js`
+- [x] ISC-88: Anti: `BottomNav.tsx` untouched — the TWA/mobile surface is unchanged (git diff scope)
+- [x] ISC-89: Anti: `LandingPage.tsx` untouched — its independent `sticky top-0` header was already working and stays out of scope (git diff scope)
+- [ ] ISC-90: [DEFERRED-VERIFY] Post-deploy prod probe on `cowculator.net/dashboard` confirms `rect.top = 0` under scroll from the shipped bundle — blocked on Flora approving the push (follow-up: `cowculator-sticky-desktop-nav-deploy`)
+
 ## Test Strategy
 
-**Current run (ISC-35..72).**
+**Current run (ISC-73..90).** D1 by Interceptor `eval --main` rect/computed-style probes against real Chrome on the live site (screenshots are unusable here — the skill's documented gotcha is that capture ignores scroll position, so a numeric probe is the *stronger* evidence, not a fallback). D2 by `grep` on source. D3 by build exit code plus `grep` on `dist/`. D4 by `git diff --name-only` scope. ISC-90 deferred: cannot probe a bundle that has not been deployed.
+
+**Prior run (ISC-35..72).**
 
 | isc | type | check | threshold | tool |
 |-----|------|-------|-----------|------|
@@ -237,6 +273,12 @@ Project ISA — system of record for the Cowculator debt-payoff PWA. Current run
 
 ## Decisions
 
+- 2026-09-01: Chose `overflow-x-clip` over deleting the overflow class entirely. `overflow: clip` clips without establishing a scroll container, so it preserves the horizontal-overflow protection the original author wanted while un-breaking `sticky`. Plain removal would have worked for the nav but re-exposed the shell to horizontal scrollbars from decorative absolutely-positioned children. Baseline: `overflow: clip` ships in Chrome 90+/Firefox 81+/Safari 16 — fine for a 2026 PWA.
+- 2026-09-01: Fix was validated in the live browser via `style inject` *before* editing source. This is the cheap ordering: if `clip` had not pinned the nav, the root-cause hypothesis was wrong and no code would have been touched.
+- 2026-09-01: `Sidebar.tsx` `<nav>` gained `min-h-0 overflow-y-auto` — not strictly requested, but a sidebar that is now genuinely pinned at `h-screen` will bury Settings on a short viewport. Freezing the nav correctly implies it stays *usable* when frozen.
+- 2026-09-01: `.decorations` was checked before removing the shell's `overflow-hidden` — it is `position: fixed` with its own `overflow: hidden`, so it self-clips and does not depend on the ancestor.
+- 2026-09-01: Delegation floor (E2 soft ≥1) not met — show-your-math: a Forge/Engineer pass would have reviewed a two-class CSS change whose correctness was already settled empirically by an in-browser rect probe. The delegation would have produced opinion where a measurement already existed.
+- 2026-09-01: Voice announcements skipped this run — Pulse `:31337/notify` returned HTTP 502 (daemon down). Non-blocking; noted so the silence is not read as doctrine skipped.
 - 2026-08-25: Webhook deliberately untouched for provider stamping — the column DEFAULT does it. Kills deploy-order coupling between code and hand-applied migration (client reads `select('*')`; resolver coerces missing/unknown provider → 'stripe').
 - 2026-08-25: Advisor catch adopted — bare `DROP NOT NULL` on `stripe_customer_id` traded an invariant for nothing; paired CHECK (`provider <> 'stripe' OR stripe_customer_id IS NOT NULL`) keeps Stripe-row strictness while unblocking future Play rows.
 - 2026-08-25: Unknown provider values label as 'stripe' (not deny) — acceptable because `isPro` never depends on `provider`; the DB CHECK constrains writes. Revisit if a third provider ever lands.
@@ -277,6 +319,20 @@ Project ISA — system of record for the Cowculator debt-payoff PWA. Current run
 - 2026-07-13: DISCOVERY — Flora's Chrome blocks webfont *rendering* machine-wide (woff2 fetch 200/16KB, FontFace loaded, canvas measures proportional, but paint falls back to mono/grotesque; fc-match is clean Noto). App delivery is correct; users unaffected. Follow-up for Flora: uBlock "block remote fonts" switch or chrome://settings/fonts on the rice.
 
 ## Verification
+
+### Run 2026-09-01 — sticky desktop nav
+
+- ISC-73/74/75: Interceptor `eval --main` on live `cowculator.net/dashboard` (real Chrome, her session), viewport 891px — `{"asideTopBefore":-2,"asideTopAfter":-900,"position":"sticky","top":"0px","chain":["DIV.min-h-screen … md:flex-row | overflow=hidden | height=3130.5px", …]}`. Sticky declared, sticky dead, ancestor named.
+- ISC-76/77: after `style inject --css "div.min-h-screen.flex.relative{overflow-x:clip!important;overflow-y:visible!important}"` — `{"parentOverflowX":"clip","parentOverflowY":"visible","topAt0":0,"topAt900":0,"docWidth":1700,"winWidth":1708}`. Pinned at scroll 900, no horizontal overflow.
+- ISC-78: `interceptor style remove s_29a71dcc-…` → `{"removed": true}`.
+- ISC-79/80/81/82: `git diff` on `AppShell.tsx` (`overflow-hidden` → `overflow-x-clip` + 4-line rationale comment) and `Sidebar.tsx` (`flex-1` → `flex-1 min-h-0 overflow-y-auto` + comment).
+- ISC-83: `bun run build` → `✓ built in 4.34s`, `PWA v1.3.0 precache 28 entries`, exit 0.
+- ISC-84: `grep -o "\.overflow-x-clip{[^}]*}" dist/assets/*.css` → `.overflow-x-clip{overflow-x:clip}`.
+- ISC-85: `dist/assets/index-DR60sLyk.js` contains `min-h-screen bg-gray-100 dark:bg-gray-950 flex flex-col md:flex-row relative overflow-x-clip`.
+- ISC-86: same bundle contains `flex-1 min-h-0 overflow-y-auto px-4 py-6 space-y-1.5`.
+- ISC-87: `grep -c "md:flex-row relative overflow-hidden" dist/assets/*.js` → `0` in every bundle.
+- ISC-88/89: `git diff --name-only` → `ISA.md`, `src/components/layout/AppShell.tsx`, `src/components/layout/Sidebar.tsx`. `BottomNav.tsx` and `LandingPage.tsx` absent.
+- ISC-90: DEFERRED-VERIFY — prod probe requires the push Flora has not yet approved. Follow-up: `cowculator-sticky-desktop-nav-deploy`.
 
 ### Run 2026-08-25
 
@@ -345,6 +401,11 @@ Project ISA — system of record for the Cowculator debt-payoff PWA. Current run
 - ISC-32: git log — 26ea4f0 "fix(P0): auth error state, self-hosted fonts, hero robustness"
 
 ## Changelog
+
+- **conjectured:** "The desktop nav scrolls away" means the nav is missing `position: sticky`, so the fix is to add it to `Sidebar.tsx`.
+  **refuted by:** Live `eval --main` probe on prod — the `aside` already reported `position: sticky` / `top: 0px` while its `rect.top` fell to `-900` under a 900px scroll. Sticky was present and inert.
+  **learned:** A `position: sticky` element sticks relative to its nearest *scrolling* ancestor, and `overflow: hidden` on any ancestor silently creates one. Because that wrapper does not itself scroll, sticky becomes a no-op with no error, no warning, and a computed style that still reads `sticky` — the symptom and the code both lie. In this codebase the culprit was one Tailwind class (`overflow-hidden`) on the `AppShell` wrapper, three levels above the nav. `overflow-x-clip` is the correct substitute: it clips without creating a scrollport.
+  **criterion now:** ISC-73 asserts the computed `position` *separately* from ISC-74's measured `rect.top` under scroll — because agreeing computed style is not evidence of working stickiness. ISC-87 is a standing anti-criterion that `overflow-hidden` never returns to the shell wrapper.
 
 - **conjectured:** Fixing font *delivery* (self-hosting) would fix Flora's own mono-rendered view of the app (plan note: "Fixing font delivery fixes your own view of your product").
   **refuted by:** Full-res screenshot crops after the fix — woff2 fetched (200, 16KB, wOF2 magic), FontFace API loaded, canvas measures proportional, yet DOM paint falls back to mono/grotesque on every page; fc-match resolves clean Noto Sans.
