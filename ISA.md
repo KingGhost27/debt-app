@@ -3,8 +3,8 @@ task: Freeze the desktop navigation so it stays pinned on scroll
 project: Cowculator (Debtsy)
 slug: cowculator-sticky-desktop-nav
 effort: E2
-phase: verify
-progress: 17/18
+phase: complete
+progress: 20/20
 mode: algorithm
 started: 2026-09-01
 updated: 2026-09-01
@@ -214,7 +214,9 @@ Project ISA — system of record for the Cowculator debt-payoff PWA. Current run
 - [x] ISC-87: Anti: zero occurrences of `md:flex-row relative overflow-hidden` remain in `dist/assets/*.js`
 - [x] ISC-88: Anti: `BottomNav.tsx` untouched — the TWA/mobile surface is unchanged (git diff scope)
 - [x] ISC-89: Anti: `LandingPage.tsx` untouched — its independent `sticky top-0` header was already working and stays out of scope (git diff scope)
-- [ ] ISC-90: [DEFERRED-VERIFY] Post-deploy prod probe on `cowculator.net/dashboard` confirms `rect.top = 0` under scroll from the shipped bundle — blocked on Flora approving the push (follow-up: `cowculator-sticky-desktop-nav-deploy`)
+- [x] ISC-90: Post-deploy prod probe on `cowculator.net/dashboard` confirms the sidebar stays pinned under scroll from the shipped bundle (deferral resolved same session — Flora approved the push)
+- [x] ISC-91: Deployed prod JS bundle contains the new shell class and zero occurrences of the old one (fetched and grepped the live asset, not just the local `dist/`)
+- [x] ISC-92: Deployed prod CSS emits `.overflow-x-clip{overflow-x:clip}`
 
 ## Test Strategy
 
@@ -332,7 +334,10 @@ Project ISA — system of record for the Cowculator debt-payoff PWA. Current run
 - ISC-86: same bundle contains `flex-1 min-h-0 overflow-y-auto px-4 py-6 space-y-1.5`.
 - ISC-87: `grep -c "md:flex-row relative overflow-hidden" dist/assets/*.js` → `0` in every bundle.
 - ISC-88/89: `git diff --name-only` → `ISA.md`, `src/components/layout/AppShell.tsx`, `src/components/layout/Sidebar.tsx`. `BottomNav.tsx` and `LandingPage.tsx` absent.
-- ISC-90: DEFERRED-VERIFY — prod probe requires the push Flora has not yet approved. Follow-up: `cowculator-sticky-desktop-nav-deploy`.
+- ISC-90: Flora approved the push same session. `git push origin main` → `7795ad7..466be34  main -> main`; `origin/main` == `466be34`. After Vercel deploy, Interceptor `eval --main` on live `cowculator.net/dashboard` → `{"parentOverflowX":"clip","parentOverflowY":"visible","asidePosition":"sticky","topAtScroll0":0,"topAtScroll900":0,"topAtBottom":-0.5,"scrollY":2240,"docHeight":3131,"innerHeight":891,"scrollWidth":1700,"innerWidth":1708}`. Pinned at top, at 900px, and at document bottom; no horizontal overflow. **Screenshot deliberately not used** — the Interceptor skill's documented gotcha is that capture ignores scroll position, so an image would have shown the un-scrolled page and proven nothing. The rect probe is the stronger evidence here, not a fallback.
+- ISC-91: Fetched the live asset (`https://cowculator.net/assets/index-YSGi4lTY.js`, 1,369,992 bytes) — `md:flex-row relative overflow-x-clip` → 1 match; `md:flex-row relative overflow-hidden` → 0 matches; `flex-1 min-h-0 overflow-y-auto px-4 py-6` → 1 match.
+- ISC-92: `https://cowculator.net/assets/index-CLL5I973.css` contains `.overflow-x-clip{overflow-x:clip}`.
+- Note: the deployed bundle hash (`index-YSGi4lTY.js`) differs from the local build's (`index-DR60sLyk.js`). Expected — Vercel builds in its own environment. Content-level grep on the *fetched live asset* is the correct verification; a hash-match poll was the wrong probe and timed out on a deploy that had in fact succeeded.
 
 ### Run 2026-08-25
 
