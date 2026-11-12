@@ -18,7 +18,6 @@
 .dash-scene { position: relative; }
 
 /* sky copy */
-.dash-hi { font: 600 18px/1.2 Fredoka, sans-serif; padding-right: 52px; }
 .dash-h1 { margin-top: 6px; font-family: "Bagel Fat One", sans-serif; font-weight: 400; line-height: .98; letter-spacing: -.005em; text-wrap: balance; }
 .dash-h1 .l1 { display: block; font-size: 26px; }
 .dash-h1 .l2 { display: block; font-size: 58px; margin-top: 2px; }
@@ -37,7 +36,6 @@
 .dash-hint { font: 600 13.5px/1.3 Nunito, sans-serif; color: var(--ranch-ink2); }
 @container ranch (max-width: 767px) { .dash-act .dash-btn { width: 100%; } }
 @container ranch (min-width: 768px) {
-  .dash-hi { font-size: 22px; padding-right: 0; }
   .dash-h1 .l1 { font-size: 40px; }
   .dash-h1 .l2 { font-size: 88px; }
   .dash-h1.is-long .l2 { font-size: 52px; }
@@ -57,6 +55,13 @@
 /* layout */
 .dash-content { max-width: 1240px; margin-inline: auto; padding: 20px 16px 24px; display: grid; gap: 22px; grid-template-columns: minmax(0, 1fr); }
 .dash-content > * { min-width: 0; }
+/* left column: on narrow screens its parts flow into the page order (debts, side, then timeline and bills) */
+.dash-main { display: contents; }
+.dash-main > * { min-width: 0; order: 3; }
+.dash-main > .dash-debts { order: 1; }
+.dash-today { order: 0; }
+.dash-side { order: 2; }
+.dash-more { order: 4; }
 .dash-sec-h { display: flex; align-items: center; justify-content: space-between; gap: 10px 16px; flex-wrap: wrap; margin-bottom: 14px; }
 .dash-note { font: 600 14px/1.35 Nunito, sans-serif; color: var(--ranch-ink2); }
 .dash-note b { color: var(--ranch-ink); font-family: Quicksand, sans-serif; font-weight: 700; font-variant-numeric: tabular-nums; }
@@ -130,14 +135,16 @@
 .dash-ml small { display: block; font-size: 13.5px; color: var(--ranch-ink2); }
 .dash-ms-track { margin-top: 16px; padding-top: 6px; border-top: 1px solid var(--ranch-line); }
 
-.dash-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-.dash-stats > div { background: var(--ranch-page2); border-radius: 16px; padding: 12px 14px; }
-.dash-stats dt { font: 600 13px/1.2 Nunito, sans-serif; color: var(--ranch-ink2); margin-bottom: 4px; }
-.dash-stats dd { font-size: 18px; line-height: 1.2; }
+/* the numbers: ruled rows, label left, figure right; one plain bar for credit */
+.dash-stats > div { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 11px 0; }
+.dash-stats > div + div { border-top: 1px solid var(--ranch-line); }
+.dash-stats dt { font: 600 14.5px/1.3 Nunito, sans-serif; color: var(--ranch-ink2); }
+.dash-stats dd { font-size: 18px; line-height: 1.2; text-align: right; }
 .dash-stats dd.bad, .dash-sum dd.bad { color: var(--ranch-focus); }
 .dash-stats dd.good { color: var(--ranch-ok-ink); }
-.dash-credit { display: flex; align-items: center; gap: 14px; margin-top: 14px; }
-.dash-credit-t { font: 600 16px/1.2 Fredoka, sans-serif; }
+.dash-stats > .is-bar { flex-wrap: wrap; }
+.dash-stats > .is-bar .dash-track { flex: 0 0 100%; order: 3; }
+.dash-stats > .is-bar small { flex: 0 0 100%; order: 4; font: 600 13px/1.3 Nunito, sans-serif; color: var(--ranch-ink2); margin-top: -2px; }
 .dash-save { display: flex; gap: 10px; align-items: flex-start; margin-top: 14px; padding: 12px 14px; border-radius: 16px; background: var(--ranch-ok-bg); color: var(--ranch-ok-ink); font: 600 14.5px/1.35 Nunito, sans-serif; }
 .dash-save svg { flex: none; margin-top: 1px; }
 
@@ -197,5 +204,8 @@
 @container dash (min-width: 1100px) {
   .dash-content { grid-template-columns: minmax(0, 1.62fr) minmax(0, 1fr); column-gap: 24px; }
   .dash-today, .dash-more { grid-column: 1 / -1; }
+  .dash-main { display: grid; gap: 22px; align-content: start; grid-template-columns: minmax(0, 1fr); order: 0; }
+  .dash-main > *, .dash-side { order: 0; }
+  .dash-main > .dash-debts { order: 0; align-self: start; }
   .dash-side { grid-template-columns: minmax(0, 1fr); }
 }

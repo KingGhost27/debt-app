@@ -171,6 +171,18 @@ export function layoutPosts(inp: LayoutInput): PlacedPost[] {
     if (!placed.boardText) {
       const text = d.status === 'focus' && d.detail ? `${label} · ${clip(d.detail, 14)}` : label;
       placed.chip = placeChip(comp, placed, text, free, Math.abs(q.ty) > 0.45);
+      // A paid debt's post stands at the barn door, inside the keep-out. Its name
+      // may sit on the barn wall (the chip has its own background) rather than go unlabelled.
+      if (!placed.chip && d.status === 'paid') {
+        const barn = inp.keepOut[0];
+        const freeAtBarn = (b: Box, pad = 3) => {
+          const sf = comp.safe;
+          if (b.x0 < sf.x0 || b.x1 > sf.x1 || b.y0 < sf.y0 || b.y1 > sf.y1) return false;
+          const hard = [...inp.flagBoxes, fb.box, ...inp.keepOut.filter((o) => o !== barn)];
+          return !hard.some((o) => overlaps(b, o, pad)) && !taken.some((o) => overlaps(b, o, pad));
+        };
+        placed.chip = placeChip(comp, placed, label, freeAtBarn, Math.abs(q.ty) > 0.45, true);
+      }
       if (placed.chip) taken.push(placed.chip.box);
     }
     out.push(placed);
@@ -178,7 +190,7 @@ export function layoutPosts(inp: LayoutInput): PlacedPost[] {
   return out;
 }
 
-function placeChip(comp: Composition, p: PlacedPost, text: string, free: (b: Box) => boolean, steep: boolean): PlacedChip | null {
+function placeChip(comp: Composition, p: PlacedPost, text: string, free: (b: Box) => boolean, steep: boolean, allowBelow = false): PlacedChip | null {
   const f = comp.chipFont;
   const icon = p.status === 'paid' ? f * 0.95 : 0;
   const w = textEm(text) * f + f * 1.25 + icon;
@@ -203,7 +215,14 @@ function placeChip(comp: Composition, p: PlacedPost, text: string, free: (b: Box
     [{ x0: ax - 14, y0: ay - 2 * g - 2 * h, x1: ax - 14 + w, y1: ay - 2 * g - h }, [ax, ay]],
   ];
   // On a steep stretch posts stack vertically, so labels go beside them first.
-  const cands = steep ? [...sides, ...above, ...high] : [...above, ...sides, ...high];
+  // Last resort for a post boxed in by the barn and Debtsy: the name under the post's foot.
+  const fy = p.y + 8;
+  const below: [Box, [number, number]][] = allowBelow ? [
+    [{ x0: p.x - w / 2, y0: fy, x1: p.x + w / 2, y1: fy + h }, [p.x, p.y]],
+    [{ x0: p.x - w + 14, y0: fy, x1: p.x + 14, y1: fy + h }, [p.x, p.y]],
+    [{ x0: p.x - 14, y0: fy, x1: p.x - 14 + w, y1: fy + h }, [p.x, p.y]],
+  ] : [];
+  const cands = steep ? [...sides, ...above, ...high, ...below] : [...above, ...sides, ...high, ...below];
   for (const [box, anchor] of cands) {
     if (!free(box)) continue;
     // Leader starts at the chip edge nearest the anchor.

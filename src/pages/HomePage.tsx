@@ -189,13 +189,15 @@ export function HomePage() {
   const goalLabel = debts.length > 0 && debtFreeDate && !allPaid ? `Debt-free · ${format(debtFreeDate, 'MMM yyyy')}` : 'Debt-free';
   const strategyName = strategy.strategy === 'avalanche' ? 'Avalanche, highest rate first' : 'Snowball, smallest balance first';
 
+  // The greeting lives in the friend's bubble (no label above the headline).
+  const hi = name ? `Hi, ${name}.` : 'Hi there.';
   const friendLine = cheer
     ? `Look at you go${name ? `, ${name}` : ''}. That is real progress.`
     : debts.length === 0
-      ? undefined
+      ? `${hi} Add a debt and the trail starts.`
       : due && due.days <= 14
-        ? `${due.days === 0 ? `${due.debt.name} is due today.` : `${due.days} day${due.days === 1 ? '' : 's'} till ${due.debt.name}'s due.`} You've got this${name ? `, ${name}` : ''}.`
-        : getEncouragement(summary.percentPaid);
+        ? `${hi} ${due.days === 0 ? `${due.debt.name} is due today.` : `${due.days} day${due.days === 1 ? '' : 's'} till ${due.debt.name}'s due.`}`
+        : `${hi} ${getEncouragement(summary.percentPaid)}`;
 
   /* ---- hero copy ---- */
   let line1: string;
@@ -245,7 +247,6 @@ export function HomePage() {
           )
         }
       >
-        <p className="dash-hi">{name ? `Hi, ${name}` : 'Hi there'}</p>
         <h1 className={`dash-h1${debtFreeDate && debts.length > 0 ? '' : allPaid ? '' : ' is-long'}`}>
           <span className="l1">{line1}</span>
           <span className="l2">{line2}</span>
@@ -371,7 +372,8 @@ export function HomePage() {
           </div>
         </div>
 
-        {/* Your debts */}
+        {/* Left column: the debts, then the payoff timeline and bills */}
+        <div className="dash-main">
         <section className="rui-card dash-debts">
           <div className="dash-sec-h">
             <Plank>Your debts</Plank>
@@ -414,6 +416,15 @@ export function HomePage() {
             })}
           </ul>
         </section>
+
+          {debtTimeline.length > 0 && (
+            <RanchSection title="Payoff timeline" note="When each debt gets paid off" icon={<ClipboardList size={18} aria-hidden="true" />}>
+              <DebtPayoffTimeline timeline={debtTimeline} />
+            </RanchSection>
+          )}
+
+          <UpcomingBills debts={debts} customCategories={customCategories} payments={payments} incomeSources={budget.incomeSources} subscriptions={subscriptions} />
+        </div>
 
         {/* Side: recent payments, milestones, numbers */}
         <div className="dash-side">
@@ -465,24 +476,19 @@ export function HomePage() {
               <div><dt>Monthly payment</dt><dd className="num">{formatCurrency(strategy.recurringFunding.amount)}</dd></div>
               <div><dt>Debts</dt><dd className="num">{debts.length}</dd></div>
               <div><dt>Time left</dt><dd className="good num">{timeUntilDebtFree || 'N/A'}</dd></div>
-            </dl>
-            {summary.totalCreditLimit > 0 && (
-              <div className="dash-credit">
-                <ProgressRing
-                  percentage={summary.creditUtilization}
-                  size={72}
-                  strokeWidth={9}
-                  color={summary.creditUtilization > 30 ? '#ef4444' : '#22c55e'}
-                  showLabel={false}
-                />
-                <div>
-                  <p className="dash-credit-t">Credit used: {formatPercent(summary.creditUtilization, 0)}</p>
-                  <p className="dash-sub">
-                    {formatCurrency(debts.filter((d) => d.creditLimit).reduce((s, d) => s + d.balance, 0))} of {formatCurrency(summary.totalCreditLimit)}
-                  </p>
+              {summary.totalCreditLimit > 0 && (
+                <div className="is-bar">
+                  <dt>Credit used</dt>
+                  <dd className={`num${summary.creditUtilization > 30 ? ' bad' : ' good'}`}>{formatPercent(summary.creditUtilization, 0)}</dd>
+                  <span className="dash-track" role="img" aria-label={`${formatPercent(summary.creditUtilization, 0)} of credit limit used`}>
+                    <i style={{ width: `${Math.min(100, Math.max(0, summary.creditUtilization))}%`, background: summary.creditUtilization > 30 ? 'var(--ranch-focus)' : 'var(--ranch-ok-fill)' }} />
+                  </span>
+                  <small>
+                    {formatCurrency(debts.filter((d) => d.creditLimit).reduce((sum, d) => sum + d.balance, 0))} of {formatCurrency(summary.totalCreditLimit)}
+                  </small>
                 </div>
-              </div>
-            )}
+              )}
+            </dl>
             {savings > 0 && (
               <p className="dash-save">
                 <Wallet size={18} aria-hidden="true" />
@@ -494,14 +500,6 @@ export function HomePage() {
 
         {/* The rest of the ranch */}
         <div className="dash-more">
-          {debtTimeline.length > 0 && (
-            <RanchSection title="Payoff timeline" note="When each debt gets paid off" icon={<ClipboardList size={18} aria-hidden="true" />}>
-              <DebtPayoffTimeline timeline={debtTimeline} />
-            </RanchSection>
-          )}
-
-          <UpcomingBills debts={debts} customCategories={customCategories} payments={payments} incomeSources={budget.incomeSources} subscriptions={subscriptions} />
-
           {plan.monthlyBreakdown && plan.monthlyBreakdown.length > 0 && (
             <RanchSection title="Analytics" note="Charts and detailed breakdowns" icon={<BarChart3 size={18} aria-hidden="true" />}>
               <div className="dash-charts">

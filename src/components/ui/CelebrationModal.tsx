@@ -63,23 +63,6 @@ const ALL_MASCOTS: Array<{ Component: MascotComponent; delay: number }> = [
   { Component: MapleFox, delay: 540 },
 ];
 
-// ─── Theme → emoji for ShareCard (SVG-safe, no canvas taint) ──────
-const THEME_ANIMAL_EMOJI: Record<ThemePreset, string> = {
-  default: '🐰',
-  'my-melody': '🐷',
-  kuromi: '🌙',
-  cinnamoroll: '🦦',
-  pompompurin: '🐥',
-  'hello-kitty': '🐱',
-  keroppi: '🐸',
-  chococat: '🐻',
-  maple: '🦊',
-  custom: '🐰',
-};
-
-/** All 10 herd animals in parade order for the full-herd ShareCard */
-const FULL_HERD_EMOJIS = ['🐰', '🐷', '🌙', '🦦', '🐥', '🐄', '🐱', '🐸', '🐻', '🦊'];
-
 // ─── Confetti generator ────────────────────────────────────────────
 const CONFETTI_COLORS = ['#a855f7', '#f9a8d4', '#fbbf24', '#34d399', '#60a5fa', '#fb923c'];
 const CONFETTI_COUNT = 80;
@@ -142,9 +125,11 @@ interface CelebrationModalProps {
   stats: CelebrationStats;
   themePreset: ThemePreset;
   onDismiss: () => void;
+  /** Settings' "Test Celebrations": sample figures, so the card is labeled and Save/Share are off. */
+  preview?: boolean;
 }
 
-export function CelebrationModal({ event, stats, themePreset, onDismiss }: CelebrationModalProps) {
+export function CelebrationModal({ event, stats, themePreset, onDismiss, preview = false }: CelebrationModalProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const ThemeMascot = THEME_MASCOT[themePreset] || LunaBunny;
 
@@ -152,9 +137,10 @@ export function CelebrationModal({ event, stats, themePreset, onDismiss }: Celeb
   const themeColors = THEME_PRESETS[themePreset as Exclude<ThemePreset, 'custom'>] || THEME_PRESETS.default;
   const themePrimary = themeColors.primary500;
 
-  // Animal emojis for the ShareCard — full herd or theme animal + cow
-  const themeEmoji = THEME_ANIMAL_EMOJI[themePreset] || '🐰';
-  const animalEmojis = event.isFullHerd ? FULL_HERD_EMOJIS : [themeEmoji, '🐄'];
+  // Drawn mascots for the ShareCard: full herd, or the theme friend and Debtsy
+  const shareAnimals = event.isFullHerd
+    ? ALL_MASCOTS.map(({ Component }, i) => <Component key={i} size={34} animated={false} />)
+    : [<ThemeMascot key="friend" size={84} animated={false} />, <DebtsyCow key="cow" size={84} animated={false} />];
 
   // Pre-capture card on mount so buttons are sync (preserves user-gesture for share)
   const [capturedUrl, setCapturedUrl] = useState<string | null>(null);
@@ -163,7 +149,7 @@ export function CelebrationModal({ event, stats, themePreset, onDismiss }: Celeb
   const [clipboardLabel, setClipboardLabel] = useState('Copy Image');
 
   const doCaptureCard = useCallback(async () => {
-    if (!cardRef.current) return;
+    if (preview || !cardRef.current) return;
     setCaptureError(false);
     try {
       const opts = { pixelRatio: 2, skipFonts: true, cacheBust: true };
@@ -174,7 +160,7 @@ export function CelebrationModal({ event, stats, themePreset, onDismiss }: Celeb
       console.error('Card capture failed:', err);
       setCaptureError(true);
     }
-  }, []);
+  }, [preview]);
 
   useEffect(() => {
     const timer = setTimeout(doCaptureCard, 400);
@@ -351,11 +337,22 @@ export function CelebrationModal({ event, stats, themePreset, onDismiss }: Celeb
           event={event}
           stats={stats}
           themePrimary={themePrimary}
-          animalEmojis={animalEmojis}
+          animals={shareAnimals}
+          preview={preview}
           palette={{ accent: ui.btnBg, accentInk: ui.btnFg, ink: ui.ink, ink2: ui.ink2, page: ui.page, page2: ui.page2, line: ui.line }}
         />
 
-        {showDesktopShare ? (
+        {preview ? (
+          <>
+            <div className="cel-btns">
+              <button type="button" disabled className="mdl-btn"><Download size={18} />Save Card</button>
+              <button type="button" disabled className="mdl-btn ghost"><Share2 size={18} />Share</button>
+            </div>
+            <p style={{ margin: 0, textAlign: 'center', fontSize: 14, fontWeight: 600, color: 'var(--ranch-ink2)' }}>
+              Preview with sample figures. Real wins use your numbers and can be saved or shared.
+            </p>
+          </>
+        ) : showDesktopShare ? (
           <div className="cel-btns">
             <button type="button" onClick={handleTwitterShare} className="mdl-btn">Share on X</button>
             <button type="button" onClick={handleFacebookShare} className="mdl-btn">Share on Facebook</button>

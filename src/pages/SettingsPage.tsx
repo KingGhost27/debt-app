@@ -485,6 +485,7 @@ export function SettingsPage() {
           event={testMilestone}
           stats={testMilestone.type === 'debt_free' ? { ...testStats, percentPaid: 100, totalPaid: 22000 } : testStats}
           themePreset={settings.theme.preset}
+          preview
           onDismiss={() => setTestMilestone(null)}
         />
       )}

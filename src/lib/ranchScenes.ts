@@ -191,7 +191,7 @@ export const RANCH_SCENES: Record<RanchSceneKey, RanchSceneDef> = {
     },
     ui: {
       ...UI_STATE_LIGHT, scheme: 'light',
-      ground: '#FCF1F3', page: '#FFFDFD', page2: '#F8E4E9', line: '#EFD2DA', track: '#F4DCE2',
+      ground: '#EFF6EC', page: '#FCFEFB', page2: '#E2EFDE', line: '#D0E3CA', track: '#D9E8D4',
       ink: '#4A1A2C', ink2: '#7A4256', ring: '#4A1A2C',
       btnBg: '#6E2440', btnSh: 'rgb(110 36 64 / .3)',
       focus: '#B42C5A', focusBg: '#FCE4EB', fill: '#D2577D', sh: 'rgb(120 40 70 / .14)',
@@ -266,7 +266,7 @@ export const RANCH_SCENES: Record<RanchSceneKey, RanchSceneDef> = {
     },
     ui: {
       ...UI_STATE_LIGHT, scheme: 'light', okInk: '#14633F', okBg: '#D3F0DE', okFill: '#2E8C5C',
-      ground: '#EEF6FC', page: '#FFFFFF', page2: '#E2EFF9', line: '#CEE1F0', track: '#D9E9F5',
+      ground: '#E9F5EC', page: '#FFFFFF', page2: '#DCEEE1', line: '#C6E0CE', track: '#D2E7D8',
       ink: '#12324F', ink2: '#3B5975', ring: '#12324F',
       btnBg: '#1C5487', btnSh: 'rgb(28 84 135 / .3)',
       focus: '#B9441E', focusBg: '#FCE8DE', fill: '#2F84C6', sh: 'rgb(20 60 100 / .14)',
@@ -340,7 +340,7 @@ export const RANCH_SCENES: Record<RanchSceneKey, RanchSceneDef> = {
     },
     ui: {
       ...UI_STATE_LIGHT, scheme: 'light', okInk: '#14633F', okBg: '#D3F0DE', okFill: '#2E8C5C',
-      ground: '#FDF1F3', page: '#FFFFFF', page2: '#FBE3E8', line: '#F2D0D8', track: '#F6DCE2',
+      ground: '#F0F6EA', page: '#FFFFFF', page2: '#F9E8EC', line: '#E2DFD2', track: '#E8EADD',
       ink: '#40101F', ink2: '#73384A', ring: '#40101F',
       btnBg: '#A8203F', btnSh: 'rgb(168 32 63 / .3)',
       focus: '#9A1F78', focusBg: '#F8E1F0', fill: '#E04B68', sh: 'rgb(120 30 50 / .14)',
@@ -419,7 +419,7 @@ export const RANCH_SCENES: Record<RanchSceneKey, RanchSceneDef> = {
     },
     ui: {
       ...UI_STATE_LIGHT, scheme: 'light',
-      ground: '#F7F0EA', page: '#FFFDFB', page2: '#F1E6DD', line: '#E5D5C9', track: '#ECDFD4',
+      ground: '#F3F0F8', page: '#FDFCFE', page2: '#E9E4F1', line: '#DAD2E6', track: '#E2DCEC',
       ink: '#3A2419', ink2: '#6A4A3A', ring: '#3A2419',
       btnBg: '#6B3A2A', btnSh: 'rgb(107 58 42 / .3)',
       focus: '#B23A2C', focusBg: '#FBE4DF', fill: '#9A5A3E', sh: 'rgb(80 50 35 / .15)',

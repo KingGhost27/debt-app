@@ -42,7 +42,7 @@ export function OnboardingPage({ onComplete, onSkip }: OnboardingPageProps) {
         <RanchStrip sceneKey={sceneKeyForPreset(currentPreset)}>
           <div className="ob-sky ob-rise">
             <h1 className="ob-h1">Welcome to Cowculator!</h1>
-            <p className="ob-tag">You're one step away from crushing your debt</p>
+            <p className="ob-tag">One quick question and you're set to crush your debt</p>
           </div>
           <div className="ob-cow" aria-hidden="true"><DebtsyCow size={128} /></div>
         </RanchStrip>
@@ -50,13 +50,6 @@ export function OnboardingPage({ onComplete, onSkip }: OnboardingPageProps) {
 
       <main className="ob-main">
         <div className="rui-card ob-card ob-rise" style={{ animationDelay: '.12s', ['--rui-card-shadow' as string]: '0 2px 4px var(--ranch-sh), 0 24px 40px -24px var(--ranch-sh)' }}>
-          {/* Step indicator: one step, so one node and the label */}
-          <div className="ob-steps" role="img" aria-label="Step 1 of 1, quick setup">
-            <span className="ob-node" aria-hidden="true">1</span>
-            <span className="ob-rail" aria-hidden="true" />
-            <span className="ob-step-t" aria-hidden="true">Step 1 of 1 — Quick Setup</span>
-          </div>
-
           <div>
             <h2 className="ob-q">What should we call you?</h2>
             <p className="ob-note">We'll use this to personalize your experience</p>

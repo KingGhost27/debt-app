@@ -19,10 +19,6 @@ html:has(.ob)[data-pattern]::after { content: none; }
 
 .ob-main { flex: 1; display: flex; justify-content: center; padding: 0 16px 36px; margin-top: 14px; position: relative; z-index: 4; }
 .ob-card { width: 100%; max-width: 440px; padding: 26px 22px 22px; display: grid; gap: 18px; align-content: start; align-self: start; }
-.ob-steps { display: flex; align-items: center; gap: 10px; }
-.ob-node { display: grid; place-items: center; flex: none; width: 30px; height: 30px; border-radius: 50%; background: var(--ranch-btn-bg); color: var(--ranch-btn-fg); font: 700 14px/1 Quicksand, sans-serif; }
-.ob-rail { flex: none; width: 34px; height: 0; border-top: 3px dotted var(--ranch-line); }
-.ob-step-t { font: 700 14px/1.2 Quicksand, sans-serif; color: var(--ranch-ink2); }
 .ob-q { font: 600 24px/1.2 Fredoka, sans-serif; text-wrap: balance; }
 .ob-note { font: 600 15px/1.4 Nunito, sans-serif; color: var(--ranch-ink2); margin-top: 4px; }
 .ob-form { display: grid; gap: 14px; }
@@ -56,3 +52,6 @@ html:has(.ob)[data-pattern]::after { content: none; }
   .ob-card { padding: 30px 30px 26px; }
 }
 @media (prefers-reduced-motion: reduce) { .ob-rise { animation: none; } .ob-go { transition: none; } .ob-go:hover { transform: none; } .ob-spin { animation-duration: 2s; } }
+
+/* The greeting sits in the sky and the strip's stars scatter anywhere, so none are drawn behind it. */
+.ob-hero .ranch .r-stars { display: none; }

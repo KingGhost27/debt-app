@@ -5,19 +5,22 @@
  * Forwarded ref so parent can capture it with html-to-image.
  * Contains stats, headline, and cowculator.net branding.
  * Ranch palette: colors come from the active scene via `palette`. Inline styles only and
- * system fonts, because html-to-image captures it with webfonts skipped; the animals are
- * emoji because SVG art taints the canvas in Firefox.
+ * system fonts, because html-to-image captures it with webfonts skipped. The animals are
+ * the drawn mascot SVGs, inline (never <img src=svg>, which taints the canvas).
  */
 
-import { forwardRef } from 'react';
+import { forwardRef, type ReactNode } from 'react';
+import { DebtsyCow } from './DebtsyCow';
 import type { MilestoneEvent, CelebrationStats } from '../../types/celebrations';
 
 interface ShareCardProps {
   event: MilestoneEvent;
   stats: CelebrationStats;
   themePrimary?: string;
-  /** Emojis to display in the card header — 2 for small milestones, 10 for full herd */
-  animalEmojis?: string[];
+  /** Drawn mascots for the card header: 2 for small milestones, 10 for the full herd. */
+  animals?: ReactNode[];
+  /** Sample figures from Settings: the card says so and is not meant to be shared. */
+  preview?: boolean;
   palette?: { accent: string; accentInk: string; ink: string; ink2: string; page: string; page2: string; line: string };
 }
 
@@ -29,7 +32,7 @@ function formatCurrency(n: number): string {
 }
 
 export const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
-  ({ event, stats, animalEmojis = ['🐄'], palette }, ref) => {
+  ({ event, stats, animals = [], palette, preview = false }, ref) => {
     const pal = palette ?? DEFAULT_PALETTE;
     return (
       <div
@@ -52,18 +55,23 @@ export const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
             position: 'relative',
           }}
         >
-          {/* Animal parade — emoji only (SVGs taint canvas in Firefox) */}
+          {preview && (
+            <span style={{ position: 'absolute', top: 12, right: 14, padding: '3px 10px', borderRadius: 999, background: pal.page, color: pal.ink, fontSize: 12, fontWeight: 800, letterSpacing: '.02em' }}>
+              Preview
+            </span>
+          )}
+          {/* Animal parade: the inline mascot SVGs */}
           <div style={{
             display: 'flex',
             justifyContent: 'center',
+            alignItems: 'flex-end',
             flexWrap: 'wrap',
-            gap: animalEmojis.length > 2 ? 4 : 8,
+            gap: animals.length > 2 ? 2 : 8,
             marginBottom: 10,
-            lineHeight: 1,
-            fontSize: animalEmojis.length > 2 ? 28 : 44,
+            lineHeight: 0,
           }}>
-            {animalEmojis.map((emoji, i) => (
-              <span key={i}>{emoji}</span>
+            {animals.map((animal, i) => (
+              <span key={i} style={{ display: 'inline-block', lineHeight: 0 }}>{animal}</span>
             ))}
           </div>
           <h2
@@ -127,8 +135,8 @@ export const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
             gap: 4,
           }}
         >
-          <span style={{ fontSize: 14, fontWeight: 700, color: pal.ink }}>
-            🐄 cowculator.net
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 14, fontWeight: 700, color: pal.ink }}>
+            <DebtsyCow size={24} animated={false} /> cowculator.net
           </span>
           <span style={{ fontSize: 12, color: pal.ink2 }}>
             Track your debt freedom journey
