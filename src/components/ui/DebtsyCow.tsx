@@ -68,7 +68,7 @@ export function DebtsyCow({ size = 72, className = '', animated = true }: Debtsy
 
       {/* Tiny coin tag on ear — the debt theming! */}
       <circle cx="83" cy="38" r="6" fill="#fbbf24" stroke="#d97706" strokeWidth="1" />
-      <text x="83" y="41.5" textAnchor="middle" fontSize="7" fill="#92400e" fontWeight="bold" fontFamily="sans-serif">$</text>
+      <text x="83" y="41.5" textAnchor="middle" fontSize="7" fill="#92400e" fontWeight="bold" fontFamily="Quicksand, sans-serif">$</text>
     </svg>
   );
 }
