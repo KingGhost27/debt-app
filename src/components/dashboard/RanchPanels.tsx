@@ -9,7 +9,7 @@ import { ChevronDown } from 'lucide-react';
 
 export function Plank({ children, icon }: { children: ReactNode; icon?: ReactNode }) {
   return (
-    <span className="dash-plank">
+    <span className="rui-plank">
       {icon}
       {children}
     </span>
@@ -31,7 +31,7 @@ export function RanchSection({
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <section className="dash-panel dash-section">
+    <section className="rui-card dash-section">
       <button type="button" className="dash-section-btn" aria-expanded={open} onClick={() => setOpen(!open)}>
         <Plank icon={icon}>{title}</Plank>
         {note && <span className="dash-note">{note}</span>}

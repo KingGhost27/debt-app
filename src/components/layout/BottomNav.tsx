@@ -1,79 +1,33 @@
 /**
- * Bottom Navigation Component - Kawaii Edition
- *
- * Cute mobile-style bottom navigation bar with playful animations.
- * Mobile/TWA only — hidden at md+ where the Sidebar takes over.
- * Nav items come from the shared ./navItems source (no duplication).
+ * BottomNav — the phone tab bar (below lg; the desktop rail takes over).
+ * Nav items come from the shared ./navItems source. Styling: `.rui-tabbar`
+ * in ranch-ui.css, built from the ranch tokens so every theme works.
  */
 
 import { NavLink, useLocation } from 'react-router-dom';
-import { Sparkles } from 'lucide-react';
 import { navItems } from './navItems';
 
 export function BottomNav() {
   const location = useLocation();
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg border-t border-primary-100/50 dark:border-gray-800 px-2 pb-safe z-50 sm:max-w-xl mx-auto">
-      {/* Decorative gradient line at top */}
-      <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-primary-300 to-transparent opacity-50" />
-
-      <div className="flex justify-around items-center h-16 max-w-lg mx-auto">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isMatchPath = item.matchPaths?.some((p) => location.pathname.startsWith(p));
-
-          return (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              className={({ isActive }) => {
-                const active = isActive || !!isMatchPath;
-                return `nav-item relative flex flex-col items-center justify-center px-2 py-2 rounded-2xl transition-all duration-300 ${
-                  active
-                    ? 'text-primary-600 bg-primary-50/80'
-                    : 'text-gray-400 hover:text-primary-400 hover:bg-primary-50/50'
-                }`;
-              }}
-            >
-              {({ isActive }) => {
-                const active = isActive || !!isMatchPath;
-                return (
-                  <>
-                    {/* Active indicator dot */}
-                    {active && (
-                      <span className="absolute -top-0.5 left-1/2 -translate-x-1/2 flex items-center gap-0.5">
-                        <Sparkles size={10} className="text-primary-400 animate-kawaii-pulse" />
-                      </span>
-                    )}
-
-                    {/* Icon with bounce animation on active */}
-                    <span className={`nav-icon transition-transform duration-200 ${active ? 'scale-110' : ''}`}>
-                      <Icon
-                        size={22}
-                        strokeWidth={active ? 2.5 : 2}
-                        fill={active && item.fillWhenActive ? 'currentColor' : 'none'}
-                      />
-                    </span>
-
-                    {/* Label */}
-                    <span className={`text-[10px] mt-1 font-semibold tracking-wide transition-all duration-200 ${
-                      active ? 'text-primary-600' : ''
-                    }`}>
-                      {item.shortLabel ?? item.label}
-                    </span>
-
-                    {/* Active bottom indicator */}
-                    {active && (
-                      <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary-500" />
-                    )}
-                  </>
-                );
-              }}
-            </NavLink>
-          );
-        })}
-      </div>
+    <nav className="rui-tabbar" aria-label="Pages">
+      {navItems.map((item) => {
+        const Icon = item.icon;
+        const isMatchPath = item.matchPaths?.some((p) => location.pathname.startsWith(p));
+        return (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            className={({ isActive }) => `rui-tab${isActive || isMatchPath ? ' is-active' : ''}`}
+          >
+            <span className="rui-tab-pill">
+              <Icon size={22} strokeWidth={2} aria-hidden="true" />
+            </span>
+            <span className="rui-tab-label">{item.shortLabel ?? item.label}</span>
+          </NavLink>
+        );
+      })}
     </nav>
   );
 }

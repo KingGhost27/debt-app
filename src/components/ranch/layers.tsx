@@ -476,7 +476,7 @@ function Hay({ x, y, s }: { x: number; y: number; s: number }) {
   );
 }
 
-function Fence({ ch, step, h0, depth, snow }: { ch: Cubic[]; step: number; h0: number; depth: (y: number) => number; snow: boolean }) {
+export function Fence({ ch, step, h0, depth, snow }: { ch: Cubic[]; step: number; h0: number; depth: (y: number) => number; snow: boolean }) {
   const pts = along(ch, step);
   let posts = '', caps = '';
   const top: string[] = [], mid: string[] = [];

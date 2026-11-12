@@ -1,13 +1,17 @@
 /**
- * Page Header Component - Kawaii Edition
+ * PageHeader — the ranch strip at the top of every non-dashboard page.
  *
- * Delightful header for each page with cute gradients and decorations.
- * Features soft rounded corners and playful styling.
+ * A slim band of sky, hills, fence and the active theme's friend
+ * (RanchStrip), with the page title on a plank and the page's own action on
+ * the right. Settings lives in the nav, so the header no longer carries a gear.
+ * `emoji` and `gradient` are accepted for call-site compatibility and ignored:
+ * the strip's friend replaces the emoji.
  */
 
 import type { ReactNode } from 'react';
-import { Sparkles, Settings } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { RanchStrip } from '../ranch/RanchStrip';
+import { useApp } from '../../context/AppContext';
+import { sceneKeyForPreset } from '../../lib/ranchScenes';
 
 interface PageHeaderProps {
   title: string;
@@ -17,81 +21,18 @@ interface PageHeaderProps {
   emoji?: string;
 }
 
-export function PageHeader({
-  title,
-  subtitle,
-  action,
-  gradient = true,
-  emoji,
-}: PageHeaderProps) {
-  const location = useLocation();
-  const isSettingsPage = location.pathname === '/settings';
+export function PageHeader({ title, subtitle, action }: PageHeaderProps) {
+  const { settings } = useApp();
+  const sceneKey = sceneKeyForPreset(settings.theme?.preset);
   return (
-    <header
-      className={`page-header px-4 pt-12 md:pt-8 pb-8 relative overflow-hidden ${
-        gradient
-          ? 'bg-gradient-to-b from-primary-200 to-primary-100/50'
-          : 'bg-white'
-      }`}
-    >
-      {/* Decorative circles */}
-      <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary-300/20 rounded-full blur-2xl" />
-      <div className="absolute top-1/2 -left-10 w-24 h-24 bg-accent/20 rounded-full blur-xl" />
-
-      {/* Sparkle decorations */}
-      <Sparkles
-        size={16}
-        className="absolute top-8 right-12 text-primary-400/40 animate-kawaii-pulse"
-      />
-      <Sparkles
-        size={12}
-        className="absolute top-16 right-8 text-primary-300/30 animate-kawaii-pulse"
-        style={{ animationDelay: '0.5s' }}
-      />
-
-      <div className="flex justify-between items-start relative z-10">
-        <div className="flex items-center gap-3">
-          {emoji && (
-            <span className="text-3xl animate-kawaii-float" style={{ animationDuration: '3s' }}>
-              {emoji}
-            </span>
-          )}
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
-              {title}
-            </h1>
-            {subtitle && (
-              <p className="text-gray-600 mt-1 text-sm">{subtitle}</p>
-            )}
-          </div>
+    <RanchStrip sceneKey={sceneKey}>
+      <div className="rui-strip-in">
+        <div className="rui-strip-copy">
+          <h1 className="rui-plank rui-plank-lg">{title}</h1>
+          {subtitle && <p className="rui-strip-sub">{subtitle}</p>}
         </div>
-        <div className="flex items-center gap-2 animate-pop-in" style={{ animationDelay: '0.2s' }}>
-          {action && <div>{action}</div>}
-          {!isSettingsPage && (
-            <Link
-              to="/settings"
-              className="w-9 h-9 flex items-center justify-center rounded-2xl bg-white/60 hover:bg-white/90 transition-all text-gray-500 hover:text-primary-600 shadow-sm"
-            >
-              <Settings size={18} />
-            </Link>
-          )}
-        </div>
+        {action && <div className="rui-strip-act">{action}</div>}
       </div>
-
-      {/* Bottom wave decoration */}
-      <div className="absolute bottom-0 left-0 right-0 h-4 overflow-hidden">
-        <svg
-          viewBox="0 0 1200 30"
-          className="w-full h-full"
-          preserveAspectRatio="none"
-        >
-          <path
-            d="M0,15 Q300,30 600,15 T1200,15 L1200,30 L0,30 Z"
-            fill="currentColor"
-            className="text-gray-50"
-          />
-        </svg>
-      </div>
-    </header>
+    </RanchStrip>
   );
 }

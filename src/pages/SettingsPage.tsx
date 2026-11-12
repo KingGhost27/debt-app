@@ -23,6 +23,7 @@ import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { useConfirmDialog } from '../hooks/useConfirmDialog';
 import { DeleteAccountSection } from '../components/settings/DeleteAccountSection';
 import { isRunningInTwa } from '../lib/twa';
+import { PageHeader } from '../components/layout/PageHeader';
 
 export function SettingsPage() {
   const navigate = useNavigate();
@@ -169,38 +170,15 @@ export function SettingsPage() {
 
   return (
     <div className="min-h-screen animate-page-enter">
-      {/* Header */}
-      <header className="page-header bg-gradient-to-b from-primary-200 to-primary-100/50 px-4 pt-8 pb-6 sm:pt-12 sm:pb-8 relative overflow-hidden">
-        {/* Decorative elements */}
-        <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary-300/20 rounded-full blur-2xl" />
-        <div className="absolute top-1/2 -left-10 w-24 h-24 bg-accent/20 rounded-full blur-xl" />
-        <Sparkles size={16} className="absolute top-8 right-12 text-primary-400/40 animate-kawaii-pulse" />
-
-        <div className="flex justify-between items-start relative z-10">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <span className="text-2xl sm:text-3xl animate-kawaii-float" style={{ animationDuration: '3s' }}>
-              {getThemeEmoji()}
-            </span>
-            <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Settings</h1>
-              <p className="text-gray-600 text-xs sm:text-sm">Make it yours!</p>
-            </div>
-          </div>
-          <button
-            onClick={() => navigate(-1)}
-            className="btn-icon"
-          >
-            <ChevronLeft size={20} className="text-gray-500" />
+      <PageHeader
+        title="Settings"
+        subtitle="Make it yours!"
+        action={
+          <button onClick={() => navigate(-1)} className="btn-icon" aria-label="Go back">
+            <ChevronLeft size={20} />
           </button>
-        </div>
-
-        {/* Wave decoration */}
-        <div className="absolute bottom-0 left-0 right-0 h-4 overflow-hidden">
-          <svg viewBox="0 0 1200 30" className="w-full h-full" preserveAspectRatio="none">
-            <path d="M0,15 Q300,30 600,15 T1200,15 L1200,30 L0,30 Z" fill="currentColor" className="text-gray-50" />
-          </svg>
-        </div>
-      </header>
+        }
+      />
 
       <div className="px-4 py-6 space-y-5">
         {/* Profile Section */}

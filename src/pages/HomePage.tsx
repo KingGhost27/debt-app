@@ -13,7 +13,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { format, parseISO } from 'date-fns';
 import {
-  BarChart3, CalendarCheck, Check, ClipboardList, Flame, PieChart as PieChartIcon, Plus, Receipt, Settings,
+  BarChart3, CalendarCheck, Check, ClipboardList, Flame, PieChart as PieChartIcon, Plus, Receipt,
   Sparkles, Trophy, TrendingDown, Wallet, ChevronRight,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -257,9 +257,6 @@ export function HomePage() {
           </p>
         )}
       </RanchScene>
-      <Link to="/settings" className="dash-gear" aria-label="Settings">
-        <Settings size={20} aria-hidden="true" />
-      </Link>
     </div>
   );
 
@@ -268,7 +265,7 @@ export function HomePage() {
       <div className="dash animate-page-enter">
         {scene}
         <div className="dash-content">
-          <section className="dash-panel dash-start">
+          <section className="rui-card dash-start">
             <Plank>Getting started</Plank>
             <ol className="dash-steps">
               <li><span className="dash-rank">1</span><div><h3>Add your debts</h3><p>Balances, rates and minimums. Each one becomes a signpost.</p></div><Link to="/debts" className="dash-ghost">Add a debt</Link></li>
@@ -294,7 +291,7 @@ export function HomePage() {
 
       <div className="dash-content">
         {/* Up next / paycheck / streak */}
-        <div className="dash-panel dash-today">
+        <div className="rui-card dash-today">
           <div className="dash-cell">
             <h2 className="dash-ch"><span className="dash-ic"><CalendarCheck size={18} aria-hidden="true" /></span>Up next</h2>
             {due ? (
@@ -302,7 +299,7 @@ export function HomePage() {
                 <p className="dash-big"><span className="dash-dot" aria-hidden="true" /><span className="dash-who">{due.debt.name}</span> <span className="num">{money0(due.debt.minimumPayment)}</span></p>
                 <p className="dash-sub">
                   Due {format(due.date, 'EEE MMM d')} · {dueLabel(due.days)}
-                  {due.days <= 7 && <span className="dash-badge soon">Due soon</span>}
+                  {due.days <= 7 && <span className="rui-badge soon">Due soon</span>}
                 </p>
               </>
             ) : (
@@ -363,7 +360,7 @@ export function HomePage() {
                 </div>
                 <p className="dash-sub">
                   <b>{streak.consecutiveMonths}</b> {streak.consecutiveMonths === 1 ? 'month' : 'months'} in a row
-                  {streak.currentMonthOnTrack && <span className="dash-badge ok"><Check size={13} aria-hidden="true" />On track</span>}
+                  {streak.currentMonthOnTrack && <span className="rui-badge ok"><Check size={13} aria-hidden="true" />On track</span>}
                 </p>
                 <p className="dash-sub">
                   {streak.totalCompletedPayments} payments total
@@ -375,7 +372,7 @@ export function HomePage() {
         </div>
 
         {/* Your debts */}
-        <section className="dash-panel dash-debts">
+        <section className="rui-card dash-debts">
           <div className="dash-sec-h">
             <Plank>Your debts</Plank>
             <p className="dash-note">
@@ -394,9 +391,9 @@ export function HomePage() {
                   <div className="dash-dname">
                     <h3>
                       {debt.name}
-                      {status === 'focus' && <span className="dash-badge focus"><Sparkles size={13} aria-hidden="true" />Focus</span>}
-                      {soon && <span className="dash-badge soon">Due soon</span>}
-                      {status === 'paid' && <span className="dash-badge ok"><Check size={13} aria-hidden="true" />Paid off</span>}
+                      {status === 'focus' && <span className="rui-badge focus"><Sparkles size={13} aria-hidden="true" />Focus</span>}
+                      {soon && <span className="rui-badge soon">Due soon</span>}
+                      {status === 'paid' && <span className="rui-badge ok"><Check size={13} aria-hidden="true" />Paid off</span>}
                     </h3>
                     <p className="dash-dmeta">
                       {status === 'paid'
@@ -421,7 +418,7 @@ export function HomePage() {
         {/* Side: recent payments, milestones, numbers */}
         <div className="dash-side">
           {!isPaymentHistoryLocked && completedPayments.length > 0 && (
-            <section className="dash-panel dash-recent">
+            <section className="rui-card dash-recent">
               <div className="dash-sec-h"><Plank>Recent payments</Plank></div>
               <ul className="dash-rl">
                 {completedPayments.slice(0, 4).map((p) => {
@@ -441,7 +438,7 @@ export function HomePage() {
             </section>
           )}
 
-          <section className="dash-panel dash-miles">
+          <section className="rui-card dash-miles">
             <div className="dash-sec-h"><Plank icon={null}>Milestones</Plank></div>
             <ul className="dash-ml">
               {paidDebts[0] && (
@@ -461,7 +458,7 @@ export function HomePage() {
             </div>
           </section>
 
-          <section className="dash-panel dash-nums">
+          <section className="rui-card dash-nums">
             <div className="dash-sec-h"><Plank>The numbers</Plank></div>
             <dl className="dash-stats">
               <div><dt>Total interest</dt><dd className="bad num">{formatCurrency(plan.totalInterest)}</dd></div>
