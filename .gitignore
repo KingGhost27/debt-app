@@ -28,3 +28,6 @@ dist-ssr
 *.sln
 *.sw?
 .vercel
+
+# Impeccable review captures (local evidence, not source)
+.impeccable/review/
