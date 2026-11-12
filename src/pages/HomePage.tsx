@@ -1,13 +1,21 @@
 /**
- * Home Page - Kawaii Edition
+ * Home Page (Dashboard) - the ranch.
  *
- * Delightful dashboard showing overall debt payoff progress.
- * Features: Cute animations, encouraging messages, progress celebration.
+ * The scene leads: the trail from the barn to the debt-free flag is the
+ * user's real progress, each debt is a signpost placed where the active
+ * strategy clears it, and the greeting, headline, figures and "Log a
+ * payment" sit over the sky. Logging a payment plays the walk-the-trail move
+ * and the figures roll. Below the scene: up next, latest paycheck, on-time
+ * streak, the debts, recent payments, milestones, and the longer modules
+ * (payoff timeline, bills, analytics, calendar, history, categories, summary).
  */
 
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { format, parseISO } from 'date-fns';
-import { Target, Sparkles, TrendingDown, Calendar, Wallet, Receipt, ChevronRight, ChevronDown, Trophy, BarChart3, PieChart as PieChartIcon, ClipboardList, Settings } from 'lucide-react';
+import {
+  BarChart3, CalendarCheck, Check, ClipboardList, Flame, PieChart as PieChartIcon, Plus, Receipt, Settings,
+  Sparkles, Trophy, TrendingDown, Wallet, ChevronRight,
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useToast } from '../components/ui/Toast';
@@ -20,15 +28,18 @@ import {
   calculatePayPeriodRemaining,
 } from '../lib/calculations';
 import { computeOverallMilestones, computeDebtPayoffTimeline, computePaymentStreak } from '../lib/milestones';
+import { sceneKeyForPreset } from '../lib/ranchScenes';
+import { nextDue, orderDebts, toRanchDebts } from '../lib/dashboardTrail';
+import { RanchScene, type RanchWalk } from '../components/ranch/RanchScene';
+import { Plank, RanchSection } from '../components/dashboard/RanchPanels';
+import { RollingNumber } from '../components/ui/RollingNumber';
 import { ProgressRing } from '../components/ui/ProgressRing';
-import { DebtsyCow } from '../components/ui/DebtsyCow';
 import { DebtOverTimeChart } from '../components/ui/DebtOverTimeChart';
 import { MilestoneTracker } from '../components/ui/MilestoneTracker';
 import { DebtPayoffTimeline } from '../components/ui/DebtPayoffTimeline';
-import { PaymentStreakCard } from '../components/ui/PaymentStreakCard';
 import { UpcomingBills } from '../components/ui/UpcomingBills';
 import { MiniCalendar } from '../components/ui/MiniCalendar';
-import { EmptyState } from '../components/ui/EmptyState';
+import { PaymentModal } from '../components/ui/PaymentModal';
 import { InterestVsPrincipalChart } from '../components/analytics/InterestVsPrincipalChart';
 import { DebtBreakdownChart } from '../components/analytics/DebtBreakdownChart';
 import { PaymentHistorySummary } from '../components/analytics/PaymentHistorySummary';
@@ -36,8 +47,11 @@ import { ProLockedOverlay } from '../components/ui/ProLockedOverlay';
 import { useFeatureGate } from '../hooks/useFeatureGate';
 import { PRO_FEATURE_COPY } from '../lib/tierLimits';
 import { CATEGORY_INFO } from '../types';
+import './dashboard.css';
 
-// Encouraging messages based on progress
+const money0 = (n: number) =>
+  new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n);
+
 const getEncouragement = (percentPaid: number) => {
   if (percentPaid >= 100) return "You did it! You're debt-free!";
   if (percentPaid >= 75) return "Almost there! You're doing amazing!";
@@ -47,54 +61,18 @@ const getEncouragement = (percentPaid: number) => {
   return "Let's start your journey!";
 };
 
-function CollapsibleSection({
-  title,
-  subtitle,
-  icon,
-  iconGradient = 'from-primary-400 to-primary-600',
-  children,
-  defaultOpen = false,
-}: {
-  title: string;
-  subtitle?: string;
-  icon: ReactNode;
-  iconGradient?: string;
-  children: ReactNode;
-  defaultOpen?: boolean;
-}) {
-  const [isOpen, setIsOpen] = useState(defaultOpen);
-  return (
-    <div className="card">
-      <button onClick={() => setIsOpen(!isOpen)} className="w-full flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className={`w-10 h-10 rounded-2xl bg-gradient-to-br ${iconGradient} flex items-center justify-center`}>
-            {icon}
-          </div>
-          <div className="text-left">
-            <h2 className="font-bold text-gray-900">{title}</h2>
-            {subtitle && <p className="text-xs text-gray-500">{subtitle}</p>}
-          </div>
-        </div>
-        <ChevronDown
-          size={20}
-          className={`text-gray-400 transition-transform duration-200 flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`}
-        />
-      </button>
-      <div className={`grid transition-all duration-200 ${isOpen ? 'grid-rows-[1fr] mt-4' : 'grid-rows-[0fr]'}`}>
-        <div className="overflow-hidden">{children}</div>
-      </div>
-    </div>
-  );
-}
+const dueLabel = (days: number) => (days === 0 ? 'today' : days === 1 ? 'tomorrow' : `in ${days} days`);
 
 export function HomePage() {
-  const { debts, strategy, settings, customCategories, budget, payments, subscriptions, receivedPaychecks, landingHandoff, consumeLandingHandoff } = useApp();
+  const {
+    debts, strategy, settings, customCategories, budget, payments, subscriptions, receivedPaychecks,
+    landingHandoff, consumeLandingHandoff,
+  } = useApp();
   const { isInterestVsPrincipalLocked, isPaymentHistoryLocked, isBillCalendarLocked } = useFeatureGate();
   const { showToast } = useToast();
 
-  // Landing-page welcome — fires once if a brand-new account just had its
-  // public-calculator debts seeded into Supabase by AppContext. The ref guard
-  // protects against StrictMode double-effect + any re-render race.
+  // Landing-page welcome: fires once if a brand-new account just had its
+  // public-calculator debts seeded by AppContext (ref guard covers StrictMode).
   const landingToastFiredRef = useRef(false);
   useEffect(() => {
     if (!landingHandoff || landingToastFiredRef.current) return;
@@ -107,598 +85,268 @@ export function HomePage() {
     consumeLandingHandoff();
   }, [landingHandoff, consumeLandingHandoff, showToast]);
 
-  // Calculate summary stats
   const summary = useMemo(() => calculateDebtSummary(debts), [debts]);
-
-  // Generate payoff plan
-  const plan = useMemo(
-    () => generatePayoffPlan(debts, strategy),
-    [debts, strategy]
-  );
+  const plan = useMemo(() => generatePayoffPlan(debts, strategy), [debts, strategy]);
 
   const debtFreeDate = plan.debtFreeDate ? parseISO(plan.debtFreeDate) : null;
   const timeUntilDebtFree = debtFreeDate ? formatTimeUntil(debtFreeDate) : null;
-  const encouragement = getEncouragement(summary.percentPaid);
+  const paidShare = Math.max(0, Math.min(1, summary.percentPaid / 100));
+  const allPaid = debts.length > 0 && summary.totalBalance <= 0;
 
-  // Get payoff milestones in order
-  const payoffMilestones = useMemo(() => {
-    const milestones: { debtId: string; debtName: string; payoffDate: string; totalPaid: number }[] = [];
-    plan.steps.forEach((step) => {
-      step.milestonesInStep.forEach((milestone) => {
-        milestones.push(milestone);
-      });
-    });
-    return milestones;
-  }, [plan.steps]);
+  const ordered = useMemo(() => orderDebts(debts, plan), [debts, plan]);
+  const ranchDebts = useMemo(() => toRanchDebts(ordered, paidShare), [ordered, paidShare]);
+  const focus = ordered.find((t) => t.status === 'focus')?.debt ?? null;
+  const due = useMemo(() => nextDue(debts), [debts]);
 
-  // Get latest paycheck and calculate remaining
+  // Latest paycheck and what is left after bills
   const paycheckSummary = useMemo(() => {
     if (receivedPaychecks.length === 0) return null;
-
-    // Get the most recent paycheck
-    const sortedPaychecks = [...receivedPaychecks].sort(
+    const latest = [...receivedPaychecks].sort(
       (a, b) => new Date(b.payDate).getTime() - new Date(a.payDate).getTime()
-    );
-    const latestPaycheck = sortedPaychecks[0];
-
-    // Get the income source name
-    const incomeSource = budget.incomeSources.find((s) => s.id === latestPaycheck.incomeSourceId);
-
-    // Calculate remaining after bills
-    const periodSummary = calculatePayPeriodRemaining(
-      latestPaycheck,
-      debts,
-      subscriptions,
-      true, // include subscriptions
-      payments
-    );
-
+    )[0];
+    const incomeSource = budget.incomeSources.find((s) => s.id === latest.incomeSourceId);
+    const period = calculatePayPeriodRemaining(latest, debts, subscriptions, true, payments);
     return {
-      paycheck: latestPaycheck,
+      paycheck: latest,
       sourceName: incomeSource?.name || 'Unknown',
-      remaining: periodSummary.remaining,
-      totalBills: periodSummary.totalBills,
-      totalSubscriptions: periodSummary.totalSubscriptions,
-      billCount: periodSummary.bills.length,
-      subCount: periodSummary.subs.length,
-      unpaidBillCount: periodSummary.bills.filter((b) => !b.isPaid).length,
+      remaining: period.remaining,
+      totalBills: period.totalBills,
+      totalSubscriptions: period.totalSubscriptions,
+      unpaidBillCount: period.bills.filter((b) => !b.isPaid).length,
     };
   }, [receivedPaychecks, budget.incomeSources, debts, subscriptions, payments]);
 
-  // Compute milestone data
-  const totalOriginalBalance = useMemo(
-    () => debts.reduce((sum, d) => sum + d.originalBalance, 0),
-    [debts]
-  );
-
+  const totalOriginalBalance = useMemo(() => debts.reduce((s, d) => s + d.originalBalance, 0), [debts]);
   const overallMilestones = useMemo(
     () => computeOverallMilestones(summary.percentPaid, totalOriginalBalance, plan.monthlyBreakdown),
     [summary.percentPaid, totalOriginalBalance, plan.monthlyBreakdown]
   );
+  const debtTimeline = useMemo(() => computeDebtPayoffTimeline(debts, plan), [debts, plan]);
+  const streak = useMemo(() => computePaymentStreak(payments, debts), [payments, debts]);
 
-  const debtTimeline = useMemo(
-    () => computeDebtPayoffTimeline(debts, plan),
-    [debts, plan]
+  const categories = useMemo(
+    () =>
+      Object.entries(summary.debtsByCategory)
+        .filter(([, balance]) => balance > 0)
+        .map(([category, balance]) => ({
+          category,
+          balance,
+          ...CATEGORY_INFO[category as keyof typeof CATEGORY_INFO],
+        }))
+        .sort((a, b) => b.balance - a.balance),
+    [summary.debtsByCategory]
   );
 
-  const streakData = useMemo(
-    () => computePaymentStreak(payments, debts),
-    [payments, debts]
+  const completedPayments = useMemo(
+    () => payments.filter((p) => p.isCompleted).sort((a, b) => b.date.localeCompare(a.date)),
+    [payments]
   );
 
-  // Get categories with balances
-  const categories = useMemo(() => {
-    return Object.entries(summary.debtsByCategory)
-      .filter(([, balance]) => balance > 0)
-      .map(([category, balance]) => ({
-        category,
-        balance,
-        ...CATEGORY_INFO[category as keyof typeof CATEGORY_INFO],
-      }))
-      .sort((a, b) => b.balance - a.balance);
-  }, [summary.debtsByCategory]);
+  // Strategy savings: interest saved by paying the funded amount vs minimums only
+  const savings = useMemo(() => {
+    if (debts.length === 0) return 0;
+    const minOnly = generatePayoffPlan(debts, {
+      ...strategy,
+      recurringFunding: { ...strategy.recurringFunding, amount: summary.totalMinimumPayments },
+    });
+    return minOnly.totalInterest - plan.totalInterest;
+  }, [debts, strategy, summary.totalMinimumPayments, plan.totalInterest]);
+
+  /* ---- log a payment + walk the trail ---- */
+  const [payOpen, setPayOpen] = useState(false);
+  const [walk, setWalk] = useState<RanchWalk | null>(null);
+  const [cheer, setCheer] = useState(false);
+  const armed = useRef<{ share: number } | null>(null);
+  const lastShare = useRef(paidShare);
+
+  const openPayment = useCallback(() => {
+    armed.current = { share: lastShare.current };
+    setPayOpen(true);
+  }, []);
+  const closePayment = useCallback(() => {
+    setPayOpen(false);
+    // Stay armed just long enough for the saved payment to land in state.
+    window.setTimeout(() => { armed.current = null; }, 1500);
+  }, []);
+
+  useEffect(() => {
+    const prev = lastShare.current;
+    lastShare.current = paidShare;
+    if (armed.current && paidShare > prev + 1e-6) {
+      setWalk({ id: Date.now(), from: armed.current.share });
+      armed.current = null;
+      setCheer(true);
+    }
+  }, [paidShare]);
+  useEffect(() => {
+    if (!cheer) return;
+    const t = window.setTimeout(() => setCheer(false), 7000);
+    return () => window.clearTimeout(t);
+  }, [cheer]);
+
+  const name = settings.userName?.trim() || '';
+  const sceneKey = sceneKeyForPreset(settings.theme?.preset);
+  const goalLabel = debts.length > 0 && debtFreeDate && !allPaid ? `Debt-free · ${format(debtFreeDate, 'MMM yyyy')}` : 'Debt-free';
+  const strategyName = strategy.strategy === 'avalanche' ? 'Avalanche, highest rate first' : 'Snowball, smallest balance first';
+
+  const friendLine = cheer
+    ? `Look at you go${name ? `, ${name}` : ''}. That is real progress.`
+    : debts.length === 0
+      ? undefined
+      : due && due.days <= 14
+        ? `${due.days === 0 ? `${due.debt.name} is due today.` : `${due.days} day${due.days === 1 ? '' : 's'} till ${due.debt.name}'s due.`} You've got this${name ? `, ${name}` : ''}.`
+        : getEncouragement(summary.percentPaid);
+
+  /* ---- hero copy ---- */
+  let line1: string;
+  let line2: string;
+  if (debts.length === 0) {
+    line1 = 'Your trail';
+    line2 = 'starts here';
+  } else if (allPaid) {
+    line1 = "You're";
+    line2 = 'Debt-free!';
+  } else if (debtFreeDate) {
+    line1 = 'Debt-free in';
+    line2 = format(debtFreeDate, 'MMM yyyy');
+  } else {
+    line1 = 'Payments are short';
+    line2 = 'Raise your plan';
+  }
+
+  const scene = (
+    <div className="dash-scene">
+      <RanchScene
+        sceneKey={sceneKey}
+        paidShare={debts.length ? paidShare : 0}
+        debts={ranchDebts}
+        goalLabel={goalLabel}
+        friendLine={friendLine}
+        walk={walk}
+        actions={
+          debts.length === 0 ? (
+            <div className="dash-act">
+              <Link to="/debts" className="dash-btn">
+                <Plus size={20} aria-hidden="true" /> Add your first debt
+              </Link>
+              <span className="dash-hint dash-hint-phone">Debtsy will map them onto the trail.</span>
+            </div>
+          ) : (
+            <div className="dash-act">
+              <button type="button" className="dash-btn" onClick={openPayment}>
+                <Plus size={20} aria-hidden="true" /> Log a payment
+              </button>
+              {focus && (
+                <span className="dash-hint dash-hint-phone">
+                  Next: {money0(focus.minimumPayment)} to {focus.name}
+                </span>
+              )}
+            </div>
+          )
+        }
+      >
+        <p className="dash-hi">{name ? `Hi, ${name}` : 'Hi there'}</p>
+        <h1 className={`dash-h1${debtFreeDate && debts.length > 0 ? '' : allPaid ? '' : ' is-long'}`}>
+          <span className="l1">{line1}</span>
+          <span className="l2">{line2}</span>
+        </h1>
+        {debts.length > 0 && (
+          <p className="dash-money">
+            <RollingNumber value={summary.totalBalance} /> left · <RollingNumber value={summary.principalPaid} /> paid (
+            {Math.round(summary.percentPaid)}%)
+          </p>
+        )}
+      </RanchScene>
+      <Link to="/settings" className="dash-gear" aria-label="Settings">
+        <Settings size={20} aria-hidden="true" />
+      </Link>
+    </div>
+  );
 
   if (debts.length === 0) {
     return (
-      <div className="min-h-screen animate-page-enter">
-        {/* Header */}
-        <header className="page-header bg-gradient-to-b from-primary-200 to-primary-100/50 px-4 pt-12 pb-8 relative overflow-hidden">
-          {/* Decorative elements */}
-          <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary-300/20 rounded-full blur-2xl" />
-          <div className="absolute top-1/2 -left-10 w-24 h-24 bg-accent/20 rounded-full blur-xl" />
-          <Sparkles size={16} className="absolute top-8 right-12 text-primary-400/40 animate-kawaii-pulse" />
-
-          <div className="relative z-10 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <DebtsyCow size={64} />
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                  Hi{settings.userName ? ` ${settings.userName}` : ''}!
-                  <span className="text-2xl animate-kawaii-float" style={{ animationDuration: '2s' }}>
-                    {settings.theme.preset === 'cinnamoroll' ? '🦦' : settings.theme.preset === 'pompompurin' ? '🐥' : settings.theme.preset === 'keroppi' ? '🐸' : settings.theme.preset === 'chococat' ? '🐻' : settings.theme.preset === 'maple' ? '🦊' : settings.theme.preset === 'kuromi' ? '🌙' : settings.theme.preset === 'my-melody' || settings.theme.preset === 'hello-kitty' ? '🐷' : '🐰'}
-                  </span>
-                </h1>
-                <p className="text-gray-600 text-sm">Ready to start your debt-free journey?</p>
-              </div>
-            </div>
-            <Link to="/settings" className="w-9 h-9 flex items-center justify-center rounded-2xl bg-white/60 hover:bg-white/90 transition-all text-gray-500 hover:text-primary-600 shadow-sm flex-shrink-0">
-              <Settings size={18} />
-            </Link>
-          </div>
-
-          {/* Wave decoration */}
-          <div className="absolute bottom-0 left-0 right-0 h-4 overflow-hidden">
-            <svg viewBox="0 0 1200 30" className="w-full h-full" preserveAspectRatio="none">
-              <path d="M0,15 Q300,30 600,15 T1200,15 L1200,30 L0,30 Z" fill="currentColor" className="text-gray-50" />
-            </svg>
-          </div>
-        </header>
-
-        {/* Empty state */}
-        <div className="px-4">
-          <EmptyState
-            icon="🎯"
-            title="Start Your Debt-Free Journey"
-            description="Add your debts to see your personalized payoff plan and track your progress toward financial freedom!"
-            action={{ label: "Add Your First Debt", href: "/debts" }}
-            encouragement="You've got this!"
-          />
+      <div className="dash animate-page-enter">
+        {scene}
+        <div className="dash-content">
+          <section className="dash-panel dash-start">
+            <Plank>Getting started</Plank>
+            <ol className="dash-steps">
+              <li><span className="dash-rank">1</span><div><h3>Add your debts</h3><p>Balances, rates and minimums. Each one becomes a signpost.</p></div><Link to="/debts" className="dash-ghost">Add a debt</Link></li>
+              <li><span className="dash-rank">2</span><div><h3>Add your income</h3><p>So we know what is left to put toward them.</p></div><Link to="/track" className="dash-ghost">Add income</Link></li>
+              <li><span className="dash-rank">3</span><div><h3>See your plan</h3><p>Your debt-free date, in the order that saves you the most.</p></div><Link to="/plan" className="dash-ghost">Open plan</Link></li>
+            </ol>
+          </section>
         </div>
       </div>
     );
   }
 
+  /* milestones list, in plain words */
+  const paidDebts = ordered.filter((t) => t.status === 'paid');
+  const reached = overallMilestones.filter((m) => m.isReached);
+  const nextPct = overallMilestones.find((m) => !m.isReached);
+
+  const streakPickets = Math.min(streak.consecutiveMonths, 10);
+
   return (
-    <div className="min-h-screen animate-page-enter">
-      {/* Header */}
-      <header className="page-header bg-gradient-to-br from-primary-300 via-primary-200 to-accent/20 px-4 pt-12 pb-8 relative overflow-hidden">
-        {/* Glowing orbs - bolder */}
-        <div className="absolute -top-6 -right-6 w-44 h-44 bg-primary-400/30 rounded-full blur-2xl" />
-        <div className="absolute top-1/2 -left-8 w-32 h-32 bg-accent/30 rounded-full blur-xl" />
-        <div className="absolute top-2 right-1/3 w-24 h-24 bg-primary-500/15 rounded-full blur-xl" />
-        <div className="absolute bottom-4 left-1/4 w-16 h-16 bg-accent/20 rounded-full blur-lg" />
+    <div className="dash animate-page-enter">
+      {scene}
 
-        {/* Polka dot pattern - more visible */}
-        <svg className="absolute inset-0 w-full h-full opacity-[0.12] pointer-events-none" aria-hidden="true">
-          <pattern id="dots" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
-            <circle cx="4" cy="4" r="3" fill="currentColor" className="text-primary-600" />
-          </pattern>
-          <rect width="100%" height="100%" fill="url(#dots)" />
-        </svg>
-
-        {/* Floating stars - bigger & brighter */}
-        <div className="absolute top-2 right-6 animate-kawaii-float" style={{ animationDuration: '5s' }}>
-          <svg width="32" height="32" viewBox="0 0 24 24" className="text-primary-500/50">
-            <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z" fill="currentColor" />
-          </svg>
-        </div>
-        <div className="absolute top-6 left-[55%] animate-kawaii-float" style={{ animationDuration: '3.5s', animationDelay: '2s' }}>
-          <svg width="20" height="20" viewBox="0 0 24 24" className="text-accent/50">
-            <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z" fill="currentColor" />
-          </svg>
-        </div>
-        <div className="absolute bottom-10 left-[15%] animate-kawaii-float" style={{ animationDuration: '4.5s', animationDelay: '1.5s' }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" className="text-primary-400/45">
-            <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z" fill="currentColor" />
-          </svg>
-        </div>
-
-        {/* Floating hearts - bigger & more visible */}
-        <div className="absolute top-8 right-20 animate-kawaii-float" style={{ animationDuration: '4s', animationDelay: '1s' }}>
-          <svg width="22" height="22" viewBox="0 0 24 24" className="text-accent/55">
-            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor" />
-          </svg>
-        </div>
-        <div className="absolute bottom-12 right-[40%] animate-kawaii-float" style={{ animationDuration: '5.5s', animationDelay: '0.5s' }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" className="text-primary-400/50">
-            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor" />
-          </svg>
-        </div>
-        <div className="absolute top-3 left-[70%] animate-kawaii-float" style={{ animationDuration: '6s', animationDelay: '3s' }}>
-          <svg width="12" height="12" viewBox="0 0 24 24" className="text-accent/40">
-            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor" />
-          </svg>
-        </div>
-
-        {/* Floating bubbles */}
-        <div className="absolute bottom-8 right-12 animate-kawaii-float" style={{ animationDuration: '6s', animationDelay: '0.5s' }}>
-          <div className="w-5 h-5 rounded-full bg-primary-400/25 border-2 border-primary-400/30" />
-        </div>
-        <div className="absolute top-10 left-[40%] animate-kawaii-float" style={{ animationDuration: '4s', animationDelay: '2.5s' }}>
-          <div className="w-3 h-3 rounded-full bg-accent/25 border-2 border-accent/30" />
-        </div>
-        <div className="absolute bottom-14 left-[60%] animate-kawaii-float" style={{ animationDuration: '5s', animationDelay: '1s' }}>
-          <div className="w-4 h-4 rounded-full bg-primary-300/30 border-2 border-primary-300/35" />
-        </div>
-
-        {/* Sparkle icons - more & brighter */}
-        <Sparkles size={18} className="absolute top-6 right-10 text-primary-500/60 animate-kawaii-pulse" />
-        <Sparkles size={14} className="absolute top-14 right-28 text-accent/50 animate-kawaii-pulse" style={{ animationDelay: '1s' }} />
-        <Sparkles size={12} className="absolute bottom-10 left-[30%] text-primary-400/45 animate-kawaii-pulse" style={{ animationDelay: '0.5s' }} />
-
-        {/* Cute flower cluster (top-right corner) - bigger & bolder */}
-        <svg className="absolute -top-1 -right-1 w-28 h-28 text-primary-400/30 animate-kawaii-pulse" style={{ animationDuration: '4s' }} viewBox="0 0 80 80" aria-hidden="true">
-          <circle cx="40" cy="18" r="11" fill="currentColor" />
-          <circle cx="57" cy="30" r="11" fill="currentColor" />
-          <circle cx="50" cy="50" r="11" fill="currentColor" />
-          <circle cx="30" cy="50" r="11" fill="currentColor" />
-          <circle cx="23" cy="30" r="11" fill="currentColor" />
-          <circle cx="40" cy="35" r="9" className="text-accent/35" fill="currentColor" />
-        </svg>
-
-        {/* Small flower (bottom-left) */}
-        <svg className="absolute bottom-6 left-4 w-16 h-16 text-accent/25 animate-kawaii-pulse" style={{ animationDuration: '5s', animationDelay: '2s' }} viewBox="0 0 60 60" aria-hidden="true">
-          <circle cx="30" cy="14" r="8" fill="currentColor" />
-          <circle cx="42" cy="24" r="8" fill="currentColor" />
-          <circle cx="38" cy="38" r="8" fill="currentColor" />
-          <circle cx="22" cy="38" r="8" fill="currentColor" />
-          <circle cx="18" cy="24" r="8" fill="currentColor" />
-          <circle cx="30" cy="27" r="6" className="text-primary-300/35" fill="currentColor" />
-        </svg>
-
-        <div className="mb-4 relative z-10 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <DebtsyCow size={72} />
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                Hi{settings.userName ? ` ${settings.userName}` : ''}!
-                <span className="text-2xl animate-kawaii-float" style={{ animationDuration: '2s' }}>
-                  {settings.theme.preset === 'my-melody' ? '🎀' : settings.theme.preset === 'kuromi' ? '💜' : '✨'}
-                </span>
-              </h1>
-              <p className="text-gray-600 text-sm">{encouragement}</p>
-            </div>
-          </div>
-          <Link to="/settings" className="w-9 h-9 flex items-center justify-center rounded-2xl bg-white/60 hover:bg-white/90 transition-all text-gray-500 hover:text-primary-600 shadow-sm flex-shrink-0">
-            <Settings size={18} />
-          </Link>
-        </div>
-
-        {/* Scalloped wave decoration */}
-        <div className="absolute bottom-0 left-0 right-0 h-6 overflow-hidden">
-          <svg viewBox="0 0 1200 40" className="w-full h-full" preserveAspectRatio="none">
-            <path d="M0,20 C50,0 100,0 150,20 C200,40 250,40 300,20 C350,0 400,0 450,20 C500,40 550,40 600,20 C650,0 700,0 750,20 C800,40 850,40 900,20 C950,0 1000,0 1050,20 C1100,40 1150,40 1200,20 L1200,40 L0,40 Z" fill="currentColor" className="text-gray-50" />
-          </svg>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <div className="px-4 py-6 space-y-5">
-        {/* Progress Overview Card (Hero) */}
-        <div className="card">
-          <div className="flex items-center gap-3 mb-5">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center">
-              <TrendingDown size={20} className="text-white" />
-            </div>
-            <div>
-              <h2 className="font-bold text-gray-900">Payoff Progress</h2>
-              <p className="text-xs text-gray-500">You're doing great!</p>
-            </div>
-          </div>
-
-          {/* Progress Rings — grid-cols-2 matches stat grid below */}
-          <div className="grid grid-cols-2 gap-3 mb-6">
-            {/* Left col: Payoff Ring */}
-            <div className="flex flex-col items-center gap-2 min-w-0">
-              <ProgressRing
-                percentage={summary.percentPaid}
-                size={100}
-                strokeWidth={11}
-                showSparkle
-              />
-              <div className="grid grid-cols-2 gap-1 w-full items-start">
-                <div className="text-center">
-                  <p className="text-[10px] text-gray-500 leading-tight">Paid Off</p>
-                  <p className="text-[11px] font-bold text-primary-600 leading-tight">{formatCurrency(summary.principalPaid)}</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-[10px] text-gray-500 leading-tight">Remaining</p>
-                  <p className="text-[11px] font-bold text-gray-900 leading-tight">{formatCurrency(summary.totalBalance)}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Right col: Credit Ring */}
-            {summary.totalCreditLimit > 0 ? (
-              <div className="flex flex-col items-center gap-2 min-w-0">
-                <div className="relative flex items-center justify-center">
-                  <ProgressRing
-                    percentage={summary.creditUtilization}
-                    size={100}
-                    strokeWidth={11}
-                    color={summary.creditUtilization > 30 ? '#ef4444' : '#22c55e'}
-                    showLabel={false}
-                  />
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className={`text-base font-bold ${summary.creditUtilization > 100 ? 'text-red-600' : 'text-gray-900'}`}>
-                      {formatPercent(summary.creditUtilization, 0)}
-                    </span>
-                    <span className="text-[9px] text-gray-400">used</span>
-                  </div>
-                </div>
-                <div className="text-center w-full min-w-0">
-                  <p className="text-[10px] text-gray-500 font-medium">Credit Used</p>
-                  <p className="text-[10px] text-gray-400 leading-tight truncate">
-                    {formatCurrency(debts.filter(d => d.creditLimit).reduce((s, d) => s + d.balance, 0))}
-                    {' / '}
-                    {formatCurrency(summary.totalCreditLimit)}
-                  </p>
-                </div>
-              </div>
-            ) : <div />}
-          </div>
-
-          {/* Quick Stats Grid */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="stat-box">
-              <p className="text-xs text-gray-500 mb-1">Total Interest</p>
-              <p className="text-lg font-bold text-red-500">
-                {formatCurrency(plan.totalInterest)}
-              </p>
-            </div>
-            <div className="stat-box">
-              <p className="text-xs text-gray-500 mb-1">Monthly Payment</p>
-              <p className="text-lg font-bold text-primary-600">
-                {formatCurrency(strategy.recurringFunding.amount)}
-              </p>
-            </div>
-            <div className="stat-box">
-              <p className="text-xs text-gray-500 mb-1"># of Debts</p>
-              <p className="text-lg font-bold text-gray-900">{debts.length}</p>
-            </div>
-            <div className="stat-box">
-              <p className="text-xs text-gray-500 mb-1">Time Left</p>
-              <p className="text-lg font-bold text-green-600">
-                {timeUntilDebtFree || 'N/A'}
-              </p>
-            </div>
-          </div>
-
-          {/* Strategy Savings Callout */}
-          {(() => {
-            const minOnlyPlan = generatePayoffPlan(debts, {
-              ...strategy,
-              recurringFunding: { ...strategy.recurringFunding, amount: summary.totalMinimumPayments },
-            });
-            const savings = minOnlyPlan.totalInterest - plan.totalInterest;
-            const strategyName = strategy.strategy === 'avalanche' ? 'Avalanche' : 'Snowball';
-
-            if (savings > 0) {
-              return (
-                <div className="mt-4 relative bg-gradient-to-r from-primary-600 via-primary-400 to-primary-200 rounded-2xl p-4 text-white overflow-hidden shadow-lg shadow-primary-400/30">
-                  {/* Background decoration */}
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/4" />
-                  <div className="absolute bottom-0 left-0 w-16 h-16 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/4" />
-
-                  <div className="relative z-10 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                      <Wallet size={20} className="text-white" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-white">
-                        Saving <span className="text-primary-100 font-bold">{formatCurrency(savings)}</span> in interest!
-                      </p>
-                      <p className="text-xs text-primary-100">
-                        By paying extra with {strategyName}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              );
-            }
-            return null;
-          })()}
-        </div>
-
-
-        {/* Milestone Tracker */}
-        <div className="card">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center">
-              <Trophy size={20} className="text-white" />
-            </div>
-            <div>
-              <h2 className="font-bold text-gray-900">Milestones</h2>
-              <p className="text-xs text-gray-500">Track your progress</p>
-            </div>
-          </div>
-          <MilestoneTracker milestones={overallMilestones} percentPaid={summary.percentPaid} />
-        </div>
-
-        {/* Debt-Free Countdown Card */}
-        {debtFreeDate && (
-          <div className="relative bg-gradient-to-r from-primary-600 to-primary-500 rounded-3xl p-5 text-white overflow-hidden shadow-lg shadow-primary-400/30">
-            {/* Background decoration */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/4" />
-            <div className="absolute bottom-0 left-0 w-20 h-20 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/4" />
-
-            <div className="relative z-10">
-              <div className="flex items-center gap-2 mb-2">
-                <Calendar size={16} className="text-primary-200" />
-                <p className="text-primary-200 text-xs font-semibold tracking-wider uppercase">Debt-Free Countdown</p>
-              </div>
-              <p className="text-2xl font-bold tracking-tight">
-                {format(debtFreeDate, 'MMMM yyyy')}
-              </p>
-              {timeUntilDebtFree && (
-                <p className="text-primary-200 text-sm mt-1 flex items-center gap-1">
-                  <Sparkles size={12} className="animate-kawaii-pulse" />
-                  {timeUntilDebtFree} to go!
+      <div className="dash-content">
+        {/* Up next / paycheck / streak */}
+        <div className="dash-panel dash-today">
+          <div className="dash-cell">
+            <h2 className="dash-ch"><span className="dash-ic"><CalendarCheck size={18} aria-hidden="true" /></span>Up next</h2>
+            {due ? (
+              <>
+                <p className="dash-big"><span className="dash-dot" aria-hidden="true" /><span className="dash-who">{due.debt.name}</span> <span className="num">{money0(due.debt.minimumPayment)}</span></p>
+                <p className="dash-sub">
+                  Due {format(due.date, 'EEE MMM d')} · {dueLabel(due.days)}
+                  {due.days <= 7 && <span className="dash-badge soon">Due soon</span>}
                 </p>
-              )}
-            </div>
+              </>
+            ) : (
+              <p className="dash-sub">Nothing due. Every debt is paid.</p>
+            )}
+            {focus && (
+              <p className="dash-sub">
+                Focus: {focus.name}
+                {(() => {
+                  const m = plan.steps.flatMap((s) => s.milestonesInStep).find((x) => x.debtId === focus.id);
+                  return m ? `, paid off by ${format(parseISO(m.payoffDate), 'MMMM yyyy')}` : '';
+                })()}
+              </p>
+            )}
           </div>
-        )}
 
-        {/* Payment Streak */}
-        {isPaymentHistoryLocked ? (
-          <ProLockedOverlay
-            title={PRO_FEATURE_COPY.payment_history.title}
-            description={PRO_FEATURE_COPY.payment_history.description}
-            compact
-          />
-        ) : (
-          <PaymentStreakCard streak={streakData} />
-        )}
-
-        {/* Paycheck Summary Card */}
-        {paycheckSummary && (
-          <Link to="/track" className="block">
-            <div className="card bg-gradient-to-br from-primary-50 to-primary-100/50 dark:from-primary-900/30 dark:to-primary-800/20 border border-primary-100 rounded-3xl relative overflow-hidden hover:shadow-md transition-all">
-              {/* Decorative elements */}
-              <div className="absolute top-0 right-0 w-24 h-24 bg-primary-200/30 rounded-full -translate-y-1/2 translate-x-1/2" />
-              <Sparkles size={12} className="absolute top-3 right-12 text-primary-300 animate-kawaii-pulse" />
-
-              <div className="relative z-10">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-500 flex items-center justify-center shadow-lg shadow-primary-300/30">
-                      <Receipt size={20} className="text-white" />
-                    </div>
-                    <div>
-                      <p className="text-xs text-primary-600 font-semibold uppercase tracking-wide">Latest Paycheck</p>
-                      <p className="text-sm font-bold text-gray-900">{paycheckSummary.sourceName}</p>
-                    </div>
-                  </div>
-                  <ChevronRight size={20} className="text-primary-400" />
-                </div>
-
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="text-center p-2 bg-white/60 dark:bg-gray-900/20 rounded-xl">
-                    <p className="text-lg font-bold text-primary-600">
-                      {formatCurrency(paycheckSummary.paycheck.actualAmount)}
-                    </p>
-                    <p className="text-[10px] text-gray-500 font-medium">Received</p>
-                  </div>
-                  <div className="text-center p-2 bg-white/60 dark:bg-gray-900/20 rounded-xl">
-                    <p className="text-lg font-bold text-red-500">
-                      {formatCurrency(paycheckSummary.totalBills + paycheckSummary.totalSubscriptions)}
-                    </p>
-                    <p className="text-[10px] text-gray-500 font-medium">
-                      Bills ({paycheckSummary.unpaidBillCount}) + Subs
-                    </p>
-                  </div>
-                  <div className="text-center p-2 bg-white/60 dark:bg-gray-900/20 rounded-xl">
-                    <p className={`text-lg font-bold ${paycheckSummary.remaining >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {formatCurrency(paycheckSummary.remaining)}
-                    </p>
-                    <p className="text-[10px] text-gray-500 font-medium">Remaining</p>
-                  </div>
-                </div>
-
-                <div className="mt-3 flex items-center justify-between text-xs">
-                  <span className="text-gray-500">
-                    Pay period: {format(new Date(paycheckSummary.paycheck.payPeriodStart + 'T12:00:00'), 'MMM d')} – {format(new Date(paycheckSummary.paycheck.payPeriodEnd + 'T12:00:00'), 'MMM d')}
-                  </span>
-                  <span className="text-primary-600 font-semibold flex items-center gap-1">
-                    View details
-                    <ChevronRight size={14} />
-                  </span>
-                </div>
-              </div>
-            </div>
-          </Link>
-        )}
-
-        {/* Up Next - First Debt to Pay Off */}
-        {payoffMilestones.length > 0 && (() => {
-          const nextDebt = debts.find(d => d.id === payoffMilestones[0].debtId);
-          return (
-            <div className="relative bg-gradient-to-r from-primary-600 via-primary-400 to-primary-200 rounded-3xl p-5 text-white overflow-hidden shadow-lg shadow-primary-400/30">
-              {/* Background decoration */}
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/4" />
-              <div className="absolute bottom-0 left-0 w-20 h-20 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/4" />
-
-              <div className="relative z-10 flex items-center gap-4">
-                <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                  <Target size={26} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Sparkles size={12} className="text-primary-200" />
-                    <p className="text-xs font-semibold text-primary-200 uppercase tracking-wide">Up Next</p>
-                  </div>
-                  <p className="font-bold text-white truncate">
-                    {payoffMilestones[0].debtName}
-                  </p>
-                  <p className="text-sm text-primary-200">
-                    Paid off by {format(parseISO(payoffMilestones[0].payoffDate), 'MMMM yyyy')}
-                  </p>
-                </div>
-                {nextDebt && (
-                  <div className="text-right flex-shrink-0">
-                    <p className="text-xs text-primary-200 mb-1">Balance</p>
-                    <p className="text-lg font-bold text-white">{formatCurrency(nextDebt.balance)}</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          );
-        })()}
-
-        {/* Debt Payoff Timeline */}
-        {debtTimeline.length > 0 && (
-          <CollapsibleSection title="Payoff Timeline" subtitle="When each debt gets paid off" icon={<ClipboardList size={20} className="text-white" />}>
-            <DebtPayoffTimeline timeline={debtTimeline} />
-          </CollapsibleSection>
-        )}
-
-        {/* Upcoming Bills */}
-        <UpcomingBills debts={debts} customCategories={customCategories} payments={payments} incomeSources={budget.incomeSources} subscriptions={subscriptions} />
-
-        {/* Analytics (Charts) */}
-        {plan.monthlyBreakdown && plan.monthlyBreakdown.length > 0 && (
-          <CollapsibleSection title="Analytics" subtitle="Charts & detailed breakdowns" icon={<BarChart3 size={20} className="text-white" />}>
-            <div className="space-y-6">
-              <div>
-                <p className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                  <TrendingDown size={14} className="text-primary-500" />
-                  Debt Over Time
+          <div className="dash-cell">
+            <h2 className="dash-ch"><span className="dash-ic"><Wallet size={18} aria-hidden="true" /></span>Latest paycheck</h2>
+            {paycheckSummary ? (
+              <>
+                <p className="dash-big">
+                  <RollingNumber className="num" value={paycheckSummary.remaining} />
+                  <span className="dash-unit">{paycheckSummary.remaining >= 0 ? 'left to assign' : 'short after bills'}</span>
                 </p>
-                <DebtOverTimeChart plan={plan} startingBalance={summary.totalBalance} />
-              </div>
-              <div className="border-t border-gray-100 pt-5">
-                <p className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                  <PieChartIcon size={14} className="text-primary-500" />
-                  Interest vs Principal
+                <p className="dash-sub">
+                  {money0(paycheckSummary.paycheck.actualAmount)} from {paycheckSummary.sourceName}, received {format(new Date(paycheckSummary.paycheck.payDate + 'T12:00:00'), 'MMM d')}
                 </p>
-                {isInterestVsPrincipalLocked ? (
-                  <ProLockedOverlay
-                    title={PRO_FEATURE_COPY.interest_vs_principal_chart.title}
-                    description={PRO_FEATURE_COPY.interest_vs_principal_chart.description}
-                    compact
-                  />
-                ) : (
-                  <InterestVsPrincipalChart monthlyBreakdown={plan.monthlyBreakdown} />
-                )}
-              </div>
-              {debts.length > 1 && (
-                <div className="border-t border-gray-100 pt-5">
-                  <p className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                    <BarChart3 size={14} className="text-primary-500" />
-                    Debt Breakdown
-                  </p>
-                  <DebtBreakdownChart monthlyBreakdown={plan.monthlyBreakdown} debts={debts} />
-                </div>
-              )}
-            </div>
-          </CollapsibleSection>
-        )}
+                <p className="dash-sub">
+                  Bills ({paycheckSummary.unpaidBillCount} unpaid) + subs {money0(paycheckSummary.totalBills + paycheckSummary.totalSubscriptions)} · pay period {format(new Date(paycheckSummary.paycheck.payPeriodStart + 'T12:00:00'), 'MMM d')} to {format(new Date(paycheckSummary.paycheck.payPeriodEnd + 'T12:00:00'), 'MMM d')}
+                </p>
+                <Link to="/track" className="dash-ghost">
+                  {paycheckSummary.remaining > 0 ? `Assign ${money0(paycheckSummary.remaining)}` : 'View details'} <ChevronRight size={16} aria-hidden="true" />
+                </Link>
+              </>
+            ) : (
+              <>
+                <p className="dash-sub">No paycheck logged yet. Log one and we will show what is left after bills.</p>
+                <Link to="/track" className="dash-ghost">Log a paycheck</Link>
+              </>
+            )}
+          </div>
 
-        {/* Mini Calendar */}
-        {isBillCalendarLocked ? (
-          <ProLockedOverlay
-            title={PRO_FEATURE_COPY.bill_calendar.title}
-            description={PRO_FEATURE_COPY.bill_calendar.description}
-            compact
-          />
-        ) : (
-          <MiniCalendar debts={debts} incomeSources={budget.incomeSources} customCategories={customCategories} />
-        )}
-
-        {/* Payment History */}
-        {payments.filter((p) => p.isCompleted).length > 0 && (
-          <CollapsibleSection title="Payment History" subtitle="Your actual payments" icon={<Receipt size={20} className="text-white" />} iconGradient="from-green-400 to-emerald-500">
+          <div className="dash-cell">
+            <h2 className="dash-ch"><span className="dash-ic"><Flame size={18} aria-hidden="true" /></span>On-time streak</h2>
             {isPaymentHistoryLocked ? (
               <ProLockedOverlay
                 title={PRO_FEATURE_COPY.payment_history.title}
@@ -706,77 +354,254 @@ export function HomePage() {
                 compact
               />
             ) : (
-              <PaymentHistorySummary payments={payments} />
+              <>
+                <div className="dash-fence" role="img" aria-label={`${streak.consecutiveMonths} months in a row`}>
+                  {Array.from({ length: streakPickets }, (_, i) => (
+                    <span key={i} className="dash-pk"><Picket checked /></span>
+                  ))}
+                  <span className="dash-pk is-next"><Picket /></span>
+                </div>
+                <p className="dash-sub">
+                  <b>{streak.consecutiveMonths}</b> {streak.consecutiveMonths === 1 ? 'month' : 'months'} in a row
+                  {streak.currentMonthOnTrack && <span className="dash-badge ok"><Check size={13} aria-hidden="true" />On track</span>}
+                </p>
+                <p className="dash-sub">
+                  {streak.totalCompletedPayments} payments total
+                  {streak.longestStreak > streak.consecutiveMonths ? ` · best ${streak.longestStreak} months` : ''}
+                </p>
+              </>
             )}
-          </CollapsibleSection>
-        )}
-
-        {/* Categories */}
-        {categories.length > 0 && (
-          <CollapsibleSection title="Categories" subtitle="Debts by category" icon={<Sparkles size={20} className="text-white" />}>
-            <div className="space-y-3">
-              {categories.slice(0, 4).map((cat) => {
-                const categoryDebts = debts.filter((d) => d.category === cat.category);
-                const originalTotal = categoryDebts.reduce((sum, d) => sum + d.originalBalance, 0);
-                const percentPaid = originalTotal > 0
-                  ? ((originalTotal - cat.balance) / originalTotal) * 100
-                  : 0;
-
-                return (
-                  <div key={cat.category} className="flex items-center gap-4 p-3 rounded-2xl bg-primary-50/80 hover:bg-primary-100/80 transition-colors border border-primary-100">
-                    <ProgressRing
-                      percentage={percentPaid}
-                      size={56}
-                      strokeWidth={6}
-                      color={cat.color}
-                      backgroundColor={`${cat.color}20`}
-                      className="flex-shrink-0"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold" style={{ color: cat.color }}>
-                        {cat.label}
-                      </p>
-                      <div className="mt-1 space-y-0.5">
-                        {categoryDebts.map((debt) => (
-                          <p key={debt.id} className="text-xs text-gray-600 truncate">
-                            {debt.name}
-                          </p>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="text-right flex-shrink-0">
-                      <p className="text-xs text-gray-500 mb-0.5">Balance</p>
-                      <p className="font-bold text-gray-900">{formatCurrency(cat.balance)}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </CollapsibleSection>
-        )}
-
-        {/* Summary Card */}
-        <CollapsibleSection title="Summary" subtitle="Full breakdown" icon={<Sparkles size={20} className="text-white" />}>
-          <div className="space-y-3">
-            <div className="flex justify-between items-center py-2 border-b border-gray-100">
-              <span className="text-gray-600">Total Debt</span>
-              <span className="font-bold text-gray-900">{formatCurrency(summary.totalBalance)}</span>
-            </div>
-            <div className="flex justify-between items-center py-2 border-b border-gray-100">
-              <span className="text-gray-600">Monthly Minimums</span>
-              <span className="font-bold text-gray-900">{formatCurrency(summary.totalMinimumPayments)}</span>
-            </div>
-            <div className="flex justify-between items-center py-2 border-b border-gray-100">
-              <span className="text-gray-600">Total Interest</span>
-              <span className="font-bold text-red-500">{formatCurrency(plan.totalInterest)}</span>
-            </div>
-            <div className="flex justify-between items-center py-2">
-              <span className="text-gray-600">Number of Debts</span>
-              <span className="font-bold text-gray-900">{debts.length}</span>
-            </div>
           </div>
-        </CollapsibleSection>
+        </div>
+
+        {/* Your debts */}
+        <section className="dash-panel dash-debts">
+          <div className="dash-sec-h">
+            <Plank>Your debts</Plank>
+            <p className="dash-note">
+              {strategyName} · <b>{money0(strategy.recurringFunding.amount)}</b>/mo (<b>{money0(summary.totalMinimumPayments)}</b> minimums
+              {strategy.recurringFunding.amount > summary.totalMinimumPayments ? <> + <b>{money0(strategy.recurringFunding.amount - summary.totalMinimumPayments)}</b> extra</> : null}) · about <b>{money0(plan.totalInterest)}</b> interest to go
+            </p>
+          </div>
+          <ul className="dash-dl">
+            {ordered.map(({ debt, rank, status }) => {
+              const pct = debt.originalBalance > 0 ? Math.max(0, Math.min(100, ((debt.originalBalance - debt.balance) / debt.originalBalance) * 100)) : 0;
+              const dueIn = status === 'paid' ? null : nextDue([debt]);
+              const soon = dueIn && dueIn.days <= 7;
+              return (
+                <li key={debt.id} className={`dash-drow is-${status}`}>
+                  <span className="dash-rank">{status === 'paid' ? <Check size={16} strokeWidth={3} aria-hidden="true" /> : rank}</span>
+                  <div className="dash-dname">
+                    <h3>
+                      {debt.name}
+                      {status === 'focus' && <span className="dash-badge focus"><Sparkles size={13} aria-hidden="true" />Focus</span>}
+                      {soon && <span className="dash-badge soon">Due soon</span>}
+                      {status === 'paid' && <span className="dash-badge ok"><Check size={13} aria-hidden="true" />Paid off</span>}
+                    </h3>
+                    <p className="dash-dmeta">
+                      {status === 'paid'
+                        ? `${money0(debt.originalBalance)} cleared`
+                        : `${formatPercent(debt.apr, 2)} APR · min ${money0(debt.minimumPayment)}${dueIn ? ` · due ${format(dueIn.date, 'EEE MMM d')}` : ''}`}
+                    </p>
+                  </div>
+                  <div className="dash-dbar">
+                    <span className="dash-track"><i style={{ width: `${pct}%` }} /></span>
+                    <span className="dash-pct">{Math.round(pct)}% paid</span>
+                  </div>
+                  <div className="dash-damt">
+                    <RollingNumber className="num" value={debt.balance} />
+                    <span>left of {money0(debt.originalBalance)}</span>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+
+        {/* Side: recent payments, milestones, numbers */}
+        <div className="dash-side">
+          {!isPaymentHistoryLocked && completedPayments.length > 0 && (
+            <section className="dash-panel dash-recent">
+              <div className="dash-sec-h"><Plank>Recent payments</Plank></div>
+              <ul className="dash-rl">
+                {completedPayments.slice(0, 4).map((p) => {
+                  const d = debts.find((x) => x.id === p.debtId);
+                  return (
+                    <li key={p.id}>
+                      <span className="d">{format(parseISO(p.date), 'MMM d')}</span>
+                      <span className="n">{d?.name ?? 'Deleted debt'}</span>
+                      <span className="a num">−{money0(p.amount)}</span>
+                      <span className={`b${d && d.balance <= 0 ? ' zero' : ''}`}>
+                        {d ? (d.balance <= 0 ? `Balance $0 · paid off` : `Balance now ${money0(d.balance)}`) : ''}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          )}
+
+          <section className="dash-panel dash-miles">
+            <div className="dash-sec-h"><Plank icon={null}>Milestones</Plank></div>
+            <ul className="dash-ml">
+              {paidDebts[0] && (
+                <li><span className="mk"><Check size={15} strokeWidth={3} aria-hidden="true" /></span><div>First debt paid off<small>{paidDebts[0].debt.name}</small></div></li>
+              )}
+              {reached.map((m) => (
+                <li key={m.percent}><span className="mk"><Check size={15} strokeWidth={3} aria-hidden="true" /></span><div>{m.percent}% paid<small>{money0(m.amountAtMilestone)} paid down</small></div></li>
+              ))}
+              {focus ? (
+                <li><span className="mk next"><Trophy size={15} aria-hidden="true" /></span><div>Next: {focus.name} gone<small>{money0(focus.balance)} to go</small></div></li>
+              ) : nextPct ? (
+                <li><span className="mk next"><Trophy size={15} aria-hidden="true" /></span><div>Next: {nextPct.percent}% paid<small>{money0(nextPct.amountAtMilestone - summary.principalPaid)} to go</small></div></li>
+              ) : null}
+            </ul>
+            <div className="dash-ms-track">
+              <MilestoneTracker milestones={overallMilestones} percentPaid={summary.percentPaid} />
+            </div>
+          </section>
+
+          <section className="dash-panel dash-nums">
+            <div className="dash-sec-h"><Plank>The numbers</Plank></div>
+            <dl className="dash-stats">
+              <div><dt>Total interest</dt><dd className="bad num">{formatCurrency(plan.totalInterest)}</dd></div>
+              <div><dt>Monthly payment</dt><dd className="num">{formatCurrency(strategy.recurringFunding.amount)}</dd></div>
+              <div><dt>Debts</dt><dd className="num">{debts.length}</dd></div>
+              <div><dt>Time left</dt><dd className="good num">{timeUntilDebtFree || 'N/A'}</dd></div>
+            </dl>
+            {summary.totalCreditLimit > 0 && (
+              <div className="dash-credit">
+                <ProgressRing
+                  percentage={summary.creditUtilization}
+                  size={72}
+                  strokeWidth={9}
+                  color={summary.creditUtilization > 30 ? '#ef4444' : '#22c55e'}
+                  showLabel={false}
+                />
+                <div>
+                  <p className="dash-credit-t">Credit used: {formatPercent(summary.creditUtilization, 0)}</p>
+                  <p className="dash-sub">
+                    {formatCurrency(debts.filter((d) => d.creditLimit).reduce((s, d) => s + d.balance, 0))} of {formatCurrency(summary.totalCreditLimit)}
+                  </p>
+                </div>
+              </div>
+            )}
+            {savings > 0 && (
+              <p className="dash-save">
+                <Wallet size={18} aria-hidden="true" />
+                <span>Saving <b>{formatCurrency(savings)}</b> in interest by paying extra with {strategy.strategy === 'avalanche' ? 'Avalanche' : 'Snowball'}.</span>
+              </p>
+            )}
+          </section>
+        </div>
+
+        {/* The rest of the ranch */}
+        <div className="dash-more">
+          {debtTimeline.length > 0 && (
+            <RanchSection title="Payoff timeline" note="When each debt gets paid off" icon={<ClipboardList size={18} aria-hidden="true" />}>
+              <DebtPayoffTimeline timeline={debtTimeline} />
+            </RanchSection>
+          )}
+
+          <UpcomingBills debts={debts} customCategories={customCategories} payments={payments} incomeSources={budget.incomeSources} subscriptions={subscriptions} />
+
+          {plan.monthlyBreakdown && plan.monthlyBreakdown.length > 0 && (
+            <RanchSection title="Analytics" note="Charts and detailed breakdowns" icon={<BarChart3 size={18} aria-hidden="true" />}>
+              <div className="dash-charts">
+                <div>
+                  <p className="dash-ct"><TrendingDown size={15} aria-hidden="true" />Debt over time</p>
+                  <DebtOverTimeChart plan={plan} startingBalance={summary.totalBalance} />
+                </div>
+                <div className="dash-rule">
+                  <p className="dash-ct"><PieChartIcon size={15} aria-hidden="true" />Interest vs principal</p>
+                  {isInterestVsPrincipalLocked ? (
+                    <ProLockedOverlay
+                      title={PRO_FEATURE_COPY.interest_vs_principal_chart.title}
+                      description={PRO_FEATURE_COPY.interest_vs_principal_chart.description}
+                      compact
+                    />
+                  ) : (
+                    <InterestVsPrincipalChart monthlyBreakdown={plan.monthlyBreakdown} />
+                  )}
+                </div>
+                {debts.length > 1 && (
+                  <div className="dash-rule">
+                    <p className="dash-ct"><BarChart3 size={15} aria-hidden="true" />Debt breakdown</p>
+                    <DebtBreakdownChart monthlyBreakdown={plan.monthlyBreakdown} debts={debts} />
+                  </div>
+                )}
+              </div>
+            </RanchSection>
+          )}
+
+          {isBillCalendarLocked ? (
+            <ProLockedOverlay
+              title={PRO_FEATURE_COPY.bill_calendar.title}
+              description={PRO_FEATURE_COPY.bill_calendar.description}
+              compact
+            />
+          ) : (
+            <MiniCalendar debts={debts} incomeSources={budget.incomeSources} customCategories={customCategories} />
+          )}
+
+          {completedPayments.length > 0 && (
+            <RanchSection title="Payment history" note="Your actual payments" icon={<Receipt size={18} aria-hidden="true" />}>
+              {isPaymentHistoryLocked ? (
+                <ProLockedOverlay
+                  title={PRO_FEATURE_COPY.payment_history.title}
+                  description={PRO_FEATURE_COPY.payment_history.description}
+                  compact
+                />
+              ) : (
+                <PaymentHistorySummary payments={payments} />
+              )}
+            </RanchSection>
+          )}
+
+          {categories.length > 0 && (
+            <RanchSection title="Categories" note="Debts by category" icon={<Sparkles size={18} aria-hidden="true" />}>
+              <ul className="dash-cats">
+                {categories.slice(0, 4).map((cat) => {
+                  const categoryDebts = debts.filter((d) => d.category === cat.category);
+                  const originalTotal = categoryDebts.reduce((s, d) => s + d.originalBalance, 0);
+                  const pct = originalTotal > 0 ? ((originalTotal - cat.balance) / originalTotal) * 100 : 0;
+                  return (
+                    <li key={cat.category}>
+                      <ProgressRing percentage={pct} size={56} strokeWidth={6} color={cat.color} backgroundColor={`${cat.color}20`} className="flex-shrink-0" />
+                      <div className="dash-cat-n">
+                        <p style={{ color: cat.color }}>{cat.label}</p>
+                        {categoryDebts.map((d) => <span key={d.id}>{d.name}</span>)}
+                      </div>
+                      <div className="dash-cat-b"><span>Balance</span><b className="num">{formatCurrency(cat.balance)}</b></div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </RanchSection>
+          )}
+
+          <RanchSection title="Summary" note="Full breakdown" icon={<Sparkles size={18} aria-hidden="true" />}>
+            <dl className="dash-sum">
+              <div><dt>Total debt</dt><dd>{formatCurrency(summary.totalBalance)}</dd></div>
+              <div><dt>Monthly minimums</dt><dd>{formatCurrency(summary.totalMinimumPayments)}</dd></div>
+              <div><dt>Total interest</dt><dd className="bad">{formatCurrency(plan.totalInterest)}</dd></div>
+              <div><dt>Number of debts</dt><dd>{debts.length}</dd></div>
+            </dl>
+          </RanchSection>
+        </div>
       </div>
+
+      <PaymentModal isOpen={payOpen} onClose={closePayment} preselectedDebt={focus ?? undefined} />
+      <span className="ranch-sr" aria-live="polite">{cheer ? 'Payment saved.' : ''}</span>
     </div>
+  );
+}
+
+function Picket({ checked = false }: { checked?: boolean }) {
+  return (
+    <svg viewBox="0 0 22 44" aria-hidden="true">
+      <path className="pk-b" d="M2 12 L11 2 L20 12 V42 H2 Z" />
+      {checked && <path className="pk-c" d="M6 27 l4 4 7 -8" />}
+    </svg>
   );
 }
