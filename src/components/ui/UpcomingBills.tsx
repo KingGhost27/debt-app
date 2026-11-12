@@ -1,14 +1,17 @@
 /**
- * Upcoming Bills Component - Kawaii Edition
+ * Upcoming Bills Component
  *
  * Displays a sorted list of bills by next due date with urgency indicators.
- * Features tabbed view: "This Pay Period" vs "All Bills" with income source picker.
- * Shows paid status for bills that have been paid this month.
+ * Tabbed view: "This Pay Period" vs "All Bills" with income source picker.
+ * Shows paid status for bills that have been paid this month. No card of its
+ * own: it sits inside a ranch card (dashboard section). Styled in
+ * pages/track.css (.upb-*) from the ranch tokens.
  */
 
 import { useState, useMemo } from 'react';
 import { differenceInDays, isSameMonth, parseISO, addDays, addWeeks, addMonths, addYears, format, isBefore } from 'date-fns';
-import { Check, ChevronDown, ChevronLeft, ChevronRight, Calendar, Wallet, RefreshCw } from 'lucide-react';
+import { Check, ChevronDown, ChevronLeft, ChevronRight, Calendar, PartyPopper, Receipt, Wallet, Repeat } from 'lucide-react';
+import { Plank } from '../dashboard/RanchPanels';
 import type { Debt, Payment, IncomeSource, Subscription, SubscriptionCategory } from '../../types';
 import { CATEGORY_INFO, SUBSCRIPTION_CATEGORY_INFO } from '../../types';
 import {
@@ -16,6 +19,7 @@ import {
   formatOrdinal,
   getNextDueDate,
 } from '../../lib/calculations';
+import '../../pages/track.css';
 
 interface UpcomingBillsProps {
   debts: Debt[];
@@ -334,24 +338,11 @@ export function UpcomingBills({ debts, customCategories = [], payments = [], inc
     return customCat?.color || '#6b7280';
   };
 
-  // Get urgency styling
-  const getUrgencyStyles = (daysUntil: number): { bg: string; badge: string | null } => {
-    if (daysUntil === 0) {
-      return {
-        bg: 'bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-800/50',
-        badge: 'TODAY',
-      };
-    }
-    if (daysUntil <= 7) {
-      return {
-        bg: 'bg-primary-50 dark:bg-primary-900/30 border-primary-200 dark:border-primary-700/50',
-        badge: `${daysUntil} day${daysUntil !== 1 ? 's' : ''}`,
-      };
-    }
-    return {
-      bg: 'bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700',
-      badge: null,
-    };
+  // Urgency: due today is the focus color, within a week is "soon"
+  const urgencyOf = (daysUntil: number): { cls: string; badge: string | null } => {
+    if (daysUntil === 0) return { cls: 'is-today', badge: 'Today' };
+    if (daysUntil <= 7) return { cls: 'is-soon', badge: `${daysUntil} day${daysUntil !== 1 ? 's' : ''}` };
+    return { cls: '', badge: null };
   };
 
   // Check if we have income sources to show pay period view
@@ -359,133 +350,84 @@ export function UpcomingBills({ debts, customCategories = [], payments = [], inc
 
   if (debts.length === 0) {
     return (
-      <div className="card">
-        <h3 className="text-sm text-gray-500 mb-3">UPCOMING BILLS</h3>
-        <div className="text-center py-6 text-gray-500 text-sm">
-          Add debts to track upcoming bills
-        </div>
-      </div>
+      <section className="rui-card upb">
+        <div className="trk-mod-h"><Plank icon={<Receipt size={18} aria-hidden="true" />}>Bills</Plank></div>
+        <p className="cht-empty">Add debts to track upcoming bills</p>
+      </section>
     );
   }
 
   return (
-    <div className="card">
-      {/* Header with tabs */}
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
-          Bills
-        </h3>
-
-        {/* Tabs */}
-        {hasIncomeSources && (
-          <div className="flex bg-primary-200/50 dark:bg-primary-800/50 rounded-xl p-1">
-            <button
-              onClick={() => setActiveTab('pay-period')}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                activeTab === 'pay-period'
-                  ? 'bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-300 shadow-sm'
-                  : 'text-primary-700/70 dark:text-primary-300/70 hover:text-primary-800 dark:hover:text-primary-200'
-              }`}
-            >
-              Pay Period
-            </button>
-            <button
-              onClick={() => setActiveTab('all')}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                activeTab === 'all'
-                  ? 'bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-300 shadow-sm'
-                  : 'text-primary-700/70 dark:text-primary-300/70 hover:text-primary-800 dark:hover:text-primary-200'
-              }`}
-            >
-              All
-            </button>
-          </div>
-        )}
+    <section className="rui-card upb">
+      <div className="trk-mod-h">
+        <Plank icon={<Receipt size={18} aria-hidden="true" />}>Bills</Plank>
+      {/* Tabs */}
+      {hasIncomeSources && (
+        <div className="upb-tabs" role="tablist" aria-label="Bill range">
+          <button type="button" role="tab" aria-selected={activeTab === 'pay-period'} className={activeTab === 'pay-period' ? 'is-on' : ''} onClick={() => setActiveTab('pay-period')}>
+            Pay Period
+          </button>
+          <button type="button" role="tab" aria-selected={activeTab === 'all'} className={activeTab === 'all' ? 'is-on' : ''} onClick={() => setActiveTab('all')}>
+            All
+          </button>
+        </div>
+      )}
       </div>
 
       {/* Pay Period Info Bar */}
       {activeTab === 'pay-period' && hasIncomeSources && payPeriod && selectedSource && (
-        <div className="mb-4 p-4 bg-gradient-to-r from-primary-50 to-primary-100/50 dark:from-primary-900/30 dark:to-primary-800/20 rounded-2xl border border-primary-100 dark:border-primary-700/50">
-          {/* Date Range Header with Navigation */}
-          <div className="flex items-center justify-between mb-3 pb-3 border-b border-primary-200/50 dark:border-primary-700/50">
-            {/* Previous button */}
-            <button
-              onClick={() => setPeriodOffset(periodOffset - 1)}
-              className="p-1.5 rounded-lg hover:bg-primary-200/50 dark:hover:bg-primary-700/50 transition-colors"
-              aria-label="Previous pay period"
-            >
-              <ChevronLeft size={20} className="text-primary-700" />
+        <div className="upb-period">
+          <div className="upb-range">
+            <button type="button" onClick={() => setPeriodOffset(periodOffset - 1)} className="cal-nav-btn" aria-label="Previous pay period">
+              <ChevronLeft size={20} aria-hidden="true" />
             </button>
-
-            {/* Date range and label */}
-            <div className="text-center">
-              <p className="text-xs text-primary-700 font-medium mb-0.5">
-                {periodLabel}
-              </p>
-              <div className="flex items-center justify-center gap-2">
-                <Calendar size={14} className="text-primary-600" />
-                <span className="text-sm font-bold text-primary-800">
-                  {format(payPeriod.start, 'MMM d')} — {format(payPeriod.end, 'MMM d')}
-                </span>
-              </div>
+            <div>
+              <p>{periodLabel}</p>
+              <b className="num">
+                <Calendar size={15} aria-hidden="true" />
+                {format(payPeriod.start, 'MMM d')} — {format(payPeriod.end, 'MMM d')}
+              </b>
             </div>
-
-            {/* Next button */}
-            <button
-              onClick={() => setPeriodOffset(periodOffset + 1)}
-              className="p-1.5 rounded-lg hover:bg-primary-200/50 dark:hover:bg-primary-700/50 transition-colors"
-              aria-label="Next pay period"
-            >
-              <ChevronRight size={20} className="text-primary-700" />
+            <button type="button" onClick={() => setPeriodOffset(periodOffset + 1)} className="cal-nav-btn" aria-label="Next pay period">
+              <ChevronRight size={20} aria-hidden="true" />
             </button>
           </div>
 
-          <div className="flex items-center justify-between gap-3">
-            {/* Income source picker */}
-            <div className="relative flex-1">
+          <div className="upb-src">
+            <div className="upb-pick">
               <button
+                type="button"
                 onClick={() => setShowSourcePicker(!showSourcePicker)}
-                className="flex items-center gap-2 text-left w-full"
+                aria-expanded={showSourcePicker}
+                disabled={incomeSources.length < 2}
               >
-                <div className="w-8 h-8 rounded-xl bg-primary-500 flex items-center justify-center flex-shrink-0">
-                  <Wallet size={16} className="text-white" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs text-primary-700 font-medium">Next payday</p>
-                  <p className="text-sm font-semibold text-primary-800 truncate flex items-center gap-1">
+                <span className="upb-ic"><Wallet size={16} aria-hidden="true" /></span>
+                <span className="upb-pick-t">
+                  <small>Next payday</small>
+                  <b>
                     {selectedSource.name}
-                    {incomeSources.length > 1 && (
-                      <ChevronDown size={14} className={`text-primary-600 transition-transform ${showSourcePicker ? 'rotate-180' : ''}`} />
-                    )}
-                  </p>
-                </div>
+                    {incomeSources.length > 1 && <ChevronDown size={15} className={showSourcePicker ? 'is-open' : ''} aria-hidden="true" />}
+                  </b>
+                </span>
               </button>
 
-              {/* Dropdown */}
               {showSourcePicker && incomeSources.length > 1 && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-600 z-10 overflow-hidden">
+                <ul className="upb-menu">
                   {incomeSources.map((source) => (
-                    <button
-                      key={source.id}
-                      onClick={() => handleSourceChange(source.id)}
-                      className={`w-full px-3 py-2.5 text-left text-sm hover:bg-gray-50 transition-colors flex items-center gap-2 ${
-                        source.id === selectedSourceId ? 'bg-primary-50 text-primary-700' : 'text-gray-700'
-                      }`}
-                    >
-                      <Wallet size={14} />
-                      {source.name}
-                    </button>
+                    <li key={source.id}>
+                      <button type="button" onClick={() => handleSourceChange(source.id)} className={source.id === selectedSourceId ? 'is-on' : ''}>
+                        <Wallet size={15} aria-hidden="true" />
+                        {source.name}
+                      </button>
+                    </li>
                   ))}
-                </div>
+                </ul>
               )}
             </div>
 
-            {/* Total due */}
-            <div className="text-right flex-shrink-0">
-              <p className="text-xs text-primary-700">Total due</p>
-              <p className="text-xl font-bold text-primary-700">
-                {formatCurrency(payPeriodTotal)}
-              </p>
+            <div className="upb-total">
+              <small>Total due</small>
+              <b className="num">{formatCurrency(payPeriodTotal)}</b>
             </div>
           </div>
         </div>
@@ -493,15 +435,15 @@ export function UpcomingBills({ debts, customCategories = [], payments = [], inc
 
       {/* Empty state for pay period */}
       {activeTab === 'pay-period' && displayBills.length === 0 && (
-        <div className="text-center py-6">
-          <div className="text-3xl mb-2">🎉</div>
-          <p className="text-gray-500 text-sm">No bills due this pay period!</p>
-        </div>
+        <p className="upb-empty">
+          <PartyPopper size={22} aria-hidden="true" />
+          No bills due this pay period!
+        </p>
       )}
 
-      <div className="space-y-3">
+      <ul className="upb-list">
         {displayBills.map((bill) => {
-          const urgency = getUrgencyStyles(bill.daysUntil);
+          const urgency = urgencyOf(bill.daysUntil);
           const categoryColor = getCategoryColor(bill);
           const isSubscription = bill.isSubscription;
 
@@ -509,7 +451,6 @@ export function UpcomingBills({ debts, customCategories = [], payments = [], inc
           const paidPayment = !isSubscription ? isPaidThisMonth(bill.id) : undefined;
           const isPaid = !!paidPayment;
 
-          // Get the amount to display
           const displayAmount = isSubscription
             ? bill.amount
             : isPaid && paidPayment
@@ -517,83 +458,41 @@ export function UpcomingBills({ debts, customCategories = [], payments = [], inc
               : (bill as BillWithDueDate).minimumPayment;
 
           return (
-            <div
-              key={`${isSubscription ? 'sub' : 'debt'}-${bill.id}`}
-              className={`
-                flex items-center gap-3 p-3 rounded-xl border transition-all
-                ${isPaid
-                  ? 'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800/50'
-                  : urgency.bg
-                }
-              `}
-            >
-              {/* Icon: checkmark for paid, RefreshCw for subscription, or color dot for debt */}
+            <li key={`${isSubscription ? 'sub' : 'debt'}-${bill.id}`} className={isPaid ? 'is-paid' : urgency.cls}>
+              {/* Check for paid, repeat for subscription, category dot for debt */}
               {isPaid ? (
-                <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0 shadow-sm">
-                  <Check size={16} className="text-white" strokeWidth={3} />
-                </div>
+                <span className="upb-ic is-paid"><Check size={16} strokeWidth={3} aria-hidden="true" /></span>
               ) : isSubscription ? (
-                <div
-                  className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
-                  style={{ backgroundColor: `${categoryColor}20` }}
-                >
-                  <RefreshCw size={14} style={{ color: categoryColor }} />
-                </div>
+                <span className="upb-ic" style={{ color: categoryColor }}><Repeat size={16} aria-hidden="true" /></span>
               ) : (
-                <div
-                  className="w-3 h-3 rounded-full flex-shrink-0"
-                  style={{ backgroundColor: categoryColor }}
-                />
+                <span className="upb-ic"><i style={{ background: categoryColor }} /></span>
               )}
 
-              {/* Bill info */}
-              <div className="flex-1 min-w-0">
-                <p className={`font-medium truncate ${isPaid ? 'text-green-700' : 'text-gray-800'}`}>
-                  {bill.name}
-                  {isPaid && (
-                    <span className="ml-2 text-xs bg-green-100 text-green-600 px-2 py-0.5 rounded-full">
-                      Paid
-                    </span>
-                  )}
-                  {isSubscription && !isPaid && (
-                    <span className="ml-2 text-xs bg-primary-100 text-primary-600 px-2 py-0.5 rounded-full">
-                      Sub
-                    </span>
-                  )}
+              <div className="upb-n">
+                <p>
+                  <b>{bill.name}</b>
+                  {isPaid && <span className="rui-badge ok">Paid</span>}
+                  {isSubscription && !isPaid && <span className="rui-badge soon">Sub</span>}
                 </p>
-                <p className="text-sm text-gray-600">
+                <small>
                   {isPaid
                     ? `Paid ${formatCurrency(paidPayment!.amount)} this month`
                     : isSubscription
                       ? `Renews ${format(bill.nextDueDate, 'MMM d')}`
-                      : `Due ${formatOrdinal((bill as BillWithDueDate).dueDay)} of each month`
-                  }
-                </p>
+                      : `Due ${formatOrdinal((bill as BillWithDueDate).dueDay)} of each month`}
+                </small>
               </div>
 
-              {/* Amount and urgency badge */}
-              <div className="text-right flex-shrink-0">
-                <p className={`font-semibold ${isPaid ? 'text-green-600' : 'text-gray-800'}`}>
-                  {formatCurrency(displayAmount)}
-                </p>
+              <div className="upb-amt">
+                <b className="num">{formatCurrency(displayAmount)}</b>
                 {!isPaid && urgency.badge && (
-                  <span
-                    className={`
-                      inline-block text-xs font-medium px-2 py-0.5 rounded-full mt-1
-                      ${bill.daysUntil === 0
-                        ? 'bg-red-500 text-white'
-                        : 'bg-primary-500 text-white'
-                      }
-                    `}
-                  >
-                    {urgency.badge}
-                  </span>
+                  <span className={`rui-badge ${bill.daysUntil === 0 ? 'focus' : 'soon'}`}>{urgency.badge}</span>
                 )}
               </div>
-            </div>
+            </li>
           );
         })}
-      </div>
-    </div>
+      </ul>
+    </section>
   );
 }

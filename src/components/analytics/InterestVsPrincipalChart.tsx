@@ -2,22 +2,17 @@
  * Interest vs Principal Chart
  *
  * Stacked area chart showing how payments split between
- * principal and interest over the payoff timeline.
+ * principal and interest over the payoff timeline. Principal reads as the
+ * ranch fill, interest as the focus color; everything else is ranch tokens.
  */
 
 import { useMemo } from 'react';
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { format, parseISO } from 'date-fns';
 import { formatCurrency } from '../../lib/calculations';
 import type { MonthlyPayment } from '../../types';
+import { chartAxisLine, chartGrid, chartTick, chartTooltip, moneyTick } from './chartTheme';
+import '../../pages/track.css';
 
 interface InterestVsPrincipalChartProps {
   monthlyBreakdown: MonthlyPayment[];
@@ -40,85 +35,29 @@ export function InterestVsPrincipalChart({ monthlyBreakdown }: InterestVsPrincip
   }, [monthlyBreakdown]);
 
   if (chartData.length === 0) {
-    return (
-      <div className="text-center text-gray-500 dark:text-gray-400 py-8 text-sm">
-        No payoff data available
-      </div>
-    );
+    return <p className="cht-empty">No payoff data available</p>;
   }
 
   return (
     <div>
       <ResponsiveContainer width="100%" height={200}>
-        <AreaChart data={chartData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
-          <defs>
-            <linearGradient id="principalGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="var(--color-primary-500)" stopOpacity={0.6} />
-              <stop offset="95%" stopColor="var(--color-primary-500)" stopOpacity={0.1} />
-            </linearGradient>
-            <linearGradient id="interestGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#ef4444" stopOpacity={0.5} />
-              <stop offset="95%" stopColor="#ef4444" stopOpacity={0.05} />
-            </linearGradient>
-          </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-          <XAxis
-            dataKey="month"
-            tick={{ fontSize: 11, fill: '#6b7280' }}
-            tickLine={false}
-            axisLine={{ stroke: '#e5e7eb' }}
-            interval="preserveStartEnd"
-          />
-          <YAxis
-            tick={{ fontSize: 11, fill: '#6b7280' }}
-            tickLine={false}
-            axisLine={false}
-            tickFormatter={(value) => `$${value >= 1000 ? `${(value / 1000).toFixed(0)}k` : value}`}
-            width={45}
-          />
+        <AreaChart data={chartData} margin={{ top: 6, right: 6, left: 0, bottom: 0 }}>
+          <CartesianGrid {...chartGrid} />
+          <XAxis dataKey="month" tick={chartTick} tickLine={false} axisLine={chartAxisLine} interval="preserveStartEnd" />
+          <YAxis tick={chartTick} tickLine={false} axisLine={false} tickFormatter={moneyTick} width={48} />
           <Tooltip
-            formatter={(value, name) => [
-              formatCurrency(value as number),
-              name === 'principal' ? 'Principal' : 'Interest',
-            ]}
-            labelStyle={{ color: '#374151', fontWeight: 600 }}
-            contentStyle={{
-              backgroundColor: 'white',
-              border: '1px solid #e5e7eb',
-              borderRadius: '8px',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            }}
+            {...chartTooltip}
+            formatter={(value, name) => [formatCurrency(value as number), name === 'principal' ? 'Principal' : 'Interest']}
           />
-          <Area
-            type="monotone"
-            dataKey="principal"
-            stackId="payments"
-            stroke="var(--color-primary-500)"
-            fill="url(#principalGradient)"
-            strokeWidth={2}
-          />
-          <Area
-            type="monotone"
-            dataKey="interest"
-            stackId="payments"
-            stroke="#ef4444"
-            fill="url(#interestGradient)"
-            strokeWidth={2}
-          />
+          <Area type="monotone" dataKey="principal" stackId="payments" stroke="var(--ranch-fill)" fill="var(--ranch-fill)" fillOpacity={0.5} strokeWidth={2} />
+          <Area type="monotone" dataKey="interest" stackId="payments" stroke="var(--ranch-focus)" fill="var(--ranch-focus)" fillOpacity={0.45} strokeWidth={2} />
         </AreaChart>
       </ResponsiveContainer>
 
-      {/* Legend */}
-      <div className="flex items-center justify-center gap-5 mt-3">
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-full bg-primary-500" />
-          <span className="text-xs text-gray-600 dark:text-gray-400">Principal</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-full bg-red-500" />
-          <span className="text-xs text-gray-600 dark:text-gray-400">Interest</span>
-        </div>
-      </div>
+      <ul className="cht-legend">
+        <li><i className="cht-dot" style={{ background: 'var(--ranch-fill)' }} /><span>Principal</span></li>
+        <li><i className="cht-dot" style={{ background: 'var(--ranch-focus)' }} /><span>Interest</span></li>
+      </ul>
     </div>
   );
 }

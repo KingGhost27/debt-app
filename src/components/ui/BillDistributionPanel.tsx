@@ -2,11 +2,14 @@
  * Bill Distribution Panel
  *
  * Displays analysis of how bills are distributed across pay periods
- * and suggests optimal due dates to balance payments.
+ * and suggests optimal due dates to balance payments. Ranch card with a plank
+ * heading (styled in pages/track.css, .bdp-*); the heavy/balanced/light bars
+ * use the focus, paid and neutral ranch colors.
  */
 
 import { useMemo, useState } from 'react';
 import { Lightbulb, Check, ArrowRight, AlertTriangle, CheckCircle, ChevronDown } from 'lucide-react';
+import { Plank } from '../dashboard/RanchPanels';
 import { useApp } from '../../context/AppContext';
 import { formatCurrency, formatOrdinal } from '../../lib/calculations';
 import {
@@ -14,6 +17,7 @@ import {
   type BillSuggestion,
 } from '../../lib/billDistribution';
 import type { Debt, IncomeSource } from '../../types';
+import '../../pages/track.css';
 
 interface BillDistributionPanelProps {
   debts: Debt[];
@@ -71,229 +75,143 @@ export function BillDistributionPanel({
   // Don't show if no data
   if (analysis.payPeriods.length === 0) {
     return (
-      <div className="card bg-gray-50">
-        <div className="flex items-center gap-2 text-gray-500">
-          <Lightbulb size={18} />
-          <span className="text-sm">{analysis.message}</span>
-        </div>
-      </div>
+      <section className="rui-card bdp bdp-note">
+        <Lightbulb size={18} aria-hidden="true" />
+        <span>{analysis.message}</span>
+      </section>
     );
   }
 
   // Don't show if already balanced and no suggestions
   if (analysis.isBalanced && analysis.suggestions.length === 0) {
     return (
-      <div className="card bg-green-50 border-green-200">
-        <div className="flex items-center gap-2 text-green-700">
-          <CheckCircle size={18} />
-          <span className="text-sm font-medium">{analysis.message}</span>
-        </div>
-      </div>
+      <section className="rui-card bdp bdp-note is-ok">
+        <CheckCircle size={18} aria-hidden="true" />
+        <span>{analysis.message}</span>
+      </section>
     );
   }
 
+  const avg = analysis.totalBillAmount / analysis.payPeriods.length;
+
   return (
-    <div className="card p-3! sm:p-5!">
-      {/* Header — always visible, clicking toggles body */}
-      <button
-        type="button"
-        onClick={toggleCollapsed}
-        className="w-full flex items-center justify-between mb-0"
-      >
-        <div className="flex items-center gap-2">
-          <Lightbulb size={16} className="text-amber-500" />
-          <h3 className="text-xs font-medium">Bill Distribution</h3>
-        </div>
-        <div className="flex items-center gap-2">
-          <span
-            className={`text-xs px-2 py-0.5 rounded-full ${
-              analysis.isBalanced
-                ? 'bg-green-100 text-green-700'
-                : 'bg-amber-100 text-amber-700'
-            }`}
-          >
-            {analysis.balanceScore}% balanced
-          </span>
-          <ChevronDown
-            size={14}
-            className={`text-gray-400 transition-transform duration-200 ${collapsed ? '' : 'rotate-180'}`}
-          />
-        </div>
+    <section className="rui-card bdp">
+      {/* Header: always visible, clicking toggles body */}
+      <button type="button" onClick={toggleCollapsed} className="bdp-toggle" aria-expanded={!collapsed}>
+        <Plank icon={<Lightbulb size={18} aria-hidden="true" />}>Bill Distribution</Plank>
+        <span className={`rui-badge ${analysis.isBalanced ? 'ok' : 'soon'}`}>{analysis.balanceScore}% balanced</span>
+        <ChevronDown size={20} className={`bdp-chev${collapsed ? '' : ' is-open'}`} aria-hidden="true" />
       </button>
 
-      {/* Collapsible body */}
       {!collapsed && (
-        <div className="mt-3">
+        <div className="bdp-body">
+          {/* Pay Period Breakdown */}
+          <ul className="bdp-periods">
+            {analysis.payPeriods.map((period, index) => {
+              const barWidth = maxPeriodAmount > 0 ? (period.totalAmount / maxPeriodAmount) * 100 : 0;
+              const state = period.totalAmount > avg * 1.15 ? 'is-heavy' : period.totalAmount < avg * 0.85 ? 'is-light' : 'is-even';
 
-      {/* Pay Period Breakdown */}
-      <div className="space-y-2 mb-3">
-        {analysis.payPeriods.map((period, index) => {
-          const barWidth =
-            maxPeriodAmount > 0
-              ? (period.totalAmount / maxPeriodAmount) * 100
-              : 0;
-          const isOverloaded =
-            period.totalAmount > analysis.totalBillAmount / analysis.payPeriods.length * 1.15;
-          const isUnderloaded =
-            period.totalAmount < analysis.totalBillAmount / analysis.payPeriods.length * 0.85;
-
-          return (
-            <div key={period.id}>
-              <div className="flex items-center justify-between text-xs mb-1">
-                <span className="text-gray-600">
-                  Pay Period {index + 1}{' '}
-                  <span className="text-gray-400">
-                    ({formatOrdinal(period.startDay)} - {formatOrdinal(period.endDay)})
-                  </span>
-                </span>
-                <span className="font-medium">
-                  {formatCurrency(period.totalAmount)}
-                  <span className="text-gray-400 ml-1">
-                    ({period.bills.length} bill{period.bills.length !== 1 ? 's' : ''})
-                  </span>
-                </span>
-              </div>
-              <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
-                <div
-                  className={`h-full rounded-full transition-all ${
-                    isOverloaded
-                      ? 'bg-red-400'
-                      : isUnderloaded
-                      ? 'bg-blue-300'
-                      : 'bg-green-400'
-                  }`}
-                  style={{ width: `${Math.max(barWidth, 5)}%` }}
-                />
-              </div>
-              {/* Bill names */}
-              {period.bills.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {period.bills.map((bill) => (
-                    <span
-                      key={bill.id}
-                      className="text-[10px] px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded"
-                    >
-                      {bill.name}
+              return (
+                <li key={period.id}>
+                  <div className="bdp-p-t">
+                    <span>
+                      Pay Period {index + 1} <small>({formatOrdinal(period.startDay)} - {formatOrdinal(period.endDay)})</small>
                     </span>
-                  ))}
+                    <b className="num">
+                      {formatCurrency(period.totalAmount)}
+                      <small>({period.bills.length} bill{period.bills.length !== 1 ? 's' : ''})</small>
+                    </b>
+                  </div>
+                  <div className="trk-track">
+                    <i className={state} style={{ width: `${Math.max(barWidth, 5)}%` }} />
+                  </div>
+                  {period.bills.length > 0 && (
+                    <div className="bdp-chips">
+                      {period.bills.map((bill) => (
+                        <span key={bill.id}>{bill.name}</span>
+                      ))}
+                    </div>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+
+          <ul className="cht-legend bdp-legend">
+            <li><i className="cht-dot is-heavy" /><span>Heavy</span></li>
+            <li><i className="cht-dot is-even" /><span>Balanced</span></li>
+            <li><i className="cht-dot is-light" /><span>Light</span></li>
+          </ul>
+
+          {/* Suggestions */}
+          {analysis.suggestions.length > 0 && (
+            <div className="bdp-sug">
+              <h4><AlertTriangle size={16} aria-hidden="true" />Suggested Changes</h4>
+
+              <ul>
+                {analysis.suggestions.map((suggestion) => {
+                  const isApplied = appliedSuggestions.has(suggestion.debtId);
+
+                  return (
+                    <li key={suggestion.debtId} className={isApplied ? 'is-applied' : ''}>
+                      <div className="bdp-s-t">
+                        <span className="bdp-s-n">
+                          {isApplied ? <Check size={15} aria-hidden="true" /> : <ArrowRight size={15} aria-hidden="true" />}
+                          {suggestion.debtName}
+                        </span>
+                        {!isApplied && (
+                          <button type="button" onClick={() => applySuggestion(suggestion)} className="trk-btn is-sm">
+                            Apply
+                          </button>
+                        )}
+                      </div>
+                      <p>
+                        Move from <b className="is-bad">{formatOrdinal(suggestion.currentDueDay)}</b>
+                        {' → '}
+                        <b className="is-ok">{formatOrdinal(suggestion.suggestedDueDay)}</b>
+                      </p>
+                      <p className="bdp-why">
+                        {(() => {
+                          // Find which periods are involved
+                          const fromPeriod = analysis.payPeriods.find(
+                            (p) => suggestion.currentDueDay >= p.startDay && suggestion.currentDueDay <= p.endDay
+                          );
+                          const toPeriod = analysis.payPeriods.find(
+                            (p) => suggestion.suggestedDueDay >= p.startDay && suggestion.suggestedDueDay <= p.endDay
+                          );
+                          const fromIdx = fromPeriod ? analysis.payPeriods.indexOf(fromPeriod) + 1 : 0;
+                          const toIdx = toPeriod ? analysis.payPeriods.indexOf(toPeriod) + 1 : 0;
+
+                          if (fromPeriod && toPeriod) {
+                            return `Pay period ${fromIdx} has ${formatCurrency(fromPeriod.totalAmount)} in bills. Moving this to period ${toIdx} (${formatCurrency(toPeriod.totalAmount)}) will balance your payments better.`;
+                          }
+                          return suggestion.reason;
+                        })()}
+                      </p>
+                    </li>
+                  );
+                })}
+              </ul>
+
+              {/* Apply All button */}
+              {analysis.suggestions.some((s) => !appliedSuggestions.has(s.debtId)) && (
+                <button type="button" onClick={applyAllSuggestions} className="trk-btn bdp-all">
+                  Apply All
+                </button>
+              )}
+
+              {/* All applied message */}
+              {analysis.suggestions.every((s) => appliedSuggestions.has(s.debtId)) && (
+                <div className="bdp-done">
+                  <CheckCircle size={20} aria-hidden="true" />
+                  <b>All suggestions applied!</b>
+                  <span>Your bills are now better balanced across pay periods.</span>
                 </div>
               )}
             </div>
-          );
-        })}
-      </div>
-
-      {/* Legend */}
-      <div className="flex items-center gap-4 text-[10px] text-gray-500 mb-3">
-        <div className="flex items-center gap-1">
-          <div className="w-2 h-2 rounded-full bg-red-400" />
-          <span>Heavy</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="w-2 h-2 rounded-full bg-green-400" />
-          <span>Balanced</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="w-2 h-2 rounded-full bg-blue-300" />
-          <span>Light</span>
-        </div>
-      </div>
-
-      {/* Suggestions */}
-      {analysis.suggestions.length > 0 && (
-        <div className="border-t border-gray-100 pt-3">
-          <div className="flex items-center gap-2 mb-2">
-            <AlertTriangle size={12} className="text-amber-500" />
-            <span className="text-xs font-medium">Suggested Changes</span>
-          </div>
-
-          <div className="space-y-2">
-            {analysis.suggestions.map((suggestion) => {
-              const isApplied = appliedSuggestions.has(suggestion.debtId);
-
-              return (
-                <div
-                  key={suggestion.debtId}
-                  className={`p-2 rounded-lg ${
-                    isApplied ? 'bg-green-50' : 'bg-gray-50'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center gap-1.5">
-                      {isApplied ? (
-                        <Check size={12} className="text-green-600 shrink-0" />
-                      ) : (
-                        <ArrowRight size={12} className="text-amber-500 shrink-0" />
-                      )}
-                      <span className="text-xs font-medium truncate">{suggestion.debtName}</span>
-                    </div>
-                    {!isApplied && (
-                      <button
-                        onClick={() => applySuggestion(suggestion)}
-                        className="text-xs px-2 py-1 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
-                      >
-                        Apply
-                      </button>
-                    )}
-                  </div>
-                  <div className="ml-5 text-xs text-gray-500">
-                    <p>
-                      Move from <span className="font-medium text-red-600">{formatOrdinal(suggestion.currentDueDay)}</span>
-                      {' → '}
-                      <span className="font-medium text-green-600">{formatOrdinal(suggestion.suggestedDueDay)}</span>
-                    </p>
-                    <p className="mt-0.5 text-gray-400 hidden sm:block">
-                      {(() => {
-                        // Find which periods are involved
-                        const fromPeriod = analysis.payPeriods.find(
-                          p => suggestion.currentDueDay >= p.startDay && suggestion.currentDueDay <= p.endDay
-                        );
-                        const toPeriod = analysis.payPeriods.find(
-                          p => suggestion.suggestedDueDay >= p.startDay && suggestion.suggestedDueDay <= p.endDay
-                        );
-                        const fromIdx = fromPeriod ? analysis.payPeriods.indexOf(fromPeriod) + 1 : 0;
-                        const toIdx = toPeriod ? analysis.payPeriods.indexOf(toPeriod) + 1 : 0;
-
-                        if (fromPeriod && toPeriod) {
-                          return `Pay period ${fromIdx} has ${formatCurrency(fromPeriod.totalAmount)} in bills. Moving this to period ${toIdx} (${formatCurrency(toPeriod.totalAmount)}) will balance your payments better.`;
-                        }
-                        return suggestion.reason;
-                      })()}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Apply All button */}
-          {analysis.suggestions.some((s) => !appliedSuggestions.has(s.debtId)) && (
-            <div className="mt-3">
-              <button
-                onClick={applyAllSuggestions}
-                className="w-full py-1.5 bg-primary-500 text-white text-xs font-medium rounded-xl hover:bg-primary-600 transition-colors"
-              >
-                Apply All
-              </button>
-            </div>
-          )}
-
-          {/* All applied message */}
-          {analysis.suggestions.every((s) => appliedSuggestions.has(s.debtId)) && (
-            <div className="mt-3 p-2.5 bg-green-50 rounded-lg text-center">
-              <CheckCircle size={16} className="text-green-600 mx-auto mb-1" />
-              <p className="text-xs text-green-700 font-medium">
-                All suggestions applied!
-              </p>
-              <p className="text-[10px] text-green-600">
-                Your bills are now better balanced across pay periods.
-              </p>
-            </div>
           )}
         </div>
       )}
-        </div>
-      )}
-    </div>
+    </section>
   );
 }

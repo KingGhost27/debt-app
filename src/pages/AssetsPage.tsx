@@ -1,33 +1,39 @@
 /**
- * Assets Page - Kawaii Edition
+ * Assets Page - the ranch's savings barn.
  *
  * Track savings accounts, retirement accounts, and other assets.
- * Shows net worth summary, asset allocation, and balance history.
- * Features cute styling, animations, and delightful interactions.
+ * Net worth leads, then allocation and balance trend (charts themed from the
+ * ranch tokens), then one ranch card per account. Styled in assets.css.
  */
 
-import { useState, useMemo } from 'react';
-import { Plus, Pencil, Trash2, RefreshCw, TrendingUp, TrendingDown, History, Sparkles, PiggyBank } from 'lucide-react';
+import { useState, useMemo, type ComponentType, type CSSProperties } from 'react';
+import {
+  Banknote, History, HeartPulse, Landmark, Pencil, PiggyBank, Plus, RefreshCw, Sparkles, Trash2, TrendingDown, TrendingUp, Wallet,
+} from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import {
   PieChart,
   Pie,
   Cell,
   ResponsiveContainer,
-  LineChart,
-  Line,
+  AreaChart,
+  Area,
+  CartesianGrid,
   XAxis,
   YAxis,
   Tooltip,
 } from 'recharts';
 import { useApp } from '../context/AppContext';
 import { PageHeader } from '../components/layout/PageHeader';
+import { Plank } from '../components/dashboard/RanchPanels';
 import { AssetModal } from '../components/ui/AssetModal';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { useConfirmDialog } from '../hooks/useConfirmDialog';
 import { UpdateBalanceModal } from '../components/ui/UpdateBalanceModal';
 import { EmptyState } from '../components/ui/EmptyState';
 import { ProLockedOverlay } from '../components/ui/ProLockedOverlay';
+import { RollingNumber } from '../components/ui/RollingNumber';
+import { chartAxisLine, chartGrid, chartTick, chartTooltip } from '../components/analytics/chartTheme';
 import { useFeatureGate } from '../hooks/useFeatureGate';
 import { PRO_FEATURE_COPY } from '../lib/tierLimits';
 import {
@@ -38,9 +44,21 @@ import {
   calculateAssetsByType,
   calculateAssetBalanceHistory,
 } from '../lib/calculations';
-import type { Asset} from '../types';
+import type { Asset, AssetType } from '../types';
 import { ASSET_TYPE_INFO } from '../types';
-import { Wallet } from 'lucide-react';
+import './assets.css';
+
+const TYPE_ICONS: Record<AssetType, ComponentType<{ size?: number; 'aria-hidden'?: boolean }>> = {
+  savings: PiggyBank,
+  checking: Landmark,
+  roth_ira: TrendingUp,
+  '401k': TrendingUp,
+  brokerage: TrendingUp,
+  hsa: HeartPulse,
+  money_market: Banknote,
+  cd: Banknote,
+  other: Wallet,
+};
 
 export function AssetsPage() {
   const { assets, debts, deleteAsset } = useApp();
@@ -51,21 +69,7 @@ export function AssetsPage() {
   const { confirm, dialogProps } = useConfirmDialog();
   const { isAssetTrackingLocked, isLoading: gateLoading } = useFeatureGate();
 
-  if (!gateLoading && isAssetTrackingLocked) {
-    return (
-      <div className="min-h-screen bg-gray-50 animate-page-enter">
-        <PageHeader title="Assets" subtitle="Track your savings & investments" emoji="💎" />
-        <div className="px-4 py-10">
-          <ProLockedOverlay
-            title={PRO_FEATURE_COPY.asset_tracking.title}
-            description={PRO_FEATURE_COPY.asset_tracking.description}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  // Calculate totals
+  // Calculate totals (hooks stay above the early returns below)
   const totalAssets = useMemo(() => calculateTotalAssets(assets), [assets]);
   const totalDebt = useMemo(() => calculateTotalDebt(debts), [debts]);
   const netWorth = useMemo(() => calculateNetWorth(assets, debts), [assets, debts]);
@@ -82,15 +86,29 @@ export function AssetsPage() {
         color: ASSET_TYPE_INFO[type as keyof typeof ASSET_TYPE_INFO]?.color || '#6b7280',
       }));
   }, [assetsByType]);
+  const pieTotal = pieData.reduce((sum, d) => sum + d.value, 0);
 
   // Prepare line chart data (last 12 entries or all if fewer)
   const lineData = useMemo(() => {
-    const data = balanceHistory.slice(-12).map((entry) => ({
+    return balanceHistory.slice(-12).map((entry) => ({
       date: format(parseISO(entry.date), 'MMM d'),
       balance: entry.totalBalance,
     }));
-    return data;
   }, [balanceHistory]);
+
+  if (!gateLoading && isAssetTrackingLocked) {
+    return (
+      <div className="ast animate-page-enter">
+        <PageHeader title="Assets" subtitle="Track your savings & investments" />
+        <div className="ast-body">
+          <ProLockedOverlay
+            title={PRO_FEATURE_COPY.asset_tracking.title}
+            description={PRO_FEATURE_COPY.asset_tracking.description}
+          />
+        </div>
+      </div>
+    );
+  }
 
   const handleEdit = (asset: Asset) => {
     setEditingAsset(asset);
@@ -115,15 +133,11 @@ export function AssetsPage() {
   // Empty state
   if (assets.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 animate-page-enter">
-        <PageHeader
-          title="Assets"
-          subtitle="Track your savings & investments"
-          emoji="💎"
-        />
-        <div className="px-4">
+      <div className="ast animate-page-enter">
+        <PageHeader title="Assets" subtitle="Track your savings & investments" />
+        <div className="ast-body">
           <EmptyState
-            icon="💰"
+            icon={PiggyBank}
             title="No Assets Yet"
             description="Add your savings accounts, retirement funds, and other assets to track your net worth."
             action={{
@@ -133,362 +147,223 @@ export function AssetsPage() {
             encouragement="Start building wealth!"
           />
         </div>
-        <AssetModal
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-          asset={editingAsset}
-        />
+        <AssetModal isOpen={isModalOpen} onClose={handleCloseModal} asset={editingAsset} />
       </div>
     );
   }
 
+  const split = totalAssets + totalDebt;
+
   return (
-    <div className="min-h-screen bg-gray-50 animate-page-enter">
+    <div className="ast animate-page-enter">
       <PageHeader
         title="Assets"
         subtitle="Track your savings & investments"
-        emoji="💎"
         action={
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-1.5 px-4 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white text-sm font-semibold rounded-2xl hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg shadow-primary-500/30 hover:shadow-primary-500/40 hover:scale-105 active:scale-95"
-          >
-            <Plus size={18} />
+          <button type="button" onClick={() => setIsModalOpen(true)} className="ast-btn" aria-label="Add Asset">
+            <Plus size={18} aria-hidden="true" />
             <span className="hidden sm:inline">Add Asset</span>
           </button>
         }
       />
 
-      <div className="px-4 py-6 space-y-6">
-        {/* Net Worth Card */}
-        <div className="card bg-gradient-to-br from-primary-50 to-white dark:from-primary-900/30 dark:to-gray-800 rounded-3xl border border-primary-100 dark:border-primary-700/50 relative overflow-hidden">
-          {/* Decorative elements */}
-          <div className="absolute top-0 right-0 w-32 h-32 bg-primary-200/30 rounded-full -translate-y-1/2 translate-x-1/2" />
-          <Sparkles size={14} className="absolute top-4 right-6 text-primary-300 animate-kawaii-pulse" />
-
-          {/* Floating money celebration for positive net worth */}
-          {netWorth > 0 && (
-            <>
-              {/* Corner floaters */}
-              <span className="absolute top-8 left-6 text-sm sm:text-xl animate-money-float" style={{ animationDelay: '0s' }}>💰</span>
-              <span className="absolute top-12 left-16 text-xs sm:text-lg animate-money-float" style={{ animationDelay: '0.5s' }}>✨</span>
-              <span className="absolute top-6 right-16 text-sm sm:text-xl animate-money-float" style={{ animationDelay: '0.3s' }}>💵</span>
-              <span className="absolute top-14 right-8 text-xs sm:text-lg animate-money-pop" style={{ animationDelay: '0.8s' }}>🪙</span>
-              <span className="absolute top-20 left-10 text-xs sm:text-sm animate-money-pop" style={{ animationDelay: '1.2s' }}>💎</span>
-              <span className="absolute top-16 right-20 text-xs sm:text-sm animate-money-float" style={{ animationDelay: '1.5s' }}>⭐</span>
-
-              {/* Money shower framing the center text */}
-              <div className="absolute inset-x-0 top-0 flex justify-center pointer-events-none overflow-hidden h-full">
-                {/* Left side - near center but not covering */}
-                <span className="absolute text-base sm:text-2xl animate-money-shower" style={{ left: '5%', animationDelay: '0s' }}>💵</span>
-                <span className="absolute text-sm sm:text-xl animate-money-bounce-fall" style={{ left: '12%', animationDelay: '0.4s' }}>💴</span>
-                <span className="absolute text-base sm:text-2xl animate-money-shower" style={{ left: '20%', animationDelay: '0.8s' }}>💶</span>
-                <span className="absolute text-xs sm:text-lg animate-money-bounce-fall" style={{ left: '8%', animationDelay: '1.2s' }}>🤑</span>
-                <span className="absolute text-sm sm:text-xl animate-money-shower" style={{ left: '25%', animationDelay: '1.6s' }}>💎</span>
-                <span className="absolute text-xs sm:text-sm animate-money-shower hidden sm:block" style={{ left: '15%', animationDelay: '2.4s' }}>✨</span>
-                <span className="absolute text-xs sm:text-sm animate-money-bounce-fall hidden sm:block" style={{ left: '28%', animationDelay: '2.6s' }}>⭐</span>
-
-                {/* Right side - near center but not covering */}
-                <span className="absolute text-base sm:text-2xl animate-money-shower" style={{ right: '5%', animationDelay: '0.6s' }}>💰</span>
-                <span className="absolute text-sm sm:text-xl animate-money-bounce-fall" style={{ right: '12%', animationDelay: '1s' }}>💸</span>
-                <span className="absolute text-xs sm:text-lg animate-money-shower" style={{ right: '20%', animationDelay: '1.4s' }}>🪙</span>
-                <span className="absolute text-sm sm:text-xl animate-money-shower" style={{ right: '8%', animationDelay: '1.8s' }}>💳</span>
-                <span className="absolute text-xs sm:text-lg animate-money-bounce-fall" style={{ right: '25%', animationDelay: '2s' }}>🏧</span>
-                <span className="absolute text-sm sm:text-xl animate-money-shower" style={{ right: '15%', animationDelay: '2.2s' }}>💹</span>
-                <span className="absolute text-xs sm:text-sm animate-money-shower hidden sm:block" style={{ right: '28%', animationDelay: '2.8s' }}>🌟</span>
-                <span className="absolute text-xs sm:text-sm animate-money-bounce-fall hidden sm:block" style={{ right: '18%', animationDelay: '3s' }}>💫</span>
-              </div>
-            </>
-          )}
-
-          <div className="relative z-10 text-center mb-3 sm:mb-5">
-            <div className="flex items-center justify-center gap-1.5 mb-1 sm:mb-2">
-              <PiggyBank size={14} className="text-primary-500 sm:hidden" />
-              <PiggyBank size={18} className="text-primary-500 hidden sm:block" />
-              <p className="text-xs sm:text-sm text-gray-500 font-semibold uppercase tracking-wide">Net Worth</p>
-            </div>
-            <p
-              className={`text-2xl sm:text-4xl font-bold ${
-                netWorth >= 0 ? 'text-green-600' : 'text-red-600'
-              }`}
-            >
-              {formatCurrency(netWorth)}
-            </p>
+      <div className="ast-body">
+        {/* Net Worth */}
+        <section className="rui-card ast-net">
+          <div className="ast-mod-h">
+            <Plank icon={<PiggyBank size={18} aria-hidden="true" />}>Net Worth</Plank>
             {netWorth > 0 && (
-              <p className="text-xs sm:text-sm text-green-500 font-medium mt-1 flex items-center justify-center gap-1">
-                <Sparkles size={10} className="animate-kawaii-pulse sm:hidden" />
-                <Sparkles size={12} className="animate-kawaii-pulse hidden sm:block" />
-                You're in the green!
-              </p>
+              <span className="rui-badge ok"><Sparkles size={13} aria-hidden="true" />You're in the green!</span>
             )}
           </div>
 
+          <p className={`ast-net-v ${netWorth >= 0 ? 'is-ok' : 'is-bad'}`}>
+            <RollingNumber value={netWorth} decimals={2} />
+          </p>
+
           {/* Assets vs Debts bar */}
-          <div className="relative h-3 sm:h-4 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden mb-3 sm:mb-4">
-            {totalAssets + totalDebt > 0 && (
+          <div className="ast-split" role="img" aria-label={`Assets ${formatCurrency(totalAssets)}, debts ${formatCurrency(totalDebt)}`}>
+            {split > 0 && (
               <>
-                <div
-                  className="absolute left-0 top-0 h-full bg-gradient-to-r from-green-400 to-emerald-500 transition-all duration-500"
-                  style={{
-                    width: `${(totalAssets / (totalAssets + totalDebt)) * 100}%`,
-                  }}
-                />
-                <div
-                  className="absolute right-0 top-0 h-full bg-gradient-to-r from-red-400 to-red-500 transition-all duration-500"
-                  style={{
-                    width: `${(totalDebt / (totalAssets + totalDebt)) * 100}%`,
-                  }}
-                />
+                <i className="is-assets" style={{ width: `${(totalAssets / split) * 100}%` }} />
+                <i className="is-debts" style={{ width: `${(totalDebt / split) * 100}%` }} />
               </>
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-2 text-xs sm:text-sm">
-            <div className="flex items-center gap-1.5 sm:gap-2 px-2 py-1.5 sm:px-3 sm:py-2 bg-green-50 dark:bg-green-900/30 rounded-xl">
-              <TrendingUp size={14} className="text-green-500 shrink-0" />
-              <span className="text-gray-600">Assets:</span>
-              <span className="font-bold text-green-600">
-                {formatCurrency(totalAssets)}
-              </span>
+          <dl className="ast-tiles">
+            <div className="is-assets">
+              <TrendingUp size={20} aria-hidden="true" />
+              <dt>Assets:</dt>
+              <dd className="num">{formatCurrency(totalAssets)}</dd>
             </div>
-            <div className="flex items-center gap-1.5 sm:gap-2 px-2 py-1.5 sm:px-3 sm:py-2 bg-red-50 dark:bg-red-900/30 rounded-xl">
-              <TrendingDown size={14} className="text-red-400 shrink-0" />
-              <span className="text-gray-600">Debts:</span>
-              <span className="font-bold text-red-500">
-                {formatCurrency(totalDebt)}
-              </span>
+            <div className="is-debts">
+              <TrendingDown size={20} aria-hidden="true" />
+              <dt>Debts:</dt>
+              <dd className="num">{formatCurrency(totalDebt)}</dd>
             </div>
-          </div>
-        </div>
+          </dl>
+        </section>
 
         {/* Charts Row */}
-        <div className="grid grid-cols-2 gap-4">
-          {/* Asset Allocation Pie */}
-          {pieData.length > 0 && (
-            <div className="card bg-white rounded-3xl shadow-sm">
-              <h3 className="text-sm font-semibold text-gray-500 mb-3 flex items-center gap-2">
-                <Sparkles size={12} className="text-primary-400" />
-                Allocation
-              </h3>
-              <div className="h-32">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={pieData}
-                      dataKey="value"
-                      nameKey="name"
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={25}
-                      outerRadius={50}
-                    >
-                      {pieData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      formatter={(value) => formatCurrency(value as number)}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-              {/* Legend */}
-              <div className="mt-3 space-y-1.5">
-                {pieData.slice(0, 3).map((entry) => (
-                  <div key={entry.name} className="flex items-center gap-2 text-xs">
-                    <div
-                      className="w-3 h-3 rounded-full ring-2 ring-white shadow-sm"
-                      style={{ backgroundColor: entry.color }}
-                    />
-                    <span className="text-gray-600 truncate">{entry.name}</span>
-                  </div>
-                ))}
-                {pieData.length > 3 && (
-                  <p className="text-xs text-gray-400">+{pieData.length - 3} more</p>
-                )}
-              </div>
-            </div>
-          )}
+        {(pieData.length > 0 || lineData.length > 1) && (
+          <div className="ast-charts">
+            {/* Asset Allocation Pie */}
+            {pieData.length > 0 && (
+              <section className="rui-card ast-mod">
+                <div className="ast-mod-h"><Plank icon={<Sparkles size={18} aria-hidden="true" />}>Allocation</Plank></div>
+                <div className="ast-donut">
+                  <ResponsiveContainer width="100%" height={170}>
+                    <PieChart>
+                      <Pie
+                        data={pieData}
+                        dataKey="value"
+                        nameKey="name"
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={46}
+                        outerRadius={74}
+                        paddingAngle={pieData.length > 1 ? 3 : 0}
+                        stroke="var(--ranch-page)"
+                        strokeWidth={3}
+                      >
+                        {pieData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip {...chartTooltip} formatter={(value) => formatCurrency(value as number)} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                {/* Legend */}
+                <ul className="ast-legend">
+                  {pieData.map((entry) => (
+                    <li key={entry.name}>
+                      <i style={{ background: entry.color }} />
+                      <span>{entry.name}</span>
+                      <b className="num">{Math.round((entry.value / pieTotal) * 100)}%</b>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
 
-          {/* Balance Trend */}
-          {lineData.length > 1 && (
-            <div className="card bg-white rounded-3xl shadow-sm">
-              <h3 className="text-sm font-semibold text-gray-500 mb-3 flex items-center gap-2">
-                <TrendingUp size={12} className="text-green-500" />
-                Trend
-              </h3>
-              <div className="h-32">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={lineData}>
-                    <XAxis dataKey="date" hide />
+            {/* Balance Trend */}
+            {lineData.length > 1 && (
+              <section className="rui-card ast-mod">
+                <div className="ast-mod-h"><Plank icon={<TrendingUp size={18} aria-hidden="true" />}>Trend</Plank></div>
+                <ResponsiveContainer width="100%" height={210}>
+                  <AreaChart data={lineData} margin={{ top: 6, right: 12, left: 12, bottom: 0 }}>
+                    <CartesianGrid {...chartGrid} />
+                    <XAxis dataKey="date" tick={chartTick} tickLine={false} axisLine={chartAxisLine} interval={Math.max(0, lineData.length - 2)} padding={{ left: 22, right: 22 }} />
                     <YAxis hide domain={['dataMin - 100', 'dataMax + 100']} />
                     <Tooltip
-                      formatter={(value) => formatCurrency(value as number)}
+                      {...chartTooltip}
+                      formatter={(value) => [formatCurrency(value as number), 'Balance']}
                       labelFormatter={(label) => String(label)}
                     />
-                    <Line
+                    <Area
                       type="monotone"
                       dataKey="balance"
-                      stroke="#22c55e"
+                      stroke="var(--ranch-ok-fill)"
                       strokeWidth={3}
+                      fill="var(--ranch-ok-fill)"
+                      fillOpacity={0.16}
                       dot={false}
+                      activeDot={{ r: 5, fill: 'var(--ranch-ok-fill)', stroke: 'var(--ranch-page)', strokeWidth: 2 }}
                     />
-                  </LineChart>
+                  </AreaChart>
                 </ResponsiveContainer>
-              </div>
-              <p className="text-xs text-gray-400 mt-3">
-                {lineData.length} updates tracked
-              </p>
-            </div>
-          )}
-        </div>
+                <p className="ast-note">{lineData.length} updates tracked</p>
+              </section>
+            )}
+          </div>
+        )}
 
         {/* Asset Cards */}
-        <div className="space-y-4">
-          <h3 className="text-xs sm:text-sm font-semibold text-gray-500 uppercase tracking-wide flex items-center gap-1.5">
-            <Wallet size={12} className="sm:hidden" />
-            <Wallet size={14} className="hidden sm:block" />
-            Your Accounts
-          </h3>
-          {assets.map((asset) => {
-            const typeInfo = ASSET_TYPE_INFO[asset.type];
+        <section className="ast-sec">
+          <div className="ast-mod-h"><Plank icon={<Wallet size={18} aria-hidden="true" />}>Your Accounts</Plank></div>
+          <div className="ast-accts">
+            {assets.map((asset) => {
+              const typeInfo = ASSET_TYPE_INFO[asset.type];
+              const Icon = TYPE_ICONS[asset.type] ?? Wallet;
 
-            return (
-              <div key={asset.id} className="card bg-white rounded-3xl shadow-sm hover:shadow-md transition-all group overflow-hidden">
-                {/* Type color bar */}
-                <div
-                  className="h-1 sm:h-1.5 -mx-4 -mt-4 mb-3 sm:mb-4"
-                  style={{ backgroundColor: typeInfo.color }}
-                />
-
-                <div className="flex items-start justify-between mb-3 sm:mb-4">
-                  <div className="flex items-center gap-2 sm:gap-3">
-                    <div
-                      className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-sm"
-                      style={{ backgroundColor: `${typeInfo.color}20` }}
-                    >
-                      <Wallet size={16} className="sm:hidden" style={{ color: typeInfo.color }} />
-                      <Wallet size={22} className="hidden sm:block" style={{ color: typeInfo.color }} />
+              return (
+                <article key={asset.id} className="rui-card ast-acct" style={{ '--ast-c': typeInfo.color } as CSSProperties}>
+                  <div className="ast-acct-top">
+                    <span className="ast-ic"><Icon size={22} aria-hidden={true} /></span>
+                    <div className="ast-acct-n">
+                      <h3>{asset.name}</h3>
+                      <p>
+                        <span className="ast-type"><i />{typeInfo.label}</span>
+                        {asset.institution && <span>{asset.institution}</span>}
+                      </p>
                     </div>
+                    <div className="ast-acts">
+                      <button type="button" onClick={() => handleEdit(asset)} className="ast-icon-btn" title="Edit" aria-label={`Edit ${asset.name}`}>
+                        <Pencil size={17} aria-hidden="true" />
+                      </button>
+                      <button type="button" onClick={() => handleDelete(asset)} className="ast-icon-btn is-bad" title="Delete" aria-label={`Delete ${asset.name}`}>
+                        <Trash2 size={17} aria-hidden="true" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="ast-acct-mid">
                     <div>
-                      <p className="text-sm sm:text-base font-bold text-gray-900">{asset.name}</p>
-                      <p className="text-xs sm:text-sm text-gray-500">
-                        <span
-                          className="px-2 py-0.5 rounded-full text-xs font-medium"
-                          style={{
-                            backgroundColor: `${typeInfo.color}20`,
-                            color: typeInfo.color
-                          }}
-                        >
-                          {typeInfo.label}
-                        </span>
-                        {asset.institution && <span className="ml-2">{asset.institution}</span>}
-                      </p>
+                      <p className="ast-bal num">{formatCurrency(asset.balance)}</p>
+                      {asset.interestRate && (
+                        <span className="rui-badge ok"><TrendingUp size={13} aria-hidden="true" />{asset.interestRate}% APY</span>
+                      )}
+                    </div>
+                    <div className="ast-acct-btns">
+                      <button type="button" onClick={() => setUpdatingAsset(asset)} className="ast-btn is-ghost">
+                        <RefreshCw size={16} aria-hidden="true" />
+                        Update
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowHistory(showHistory === asset.id ? null : asset.id)}
+                        className="ast-link"
+                        aria-expanded={showHistory === asset.id}
+                      >
+                        <History size={15} aria-hidden="true" />
+                        History
+                      </button>
                     </div>
                   </div>
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button
-                      onClick={() => handleEdit(asset)}
-                      className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all"
-                    >
-                      <Pencil size={16} />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(asset)}
-                      className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                </div>
 
-                <div className="flex items-end justify-between">
-                  <div>
-                    <p className="text-lg sm:text-2xl font-bold text-gray-900">
-                      {formatCurrency(asset.balance)}
-                    </p>
-                    {asset.interestRate && (
-                      <p className="text-xs sm:text-sm text-green-600 font-semibold flex items-center gap-1">
-                        <TrendingUp size={12} className="sm:hidden" />
-                        <TrendingUp size={14} className="hidden sm:block" />
-                        {asset.interestRate}% APY
-                      </p>
-                    )}
-                  </div>
-                  <div className="flex flex-col items-end gap-1.5">
-                    <button
-                      onClick={() => setUpdatingAsset(asset)}
-                      className="flex items-center gap-1 sm:gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm font-semibold text-primary-600 bg-primary-50 rounded-xl hover:bg-primary-100 transition-all"
-                    >
-                      <RefreshCw size={12} className="sm:hidden" />
-                      <RefreshCw size={14} className="hidden sm:block" />
-                      Update
-                    </button>
-                    <button
-                      onClick={() =>
-                        setShowHistory(showHistory === asset.id ? null : asset.id)
-                      }
-                      className="text-xs text-primary-600 hover:text-primary-700 flex items-center gap-1 font-medium px-3 sm:px-4"
-                    >
-                      <History size={12} />
-                      History
-                    </button>
-                  </div>
-                </div>
+                  {/* Last updated */}
+                  <p className="ast-upd">Updated {format(parseISO(asset.updatedAt), 'MMM d, yyyy')}</p>
 
-                {/* Last updated */}
-                <div className="mt-3 pt-3 sm:mt-4 sm:pt-4 border-t border-gray-100">
-                  <p className="text-[10px] sm:text-xs text-gray-400">
-                    Updated {format(parseISO(asset.updatedAt), 'MMM d, yyyy')}
-                  </p>
-                </div>
-
-                {/* History dropdown */}
-                {showHistory === asset.id && (
-                  <div className="mt-3 bg-gray-50 rounded-2xl p-4 space-y-2 max-h-40 overflow-y-auto">
-                    {asset.balanceHistory
-                      .slice()
-                      .reverse()
-                      .slice(0, 10)
-                      .map((entry) => (
-                        <div
-                          key={entry.id}
-                          className="flex justify-between text-sm"
-                        >
-                          <div>
-                            <span className="text-gray-500">
+                  {/* History dropdown */}
+                  {showHistory === asset.id && (
+                    <ul className="ast-hist">
+                      {asset.balanceHistory
+                        .slice()
+                        .reverse()
+                        .slice(0, 10)
+                        .map((entry) => (
+                          <li key={entry.id}>
+                            <span>
                               {format(parseISO(entry.date), 'MMM d, yyyy')}
+                              {entry.note && <small> - {entry.note}</small>}
                             </span>
-                            {entry.note && (
-                              <span className="text-gray-400 ml-2">
-                                - {entry.note}
-                              </span>
-                            )}
-                          </div>
-                          <span className="font-semibold text-gray-900">
-                            {formatCurrency(entry.balance)}
-                          </span>
-                        </div>
-                      ))}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
+                            <b className="num">{formatCurrency(entry.balance)}</b>
+                          </li>
+                        ))}
+                    </ul>
+                  )}
+                </article>
+              );
+            })}
+          </div>
+        </section>
       </div>
 
       {/* Modals */}
-      <AssetModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        asset={editingAsset}
-      />
-      <UpdateBalanceModal
-        isOpen={!!updatingAsset}
-        onClose={() => setUpdatingAsset(null)}
-        asset={updatingAsset}
-      />
+      <AssetModal isOpen={isModalOpen} onClose={handleCloseModal} asset={editingAsset} />
+      <UpdateBalanceModal isOpen={!!updatingAsset} onClose={() => setUpdatingAsset(null)} asset={updatingAsset} />
 
       <ConfirmDialog {...dialogProps} />
     </div>

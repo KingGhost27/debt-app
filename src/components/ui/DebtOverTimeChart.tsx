@@ -1,22 +1,17 @@
 /**
  * Debt Over Time Chart
  *
- * Line chart showing total debt balance decreasing over time.
+ * Line chart showing total debt balance decreasing over time. Themed from the
+ * ranch tokens; also rendered on the dashboard.
  */
 
 import { useMemo } from 'react';
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from 'recharts';
+import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { format, parseISO } from 'date-fns';
 import type { PayoffPlan } from '../../types';
 import { formatCurrency } from '../../lib/calculations';
+import { chartAxisLine, chartGrid, chartTick, chartTooltip, moneyTick } from '../analytics/chartTheme';
+import '../../pages/track.css';
 
 interface DebtOverTimeChartProps {
   plan: PayoffPlan;
@@ -39,7 +34,6 @@ export function DebtOverTimeChart({ plan, startingBalance }: DebtOverTimeChartPr
 
     // Add each month's remaining balance
     plan.monthlyBreakdown.forEach((monthData) => {
-      // Sum up remaining balances for all debts in this month
       const totalRemaining = monthData.payments.reduce(
         (sum, payment) => sum + payment.remainingBalance,
         0
@@ -56,50 +50,27 @@ export function DebtOverTimeChart({ plan, startingBalance }: DebtOverTimeChartPr
   }, [plan.monthlyBreakdown, startingBalance]);
 
   if (chartData.length === 0) {
-    return (
-      <div className="text-center text-gray-500 py-8">
-        No payoff data available
-      </div>
-    );
+    return <p className="cht-empty">No payoff data available</p>;
   }
 
   return (
-    <ResponsiveContainer width="100%" height={200}>
-      <LineChart data={chartData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-        <XAxis
-          dataKey="month"
-          tick={{ fontSize: 11, fill: '#6b7280' }}
-          tickLine={false}
-          axisLine={{ stroke: '#e5e7eb' }}
-          interval="preserveStartEnd"
-        />
-        <YAxis
-          tick={{ fontSize: 11, fill: '#6b7280' }}
-          tickLine={false}
-          axisLine={false}
-          tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
-          width={45}
-        />
-        <Tooltip
-          formatter={(value) => [formatCurrency(value as number), 'Balance']}
-          labelStyle={{ color: '#374151', fontWeight: 600 }}
-          contentStyle={{
-            backgroundColor: 'white',
-            border: '1px solid #e5e7eb',
-            borderRadius: '8px',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-          }}
-        />
-        <Line
+    <ResponsiveContainer width="100%" height={210}>
+      <AreaChart data={chartData} margin={{ top: 6, right: 6, left: 0, bottom: 0 }}>
+        <CartesianGrid {...chartGrid} />
+        <XAxis dataKey="month" tick={chartTick} tickLine={false} axisLine={chartAxisLine} interval="preserveStartEnd" />
+        <YAxis tick={chartTick} tickLine={false} axisLine={false} tickFormatter={moneyTick} width={48} />
+        <Tooltip {...chartTooltip} formatter={(value) => [formatCurrency(value as number), 'Balance']} />
+        <Area
           type="monotone"
           dataKey="balance"
-          stroke="var(--color-primary-500)"
-          strokeWidth={2}
+          stroke="var(--ranch-fill)"
+          strokeWidth={3}
+          fill="var(--ranch-fill)"
+          fillOpacity={0.14}
           dot={false}
-          activeDot={{ r: 4, fill: 'var(--color-primary-500)' }}
+          activeDot={{ r: 5, fill: 'var(--ranch-fill)', stroke: 'var(--ranch-page)', strokeWidth: 2 }}
         />
-      </LineChart>
+      </AreaChart>
     </ResponsiveContainer>
   );
 }

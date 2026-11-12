@@ -1,9 +1,12 @@
 /**
  * Mini Calendar Component
  *
- * Visual monthly calendar showing bill due dates and paydays.
- * Highlights days with bills (pink) and paydays (green $).
- * Supports navigation to previous/future months.
+ * Visual monthly calendar showing bill due dates, paydays, pay-cycle ends and
+ * subscription renewals. Bills read as pink-red, paydays as green, cycle ends
+ * as ink and subscriptions as amber, each with its own icon so color is never
+ * the only cue. Supports navigation to previous/future months. Styled in
+ * pages/track.css (.cal-*) from the ranch tokens; no card of its own, so it
+ * sits inside a ranch card on Track and on the dashboard.
  */
 
 import { useMemo, useState } from 'react';
@@ -19,10 +22,12 @@ import {
   addMonths,
   subMonths,
 } from 'date-fns';
-import { ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
+import { CalendarClock, CalendarDays, ChevronLeft, ChevronRight, CreditCard, Repeat, Wallet } from 'lucide-react';
+import { Plank } from '../dashboard/RanchPanels';
 import type { Debt, IncomeSource, Subscription } from '../../types';
 import { CATEGORY_INFO, SUBSCRIPTION_CATEGORY_INFO } from '../../types';
 import { getPaydaysInMonth, getPayCycleEndsInMonth } from '../../lib/calculations';
+import '../../pages/track.css';
 
 interface MiniCalendarProps {
   debts: Debt[];
@@ -225,344 +230,244 @@ export function MiniCalendar({ debts, incomeSources = [], subscriptions = [], cu
 
   if (debts.length === 0 && !hasPaydays && !hasCycleEnds && !hasSubscriptions) {
     return (
-      <div className="card">
-        <h3 className="text-sm text-gray-500 mb-3">BILL CALENDAR</h3>
-        <div className="text-center py-6 text-gray-500 text-sm">
-          Add debts or subscriptions to see your payment calendar
-        </div>
+      <div className={`cal${isLarge ? '' : ' is-small rui-card'}`}>
+        <p className="cal-empty">Add debts or subscriptions to see your payment calendar</p>
       </div>
     );
   }
 
   return (
-    <div className="card py-3 px-4">
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-xs text-gray-500">BILL CALENDAR</h3>
+    <div className={`cal ${isLarge ? 'is-large' : 'is-small rui-card'}`}>
+      <div className="cal-head">
+        {isLarge ? (
+          <h3 className="cal-title">Bill calendar</h3>
+        ) : (
+          <Plank icon={<CalendarDays size={18} aria-hidden="true" />}>Bill Calendar</Plank>
+        )}
 
         {/* Month navigation */}
-        <div className="flex items-center gap-1">
-          <button
-            onClick={goToPreviousMonth}
-            className="p-1 rounded hover:bg-gray-100 transition-colors"
-            aria-label="Previous month"
-          >
-            <ChevronLeft size={16} className="text-gray-500" />
+        <div className="cal-nav">
+          <button type="button" onClick={goToPreviousMonth} className="cal-nav-btn" aria-label="Previous month">
+            <ChevronLeft size={18} aria-hidden="true" />
           </button>
-
           <button
+            type="button"
             onClick={goToCurrentMonth}
-            className={`text-sm font-semibold px-2 py-0.5 rounded transition-colors ${
-              isCurrentMonth
-                ? 'text-gray-900'
-                : 'text-primary-600 hover:bg-primary-50'
-            }`}
+            className={`cal-month${isCurrentMonth ? '' : ' is-away'}`}
             title={isCurrentMonth ? undefined : 'Click to return to current month'}
           >
             {format(displayedMonth, 'MMM yyyy')}
           </button>
-
-          <button
-            onClick={goToNextMonth}
-            className="p-1 rounded hover:bg-gray-100 transition-colors"
-            aria-label="Next month"
-          >
-            <ChevronRight size={16} className="text-gray-500" />
+          <button type="button" onClick={goToNextMonth} className="cal-nav-btn" aria-label="Next month">
+            <ChevronRight size={18} aria-hidden="true" />
           </button>
         </div>
       </div>
 
-      {/* Calendar container - constrained width and centered */}
-      <div className={isLarge ? 'w-full' : 'max-w-[280px] mx-auto'}>
+      <div className="cal-wrap">
         {/* Week day headers */}
-        <div className={`grid grid-cols-7 ${isLarge ? 'gap-2' : 'gap-1'} mb-1`}>
+        <div className="cal-dow" aria-hidden="true">
           {weekDays.map((day) => (
-            <div key={day} className={`text-center ${isLarge ? 'text-xs' : 'text-[10px]'} text-gray-400 font-medium`}>
-              {isLarge ? day : day.charAt(0)}
-            </div>
+            <span key={day}>{isLarge ? day : day.charAt(0)}</span>
           ))}
         </div>
 
         {/* Calendar grid */}
-        <div className={`grid grid-cols-7 ${isLarge ? 'gap-2' : 'gap-1'} justify-items-center`}>
-        {calendarDays.map((date, dayIndex) => {
-          const isInDisplayedMonth = isSameMonth(date, displayedMonth);
-          const isToday = isSameDay(date, today);
-          const debtsOnDay = getDebtsForDay(date);
-          const paydaysOnDay = getPaydaysForDay(date);
-          const cycleEndsOnDay = getCycleEndsForDay(date);
-          const subsOnDay = getSubscriptionsForDay(date);
-          const hasBills = debtsOnDay.length > 0;
-          const hasPayday = paydaysOnDay.length > 0;
-          const hasCycleEnd = cycleEndsOnDay.length > 0;
-          const hasSubs = subsOnDay.length > 0;
-          const isHovered = hoveredDay && isSameDay(date, hoveredDay);
-          const hasContent = hasBills || hasPayday || hasCycleEnd || hasSubs;
+        <div className="cal-grid">
+          {calendarDays.map((date, dayIndex) => {
+            const isInDisplayedMonth = isSameMonth(date, displayedMonth);
+            const isToday = isSameDay(date, today);
+            const debtsOnDay = getDebtsForDay(date);
+            const paydaysOnDay = getPaydaysForDay(date);
+            const cycleEndsOnDay = getCycleEndsForDay(date);
+            const subsOnDay = getSubscriptionsForDay(date);
+            const hasBills = debtsOnDay.length > 0;
+            const hasPayday = paydaysOnDay.length > 0;
+            const hasCycleEnd = cycleEndsOnDay.length > 0;
+            const hasSubs = subsOnDay.length > 0;
+            const isHovered = hoveredDay && isSameDay(date, hoveredDay);
+            const isSelected = !!selectedDay && isSameDay(selectedDay, date);
+            const hasContent = hasBills || hasPayday || hasCycleEnd || hasSubs;
 
-          // Tooltip edge-aware positioning
-          const col = dayIndex % 7;
-          const row = Math.floor(dayIndex / 7);
-          const isFirstRow = row === 0;
-          const isFirstCol = col === 0;
-          const isLastCol = col === 6;
-          // Vertical: open downward on first row, upward on last row, else upward
-          const tooltipV = isFirstRow ? 'top-full mt-1' : 'bottom-full mb-1';
-          // Horizontal: left-align on last col, right-align on first col, else center
-          const tooltipH = isLastCol ? 'right-0' : isFirstCol ? 'left-0' : 'left-1/2 -translate-x-1/2';
-          // Caret: flip arrow direction and position to match
-          const caretV = isFirstRow ? 'bottom-full border-b-gray-900' : 'top-full border-t-gray-900';
-          const caretH = isLastCol ? 'right-3' : isFirstCol ? 'left-3' : 'left-1/2 -translate-x-1/2';
+            // Tooltip edge-aware positioning
+            const col = dayIndex % 7;
+            const isFirstRow = Math.floor(dayIndex / 7) === 0;
+            const tipV = isFirstRow ? 'is-below' : 'is-above';
+            const tipH = col === 6 ? 'is-end' : col === 0 ? 'is-start' : 'is-mid';
+            const summary = [
+              hasBills && `${debtsOnDay.length} bill${debtsOnDay.length > 1 ? 's' : ''} due`,
+              hasPayday && 'payday',
+              hasCycleEnd && 'pay cycle ends',
+              hasSubs && `${subsOnDay.length} subscription${subsOnDay.length > 1 ? 's' : ''}`,
+            ].filter(Boolean).join(', ');
+            const label = `${format(date, 'MMMM d')}${summary ? `: ${summary}` : ''}`;
 
-          return (
-            <div
-              key={date.toISOString()}
-              className={`relative ${isLarge ? 'w-full' : ''}`}
-              onMouseEnter={() => hasContent && setHoveredDay(date)}
-              onMouseLeave={() => setHoveredDay(null)}
-            >
-              {/* Large calendar - show bills inline */}
-              {isLarge ? (
-                <div
-                  onClick={() => hasContent && setSelectedDay(selectedDay && isSameDay(selectedDay, date) ? null : date)}
-                  className={`
-                    w-full min-h-[52px] sm:min-h-[70px] p-1 rounded-lg border transition-all duration-150
-                    ${!isInDisplayedMonth ? 'bg-gray-50 border-gray-100' : 'border-gray-200'}
-                    ${isToday ? 'ring-2 ring-primary-500 border-primary-300' : ''}
-                    ${hasContent ? 'cursor-pointer hover:border-primary-300' : ''}
-                    ${selectedDay && isSameDay(selectedDay, date) ? 'bg-primary-50 border-primary-300' : ''}
-                  `}
-                >
-                  {/* Date number */}
-                  <div className={`text-xs sm:text-sm font-medium mb-1 ${!isInDisplayedMonth ? 'text-gray-300' : isToday ? 'text-primary-600' : 'text-gray-700'}`}>
-                    {date.getDate()}
-                  </div>
+            const cellClass = [
+              'cal-cell',
+              !isInDisplayedMonth && 'is-out',
+              isToday && 'is-today',
+              isSelected && 'is-selected',
+              hasContent && isInDisplayedMonth && 'has-content',
+              isInDisplayedMonth && (hasBills || hasSubs) && 'has-bill',
+            ].filter(Boolean).join(' ');
 
-                  {/* Mobile: colored dots only */}
-                  {isInDisplayedMonth && hasContent && (
-                    <div className="flex sm:hidden flex-wrap gap-0.5">
-                      {hasBills && <span className="w-2 h-2 rounded-full bg-primary-500 shrink-0" />}
-                      {hasPayday && <span className="w-2 h-2 rounded-full bg-green-500 shrink-0" />}
-                      {hasCycleEnd && <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0" />}
-                      {hasSubs && <span className="w-2 h-2 rounded-full bg-purple-500 shrink-0" />}
-                    </div>
-                  )}
+            const body = isLarge ? (
+              <>
+                <span className="cal-num num">{date.getDate()}</span>
 
-                  {/* Desktop: text pills */}
-                  <div className="hidden sm:block">
-                    {isInDisplayedMonth && debtsOnDay.length > 0 && (
-                      <div className="space-y-0.5">
-                        {debtsOnDay.slice(0, 2).map((debt) => (
-                          <div key={debt.id} className="text-[10px] px-1 py-0.5 rounded bg-primary-100 text-primary-700 truncate">
+                {/* Phones: one dot per kind of event */}
+                {isInDisplayedMonth && hasContent && (
+                  <span className="cal-dots" aria-hidden="true">
+                    {hasBills && <i className="k-bill" />}
+                    {hasPayday && <i className="k-pay" />}
+                    {hasCycleEnd && <i className="k-cycle" />}
+                    {hasSubs && <i className="k-sub" />}
+                  </span>
+                )}
+
+                {/* Wider screens: named pills */}
+                {isInDisplayedMonth && hasContent && (
+                  <span className="cal-pills" aria-hidden="true">
+                    {debtsOnDay.slice(0, 2).map((debt) => (
+                      <span key={debt.id} className="cal-pill k-bill"><CreditCard size={12} />{debt.name}</span>
+                    ))}
+                    {debtsOnDay.length > 2 && <span className="cal-more">+{debtsOnDay.length - 2} more</span>}
+                    {hasPayday && <span className="cal-pill k-pay"><Wallet size={12} />Payday</span>}
+                    {hasCycleEnd && <span className="cal-pill k-cycle"><CalendarClock size={12} />Cycle ends</span>}
+                    {subsOnDay.slice(0, 2).map((sub) => (
+                      <span key={sub.id} className="cal-pill k-sub"><Repeat size={12} />{sub.name}</span>
+                    ))}
+                    {subsOnDay.length > 2 && <span className="cal-more">+{subsOnDay.length - 2} more</span>}
+                  </span>
+                )}
+              </>
+            ) : (
+              <>
+                <span className="num">{date.getDate()}</span>
+                {isInDisplayedMonth && debtsOnDay.length + subsOnDay.length > 1 && (
+                  <span className="cal-count num">{debtsOnDay.length + subsOnDay.length}</span>
+                )}
+                {isInDisplayedMonth && hasSubs && !hasBills && <span className="cal-mark m-sub"><Repeat size={9} aria-hidden="true" /></span>}
+                {isInDisplayedMonth && hasCycleEnd && <span className="cal-mark m-cycle"><CalendarClock size={9} aria-hidden="true" /></span>}
+                {isInDisplayedMonth && hasPayday && <span className="cal-mark m-pay"><Wallet size={9} aria-hidden="true" /></span>}
+              </>
+            );
+
+            return (
+              <div
+                key={date.toISOString()}
+                className="cal-slot"
+                onMouseEnter={() => hasContent && setHoveredDay(date)}
+                onMouseLeave={() => setHoveredDay(null)}
+              >
+                {hasContent && isInDisplayedMonth ? (
+                  <button
+                    type="button"
+                    className={cellClass}
+                    aria-label={label}
+                    aria-pressed={isSelected}
+                    onClick={() => setSelectedDay(isSelected ? null : date)}
+                    onFocus={() => setHoveredDay(date)}
+                    onBlur={() => setHoveredDay(null)}
+                  >
+                    {body}
+                  </button>
+                ) : (
+                  <div className={cellClass} aria-label={isToday ? `Today, ${label}` : undefined}>{body}</div>
+                )}
+
+                {/* Tooltip */}
+                {isHovered && hasContent && isInDisplayedMonth && (
+                  <div className={`cal-tip ${tipV} ${tipH}`} role="presentation">
+                    {hasBills && (
+                      <>
+                        <b>Bills due {format(date, 'do')}</b>
+                        {debtsOnDay.map((debt) => (
+                          <span key={debt.id} className="cal-tip-row">
+                            <i style={{ background: getCategoryColor(debt) }} />
                             {debt.name}
-                          </div>
+                          </span>
                         ))}
-                        {debtsOnDay.length > 2 && (
-                          <div className="text-[9px] text-gray-400 px-1">+{debtsOnDay.length - 2} more</div>
-                        )}
-                      </div>
+                      </>
                     )}
-                    {isInDisplayedMonth && hasPayday && (
-                      <div className="text-[10px] px-1 py-0.5 rounded bg-green-100 text-green-700 truncate mt-0.5">💰 Payday</div>
-                    )}
-                    {isInDisplayedMonth && hasCycleEnd && (
-                      <div className="text-[10px] px-1 py-0.5 rounded bg-blue-100 text-blue-700 truncate mt-0.5">📅 Cycle ends</div>
-                    )}
-                    {isInDisplayedMonth && subsOnDay.length > 0 && (
-                      <div className="space-y-0.5 mt-0.5">
-                        {subsOnDay.slice(0, 2).map((sub) => (
-                          <div key={sub.id} className="text-[10px] px-1 py-0.5 rounded bg-purple-100 text-purple-700 truncate flex items-center gap-1">
-                            <RefreshCw size={8} />{sub.name}
-                          </div>
+                    {hasPayday && (
+                      <>
+                        <b>Payday</b>
+                        {paydaysOnDay.map((source) => (
+                          <span key={source.id} className="cal-tip-row"><Wallet size={12} />{source.name}</span>
                         ))}
-                        {subsOnDay.length > 2 && (
-                          <div className="text-[9px] text-gray-400 px-1">+{subsOnDay.length - 2} more</div>
-                        )}
-                      </div>
+                      </>
+                    )}
+                    {hasCycleEnd && (
+                      <>
+                        <b>Pay cycle ends</b>
+                        {cycleEndsOnDay.map((source) => (
+                          <span key={source.id} className="cal-tip-row"><CalendarClock size={12} />{source.name}</span>
+                        ))}
+                      </>
+                    )}
+                    {hasSubs && (
+                      <>
+                        <b>Subscriptions</b>
+                        {subsOnDay.map((sub) => (
+                          <span key={sub.id} className="cal-tip-row">
+                            <i style={{ background: getSubscriptionColor(sub) }} />
+                            {sub.name}
+                          </span>
+                        ))}
+                      </>
                     )}
                   </div>
-                </div>
-              ) : (
-                /* Small calendar - original compact view */
-                <div
-                  className={`
-                    w-9 h-9 flex items-center justify-center text-sm rounded-md
-                    transition-all duration-150
-                    ${!isInDisplayedMonth ? 'text-gray-300' : ''}
-                    ${isInDisplayedMonth && !hasBills && !hasSubs && !hasPayday && !hasCycleEnd && !isToday ? 'text-gray-600' : ''}
-                    ${isToday && !hasBills && !hasSubs ? 'ring-1 ring-primary-500 text-gray-900 font-semibold' : ''}
-                    ${(hasBills || hasSubs) && !isToday ? 'bg-primary-500 text-white font-semibold' : ''}
-                    ${(hasBills || hasSubs) && isToday ? 'bg-primary-600 text-white font-bold ring-1 ring-primary-300' : ''}
-                    ${hasContent ? 'cursor-pointer hover:opacity-90' : ''}
-                  `}
-                >
-                  {date.getDate()}
-                  {/* Bill + Sub count badge */}
-                  {(debtsOnDay.length + subsOnDay.length) > 1 && (
-                    <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] w-3 h-3 rounded-full flex items-center justify-center font-bold">
-                      {debtsOnDay.length + subsOnDay.length}
-                    </span>
-                  )}
-                  {/* Subscription indicator - top left (only if has subs but no bills) */}
-                  {hasSubs && !hasBills && (
-                    <span className="absolute -top-0.5 -left-0.5 bg-purple-500 text-white text-[8px] w-3 h-3 rounded-full flex items-center justify-center font-bold">
-                      ↻
-                    </span>
-                  )}
-                  {/* Pay cycle end indicator - left side */}
-                  {hasCycleEnd && (
-                    <span className="absolute -bottom-0.5 -left-0.5 bg-blue-500 text-white text-[8px] w-3 h-3 rounded-full flex items-center justify-center font-bold">
-                      |
-                    </span>
-                  )}
-                  {/* Payday indicator - right side */}
-                  {hasPayday && (
-                    <span className="absolute -bottom-0.5 -right-0.5 bg-green-500 text-white text-[9px] w-3.5 h-3.5 rounded-full flex items-center justify-center font-bold">
-                      $
-                    </span>
-                  )}
-                </div>
-              )}
-
-              {/* Tooltip */}
-              {isHovered && hasContent && (
-                <div className={`absolute z-50 ${tooltipV} ${tooltipH} bg-gray-900 text-white text-[10px] rounded-md px-2 py-1.5 whitespace-nowrap shadow-lg`}>
-                  {/* Bills section */}
-                  {hasBills && (
-                    <>
-                      <div className="font-semibold mb-0.5">
-                        Bills due {format(date, 'do')}:
-                      </div>
-                      {debtsOnDay.map((debt) => (
-                        <div key={debt.id} className="flex items-center gap-1.5">
-                          <span
-                            className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                            style={{ backgroundColor: getCategoryColor(debt) }}
-                          />
-                          <span>{debt.name}</span>
-                        </div>
-                      ))}
-                    </>
-                  )}
-                  {/* Paydays section */}
-                  {hasPayday && (
-                    <>
-                      {hasBills && <div className="border-t border-gray-700 my-1" />}
-                      <div className="font-semibold mb-0.5 text-green-400">
-                        Payday:
-                      </div>
-                      {paydaysOnDay.map((source) => (
-                        <div key={source.id} className="flex items-center gap-1.5">
-                          <span className="text-green-400">$</span>
-                          <span>{source.name}</span>
-                        </div>
-                      ))}
-                    </>
-                  )}
-                  {/* Pay cycle ends section */}
-                  {hasCycleEnd && (
-                    <>
-                      {(hasBills || hasPayday) && <div className="border-t border-gray-700 my-1" />}
-                      <div className="font-semibold mb-0.5 text-blue-400">
-                        Pay cycle ends:
-                      </div>
-                      {cycleEndsOnDay.map((source) => (
-                        <div key={source.id} className="flex items-center gap-1.5">
-                          <span className="text-blue-400">|</span>
-                          <span>{source.name}</span>
-                        </div>
-                      ))}
-                    </>
-                  )}
-                  {/* Subscriptions section */}
-                  {hasSubs && (
-                    <>
-                      {(hasBills || hasPayday || hasCycleEnd) && <div className="border-t border-gray-700 my-1" />}
-                      <div className="font-semibold mb-0.5 text-purple-400">
-                        Subscriptions:
-                      </div>
-                      {subsOnDay.map((sub) => (
-                        <div key={sub.id} className="flex items-center gap-1.5">
-                          <span
-                            className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                            style={{ backgroundColor: getSubscriptionColor(sub) }}
-                          />
-                          <span>{sub.name}</span>
-                        </div>
-                      ))}
-                    </>
-                  )}
-                  <div className={`absolute ${caretV} ${caretH} border-4 border-transparent`} />
-                </div>
-              )}
-            </div>
-          );
-        })}
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
 
-      {/* Mobile tap-to-see details panel */}
+      {/* Tap-to-see details panel (phones; wider screens show names in the cells) */}
       {isLarge && selectedDay && (
-        <div className="sm:hidden mt-3 p-3 bg-gray-50 rounded-2xl border border-gray-100 text-sm">
-          <p className="font-semibold text-gray-700 mb-2">{format(selectedDay, 'MMMM d, yyyy')}</p>
+        <div className="cal-detail">
+          <p className="cal-detail-h">{format(selectedDay, 'MMMM d, yyyy')}</p>
           {getDebtsForDay(selectedDay).map((debt) => (
-            <div key={debt.id} className="flex items-center gap-2 py-1">
-              <span className="w-2 h-2 rounded-full bg-primary-500 shrink-0" />
-              <span className="text-gray-800 font-medium">{debt.name}</span>
-              <span className="ml-auto text-xs text-gray-500">Bill due</span>
+            <div key={debt.id} className="cal-detail-row k-bill">
+              <CreditCard size={15} aria-hidden="true" />
+              <span>{debt.name}</span>
+              <em>Bill due</em>
             </div>
           ))}
           {getPaydaysForDay(selectedDay).map((source) => (
-            <div key={source.id} className="flex items-center gap-2 py-1">
-              <span className="w-2 h-2 rounded-full bg-green-500 shrink-0" />
-              <span className="text-gray-800 font-medium">{source.name}</span>
-              <span className="ml-auto text-xs text-green-600">💰 Payday</span>
+            <div key={source.id} className="cal-detail-row k-pay">
+              <Wallet size={15} aria-hidden="true" />
+              <span>{source.name}</span>
+              <em>Payday</em>
             </div>
           ))}
           {getCycleEndsForDay(selectedDay).map((source) => (
-            <div key={source.id} className="flex items-center gap-2 py-1">
-              <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0" />
-              <span className="text-gray-800 font-medium">{source.name}</span>
-              <span className="ml-auto text-xs text-blue-600">Cycle ends</span>
+            <div key={source.id} className="cal-detail-row k-cycle">
+              <CalendarClock size={15} aria-hidden="true" />
+              <span>{source.name}</span>
+              <em>Cycle ends</em>
             </div>
           ))}
           {getSubscriptionsForDay(selectedDay).map((sub) => (
-            <div key={sub.id} className="flex items-center gap-2 py-1">
-              <span className="w-2 h-2 rounded-full bg-purple-500 shrink-0" />
-              <span className="text-gray-800 font-medium">{sub.name}</span>
-              <span className="ml-auto text-xs text-purple-600">Subscription</span>
+            <div key={sub.id} className="cal-detail-row k-sub">
+              <Repeat size={15} aria-hidden="true" />
+              <span>{sub.name}</span>
+              <em>Subscription</em>
             </div>
           ))}
         </div>
       )}
 
       {/* Legend */}
-      <div className="mt-2 pt-2 border-t border-gray-100 flex items-center justify-center flex-wrap gap-x-3 gap-y-1 text-[10px] text-gray-500">
-        <div className="flex items-center gap-1">
-          <div className="w-2 h-2 rounded bg-primary-500" />
-          <span>Bill due</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="w-2 h-2 rounded ring-1 ring-primary-500" />
-          <span>Today</span>
-        </div>
-        {hasPaydays && (
-          <div className="flex items-center gap-1">
-            <div className="w-3 h-3 rounded-full bg-green-500 text-white text-[8px] flex items-center justify-center font-bold">$</div>
-            <span>Payday</span>
-          </div>
-        )}
-        {hasCycleEnds && (
-          <div className="flex items-center gap-1">
-            <div className="w-3 h-3 rounded-full bg-blue-500 text-white text-[8px] flex items-center justify-center font-bold">|</div>
-            <span>Cycle ends</span>
-          </div>
-        )}
-        {hasSubscriptions && (
-          <div className="flex items-center gap-1">
-            <div className="w-3 h-3 rounded-full bg-purple-500 text-white text-[8px] flex items-center justify-center font-bold">↻</div>
-            <span>Subscription</span>
-          </div>
-        )}
-      </div>
+      <ul className="cal-legend">
+        <li className="k-bill"><i /><span>Bill due</span></li>
+        <li className="k-today"><i /><span>Today</span></li>
+        {hasPaydays && <li className="k-pay"><i /><span>Payday</span></li>}
+        {hasCycleEnds && <li className="k-cycle"><i /><span>Cycle ends</span></li>}
+        {hasSubscriptions && <li className="k-sub"><i /><span>Subscription</span></li>}
+      </ul>
     </div>
   );
 }

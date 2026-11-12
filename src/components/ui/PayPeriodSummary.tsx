@@ -2,18 +2,17 @@
  * Pay Period Summary Component
  *
  * Shows remaining balance after bills and subscriptions for a pay period.
- * Includes toggle to show/hide subscriptions in calculation.
+ * Includes toggle to show/hide subscriptions in calculation. Ranch card,
+ * styled in pages/track.css (.ppr-*).
  */
 
 import { useMemo, useState } from 'react';
 import { format } from 'date-fns';
-import { DollarSign, CreditCard, Tv, ChevronDown, ChevronUp, Check } from 'lucide-react';
+import { Check, ChevronDown, ChevronUp, CreditCard, DollarSign, Repeat } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
-import {
-  calculatePayPeriodRemaining,
-  formatCurrency,
-} from '../../lib/calculations';
+import { calculatePayPeriodRemaining, formatCurrency } from '../../lib/calculations';
 import type { ReceivedPaycheck } from '../../types';
+import '../../pages/track.css';
 
 /**
  * Parse a date string that may be yyyy-MM-dd or full ISO format
@@ -35,209 +34,109 @@ export function PayPeriodSummary({ paycheck }: PayPeriodSummaryProps) {
   const [showDetails, setShowDetails] = useState(false);
 
   const summary = useMemo(() => {
-    return calculatePayPeriodRemaining(
-      paycheck,
-      debts,
-      subscriptions,
-      includeSubscriptions,
-      payments
-    );
+    return calculatePayPeriodRemaining(paycheck, debts, subscriptions, includeSubscriptions, payments);
   }, [paycheck, debts, subscriptions, includeSubscriptions, payments]);
 
   const isPositive = summary.remaining >= 0;
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-primary-50 to-primary-100 px-4 py-3 border-b border-primary-200">
-        <div className="flex items-center justify-between">
-          <h3 className="font-semibold text-primary-900">Pay Period Summary</h3>
-          <span className="text-sm text-primary-600">
-            {format(parseDateForDisplay(paycheck.payPeriodStart), 'MMM d')} -{' '}
-            {format(parseDateForDisplay(paycheck.payPeriodEnd), 'MMM d')}
-          </span>
-        </div>
+    <div className="ppr">
+      <div className="ppr-head">
+        <h3>Pay Period Summary</h3>
+        <span className="ppr-range">
+          {format(parseDateForDisplay(paycheck.payPeriodStart), 'MMM d')} - {format(parseDateForDisplay(paycheck.payPeriodEnd), 'MMM d')}
+        </span>
       </div>
 
-      {/* Main Summary */}
-      <div className="p-4 space-y-3">
-        {/* Income */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
-              <DollarSign className="w-4 h-4 text-emerald-600" />
-            </div>
-            <span className="text-gray-700">Paycheck</span>
-          </div>
-          <span className="font-semibold text-gray-900">
-            {formatCurrency(summary.totalIncome)}
-          </span>
+      <div className="ppr-rows">
+        <div className="ppr-row">
+          <span className="ppr-ic is-ok"><DollarSign size={16} aria-hidden="true" /></span>
+          <span className="ppr-l">Paycheck</span>
+          <b className="num">{formatCurrency(summary.totalIncome)}</b>
         </div>
 
-        {/* Bills */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
-              <CreditCard className="w-4 h-4 text-red-600" />
-            </div>
-            <span className="text-gray-700">
-              Bills ({summary.bills.length})
-            </span>
-          </div>
-          <span className="font-semibold text-red-600">
-            -{formatCurrency(summary.totalBills)}
-          </span>
+        <div className="ppr-row">
+          <span className="ppr-ic is-bad"><CreditCard size={16} aria-hidden="true" /></span>
+          <span className="ppr-l">Bills ({summary.bills.length})</span>
+          <b className="num is-bad">-{formatCurrency(summary.totalBills)}</b>
         </div>
 
-        {/* Subscriptions Toggle */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
-              <Tv className="w-4 h-4 text-purple-600" />
-            </div>
-            <span className="text-gray-700">
-              Subscriptions ({summary.subs.length})
-            </span>
+        <div className="ppr-row">
+          <span className="ppr-ic is-soon"><Repeat size={16} aria-hidden="true" /></span>
+          <span className="ppr-l">
+            Subscriptions ({summary.subs.length})
             <button
+              type="button"
               onClick={() => setIncludeSubscriptions(!includeSubscriptions)}
-              className={`text-xs px-2 py-0.5 rounded-full transition-colors ${
-                includeSubscriptions
-                  ? 'bg-purple-100 text-purple-700'
-                  : 'bg-gray-100 text-gray-500'
-              }`}
+              className={`ppr-toggle${includeSubscriptions ? ' is-on' : ''}`}
+              aria-pressed={includeSubscriptions}
+              aria-label="Include subscriptions"
             >
               {includeSubscriptions ? 'ON' : 'OFF'}
             </button>
-          </div>
-          <span
-            className={`font-semibold ${
-              includeSubscriptions ? 'text-purple-600' : 'text-gray-400 line-through'
-            }`}
-          >
-            -{formatCurrency(summary.totalSubscriptions)}
           </span>
+          <b className={`num${includeSubscriptions ? '' : ' is-off'}`}>-{formatCurrency(summary.totalSubscriptions)}</b>
         </div>
 
-        {/* Divider */}
-        <div className="border-t border-gray-200 pt-3">
-          {/* Remaining */}
-          <div className="flex items-center justify-between">
-            <span className="font-semibold text-gray-900">Remaining</span>
-            <span
-              className={`text-xl font-bold ${
-                isPositive ? 'text-emerald-600' : 'text-red-600'
-              }`}
-            >
-              {formatCurrency(summary.remaining)}
-            </span>
-          </div>
+        <div className="ppr-row ppr-total">
+          <span className="ppr-l">Remaining</span>
+          <b className={`num ppr-big ${isPositive ? 'is-ok' : 'is-bad'}`}>{formatCurrency(summary.remaining)}</b>
         </div>
-
-        {/* Details Toggle */}
-        {(summary.bills.length > 0 || summary.subs.length > 0) && (
-          <button
-            onClick={() => setShowDetails(!showDetails)}
-            className="w-full flex items-center justify-center gap-1 text-sm text-gray-500 hover:text-gray-700 pt-2"
-          >
-            {showDetails ? (
-              <>
-                <ChevronUp className="w-4 h-4" />
-                Hide details
-              </>
-            ) : (
-              <>
-                <ChevronDown className="w-4 h-4" />
-                Show details
-              </>
-            )}
-          </button>
-        )}
       </div>
 
-      {/* Details Section */}
+      {(summary.bills.length > 0 || summary.subs.length > 0) && (
+        <button type="button" onClick={() => setShowDetails(!showDetails)} className="ppr-more" aria-expanded={showDetails}>
+          {showDetails ? <ChevronUp size={16} aria-hidden="true" /> : <ChevronDown size={16} aria-hidden="true" />}
+          {showDetails ? 'Hide details' : 'Show details'}
+        </button>
+      )}
+
       {showDetails && (
-        <div className="border-t border-gray-200 p-4 space-y-4 bg-gray-50">
-          {/* Bills Detail */}
+        <div className="ppr-detail">
           {summary.bills.length > 0 && (
             <div>
-              <h4 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1">
-                <CreditCard className="w-4 h-4" />
-                Bills Due This Period
-              </h4>
-              <div className="space-y-2">
+              <h4><CreditCard size={15} aria-hidden="true" />Bills Due This Period</h4>
+              <ul>
                 {summary.bills.map((bill, idx) => (
-                  <div
-                    key={idx}
-                    className={`flex items-center justify-between text-sm ${
-                      bill.isPaid ? 'opacity-60' : ''
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      {bill.isPaid && (
-                        <div className="w-4 h-4 rounded-full bg-emerald-500 flex items-center justify-center">
-                          <Check className="w-3 h-3 text-white" />
-                        </div>
-                      )}
-                      <span className={`text-gray-600 ${bill.isPaid ? 'line-through' : ''}`}>
-                        {bill.name}
-                      </span>
-                      <span className="text-xs text-gray-400">
-                        (due {format(bill.dueDate, 'MMM d')})
-                      </span>
-                      {bill.isPaid && (
-                        <span className="text-xs text-emerald-600 font-medium">Paid</span>
-                      )}
-                    </div>
-                    <span className={`text-gray-900 ${bill.isPaid ? 'line-through' : ''}`}>
-                      {formatCurrency(bill.amount)}
+                  <li key={idx} className={bill.isPaid ? 'is-paid' : ''}>
+                    <span className="ppr-d-n">
+                      {bill.isPaid && <span className="ppr-d-ck"><Check size={11} aria-hidden="true" /></span>}
+                      <span className="ppr-d-name">{bill.name}</span>
+                      <small>due {format(bill.dueDate, 'MMM d')}</small>
+                      {bill.isPaid && <em>Paid</em>}
                     </span>
-                  </div>
+                    <b className="num ppr-d-amt">{formatCurrency(bill.amount)}</b>
+                  </li>
                 ))}
-                {/* Remaining unpaid total */}
-                {summary.bills.some(b => !b.isPaid) && (
-                  <div className="flex items-center justify-between pt-2 mt-2 border-t border-gray-200">
-                    <span className="text-sm font-semibold text-gray-700">Remaining Unpaid</span>
-                    <span className="font-bold text-red-600">
-                      {formatCurrency(summary.bills.filter(b => !b.isPaid).reduce((sum, b) => sum + b.amount, 0))}
-                    </span>
-                  </div>
-                )}
-              </div>
+              </ul>
+              {summary.bills.some((b) => !b.isPaid) && (
+                <p className="ppr-d-sum">
+                  <span>Remaining Unpaid</span>
+                  <b className="num is-bad">{formatCurrency(summary.bills.filter((b) => !b.isPaid).reduce((sum, b) => sum + b.amount, 0))}</b>
+                </p>
+              )}
             </div>
           )}
 
-          {/* Subscriptions Detail */}
           {includeSubscriptions && summary.subs.length > 0 && (
             <div>
-              <h4 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1">
-                <Tv className="w-4 h-4" />
-                Subscriptions This Period
-              </h4>
-              <div className="space-y-2">
+              <h4><Repeat size={15} aria-hidden="true" />Subscriptions This Period</h4>
+              <ul>
                 {summary.subs.map((sub, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center justify-between text-sm"
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="text-gray-600">{sub.name}</span>
-                      <span className="text-xs text-gray-400">
-                        ({format(sub.billingDate, 'MMM d')})
-                      </span>
-                    </div>
-                    <span className="text-gray-900">
-                      {formatCurrency(sub.amount)}
+                  <li key={idx}>
+                    <span className="ppr-d-n">
+                      <span className="ppr-d-name">{sub.name}</span>
+                      <small>{format(sub.billingDate, 'MMM d')}</small>
                     </span>
-                  </div>
+                    <b className="num ppr-d-amt">{formatCurrency(sub.amount)}</b>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </div>
           )}
 
           {summary.bills.length === 0 && (!includeSubscriptions || summary.subs.length === 0) && (
-            <p className="text-sm text-gray-500 text-center py-2">
-              No bills or subscriptions due this period
-            </p>
+            <p className="ppr-none">No bills or subscriptions due this period</p>
           )}
         </div>
       )}

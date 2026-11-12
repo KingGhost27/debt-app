@@ -1,12 +1,15 @@
 /**
- * Track Page - Kawaii Edition
+ * Track Page - the ranch ledger.
  *
- * Track upcoming and completed payments with monthly summary,
- * payment streaks, and calendar view.
- * Features cute animations, soft gradients, and delightful interactions.
+ * Track upcoming and completed payments with the month's progress, the
+ * on-time streak as a picket fence, a bill calendar, paychecks and
+ * subscriptions. Every module sits on the ranch ground as a ranch card with a
+ * plank heading; styled in track.css from the --ranch-* tokens. The payment
+ * history view adapts the 21st.dev Activity Heatmap Calendar
+ * (see components/ui/ActivityHeatmap.tsx).
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, type ComponentType } from 'react';
 import {
   format,
   parseISO,
@@ -14,15 +17,22 @@ import {
   endOfMonth,
   isSameMonth,
 } from 'date-fns';
-import { Check, Plus, Flame, CheckCircle, AlertCircle, X, Undo2, Pencil, Receipt, Calendar, Sparkles, Trophy, Target } from 'lucide-react';
+import {
+  AlertCircle, CalendarClock, CalendarDays, Check, CheckCircle2, CreditCard, Flame, Pencil, Plus, Receipt,
+  Repeat, Target, Undo2, Wallet, X,
+} from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { SubscriptionsPage } from './SubscriptionsPage';
 import { useApp } from '../context/AppContext';
 import { PageHeader } from '../components/layout/PageHeader';
+import { Plank } from '../components/dashboard/RanchPanels';
 import { MiniCalendar } from '../components/ui/MiniCalendar';
 import { PaymentModal } from '../components/ui/PaymentModal';
 import { PaycheckModal } from '../components/ui/PaycheckModal';
 import { PayPeriodSummary } from '../components/ui/PayPeriodSummary';
 import { BillDistributionPanel } from '../components/ui/BillDistributionPanel';
+import { PaymentStreakCard } from '../components/ui/PaymentStreakCard';
+import { ActivityHeatmap } from '../components/ui/ActivityHeatmap';
 import { EmptyState } from '../components/ui/EmptyState';
 import { ProLockedOverlay } from '../components/ui/ProLockedOverlay';
 import { useFeatureGate } from '../hooks/useFeatureGate';
@@ -30,8 +40,22 @@ import { PRO_FEATURE_COPY } from '../lib/tierLimits';
 import { formatCurrency, generatePayoffPlan } from '../lib/calculations';
 import { computePaymentStreak } from '../lib/milestones';
 import type { Debt, PaymentType, Payment, ReceivedPaycheck } from '../types';
+import './track.css';
 
 type TabType = 'upcoming' | 'complete' | 'calendar' | 'paychecks' | 'subs';
+
+const TABS: { id: TabType; label: string; icon: ComponentType<{ size?: number; 'aria-hidden'?: boolean }> }[] = [
+  { id: 'upcoming', label: 'Upcoming', icon: CalendarClock },
+  { id: 'complete', label: 'Complete', icon: CheckCircle2 },
+  { id: 'calendar', label: 'Calendar', icon: CalendarDays },
+  { id: 'paychecks', label: 'Paychecks', icon: Wallet },
+  { id: 'subs', label: 'Subs', icon: Repeat },
+];
+
+const money0 = (n: number) =>
+  new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n);
+
+const typeOf = (t: string) => (t === 'extra' ? { cls: ' is-extra', label: 'Extra' } : t === 'one_time' ? { cls: ' is-one', label: 'One-time' } : { cls: '', label: 'Min' });
 
 export function TrackPage() {
   const { debts, strategy, payments, budget, deletePayment, updateDebt, customCategories, receivedPaychecks, deletePaycheck, subscriptions } = useApp();
@@ -166,13 +190,37 @@ export function TrackPage() {
     setIsPaymentModalOpen(true);
   };
 
+  const tabKeys = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    const i = TABS.findIndex((t) => t.id === activeTab);
+    let n = -1;
+    if (e.key === 'ArrowRight') n = (i + 1) % TABS.length;
+    if (e.key === 'ArrowLeft') n = (i + TABS.length - 1) % TABS.length;
+    if (e.key === 'Home') n = 0;
+    if (e.key === 'End') n = TABS.length - 1;
+    if (n < 0) return;
+    e.preventDefault();
+    setActiveTab(TABS[n].id);
+    (e.currentTarget.querySelector(`[data-tab="${TABS[n].id}"]`) as HTMLButtonElement | null)?.focus();
+  };
+
+  // Paid amount per day, for the payment history heatmap
+  const paidByDay = useMemo(() => {
+    const byDay = new Map<string, number>();
+    completedPayments.forEach((p) => {
+      if (!p.completedAt) return;
+      const key = format(parseISO(p.completedAt), 'yyyy-MM-dd');
+      byDay.set(key, (byDay.get(key) ?? 0) + p.amount);
+    });
+    return [...byDay.entries()].map(([date, value]) => ({ date, value }));
+  }, [completedPayments]);
+
   if (debts.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 animate-page-enter">
-        <PageHeader title="Tracking" subtitle="Record your transactions" emoji="📊" />
-        <div className="px-4">
+      <div className="trk animate-page-enter">
+        <PageHeader title="Tracking" subtitle="Record your transactions" />
+        <div className="trk-body">
           <EmptyState
-            icon="💳"
+            icon={CreditCard}
             title="No Debts to Track"
             description="Add your debts first to start tracking payments and building your streak."
             action={{ label: 'Add Debts', href: '/debts' }}
@@ -184,179 +232,98 @@ export function TrackPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 animate-page-enter">
+    <div className="trk animate-page-enter">
       <PageHeader
         title="Tracking"
         subtitle="Record your transactions"
-        emoji="📊"
         action={
-          <button
-            onClick={() => openPaymentModal()}
-            className="flex items-center gap-1.5 p-2.5 sm:px-4 sm:py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white text-sm font-semibold rounded-2xl hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg shadow-primary-500/30 hover:shadow-primary-500/40 hover:scale-105 active:scale-95"
-          >
-            <Plus size={18} />
+          <button type="button" onClick={() => openPaymentModal()} className="trk-btn" aria-label="Log Payment">
+            <Plus size={18} aria-hidden="true" />
             <span className="hidden sm:inline">Log Payment</span>
           </button>
         }
       />
 
-      <div className="px-4 py-6 space-y-4">
-        {/* This Month Summary Card */}
-        <div className="card bg-white rounded-3xl shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center">
-                <Target size={16} className="text-white" />
+      <div className="trk-body">
+        <div className="trk-top">
+          {/* This Month */}
+          <section className="rui-card trk-mod">
+            <div className="trk-mod-h">
+              <Plank icon={<Target size={18} aria-hidden="true" />}>This Month</Plank>
+              <span className="trk-note">{format(new Date(), 'MMMM yyyy')}</span>
+            </div>
+            <dl className="trk-figs">
+              <div className="trk-fig">
+                <dt>Paid</dt>
+                <dd className="num is-ok">{formatCurrency(thisMonthStats.paid)}</dd>
               </div>
-              <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">This Month</h2>
-            </div>
-            <span className="text-sm text-gray-400 font-medium">{format(new Date(), 'MMMM yyyy')}</span>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            <div className="text-center p-3 bg-green-50 rounded-2xl">
-              <p className="text-xl sm:text-2xl font-bold text-green-600">
-                {formatCurrency(thisMonthStats.paid)}
-              </p>
-              <p className="text-xs text-green-600/70 font-medium mt-1">Paid</p>
-            </div>
-            <div className="text-center p-3 bg-gray-50 rounded-2xl">
-              <p className="text-xl sm:text-2xl font-bold text-gray-700">
-                {formatCurrency(thisMonthStats.remaining)}
-              </p>
-              <p className="text-xs text-gray-500 font-medium mt-1">Remaining</p>
-            </div>
-            <div className="col-span-2 sm:col-span-1 text-center p-3 rounded-2xl">
+              <div className="trk-fig">
+                <dt>Remaining</dt>
+                <dd className="num">{formatCurrency(thisMonthStats.remaining)}</dd>
+              </div>
               {thisMonthStats.onTrack ? (
-                <div className="bg-green-50 rounded-2xl p-3 -m-3 flex sm:flex-col items-center justify-center gap-3 sm:gap-0">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-lg shadow-green-300/40">
-                    <CheckCircle size={22} className="text-white" />
-                  </div>
-                  <p className="text-xs text-green-600 font-semibold sm:mt-2">On Track</p>
+                <div className="trk-status is-ok">
+                  <CheckCircle2 size={24} aria-hidden="true" />
+                  On Track
                 </div>
               ) : (
-                <div className="bg-red-50 rounded-2xl p-3 -m-3 flex sm:flex-col items-center justify-center gap-3 sm:gap-0">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-400 to-red-500 flex items-center justify-center shadow-lg shadow-red-300/40">
-                    <AlertCircle size={22} className="text-white" />
-                  </div>
-                  <p className="text-xs text-red-600 font-semibold sm:mt-2">
-                    {thisMonthStats.overdueCount} Overdue
-                  </p>
+                <div className="trk-status is-bad">
+                  <AlertCircle size={24} aria-hidden="true" />
+                  {thisMonthStats.overdueCount} Overdue
                 </div>
               )}
-            </div>
-          </div>
-        </div>
+            </dl>
+            {thisMonthStats.expected > 0 && (
+              <div className="trk-prog">
+                <div className="trk-prog-t">
+                  <span>Planned for {format(new Date(), 'MMMM')}</span>
+                  <b className="num">{money0(thisMonthStats.paid)} of {money0(thisMonthStats.expected)}</b>
+                </div>
+                <div className="trk-track" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(Math.min(100, (thisMonthStats.paid / thisMonthStats.expected) * 100))} aria-label="Paid so far this month">
+                  <i style={{ width: `${Math.min(100, (thisMonthStats.paid / thisMonthStats.expected) * 100)}%` }} />
+                </div>
+              </div>
+            )}
+          </section>
 
-        {/* Payment Streak Card */}
-        <div className="card bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/30 dark:to-amber-900/20 border border-orange-100 rounded-3xl relative overflow-hidden">
-          {/* Decorative element */}
-          <Sparkles size={14} className="absolute top-4 right-4 text-orange-300 animate-kawaii-pulse" />
-
-          <div className="flex items-center gap-3 mb-3">
-            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg ${
-              paymentStreak.months > 0
-                ? 'bg-gradient-to-br from-orange-400 to-amber-500 shadow-orange-300/40'
-                : 'bg-gray-200'
-            }`}>
-              <Flame size={24} className={paymentStreak.months > 0 ? 'text-white' : 'text-gray-400'} />
-            </div>
-            <div>
-              <h2 className="text-sm font-semibold text-gray-700">Payment Streak</h2>
-              {paymentStreak.months > 0 ? (
-                <p className="text-xl font-bold text-orange-600">
-                  {paymentStreak.months} month{paymentStreak.months !== 1 ? 's' : ''}!
-                </p>
-              ) : (
-                <p className="text-sm text-gray-500">
-                  Make your first payment to start!
-                </p>
-              )}
-            </div>
-          </div>
-
-          <div className="mt-4">
-            <div className="flex justify-between text-xs text-gray-600 mb-2">
-              <span className="font-medium">This month's progress</span>
-              <span className="font-semibold">
-                {paymentStreak.totalPayments}/{paymentStreak.expectedPayments} payments
-              </span>
-            </div>
-            <div className="h-3 bg-white/60 dark:bg-gray-900/20 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-orange-400 to-amber-500 rounded-full transition-all duration-500"
-                style={{
-                  width: `${
-                    paymentStreak.expectedPayments > 0
-                      ? (paymentStreak.totalPayments / paymentStreak.expectedPayments) * 100
-                      : 0
-                  }%`,
-                }}
-              />
-            </div>
-          </div>
-
-          {/* Milestone badges */}
-          {paymentStreak.months >= 1 && (
-            <div className="flex gap-2 mt-4 flex-wrap">
-              {paymentStreak.months >= 1 && (
-                <span className="px-3 py-1.5 bg-gradient-to-r from-orange-100 to-amber-100 dark:from-orange-900/40 dark:to-amber-900/30 text-orange-700 text-xs font-semibold rounded-xl flex items-center gap-1">
-                  <Trophy size={12} />
-                  1 Month
-                </span>
-              )}
-              {paymentStreak.months >= 3 && (
-                <span className="px-3 py-1.5 bg-gradient-to-r from-orange-100 to-amber-100 dark:from-orange-900/40 dark:to-amber-900/30 text-orange-700 text-xs font-semibold rounded-xl flex items-center gap-1">
-                  <Trophy size={12} />
-                  3 Months
-                </span>
-              )}
-              {paymentStreak.months >= 6 && (
-                <span className="px-3 py-1.5 bg-gradient-to-r from-orange-100 to-amber-100 dark:from-orange-900/40 dark:to-amber-900/30 text-orange-700 text-xs font-semibold rounded-xl flex items-center gap-1">
-                  <Trophy size={12} />
-                  6 Months
-                </span>
-              )}
-              {paymentStreak.months >= 12 && (
-                <span className="px-3 py-1.5 bg-gradient-to-r from-yellow-100 to-orange-100 dark:from-yellow-900/40 dark:to-orange-900/30 text-yellow-700 text-xs font-bold rounded-xl flex items-center gap-1 animate-kawaii-pulse">
-                  <Sparkles size={12} />
-                  1 Year!
-                </span>
-              )}
-            </div>
-          )}
+          {/* Payment Streak */}
+          <PaymentStreakCard
+            streak={streakData}
+            progress={{ done: paymentStreak.totalPayments, expected: paymentStreak.expectedPayments }}
+          />
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 p-1.5 bg-gray-100 rounded-2xl overflow-x-auto">
-          {(['upcoming', 'complete', 'calendar', 'paychecks', 'subs'] as TabType[]).map((tab) => (
+        <div className="trk-tabs" role="tablist" aria-label="Tracking views" onKeyDown={tabKeys}>
+          {TABS.map(({ id, label, icon: Icon }) => (
             <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`flex-1 py-2.5 px-2 rounded-xl font-semibold text-xs transition-all whitespace-nowrap ${
-                activeTab === tab
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
+              key={id}
+              type="button"
+              role="tab"
+              data-tab={id}
+              aria-selected={activeTab === id}
+              tabIndex={activeTab === id ? 0 : -1}
+              onClick={() => setActiveTab(id)}
             >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              <Icon size={17} aria-hidden={true} />
+              {label}
             </button>
           ))}
         </div>
 
         {/* Upcoming Tab */}
         {activeTab === 'upcoming' && (
-          <div className="space-y-6">
+          <div className="trk-stack" role="tabpanel">
             {Object.entries(upcomingByMonth).map(([monthKey, monthPayments]) => {
               const monthDate = parseISO(`${monthKey}-01`);
 
               return (
-                <div key={monthKey}>
-                  <h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
-                    <Calendar size={18} className="text-primary-500" />
-                    {format(monthDate, 'MMMM yyyy')}
-                  </h3>
+                <section key={monthKey} className="trk-sec">
+                  <div className="trk-sec-h">
+                    <Plank icon={<CalendarDays size={18} aria-hidden="true" />}>{format(monthDate, 'MMMM yyyy')}</Plank>
+                  </div>
 
-                  <div className="space-y-3">
+                  <ul className="rui-card trk-list">
                     {/* Individual debt payments - sorted by due date */}
                     {[...monthPayments]
                       .sort((a, b) => {
@@ -365,125 +332,85 @@ export function TrackPage() {
                         return (debtA?.dueDay || 0) - (debtB?.dueDay || 0);
                       })
                       .map((payment) => {
-                      const debt = debts.find((d) => d.id === payment.debtId);
-                      if (!debt) return null;
+                        const debt = debts.find((d) => d.id === payment.debtId);
+                        if (!debt) return null;
 
-                      // Check if this payment was already made this month
-                      const paidPayment = payments.find((p) => {
-                        if (!p.isCompleted || !p.completedAt || p.debtId !== debt.id) return false;
-                        const paidDate = parseISO(p.completedAt);
-                        return isSameMonth(paidDate, monthDate);
-                      });
-                      const alreadyPaid = !!paidPayment;
+                        // Check if this payment was already made this month
+                        const paidPayment = payments.find((p) => {
+                          if (!p.isCompleted || !p.completedAt || p.debtId !== debt.id) return false;
+                          const paidDate = parseISO(p.completedAt);
+                          return isSameMonth(paidDate, monthDate);
+                        });
+                        const alreadyPaid = !!paidPayment;
+                        const tag = typeOf(alreadyPaid && paidPayment ? paidPayment.type : payment.type);
 
-                      return (
-                        <div
-                          key={`${monthKey}-${payment.debtId}`}
-                          className={`card rounded-2xl flex items-center gap-4 transition-all ${
-                            alreadyPaid
-                              ? 'bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/20 border border-green-100'
-                              : 'bg-white hover:shadow-md'
-                          }`}
-                        >
-                          <div
-                            className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 ${
-                              alreadyPaid
-                                ? 'bg-gradient-to-br from-green-400 to-emerald-500 shadow-lg shadow-green-300/40'
-                                : 'bg-gray-100'
-                            }`}
-                          >
-                            {alreadyPaid ? (
-                              <Check size={18} className="text-white" />
-                            ) : (
-                              <span className="text-base">💳</span>
-                            )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-gray-900 truncate">
-                              {payment.debtName}
-                              {alreadyPaid && (
-                                <span className="ml-1.5 text-xs text-green-600 font-bold">✓</span>
-                              )}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {format(monthDate, 'MMM')} {debt.dueDay}, {format(monthDate, 'yyyy')}
-                            </p>
-                          </div>
-                          <div className="text-right flex items-center gap-2 shrink-0">
-                            <div>
-                              <p className={`text-sm font-bold ${alreadyPaid ? 'text-green-600' : 'text-gray-900'}`}>
-                                {formatCurrency(alreadyPaid && paidPayment ? paidPayment.amount : payment.amount)}
-                              </p>
-                              <span
-                                className={`text-xs px-2 py-0.5 rounded-lg font-medium ${
-                                  (alreadyPaid && paidPayment ? paidPayment.type : payment.type) === 'extra'
-                                    ? 'bg-primary-100 text-primary-700'
-                                    : (alreadyPaid && paidPayment ? paidPayment.type : payment.type) === 'one_time'
-                                    ? 'bg-purple-100 text-purple-700'
-                                    : 'bg-gray-100 text-gray-600'
-                                }`}
-                              >
-                                {(alreadyPaid && paidPayment ? paidPayment.type : payment.type) === 'extra'
-                                  ? 'Extra'
-                                  : (alreadyPaid && paidPayment ? paidPayment.type : payment.type) === 'one_time'
-                                  ? 'One-time'
-                                  : 'Min'}
-                              </span>
-                            </div>
-                            {!alreadyPaid ? (
-                              <button
-                                onClick={() =>
-                                  openPaymentModal(
-                                    debt,
-                                    payment.amount,
-                                    payment.type as PaymentType
-                                  )
-                                }
-                                className="p-2 bg-gradient-to-br from-green-400 to-emerald-500 text-white rounded-xl hover:from-green-500 hover:to-emerald-600 transition-all shadow-lg shadow-green-300/40 hover:scale-105 active:scale-95"
-                                title="Mark as paid (click to edit amount)"
-                              >
-                                <Check size={16} />
-                              </button>
-                            ) : (
-                              <div className="flex gap-1">
-                                <button
-                                  onClick={() => paidPayment && openPaymentModal(debt, undefined, undefined, paidPayment)}
-                                  className="p-1.5 bg-white/80 dark:bg-gray-900/30 text-gray-500 rounded-xl hover:bg-primary-100 hover:text-primary-600 transition-all"
-                                  title="Edit payment"
-                                >
-                                  <Pencil size={14} />
-                                </button>
-                                <button
-                                  onClick={() => paidPayment && handleDeletePayment(paidPayment.id, paidPayment.debtId, paidPayment.principal)}
-                                  className="p-1.5 bg-white/80 dark:bg-gray-900/30 text-gray-500 rounded-xl hover:bg-red-100 hover:text-red-500 transition-all"
-                                  title="Undo payment"
-                                >
-                                  <Undo2 size={14} />
-                                </button>
+                        return (
+                          <li key={`${monthKey}-${payment.debtId}`} className={alreadyPaid ? 'is-paid' : ''}>
+                            <div className="trk-row">
+                              <div className="trk-row-main">
+                                <span className="trk-ic">
+                                  {alreadyPaid ? <Check size={19} strokeWidth={3} aria-hidden="true" /> : <CreditCard size={18} aria-hidden="true" />}
+                                </span>
+                                <span className="trk-n">
+                                  <b>
+                                    <span>{payment.debtName}</span>
+                                    {alreadyPaid && <span className="rui-badge ok">Paid</span>}
+                                  </b>
+                                  <small>{format(monthDate, 'MMM')} {debt.dueDay}, {format(monthDate, 'yyyy')}</small>
+                                </span>
+                                <span className="trk-amt">
+                                  <b className="num">{formatCurrency(alreadyPaid && paidPayment ? paidPayment.amount : payment.amount)}</b>
+                                  <span className={`trk-type${tag.cls}`}>{tag.label}</span>
+                                </span>
                               </div>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
+                              <div className="trk-acts">
+                                {!alreadyPaid ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => openPaymentModal(debt, payment.amount, payment.type as PaymentType)}
+                                    className="trk-go"
+                                    title="Mark as paid (click to edit amount)"
+                                    aria-label={`Mark ${payment.debtName} as paid`}
+                                  >
+                                    <Check size={20} aria-hidden="true" />
+                                  </button>
+                                ) : (
+                                  <>
+                                    <button
+                                      type="button"
+                                      onClick={() => paidPayment && openPaymentModal(debt, undefined, undefined, paidPayment)}
+                                      className="trk-icon-btn"
+                                      title="Edit payment"
+                                      aria-label={`Edit ${payment.debtName} payment`}
+                                    >
+                                      <Pencil size={16} aria-hidden="true" />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => paidPayment && handleDeletePayment(paidPayment.id, paidPayment.debtId, paidPayment.principal)}
+                                      className="trk-icon-btn is-bad"
+                                      title="Undo payment"
+                                      aria-label={`Undo ${payment.debtName} payment`}
+                                    >
+                                      <Undo2 size={16} aria-hidden="true" />
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          </li>
+                        );
+                      })}
+                  </ul>
+                </section>
               );
             })}
 
             {Object.keys(upcomingByMonth).length === 0 && (
-              <div className="text-center py-12 bg-white rounded-3xl">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gray-100 flex items-center justify-center">
-                  <Calendar size={28} className="text-gray-400" />
-                </div>
-                <p className="text-gray-500 font-medium">Set your monthly budget to see upcoming payments.</p>
-                <a
-                  href="/plan"
-                  className="inline-flex items-center gap-2 mt-4 px-6 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-2xl hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg shadow-primary-500/30"
-                >
-                  <Sparkles size={16} />
-                  Set Up Budget
-                </a>
+              <div className="rui-card trk-empty">
+                <span className="trk-ic"><CalendarClock size={28} aria-hidden="true" /></span>
+                <p>Set your monthly budget to see upcoming payments.</p>
+                <Link to="/plan" className="trk-btn">Set Up Budget</Link>
               </div>
             )}
           </div>
@@ -491,105 +418,107 @@ export function TrackPage() {
 
         {/* Complete Tab */}
         {activeTab === 'complete' && (
-          <div className="space-y-3">
+          <div className="trk-stack" role="tabpanel">
+            <section className="rui-card trk-mod">
+              <div className="trk-mod-h">
+                <Plank icon={<Flame size={18} aria-hidden="true" />}>Payment history</Plank>
+                <span className="trk-note">One square, one day</span>
+              </div>
+              <ActivityHeatmap
+                data={paidByDay}
+                days={365}
+                formatValue={money0}
+                activeNoun="days with a payment"
+                labels={{ total: 'Paid in total', active: 'Days with a payment', longest: 'Longest run', current: 'Current run' }}
+              />
+            </section>
+
             {completedPayments.length === 0 ? (
-              <div className="text-center py-12 bg-white rounded-3xl">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gray-100 flex items-center justify-center">
-                  <Receipt size={28} className="text-gray-400" />
-                </div>
-                <p className="font-bold text-gray-700 mb-1">No Completed Payments</p>
-                <p className="text-sm text-gray-500 mb-4">
-                  Mark payments as complete or log them manually.
-                </p>
-                <button
-                  onClick={() => openPaymentModal()}
-                  className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-2xl hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg shadow-primary-500/30"
-                >
-                  <Sparkles size={16} />
+              <div className="rui-card trk-empty">
+                <span className="trk-ic"><Receipt size={28} aria-hidden="true" /></span>
+                <h3>No Completed Payments</h3>
+                <p>Mark payments as complete or log them manually.</p>
+                <button type="button" onClick={() => openPaymentModal()} className="trk-btn">
+                  <Plus size={18} aria-hidden="true" />
                   Log Your First Payment
                 </button>
               </div>
             ) : (
-              completedPayments.map((payment) => {
-                const debt = debts.find((d) => d.id === payment.debtId);
+              <section className="trk-sec">
+                <div className="trk-sec-h">
+                  <Plank icon={<CheckCircle2 size={18} aria-hidden="true" />}>Completed</Plank>
+                </div>
+                <ul className="rui-card trk-list">
+                  {completedPayments.map((payment) => {
+                    const debt = debts.find((d) => d.id === payment.debtId);
+                    const tag = typeOf(payment.type);
 
-                return (
-                  <div key={payment.id} className="card bg-white rounded-2xl flex items-center gap-3 hover:shadow-md transition-all group">
-                    <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-emerald-500 rounded-2xl flex items-center justify-center shadow-lg shadow-green-300/40 shrink-0">
-                      <Check size={18} className="text-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-gray-900 truncate">{debt?.name || 'Unknown'}</p>
-                      <p className="text-xs text-gray-500">
-                        {payment.completedAt
-                          ? format(parseISO(payment.completedAt), 'MMM d, yyyy')
-                          : 'N/A'}
-                      </p>
-                      {payment.note && (
-                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 truncate italic">
-                          {payment.note}
-                        </p>
-                      )}
-                    </div>
-                    <div className="text-right flex items-center gap-2 shrink-0">
-                      <button
-                        onClick={() => debt && openPaymentModal(debt, undefined, undefined, payment)}
-                        className="hidden group-hover:inline-flex p-1.5 text-gray-400 hover:text-primary-500 hover:bg-primary-50 rounded-xl transition-all"
-                        title="Edit payment"
-                      >
-                        <Pencil size={14} />
-                      </button>
-                      <button
-                        onClick={() => handleDeletePayment(payment.id, payment.debtId, payment.principal)}
-                        className="hidden group-hover:inline-flex p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
-                        title="Delete payment"
-                      >
-                        <X size={14} />
-                      </button>
-                      <div>
-                        <p className="text-sm font-bold text-green-600">
-                          {formatCurrency(payment.amount)}
-                        </p>
-                        <span
-                          className={`text-xs px-2 py-0.5 rounded-lg font-medium ${
-                            payment.type === 'extra'
-                              ? 'bg-primary-100 text-primary-700'
-                              : payment.type === 'one_time'
-                              ? 'bg-purple-100 text-purple-700'
-                              : 'bg-gray-100 text-gray-600'
-                          }`}
-                        >
-                          {payment.type === 'extra'
-                            ? 'Extra'
-                            : payment.type === 'one_time'
-                            ? 'One-time'
-                            : 'Min'}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })
+                    return (
+                      <li key={payment.id}>
+                        <div className="trk-row">
+                          <div className="trk-row-main">
+                            <span className="trk-ic is-ok"><Check size={19} strokeWidth={3} aria-hidden="true" /></span>
+                            <span className="trk-n">
+                              <b><span>{debt?.name || 'Unknown'}</span></b>
+                              <small>{payment.completedAt ? format(parseISO(payment.completedAt), 'MMM d, yyyy') : 'N/A'}</small>
+                              {payment.note && <small className="trk-pay-note">{payment.note}</small>}
+                            </span>
+                            <span className="trk-amt">
+                              <b className="num is-ok">{formatCurrency(payment.amount)}</b>
+                              <span className={`trk-type${tag.cls}`}>{tag.label}</span>
+                            </span>
+                          </div>
+                          <div className="trk-acts">
+                            <button
+                              type="button"
+                              onClick={() => debt && openPaymentModal(debt, undefined, undefined, payment)}
+                              className="trk-icon-btn"
+                              title="Edit payment"
+                              aria-label={`Edit ${debt?.name ?? 'payment'}`}
+                            >
+                              <Pencil size={16} aria-hidden="true" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeletePayment(payment.id, payment.debtId, payment.principal)}
+                              className="trk-icon-btn is-bad"
+                              title="Delete payment"
+                              aria-label={`Delete ${debt?.name ?? 'payment'}`}
+                            >
+                              <X size={17} aria-hidden="true" />
+                            </button>
+                          </div>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </section>
             )}
           </div>
         )}
 
         {/* Calendar Tab */}
         {activeTab === 'calendar' && (
-          <div className="space-y-4">
+          <div className="trk-stack" role="tabpanel">
             {isBillCalendarLocked ? (
               <ProLockedOverlay
                 title={PRO_FEATURE_COPY.bill_calendar.title}
                 description={PRO_FEATURE_COPY.bill_calendar.description}
               />
             ) : (
-              <MiniCalendar
-                debts={debts}
-                incomeSources={budget.incomeSources}
-                subscriptions={subscriptions}
-                customCategories={customCategories}
-                size="large"
-              />
+              <section className="rui-card trk-mod">
+                <div className="trk-mod-h">
+                  <Plank icon={<CalendarDays size={18} aria-hidden="true" />}>Bill Calendar</Plank>
+                </div>
+                <MiniCalendar
+                  debts={debts}
+                  incomeSources={budget.incomeSources}
+                  subscriptions={subscriptions}
+                  customCategories={customCategories}
+                  size="large"
+                />
+              </section>
             )}
 
             {/* Bill Distribution Analysis */}
@@ -600,162 +529,130 @@ export function TrackPage() {
                 compact
               />
             ) : (
-              <BillDistributionPanel
-                debts={debts}
-                incomeSources={budget.incomeSources}
-              />
+              <BillDistributionPanel debts={debts} incomeSources={budget.incomeSources} />
             )}
           </div>
         )}
 
         {/* Paychecks Tab */}
         {activeTab === 'paychecks' && (
-          <div className="space-y-4">
-            {/* Log Paycheck Button */}
+          <div className="trk-stack" role="tabpanel">
             <button
+              type="button"
               onClick={() => {
                 setEditingPaycheck(undefined);
                 setIsPaycheckModalOpen(true);
               }}
-              className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm font-bold rounded-2xl shadow-lg hover:shadow-xl hover:from-emerald-600 hover:to-teal-600 transition-all flex items-center justify-center gap-2"
+              className="trk-btn is-wide"
             >
-              <Plus size={16} />
+              <Plus size={18} aria-hidden="true" />
               Log Paycheck
             </button>
 
             {/* No income sources warning */}
             {budget.incomeSources.length === 0 && (
-              <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-center">
-                <p className="text-amber-800 text-sm">
-                  Add income sources in the Budget page to log paychecks.
-                </p>
-                <a
-                  href="/budget"
-                  className="inline-block mt-2 text-amber-700 font-semibold text-sm hover:underline"
-                >
-                  Go to Budget →
-                </a>
-              </div>
+              <p className="trk-warn">
+                Add income sources in the Budget page to log paychecks.
+                <Link to="/budget">Go to Budget →</Link>
+              </p>
             )}
 
             {/* Recent Paychecks List */}
-            <div className="space-y-3">
-              <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
-                <Receipt size={16} className="text-emerald-500" />
-                Recent Paychecks
-              </h3>
-              <p className="text-xs text-gray-500 -mt-2">
-                Tap a paycheck to see your remaining balance after bills
-              </p>
+            <section className="trk-sec">
+              <div className="trk-sec-h">
+                <Plank icon={<Receipt size={18} aria-hidden="true" />}>Recent Paychecks</Plank>
+              </div>
+              <p className="trk-note">Tap a paycheck to see your remaining balance after bills</p>
 
               {receivedPaychecks.length === 0 ? (
-                <div className="text-center py-12 bg-white rounded-3xl">
-                  <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gray-100 flex items-center justify-center">
-                    <Receipt size={28} className="text-gray-400" />
-                  </div>
-                  <p className="font-bold text-gray-700 mb-1">No Paychecks Logged</p>
-                  <p className="text-sm text-gray-500 mb-4">
-                    Log your actual paycheck amounts to track spending.
-                  </p>
+                <div className="rui-card trk-empty">
+                  <span className="trk-ic"><Receipt size={28} aria-hidden="true" /></span>
+                  <h3>No Paychecks Logged</h3>
+                  <p>Log your actual paycheck amounts to track spending.</p>
                 </div>
               ) : (
-                [...receivedPaychecks]
-                  .sort((a, b) => new Date(b.payDate).getTime() - new Date(a.payDate).getTime())
-                  .map((paycheck) => {
-                    const source = budget.incomeSources.find((s) => s.id === paycheck.incomeSourceId);
-                    const variance = paycheck.actualAmount - paycheck.expectedAmount;
-                    const isExpanded = selectedPaycheck?.id === paycheck.id;
+                <ul className="rui-card trk-list">
+                  {[...receivedPaychecks]
+                    .sort((a, b) => new Date(b.payDate).getTime() - new Date(a.payDate).getTime())
+                    .map((paycheck) => {
+                      const source = budget.incomeSources.find((s) => s.id === paycheck.incomeSourceId);
+                      const variance = paycheck.actualAmount - paycheck.expectedAmount;
+                      const isExpanded = selectedPaycheck?.id === paycheck.id;
 
-                    return (
-                      <div key={paycheck.id} className="space-y-2">
-                        {/* Paycheck Card */}
-                        <div
-                          onClick={() => setSelectedPaycheck(isExpanded ? undefined : paycheck)}
-                          className={`card p-3! rounded-2xl flex items-center gap-3 transition-all cursor-pointer ${
-                            isExpanded
-                              ? 'bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/30 dark:to-teal-900/20 border-2 border-emerald-300'
-                              : 'bg-white hover:shadow-md'
-                          }`}
-                        >
-                          <div className="w-9 h-9 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-xl flex items-center justify-center shadow-md shadow-emerald-300/40 shrink-0">
-                            <span className="text-base">💰</span>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-gray-900 truncate">
-                              {source?.name || 'Unknown Source'}
-                            </p>
-                            <p className="text-xs text-gray-500 whitespace-nowrap">
-                              {format(new Date(paycheck.payDate + (paycheck.payDate.length === 10 ? 'T12:00:00' : '')), 'MMM d, yyyy')}
-                            </p>
-                            {paycheck.note && (
-                              <p className="text-xs text-gray-400 truncate">
-                                {paycheck.note}
-                              </p>
-                            )}
-                          </div>
-                          <div className="text-right shrink-0">
-                            <p className="text-sm font-bold text-gray-900">
-                              {formatCurrency(paycheck.actualAmount)}
-                            </p>
-                            {variance !== 0 && (
-                              <p
-                                className={`text-xs font-medium ${
-                                  variance > 0
-                                    ? 'text-emerald-600'
-                                    : 'text-red-600'
-                                }`}
+                      return (
+                        <li key={paycheck.id}>
+                          <div className="trk-row">
+                            <button
+                              type="button"
+                              className="trk-row-main"
+                              aria-expanded={isExpanded}
+                              onClick={() => setSelectedPaycheck(isExpanded ? undefined : paycheck)}
+                            >
+                              <span className="trk-ic is-ok"><Wallet size={18} aria-hidden="true" /></span>
+                              <span className="trk-n">
+                                <b><span>{source?.name || 'Unknown Source'}</span></b>
+                                <small>
+                                  {format(new Date(paycheck.payDate + (paycheck.payDate.length === 10 ? 'T12:00:00' : '')), 'MMM d, yyyy')}
+                                  {paycheck.note ? ` · ${paycheck.note}` : ''}
+                                </small>
+                              </span>
+                              <span className="trk-amt">
+                                <b className="num">{formatCurrency(paycheck.actualAmount)}</b>
+                                {variance !== 0 && (
+                                  <span className={`trk-var ${variance > 0 ? 'is-ok' : 'is-bad'}`}>
+                                    {variance > 0 ? '+' : ''}
+                                    {formatCurrency(variance)}
+                                  </span>
+                                )}
+                              </span>
+                            </button>
+                            <div className="trk-acts">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setEditingPaycheck(paycheck);
+                                  setIsPaycheckModalOpen(true);
+                                }}
+                                className="trk-icon-btn"
+                                title="Edit paycheck"
+                                aria-label="Edit paycheck"
                               >
-                                {variance > 0 ? '+' : ''}
-                                {formatCurrency(variance)}
-                              </p>
-                            )}
+                                <Pencil size={16} aria-hidden="true" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (selectedPaycheck?.id === paycheck.id) {
+                                    setSelectedPaycheck(undefined);
+                                  }
+                                  deletePaycheck(paycheck.id);
+                                }}
+                                className="trk-icon-btn is-bad"
+                                title="Delete paycheck"
+                                aria-label="Delete paycheck"
+                              >
+                                <X size={17} aria-hidden="true" />
+                              </button>
+                            </div>
                           </div>
-                          <div className="flex gap-0.5 shrink-0">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setEditingPaycheck(paycheck);
-                                setIsPaycheckModalOpen(true);
-                              }}
-                              className="p-1.5 text-gray-400 hover:text-primary-500 hover:bg-primary-50 rounded-lg transition-all"
-                              title="Edit paycheck"
-                            >
-                              <Pencil size={14} />
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (selectedPaycheck?.id === paycheck.id) {
-                                  setSelectedPaycheck(undefined);
-                                }
-                                deletePaycheck(paycheck.id);
-                              }}
-                              className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
-                              title="Delete paycheck"
-                            >
-                              <X size={14} />
-                            </button>
-                          </div>
-                        </div>
 
-                        {/* Inline Pay Period Summary */}
-                        {isExpanded && (
-                          <div className="animate-in fade-in slide-in-from-top-2 duration-200">
-                            <PayPeriodSummary paycheck={paycheck} />
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })
+                          {/* Inline Pay Period Summary */}
+                          {isExpanded && (
+                            <div className="trk-pay-open">
+                              <PayPeriodSummary paycheck={paycheck} />
+                            </div>
+                          )}
+                        </li>
+                      );
+                    })}
+                </ul>
               )}
-            </div>
+            </section>
           </div>
         )}
 
         {/* Subs Tab */}
-        {activeTab === 'subs' && (
-          <SubscriptionsPage embedded />
-        )}
+        {activeTab === 'subs' && <div role="tabpanel"><SubscriptionsPage embedded /></div>}
       </div>
 
       {/* Payment Modal */}

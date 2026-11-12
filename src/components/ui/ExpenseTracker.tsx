@@ -3,11 +3,16 @@
  *
  * Breaks down monthly expenses into categories.
  * Auto-sums entries and syncs with monthlyExpenses.
- * Falls back to single input when no entries exist.
+ * Falls back to single input when no entries exist. Ranch card, styled in
+ * pages/track.css (.exp-*); category icons are lucide, colors are the data's.
  */
 
 import { useState } from 'react';
-import { Plus, Trash2, ChevronDown, ChevronUp, DollarSign, Lock } from 'lucide-react';
+import {
+  Plus, Trash2, ChevronDown, ChevronUp, DollarSign, Lock, Home, ShoppingBasket, Zap, Car, Shield, Utensils, Film, Tag,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import { Plank } from '../dashboard/RanchPanels';
 import { v4 as uuid } from 'uuid';
 import { formatCurrency } from '../../lib/calculations';
 import type { ExpenseEntry, ExpenseCategory, BudgetSettings } from '../../types';
@@ -15,6 +20,7 @@ import { EXPENSE_CATEGORY_INFO } from '../../types';
 import { UpgradeModal } from './UpgradeModal';
 import { useFeatureGate } from '../../hooks/useFeatureGate';
 import { FREE_LIMITS } from '../../lib/tierLimits';
+import '../../pages/track.css';
 
 interface ExpenseTrackerProps {
   budget: BudgetSettings;
@@ -22,6 +28,11 @@ interface ExpenseTrackerProps {
 }
 
 const CATEGORIES = Object.keys(EXPENSE_CATEGORY_INFO) as ExpenseCategory[];
+
+// Real icons per expense category (the data's emoji field is not rendered).
+const CATEGORY_ICONS: Partial<Record<string, LucideIcon>> = {
+  housing: Home, groceries: ShoppingBasket, utilities: Zap, transport: Car, insurance: Shield, dining: Utensils, entertainment: Film,
+};
 
 export function ExpenseTracker({ budget, onBudgetChange }: ExpenseTrackerProps) {
   const entries = budget.expenseEntries || [];
@@ -86,30 +97,21 @@ export function ExpenseTracker({ budget, onBudgetChange }: ExpenseTrackerProps) 
   }).filter((c) => c.total > 0);
 
   return (
-    <div className="card">
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="font-semibold text-gray-900 dark:text-gray-100">Monthly Expenses</h3>
-        <button
-          type="button"
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="text-xs text-primary-500 hover:text-primary-600 font-medium flex items-center gap-1"
-        >
+    <section className="rui-card exp">
+      <div className="trk-mod-h">
+        <Plank>Monthly Expenses</Plank>
+        <button type="button" onClick={() => setIsExpanded(!isExpanded)} className="exp-switch" aria-expanded={isExpanded}>
           {isExpanded ? 'Simple' : 'Itemize'}
-          {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+          {isExpanded ? <ChevronUp size={16} aria-hidden="true" /> : <ChevronDown size={16} aria-hidden="true" />}
         </button>
       </div>
 
       {!isExpanded ? (
         /* Simple single input mode */
         <div>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-            Rent, utilities, groceries, etc.
-          </p>
-          <div className="relative">
-            <DollarSign
-              size={16}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-            />
+          <p className="trk-note exp-help">Rent, utilities, groceries, etc.</p>
+          <label className="exp-field">
+            <DollarSign size={17} aria-hidden="true" />
             <input
               type="number"
               value={budget.monthlyExpenses || ''}
@@ -117,88 +119,71 @@ export function ExpenseTracker({ budget, onBudgetChange }: ExpenseTrackerProps) 
               placeholder="0.00"
               step="0.01"
               min="0"
-              className="w-full pl-8 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              aria-label="Monthly expenses"
             />
-          </div>
+          </label>
         </div>
       ) : (
         /* Itemized expense entries */
-        <div className="space-y-3">
+        <div className="exp-stack">
           {/* Category breakdown bar */}
           {categoryTotals.length > 0 && (
             <div>
-              <div className="flex rounded-xl overflow-hidden h-3 mb-2">
+              <div className="exp-bar" role="img" aria-label="Expenses by category">
                 {categoryTotals.map(({ category, total }) => (
-                  <div
+                  <i
                     key={category}
-                    style={{
-                      width: `${(total / totalFromEntries) * 100}%`,
-                      backgroundColor: EXPENSE_CATEGORY_INFO[category].color,
-                    }}
+                    style={{ width: `${(total / totalFromEntries) * 100}%`, backgroundColor: EXPENSE_CATEGORY_INFO[category].color }}
                     title={`${EXPENSE_CATEGORY_INFO[category].label}: ${formatCurrency(total)}`}
                   />
                 ))}
               </div>
-              <div className="flex flex-wrap gap-x-3 gap-y-1">
+              <ul className="cht-legend">
                 {categoryTotals.map(({ category, total }) => (
-                  <span key={category} className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                    <span
-                      className="w-2 h-2 rounded-full inline-block"
-                      style={{ backgroundColor: EXPENSE_CATEGORY_INFO[category].color }}
-                    />
-                    {EXPENSE_CATEGORY_INFO[category].emoji} {formatCurrency(total)}
-                  </span>
+                  <li key={category}>
+                    <i className="cht-dot" style={{ background: EXPENSE_CATEGORY_INFO[category].color }} />
+                    <span>{EXPENSE_CATEGORY_INFO[category].label} <b className="num">{formatCurrency(total)}</b></span>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </div>
           )}
 
           {/* Entries list */}
-          <div className="space-y-2 max-h-48 overflow-y-auto">
+          <ul className="exp-list">
             {entries.map((entry) => {
               const catInfo = EXPENSE_CATEGORY_INFO[entry.category];
+              const Icon = CATEGORY_ICONS[entry.category] ?? Tag;
               return (
-                <div
-                  key={entry.id}
-                  className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-700/50 rounded-xl group"
-                >
-                  <span className="text-sm">{catInfo.emoji}</span>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-800 dark:text-gray-200 truncate">{entry.name}</p>
-                    <p className="text-xs text-gray-400">{catInfo.label}</p>
-                  </div>
-                  <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    {formatCurrency(entry.amount)}
+                <li key={entry.id}>
+                  <span className="exp-ic" style={{ color: catInfo.color }}><Icon size={16} aria-hidden="true" /></span>
+                  <span className="exp-n">
+                    <b>{entry.name}</b>
+                    <small>{catInfo.label}</small>
                   </span>
-                  <button
-                    type="button"
-                    onClick={() => handleDeleteEntry(entry.id)}
-                    className="p-1 text-gray-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
-                  >
-                    <Trash2 size={14} />
+                  <b className="num">{formatCurrency(entry.amount)}</b>
+                  <button type="button" onClick={() => handleDeleteEntry(entry.id)} className="trk-icon-btn is-bad" aria-label={`Delete ${entry.name}`}>
+                    <Trash2 size={16} aria-hidden="true" />
                   </button>
-                </div>
+                </li>
               );
             })}
-          </div>
+          </ul>
 
           {/* Add entry form */}
           {isAdding ? (
-            <div className="p-3 bg-primary-50/50 dark:bg-primary-900/20 rounded-xl border border-primary-100 dark:border-primary-800/30 space-y-2">
+            <div className="exp-form">
               <input
                 type="text"
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
                 placeholder="Expense name"
                 maxLength={40}
-                className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                aria-label="Expense name"
               />
-              <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <DollarSign
-                    size={14}
-                    className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400"
-                  />
+              <div className="exp-form-r">
+                <label className="exp-field">
+                  <DollarSign size={15} aria-hidden="true" />
                   <input
                     type="number"
                     value={newAmount}
@@ -206,65 +191,41 @@ export function ExpenseTracker({ budget, onBudgetChange }: ExpenseTrackerProps) 
                     placeholder="0.00"
                     step="0.01"
                     min="0"
-                    className="w-full pl-7 pr-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    aria-label="Amount"
                   />
-                </div>
-                <select
-                  value={newCategory}
-                  onChange={(e) => setNewCategory(e.target.value as ExpenseCategory)}
-                  className="px-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                >
+                </label>
+                <select value={newCategory} onChange={(e) => setNewCategory(e.target.value as ExpenseCategory)} aria-label="Category">
                   {CATEGORIES.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {EXPENSE_CATEGORY_INFO[cat].emoji} {EXPENSE_CATEGORY_INFO[cat].label}
-                    </option>
+                    <option key={cat} value={cat}>{EXPENSE_CATEGORY_INFO[cat].label}</option>
                   ))}
                 </select>
               </div>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsAdding(false)}
-                  className="flex-1 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={handleAddEntry}
-                  className="flex-1 py-2 text-sm font-medium text-white bg-primary-500 rounded-xl hover:bg-primary-600 transition-colors"
-                >
-                  Add
-                </button>
+              <div className="exp-form-r">
+                <button type="button" onClick={() => setIsAdding(false)} className="trk-btn is-ghost">Cancel</button>
+                <button type="button" onClick={handleAddEntry} className="trk-btn">Add</button>
               </div>
             </div>
           ) : (
             <button
               type="button"
               onClick={handleAddClick}
-              className="w-full py-2 text-sm font-medium text-primary-500 hover:text-primary-600 bg-primary-50 dark:bg-primary-900/20 hover:bg-primary-100 dark:hover:bg-primary-900/30 rounded-xl transition-colors flex items-center justify-center gap-1.5"
-              title={
-                !canAddExpenseEntry
-                  ? `Free plan is limited to ${FREE_LIMITS.EXPENSE_ENTRIES} expense entries`
-                  : 'Add an expense'
-              }
+              className="trk-btn is-ghost exp-add"
+              title={!canAddExpenseEntry ? `Free plan is limited to ${FREE_LIMITS.EXPENSE_ENTRIES} expense entries` : 'Add an expense'}
             >
-              {!isPro && !canAddExpenseEntry ? <Lock size={16} /> : <Plus size={16} />}
+              {!isPro && !canAddExpenseEntry ? <Lock size={16} aria-hidden="true" /> : <Plus size={16} aria-hidden="true" />}
               {!isPro && !canAddExpenseEntry ? 'Upgrade for more' : 'Add Expense'}
             </button>
           )}
 
           {/* Total */}
-          <div className="flex justify-between items-center pt-2 border-t border-gray-200 dark:border-gray-700">
-            <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Total</span>
-            <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
-              {formatCurrency(totalFromEntries)}
-            </span>
-          </div>
+          <p className="exp-total">
+            <span>Total</span>
+            <b className="num">{formatCurrency(totalFromEntries)}</b>
+          </p>
         </div>
       )}
 
       {showUpgrade && <UpgradeModal onDismiss={() => setShowUpgrade(false)} />}
-    </div>
+    </section>
   );
 }

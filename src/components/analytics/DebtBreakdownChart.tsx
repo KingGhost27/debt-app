@@ -2,33 +2,22 @@
  * Debt Breakdown Chart
  *
  * Stacked area chart showing each individual debt's remaining
- * balance declining over time as colored layers.
+ * balance declining over time as colored layers. Colors, grid, axis text and
+ * tooltip come from the ranch tokens (see chartTheme).
  */
 
 import { useMemo } from 'react';
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { format, parseISO } from 'date-fns';
 import { formatCurrency } from '../../lib/calculations';
 import type { Debt, MonthlyPayment } from '../../types';
+import { SERIES_COLORS, chartAxisLine, chartGrid, chartTick, chartTooltip, moneyTick } from './chartTheme';
+import '../../pages/track.css';
 
 interface DebtBreakdownChartProps {
   monthlyBreakdown: MonthlyPayment[];
   debts: Debt[];
 }
-
-const DEBT_COLORS = [
-  '#8b5cf6', '#3b82f6', '#22c55e', '#f59e0b',
-  '#ec4899', '#ef4444', '#06b6d4', '#6366f1',
-  '#14b8a6', '#f97316', '#a855f7', '#10b981',
-];
 
 export function DebtBreakdownChart({ monthlyBreakdown, debts }: DebtBreakdownChartProps) {
   const { chartData, debtInfo } = useMemo(() => {
@@ -36,11 +25,10 @@ export function DebtBreakdownChart({ monthlyBreakdown, debts }: DebtBreakdownCha
       return { chartData: [], debtInfo: [] };
     }
 
-    // Build color map for debts
     const info = debts.map((debt, i) => ({
       id: debt.id,
       name: debt.name,
-      color: DEBT_COLORS[i % DEBT_COLORS.length],
+      color: SERIES_COLORS[i % SERIES_COLORS.length],
     }));
 
     // Sample data if too many months
@@ -52,7 +40,6 @@ export function DebtBreakdownChart({ monthlyBreakdown, debts }: DebtBreakdownCha
       const point: Record<string, string | number> = {
         month: format(parseISO(month.month + '-01'), 'MMM yy'),
       };
-      // Set balance for each debt (default to 0 if not in this month's payments)
       for (const debt of debts) {
         const payment = month.payments.find((p) => p.debtId === debt.id);
         point[debt.id] = payment ? Math.round(payment.remainingBalance * 100) / 100 : 0;
@@ -64,43 +51,21 @@ export function DebtBreakdownChart({ monthlyBreakdown, debts }: DebtBreakdownCha
   }, [monthlyBreakdown, debts]);
 
   if (chartData.length === 0) {
-    return (
-      <div className="text-center text-gray-500 dark:text-gray-400 py-8 text-sm">
-        No payoff data available
-      </div>
-    );
+    return <p className="cht-empty">No payoff data available</p>;
   }
 
   return (
     <div>
       <ResponsiveContainer width="100%" height={220}>
-        <AreaChart data={chartData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-          <XAxis
-            dataKey="month"
-            tick={{ fontSize: 11, fill: '#6b7280' }}
-            tickLine={false}
-            axisLine={{ stroke: '#e5e7eb' }}
-            interval="preserveStartEnd"
-          />
-          <YAxis
-            tick={{ fontSize: 11, fill: '#6b7280' }}
-            tickLine={false}
-            axisLine={false}
-            tickFormatter={(value) => `$${value >= 1000 ? `${(value / 1000).toFixed(0)}k` : value}`}
-            width={45}
-          />
+        <AreaChart data={chartData} margin={{ top: 6, right: 6, left: 0, bottom: 0 }}>
+          <CartesianGrid {...chartGrid} />
+          <XAxis dataKey="month" tick={chartTick} tickLine={false} axisLine={chartAxisLine} interval="preserveStartEnd" />
+          <YAxis tick={chartTick} tickLine={false} axisLine={false} tickFormatter={moneyTick} width={48} />
           <Tooltip
+            {...chartTooltip}
             formatter={(value, name) => {
               const debt = debtInfo.find((d) => d.id === (name as string));
               return [formatCurrency(value as number), debt?.name || (name as string)];
-            }}
-            labelStyle={{ color: '#374151', fontWeight: 600 }}
-            contentStyle={{
-              backgroundColor: 'white',
-              border: '1px solid #e5e7eb',
-              borderRadius: '8px',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
             }}
           />
           {debtInfo.map((debt) => (
@@ -112,27 +77,21 @@ export function DebtBreakdownChart({ monthlyBreakdown, debts }: DebtBreakdownCha
               stackId="debts"
               stroke={debt.color}
               fill={debt.color}
-              fillOpacity={0.5}
+              fillOpacity={0.55}
               strokeWidth={1.5}
             />
           ))}
         </AreaChart>
       </ResponsiveContainer>
 
-      {/* Legend */}
-      <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 mt-3">
+      <ul className="cht-legend">
         {debtInfo.map((debt) => (
-          <div key={debt.id} className="flex items-center gap-1.5">
-            <div
-              className="w-3 h-3 rounded-full"
-              style={{ backgroundColor: debt.color }}
-            />
-            <span className="text-xs text-gray-600 dark:text-gray-400 truncate max-w-[80px]">
-              {debt.name}
-            </span>
-          </div>
+          <li key={debt.id}>
+            <i className="cht-dot" style={{ background: debt.color }} />
+            <span>{debt.name}</span>
+          </li>
         ))}
-      </div>
+      </ul>
     </div>
   );
 }

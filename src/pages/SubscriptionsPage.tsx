@@ -1,23 +1,29 @@
 /**
- * Subscriptions Page - Kawaii Edition
+ * Subscriptions Page - the ranch's recurring bills.
  *
  * Track recurring subscription services with custom billing frequencies.
- * Shows monthly/annual totals, upcoming renewals, and subscription list.
- * Features cute styling, animations, and delightful interactions.
+ * The "Recurring costs" card (adapted from the 21st.dev Dot Graph Card, see
+ * components/ui/DotGraphCard.tsx) shows what bills each day this month and each
+ * month of the next year; below it the subscriptions sit in ranch cards grouped
+ * by category. Also rendered inside Track's Subs tab (embedded). Styled in
+ * subscriptions.css from the --ranch-* tokens.
  */
 
 import { useState, useMemo } from 'react';
-import { Plus, Pencil, Trash2, RefreshCw, Calendar, Pause, Play } from 'lucide-react';
+import { CalendarDays, Pause, Pencil, Play, Plus, Repeat, Trash2, Tv } from 'lucide-react';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { useConfirmDialog } from '../hooks/useConfirmDialog';
 import { format, parseISO, differenceInDays, addDays, addWeeks, addMonths, addYears, isBefore } from 'date-fns';
 import { useApp } from '../context/AppContext';
 import { PageHeader } from '../components/layout/PageHeader';
+import { Plank } from '../components/dashboard/RanchPanels';
 import { SubscriptionModal } from '../components/ui/SubscriptionModal';
+import { DotGraphCard } from '../components/ui/DotGraphCard';
 import { EmptyState } from '../components/ui/EmptyState';
 import { formatCurrency } from '../lib/calculations';
 import type { Subscription, SubscriptionFrequency } from '../types';
 import { SUBSCRIPTION_CATEGORY_INFO } from '../types';
+import './subscriptions.css';
 
 // Calculate monthly cost from any frequency
 function getMonthlyAmount(amount: number, frequency: SubscriptionFrequency): number {
@@ -147,136 +153,128 @@ export function SubscriptionsPage({ embedded = false }: { embedded?: boolean }) 
   };
 
   const addButton = (
-    <button
-      onClick={() => setIsModalOpen(true)}
-      className="flex items-center gap-1.5 px-4 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white text-sm font-semibold rounded-2xl hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg shadow-primary-500/30 hover:shadow-primary-500/40 hover:scale-105 active:scale-95"
-    >
-      <Plus size={18} />
+    <button type="button" onClick={() => setIsModalOpen(true)} className="sub-btn" aria-label="Add subscription">
+      <Plus size={18} aria-hidden="true" />
       Add
     </button>
+  );
+
+  const emptyState = (
+    <EmptyState
+      icon={Tv}
+      title="No Subscriptions Yet"
+      description="Add your streaming services, software subscriptions, and other recurring charges to track your spending."
+      action={{ label: 'Add Your First Subscription', onClick: () => setIsModalOpen(true) }}
+      encouragement="Stay on top of your recurring costs!"
+    />
   );
 
   // Empty state
   if (subscriptions.length === 0) {
     if (embedded) {
       return (
-        <div className="space-y-4">
-          <div className="flex justify-end">{addButton}</div>
-          <EmptyState
-            icon="📺"
-            title="No Subscriptions Yet"
-            description="Add your streaming services, software subscriptions, and other recurring charges to track your spending."
-            action={{ label: 'Add Your First Subscription', onClick: () => setIsModalOpen(true) }}
-            encouragement="Stay on top of your recurring costs!"
-          />
+        <div className="sub-body is-embedded">
+          <div className="sub-add">{addButton}</div>
+          {emptyState}
           <SubscriptionModal isOpen={isModalOpen} onClose={handleCloseModal} subscription={editingSubscription} />
           <ConfirmDialog {...dialogProps} />
         </div>
       );
     }
     return (
-      <div className="min-h-screen bg-gray-50 animate-page-enter">
-        <PageHeader title="Subscriptions" subtitle="Track recurring services" emoji="🔄" />
-        <div className="px-4">
-          <EmptyState
-            icon="📺"
-            title="No Subscriptions Yet"
-            description="Add your streaming services, software subscriptions, and other recurring charges to track your spending."
-            action={{ label: 'Add Your First Subscription', onClick: () => setIsModalOpen(true) }}
-            encouragement="Stay on top of your recurring costs!"
-          />
-        </div>
+      <div className="sub animate-page-enter">
+        <PageHeader title="Subscriptions" subtitle="Track recurring services" />
+        <div className="sub-body">{emptyState}</div>
         <SubscriptionModal isOpen={isModalOpen} onClose={handleCloseModal} subscription={editingSubscription} />
+        <ConfirmDialog {...dialogProps} />
       </div>
     );
   }
 
+  const pausedCount = subscriptions.length - activeSubscriptions.length;
+
   const sharedContent = (
     <>
-      {/* Summary Card */}
-      <div className="card p-3! bg-gradient-to-br from-primary-50 to-white dark:from-primary-900/30 dark:to-gray-800 rounded-2xl border border-primary-100 dark:border-primary-700/50 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-24 h-24 bg-primary-200/30 rounded-full -translate-y-1/2 translate-x-1/2" />
-        <div className="relative z-10">
-          <div className="flex items-center gap-1.5 mb-2">
-            <RefreshCw size={13} className="text-primary-500" />
-            <p className="text-[10px] text-gray-500 font-semibold uppercase tracking-wide">Recurring Costs</p>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <div className="p-2 bg-white/60 dark:bg-gray-800/60 rounded-xl">
-              <p className="text-[10px] text-gray-500 mb-0.5">Monthly</p>
-              <p className="text-base font-bold text-primary-600">{formatCurrency(monthlyTotal)}</p>
+      <DotGraphCard
+        subscriptions={subscriptions}
+        monthlyTotal={monthlyTotal}
+        footer={
+          <dl className="sub-stats">
+            <div>
+              <dt>Annual</dt>
+              <dd className="num">{formatCurrency(annualTotal)}</dd>
             </div>
-            <div className="p-2 bg-white/60 dark:bg-gray-800/60 rounded-xl">
-              <p className="text-[10px] text-gray-500 mb-0.5">Annual</p>
-              <p className="text-base font-bold text-gray-900">{formatCurrency(annualTotal)}</p>
+            <div>
+              <dt>Active</dt>
+              <dd className="num">{activeSubscriptions.length} subscription{activeSubscriptions.length !== 1 ? 's' : ''}</dd>
             </div>
-          </div>
-          <div className="mt-2 flex items-center justify-between text-[10px]">
-            <span className="text-gray-500">{activeSubscriptions.length} active subscription{activeSubscriptions.length !== 1 ? 's' : ''}</span>
-            {subscriptions.length > activeSubscriptions.length && (
-              <span className="text-gray-400">{subscriptions.length - activeSubscriptions.length} paused</span>
+            {pausedCount > 0 && (
+              <div>
+                <dt>Paused</dt>
+                <dd className="num">{pausedCount}</dd>
+              </div>
             )}
-          </div>
-        </div>
-      </div>
+          </dl>
+        }
+      />
 
       {/* Subscriptions List */}
-      <div className="space-y-2">
+      <div className="sub-groups">
         {Object.entries(subscriptionsByCategory).map(([category, subs]) => {
           const categoryInfo = SUBSCRIPTION_CATEGORY_INFO[category as keyof typeof SUBSCRIPTION_CATEGORY_INFO];
+          const color = categoryInfo?.color || '#6b7280';
           return (
-            <div key={category}>
-              <div className="flex items-center gap-1.5 mb-1.5">
-                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: categoryInfo?.color || '#6b7280' }} />
-                <h3 className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">{categoryInfo?.label || category}</h3>
+            <section key={category} className="sub-group">
+              <div className="sub-group-h">
+                <Plank icon={<i className="sub-cdot" style={{ background: color }} />}>{categoryInfo?.label || category}</Plank>
               </div>
-              <div className="space-y-1.5">
+              <ul className="rui-card sub-list">
                 {subs.map((subscription) => {
                   const nextBilling = getNextBillingDate(subscription);
                   const daysUntil = differenceInDays(nextBilling, new Date());
+                  const soon = subscription.isActive && daysUntil <= 7 && daysUntil >= 0;
                   return (
-                    <div key={subscription.id} className={`card p-2.5! bg-white rounded-xl shadow-sm hover:shadow-md transition-all group overflow-hidden ${!subscription.isActive ? 'opacity-60' : ''}`}>
-                      <div className="h-0.5 -mx-2.5 -mt-2.5 mb-2" style={{ backgroundColor: categoryInfo?.color || '#6b7280' }} />
-
-                      {/* Top row: name + amount + buttons */}
-                      <div className="flex items-center gap-1.5 mb-0.5">
-                        <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                          <h4 className="text-xs font-semibold text-gray-900 truncate">{subscription.name}</h4>
-                          {!subscription.isActive && <span className="px-1.5 py-0.5 text-[10px] font-medium bg-gray-100 text-gray-500 rounded-full shrink-0">Paused</span>}
-                        </div>
-                        <p className="text-xs font-bold text-gray-900 shrink-0">{formatCurrency(subscription.amount)}</p>
-                        <div className="flex shrink-0">
-                          <button onClick={() => handleToggleActive(subscription)} className="p-1 text-gray-400 hover:text-primary-600 hover:bg-gray-100 rounded-lg transition-colors" title={subscription.isActive ? 'Pause' : 'Resume'}>
-                            {subscription.isActive ? <Pause size={12} /> : <Play size={12} />}
-                          </button>
-                          <button onClick={() => handleEdit(subscription)} className="p-1 text-gray-400 hover:text-primary-600 hover:bg-gray-100 rounded-lg transition-colors"><Pencil size={12} /></button>
-                          <button onClick={() => handleDelete(subscription)} className="p-1 text-gray-400 hover:text-red-500 hover:bg-gray-100 rounded-lg transition-colors"><Trash2 size={12} /></button>
-                        </div>
-                      </div>
-
-                      {/* Bottom row: date/frequency info only */}
-                      <div className="flex items-center gap-1.5 text-[10px] text-gray-500">
-                        <span>{formatFrequency(subscription.frequency)}</span>
-                        {subscription.isActive && (
-                          <>
-                            <span className="text-gray-300">·</span>
-                            <span className="flex items-center gap-0.5">
-                              <Calendar size={10} className="text-gray-400" />
+                    <li key={subscription.id} className={subscription.isActive ? '' : 'is-paused'}>
+                      <span className="sub-ic" style={{ '--sub-c': color } as React.CSSProperties}>
+                        <Repeat size={18} aria-hidden="true" />
+                      </span>
+                      <div className="sub-n">
+                        <b>
+                          <span>{subscription.name}</span>
+                          {!subscription.isActive && <span className="rui-badge soon">Paused</span>}
+                        </b>
+                        <small>
+                          <span>{formatFrequency(subscription.frequency)}</span>
+                          {subscription.isActive && (
+                            <span className="sub-date">
+                              <CalendarDays size={14} aria-hidden="true" />
                               {format(nextBilling, 'MMM d')}
                             </span>
-                            {daysUntil <= 7 && daysUntil >= 0 && (
-                              <span className={`px-1 py-0.5 text-[10px] font-medium rounded-full ${daysUntil === 0 ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'}`}>
-                                {daysUntil === 0 ? 'Today' : `${daysUntil}d`}
-                              </span>
-                            )}
-                          </>
-                        )}
+                          )}
+                          {soon && (
+                            <span className={`rui-badge ${daysUntil === 0 ? 'focus' : 'soon'}`}>
+                              {daysUntil === 0 ? 'Today' : `${daysUntil}d`}
+                            </span>
+                          )}
+                        </small>
                       </div>
-                    </div>
+                      <b className="sub-amt num">{formatCurrency(subscription.amount)}</b>
+                      <div className="sub-acts">
+                        <button type="button" onClick={() => handleToggleActive(subscription)} className="sub-icon-btn" title={subscription.isActive ? 'Pause' : 'Resume'} aria-label={`${subscription.isActive ? 'Pause' : 'Resume'} ${subscription.name}`}>
+                          {subscription.isActive ? <Pause size={17} aria-hidden="true" /> : <Play size={17} aria-hidden="true" />}
+                        </button>
+                        <button type="button" onClick={() => handleEdit(subscription)} className="sub-icon-btn" title="Edit" aria-label={`Edit ${subscription.name}`}>
+                          <Pencil size={17} aria-hidden="true" />
+                        </button>
+                        <button type="button" onClick={() => handleDelete(subscription)} className="sub-icon-btn is-bad" title="Delete" aria-label={`Delete ${subscription.name}`}>
+                          <Trash2 size={17} aria-hidden="true" />
+                        </button>
+                      </div>
+                    </li>
                   );
                 })}
-              </div>
-            </div>
+              </ul>
+            </section>
           );
         })}
       </div>
@@ -285,8 +283,8 @@ export function SubscriptionsPage({ embedded = false }: { embedded?: boolean }) 
 
   if (embedded) {
     return (
-      <div className="space-y-6">
-        <div className="flex justify-end">{addButton}</div>
+      <div className="sub-body is-embedded">
+        <div className="sub-add">{addButton}</div>
         {sharedContent}
         <SubscriptionModal isOpen={isModalOpen} onClose={handleCloseModal} subscription={editingSubscription} />
         <ConfirmDialog {...dialogProps} />
@@ -295,11 +293,9 @@ export function SubscriptionsPage({ embedded = false }: { embedded?: boolean }) 
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 animate-page-enter">
-      <PageHeader title="Subscriptions" subtitle="Track recurring services" emoji="🔄" action={addButton} />
-      <div className="px-4 py-6 space-y-6">
-        {sharedContent}
-      </div>
+    <div className="sub animate-page-enter">
+      <PageHeader title="Subscriptions" subtitle="Track recurring services" action={addButton} />
+      <div className="sub-body">{sharedContent}</div>
       <SubscriptionModal isOpen={isModalOpen} onClose={handleCloseModal} subscription={editingSubscription} />
       <ConfirmDialog {...dialogProps} />
     </div>
