@@ -61,17 +61,17 @@ export const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
             </span>
           )}
           {/* Animal parade: the inline mascot SVGs */}
-          <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'flex-end',
-            flexWrap: 'wrap',
-            gap: animals.length > 2 ? 2 : 8,
-            marginBottom: 10,
-            lineHeight: 0,
-          }}>
-            {animals.map((animal, i) => (
-              <span key={i} style={{ display: 'inline-block', lineHeight: 0 }}>{animal}</span>
+          {/* Large herds split into balanced rows (5 + 5) so no animal wraps alone. */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, marginBottom: 10 }}>
+            {(animals.length > 4
+              ? [animals.slice(0, Math.ceil(animals.length / 2)), animals.slice(Math.ceil(animals.length / 2))]
+              : [animals]
+            ).map((row, r) => (
+              <div key={r} style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-end', gap: animals.length > 2 ? 2 : 8, lineHeight: 0 }}>
+                {row.map((animal, i) => (
+                  <span key={i} style={{ display: 'inline-block', lineHeight: 0 }}>{animal}</span>
+                ))}
+              </div>
             ))}
           </div>
           <h2

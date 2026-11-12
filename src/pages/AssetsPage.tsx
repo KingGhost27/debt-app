@@ -48,6 +48,10 @@ import type { Asset, AssetType } from '../types';
 import { ASSET_TYPE_INFO } from '../types';
 import './assets.css';
 
+// Recharts entrance animation is skipped under prefers-reduced-motion (also keeps stills deterministic).
+const CHART_ANIMATE =
+  typeof window === 'undefined' || !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
 const TYPE_ICONS: Record<AssetType, ComponentType<{ size?: number; 'aria-hidden'?: boolean }>> = {
   savings: PiggyBank,
   checking: Landmark,
@@ -218,6 +222,7 @@ export function AssetsPage() {
                         paddingAngle={pieData.length > 1 ? 3 : 0}
                         stroke="var(--ranch-page)"
                         strokeWidth={3}
+                        isAnimationActive={CHART_ANIMATE}
                       >
                         {pieData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={entry.color} />
@@ -259,6 +264,7 @@ export function AssetsPage() {
                       dataKey="balance"
                       stroke="var(--ranch-ok-fill)"
                       strokeWidth={3}
+                      isAnimationActive={CHART_ANIMATE}
                       fill="var(--ranch-ok-fill)"
                       fillOpacity={0.16}
                       dot={false}
