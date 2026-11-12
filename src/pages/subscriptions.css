@@ -26,10 +26,11 @@
 .sub-btn:active { transform: translateY(1px); }
 @media (prefers-reduced-motion: reduce) { .sub-btn { transition: none; } }
 
-.sub-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-top: 16px !important; }
-.sub-stats > div { background: var(--ranch-page2); border-radius: 16px; padding: 10px 14px; min-width: 0; }
-.sub-stats dt { font: 600 13px/1.2 Nunito, sans-serif; color: var(--ranch-ink2); margin-bottom: 3px; }
-.sub-stats dd { font-size: 18px; line-height: 1.2; }
+.sub-stats { margin-top: 4px !important; }
+.sub-stats > div { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 11px 0; border-top: 1px solid var(--ranch-line); min-width: 0; }
+.sub-stats dt { font: 600 15px/1.3 Nunito, sans-serif; color: var(--ranch-ink2); }
+.sub-stats dd { font-size: 17px; line-height: 1.2; color: var(--ranch-ink); text-align: right; }
+
 
 .sub-groups { display: grid; gap: 22px; }
 .sub-group { display: grid; gap: 12px; align-content: start; }
@@ -62,8 +63,8 @@
 .dgc h2, .dgc p { margin: 0; }
 .dgc-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
 .dgc-title { margin-bottom: 12px !important; font: inherit; }
-.dgc-fig { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; font-family: "Bagel Fat One", sans-serif !important; font-weight: 400 !important; font-size: 46px; line-height: 1; }
-.dgc-fig small { font: 600 16px/1 Fredoka, sans-serif; color: var(--ranch-ink2); }
+.dgc-fig { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 8px; font-size: 24px; line-height: 1.1; color: var(--ranch-ink); }
+.dgc-fig small { font: 600 15px/1 Nunito, sans-serif; color: var(--ranch-ink2); }
 .dgc-tabs { display: inline-flex; gap: 4px; padding: 4px; border-radius: 999px; background: var(--ranch-page2); }
 .dgc-tabs button { min-height: 40px; padding: 0 14px; border: 0; border-radius: 999px; background: transparent; color: var(--ranch-ink2); font: 600 14.5px/1 Fredoka, sans-serif; white-space: nowrap; cursor: pointer; transition: background .15s, color .15s; }
 .dgc-tabs button.is-on { background: var(--ranch-btn-bg); color: var(--ranch-btn-fg); }

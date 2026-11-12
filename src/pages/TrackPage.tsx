@@ -428,8 +428,8 @@ export function TrackPage() {
                 data={paidByDay}
                 days={365}
                 formatValue={money0}
-                activeNoun="days with a payment"
-                labels={{ total: 'Paid in total', active: 'Days with a payment', longest: 'Longest run', current: 'Current run' }}
+                activeNoun="payment days"
+                labels={{ total: 'Paid in total', months: 'Months with a payment', best: 'Biggest month' }}
               />
             </section>
 

@@ -253,7 +253,7 @@ export function SubscriptionsPage({ embedded = false }: { embedded?: boolean }) 
                           )}
                           {soon && (
                             <span className={`rui-badge ${daysUntil === 0 ? 'focus' : 'soon'}`}>
-                              {daysUntil === 0 ? 'Today' : `${daysUntil}d`}
+                              {daysUntil === 0 ? 'Today' : `${daysUntil} day${daysUntil !== 1 ? 's' : ''}`}
                             </span>
                           )}
                         </small>

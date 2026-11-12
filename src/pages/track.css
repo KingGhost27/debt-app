@@ -249,8 +249,11 @@ button.trk-row-main { cursor: pointer; border-radius: 14px; }
 .upb p, .upb ul, .upb small { margin: 0; }
 .upb ul { padding: 0; list-style: none; }
 .upb-tabs { display: inline-flex; justify-self: start; gap: 4px; padding: 4px; border-radius: 999px; background: var(--ranch-page2); }
-.upb-tabs button { min-height: 40px; padding: 0 16px; border: 0; border-radius: 999px; background: transparent; color: var(--ranch-ink2); font: 600 15px/1 Fredoka, sans-serif; cursor: pointer; }
+.upb-tabs button { min-height: 40px; padding: 0 16px; border: 0; border-radius: 999px; background: transparent; color: var(--ranch-ink); font: 600 15px/1 Fredoka, sans-serif; cursor: pointer; transition: background .15s, color .15s; }
+.upb-tabs button:not(.is-on):hover { background: color-mix(in srgb, var(--ranch-ink) 10%, var(--ranch-page2)); }
+.upb-tabs button:focus-visible { outline: 2px solid var(--ranch-ink); outline-offset: 2px; }
 .upb-tabs button.is-on { background: var(--ranch-btn-bg); color: var(--ranch-btn-fg); }
+@media (prefers-reduced-motion: reduce) { .upb-tabs button { transition: none; } }
 .upb-period { display: grid; gap: 12px; padding: 12px 14px; border-radius: 20px; background: var(--ranch-page2); }
 .upb-range { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-bottom: 10px; border-bottom: 1px solid var(--ranch-line); text-align: center; }
 .upb-range p { font: 600 13.5px/1.2 Nunito, sans-serif; color: var(--ranch-ink2); }
@@ -416,7 +419,7 @@ button.trk-row-main { cursor: pointer; border-radius: 14px; }
 .ahm { width: 100%; min-width: 0; color: var(--ranch-ink); }
 .ahm p, .ahm dl, .ahm dd { margin: 0; }
 .ahm-host { width: 100%; min-width: 0; }
-.ahm-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.ahm-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 .ahm-stats > div { background: var(--ranch-page2); border-radius: 16px; padding: 10px 14px; min-width: 0; }
 .ahm-stats dt { font: 600 13px/1.2 Nunito, sans-serif; color: var(--ranch-ink2); margin-bottom: 3px; }
 .ahm-stats dd { font-size: 20px; line-height: 1.15; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -448,7 +451,7 @@ button.trk-row-main { cursor: pointer; border-radius: 14px; }
 .ahm-tip { position: fixed; z-index: 60; width: max-content; max-width: calc(100vw - 16px); padding: 8px 12px; border-radius: 12px; pointer-events: none; background: var(--ranch-ink); color: var(--ranch-page); box-shadow: 0 10px 24px -10px var(--ranch-sh); }
 .ahm-tip p { font: 600 12.5px/1.3 Nunito, sans-serif; opacity: .8; }
 .ahm-tip b { font-size: 15px; }
-@media (min-width: 480px) { .ahm-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); } .ahm-seg button svg { display: block; } }
+@media (min-width: 480px) { .ahm-seg button svg { display: block; } }
 @media (prefers-reduced-motion: reduce) { .ahm-row { transition: none; } .bdp-chev { transition: none; } }
 
 /* ---------------- breakpoints ---------------- */

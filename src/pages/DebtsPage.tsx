@@ -15,7 +15,6 @@ import { Plus, Search, Pencil, Trash2, ChevronDown, ArrowUpDown, Calendar, HelpC
 import { format, parseISO } from 'date-fns';
 import { useApp } from '../context/AppContext';
 import { PageHeader } from '../components/layout/PageHeader';
-import { ProgressRing } from '../components/ui/ProgressRing';
 import { DebtModal } from '../components/ui/DebtModal';
 import { Plank } from '../components/dashboard/RanchPanels';
 import { AnimatedTabs } from '../components/plan/AnimatedTabs';
@@ -370,7 +369,6 @@ export function DebtsPage() {
             <div className="db-hero-main">
               <span className="db-chip"><Calendar size={20} aria-hidden="true" /></span>
               <div>
-                <p className="db-hero-k">Debt-Free Countdown</p>
                 <p className="db-hero-t">{format(debtFreeDate, 'MMMM yyyy')}</p>
                 {timeUntilDebtFree && (
                   <p className="db-hero-s"><Sparkles size={14} aria-hidden="true" />{timeUntilDebtFree} to go!</p>
@@ -650,10 +648,6 @@ export function DebtsPage() {
                   </div>
 
                   <div className="db-card-b">
-                    {percentPaid > 0 && (
-                      <ProgressRing percentage={percentPaid} size={72} strokeWidth={8} color={isPaid ? 'var(--ranch-ok-fill)' : categoryInfo.color} />
-                    )}
-
                     <dl className="db-stats">
                       <div>
                         <dt>
@@ -710,6 +704,17 @@ export function DebtsPage() {
                         </dd>
                       </div>
                     </dl>
+                    {percentPaid > 0 && (
+                      <div className="db-paid">
+                        <div className="db-paid-t">
+                          <span>{isPaid ? 'Paid off' : 'Paid down'}</span>
+                          <b className="num">{Math.round(percentPaid)}%</b>
+                        </div>
+                        <span className="db-bar big" role="img" aria-label={`${Math.round(percentPaid)}% paid off`}>
+                          <i style={{ width: `${Math.min(100, percentPaid)}%`, background: isPaid ? 'var(--ranch-ok-fill)' : categoryInfo.color }} />
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Estimated Interest Fee */}

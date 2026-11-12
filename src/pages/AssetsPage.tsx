@@ -8,7 +8,7 @@
 
 import { useState, useMemo, type ComponentType, type CSSProperties } from 'react';
 import {
-  Banknote, History, HeartPulse, Landmark, Pencil, PiggyBank, Plus, RefreshCw, Sparkles, Trash2, TrendingDown, TrendingUp, Wallet,
+  Banknote, History, HeartPulse, Landmark, Pencil, PiggyBank, Plus, RefreshCw, Sparkles, Trash2, TrendingUp, Wallet,
 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import {
@@ -152,7 +152,7 @@ export function AssetsPage() {
     );
   }
 
-  const split = totalAssets + totalDebt;
+  const debtPaidDown = debts.reduce((sum, d) => sum + Math.max(0, d.originalBalance - d.balance), 0);
 
   return (
     <div className="ast animate-page-enter">
@@ -177,30 +177,22 @@ export function AssetsPage() {
             )}
           </div>
 
-          <p className={`ast-net-v ${netWorth >= 0 ? 'is-ok' : 'is-bad'}`}>
-            <RollingNumber value={netWorth} decimals={2} />
-          </p>
-
-          {/* Assets vs Debts bar */}
-          <div className="ast-split" role="img" aria-label={`Assets ${formatCurrency(totalAssets)}, debts ${formatCurrency(totalDebt)}`}>
-            {split > 0 && (
-              <>
-                <i className="is-assets" style={{ width: `${(totalAssets / split) * 100}%` }} />
-                <i className="is-debts" style={{ width: `${(totalDebt / split) * 100}%` }} />
-              </>
-            )}
-          </div>
-
-          <dl className="ast-tiles">
-            <div className="is-assets">
-              <TrendingUp size={20} aria-hidden="true" />
-              <dt>Assets:</dt>
+          <dl className="ast-rows">
+            <div>
+              <dt>Assets held</dt>
               <dd className="num">{formatCurrency(totalAssets)}</dd>
             </div>
-            <div className="is-debts">
-              <TrendingDown size={20} aria-hidden="true" />
-              <dt>Debts:</dt>
+            <div>
+              <dt>Debt paid down</dt>
+              <dd className="num">{formatCurrency(debtPaidDown)}</dd>
+            </div>
+            <div>
+              <dt>Still owed</dt>
               <dd className="num">{formatCurrency(totalDebt)}</dd>
+            </div>
+            <div className="is-net">
+              <dt>Net worth</dt>
+              <dd className="num"><RollingNumber value={netWorth} decimals={2} /></dd>
             </div>
           </dl>
         </section>

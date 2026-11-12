@@ -7,8 +7,8 @@
  * https://21st.dev/community/components/dhxwhy/activity-heatmap/default
  *
  * Kept from the original: the three views (calendar, weekdays, months) with the
- * same square-rearranging layout math, the four stats (total, active days,
- * longest and current streak), tooltips, arrow-key navigation across squares,
+ * same square-rearranging layout math, the stats (total, months with a payment,
+ * biggest month), tooltips, arrow-key navigation across squares,
  * a radio-group view switch with Home/End, and the "fit the whole year to any
  * width" rule. Changed for Cowculator: Tailwind/shadcn classes became ranch
  * classes (.ahm-*, styled in pages/track.css from the --ranch-* tokens), the
@@ -41,7 +41,7 @@ interface ActivityHeatmapProps {
   /** Singular noun for a day with activity, used in the insight line. */
   activeNoun?: string;
   /** Labels for the four stat tiles. */
-  labels?: { total: string; active: string; longest: string; current: string };
+  labels?: { total: string; months: string; best: string };
   className?: string;
 }
 
@@ -61,7 +61,7 @@ const DATE_LABEL = new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 's
 const SHORT_DATE = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' });
 const END_DATE = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 const MONTH_LABEL = new Intl.DateTimeFormat('en-US', { month: 'short' });
-const DEFAULT_LABELS = { total: 'Total', active: 'Active days', longest: 'Longest streak', current: 'Current streak' };
+const DEFAULT_LABELS = { total: 'Total', months: 'Months with activity', best: 'Biggest month' };
 
 function toKey(date: Date) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
@@ -131,19 +131,16 @@ function arrange(cells: Cell[], width: number, maxCell: number) {
   const monthColumn = usable / Math.max(1, months.length);
   let total = 0;
   let active = 0;
-  let longest = 0;
-  let current = 0;
   for (const cell of shown) {
     total += cell.value;
-    if (cell.value > 0) {
-      active += 1;
-      current += 1;
-      longest = Math.max(longest, current);
-    } else current = 0;
+    if (cell.value > 0) active += 1;
   }
+  const monthTotals = months.map((month) => month.cells.reduce((sum, cell) => sum + cell.value, 0));
+  const activeMonths = months.filter((month) => month.cells.length > 0).length;
+  const biggestMonth = Math.max(0, ...monthTotals);
   const bestWeekday = weekdays.findIndex((group) => group.length === maxWeekday);
   const bestMonth = months.findIndex((month) => month.cells.length === maxMonth);
-  return { shown, weeks, firstWeek, weekdays, months, weekdayRanks, monthRanks, edge, weekdayStep, monthStep, calendarStep, monthColumn, total, active, longest, current, bestWeekday, bestMonth };
+  return { shown, weeks, firstWeek, weekdays, months, weekdayRanks, monthRanks, edge, weekdayStep, monthStep, calendarStep, monthColumn, total, active, activeMonths, biggestMonth, bestWeekday, bestMonth };
 }
 
 const EMPTY_LAYOUT = arrange([], 660, 10);
@@ -277,13 +274,12 @@ export function ActivityHeatmap({
       ? `${WEEKDAYS[layout.bestWeekday]} leads with ${bestDay.length} ${activeNoun}`
       : view === 'months' && bestMonth
         ? `${bestMonth.label} leads with ${bestMonth.cells.length} ${activeNoun}`
-        : 'A little each day adds up.';
+        : `Paid in ${layout.activeMonths} of the last ${layout.months.length} months.`;
 
   const stats = [
     { key: 'total', label: labels.total, value: formatValue(layout.total) },
-    { key: 'active', label: labels.active, value: String(layout.active) },
-    { key: 'longest', label: labels.longest, value: `${layout.longest} ${layout.longest === 1 ? 'day' : 'days'}` },
-    { key: 'current', label: labels.current, value: `${layout.current} ${layout.current === 1 ? 'day' : 'days'}` },
+    { key: 'months', label: labels.months, value: `${layout.activeMonths} of ${layout.months.length}` },
+    { key: 'best', label: labels.best, value: formatValue(layout.biggestMonth) },
   ];
 
   return (
