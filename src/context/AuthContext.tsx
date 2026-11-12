@@ -18,7 +18,7 @@ class AuthSessionTimeoutError extends Error {
   }
 }
 
-interface AuthContextType {
+export interface AuthContextType {
   user: User | null;
   session: Session | null;
   isLoading: boolean;
@@ -33,7 +33,9 @@ interface AuthContextType {
   updatePassword: (password: string) => Promise<{ error: string | null }>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+// Exported so the dev-only ranch lab (src/lab/ranch) can supply a fixture value.
+// eslint-disable-next-line react-refresh/only-export-components
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);

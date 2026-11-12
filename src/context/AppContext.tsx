@@ -32,7 +32,7 @@ import { useAuth } from './AuthContext';
 // CONTEXT TYPES
 // ============================================
 
-interface AppContextType {
+export interface AppContextType {
   debts: Debt[];
   payments: Payment[];
   strategy: StrategySettings;
@@ -124,7 +124,9 @@ function loadCache(): AppData {
 // CONTEXT
 // ============================================
 
-const AppContext = createContext<AppContextType | undefined>(undefined);
+// Exported so the dev-only ranch lab (src/lab/ranch) can supply a fixture value.
+// eslint-disable-next-line react-refresh/only-export-components
+export const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();

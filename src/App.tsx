@@ -19,6 +19,9 @@ import { TermsPage } from './pages/TermsPage';
 const FontsShowcasePage = lazy(() =>
   import('./pages/FontsShowcasePage').then((m) => ({ default: m.FontsShowcasePage }))
 );
+// Dev-only ranch lab (fixture data, no Supabase). The ternary lets the bundler drop the
+// import() entirely in production, so none of the lab ships.
+const RanchLab = import.meta.env.DEV ? lazy(() => import('./lab/ranch/RanchLab')) : null;
 import { OnboardingPage } from './pages/OnboardingPage';
 import { HomePage } from './pages/HomePage';
 import { DebtsPage } from './pages/DebtsPage';
@@ -173,6 +176,15 @@ function ProtectedRoutes() {
 }
 
 function App() {
+  // The lab brings its own router and providers, so it renders outside BrowserRouter/AuthProvider.
+  if (RanchLab && window.location.pathname.startsWith('/lab/ranch')) {
+    return (
+      <Suspense fallback={null}>
+        <RanchLab />
+      </Suspense>
+    );
+  }
+
   return (
     <BrowserRouter>
       <AuthProvider>

@@ -5,7 +5,7 @@
  * Caches result in state to avoid re-fetching on every render.
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { resolveEntitlement } from '../lib/entitlement';
 import { useAuth } from '../context/AuthContext';
@@ -24,7 +24,14 @@ export interface SubscriptionInfo {
   refetch: () => Promise<void>;
 }
 
+/**
+ * Dev-only seam: the ranch lab provides a fixed value here so Pro/free state can
+ * be previewed without querying Supabase. Null (the default) in the real app.
+ */
+export const SubscriptionFixtureContext = createContext<Omit<SubscriptionInfo, 'refetch'> | null>(null);
+
 export function useSubscription(): SubscriptionInfo {
+  const fixture = useContext(SubscriptionFixtureContext);
   const { user } = useAuth();
   const [isPro, setIsPro] = useState(false);
   const [provider, setProvider] = useState<EntitlementProvider | null>(null);
@@ -36,6 +43,7 @@ export function useSubscription(): SubscriptionInfo {
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchSubscription = useCallback(async () => {
+    if (fixture) return;
     if (!user) {
       setIsPro(false);
       setProvider(null);
@@ -80,11 +88,13 @@ export function useSubscription(): SubscriptionInfo {
     } finally {
       setIsLoading(false);
     }
-  }, [user]);
+  }, [user, fixture]);
 
   useEffect(() => {
     fetchSubscription();
   }, [fetchSubscription]);
+
+  if (fixture) return { ...fixture, refetch: fetchSubscription };
 
   return {
     isPro,
