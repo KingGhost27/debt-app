@@ -1,12 +1,13 @@
 /**
- * Debt Payoff Timeline - Kawaii Edition
+ * Debt Payoff Timeline - ranch edition.
  *
- * Vertical timeline showing when each debt will be paid off,
- * with progress indicators and celebration states.
+ * Vertical timeline of when each debt clears: a ring per open debt, a check
+ * for a paid one, joined by a line that turns the ok color once cleared.
+ * Reads the ranch tokens, so it follows every theme and the night scenes.
  */
 
 import { format, parseISO } from 'date-fns';
-import { Check, PartyPopper } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { ProgressRing } from './ProgressRing';
 import { formatCurrency } from '../../lib/calculations';
 import type { DebtTimelineEntry } from '../../lib/milestones';
@@ -19,71 +20,60 @@ export function DebtPayoffTimeline({ timeline }: DebtPayoffTimelineProps) {
   if (timeline.length === 0) return null;
 
   return (
-    <div className="space-y-1">
+    <ol style={{ listStyle: 'none', margin: 0, padding: 0, color: 'var(--ranch-ink)' }}>
       {timeline.map((entry, index) => {
         const isLast = index === timeline.length - 1;
-
+        const done = entry.isCompleted;
         return (
-          <div key={entry.debtId} className="flex gap-3">
-            {/* Timeline line + node */}
-            <div className="flex flex-col items-center">
-              {/* Node */}
-              {entry.isCompleted ? (
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-md shadow-green-500/30 animate-pop-in">
-                  <Check size={16} className="text-white" strokeWidth={3} />
-                </div>
+          <li key={entry.debtId} style={{ display: 'flex', gap: 12 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 'none', width: 32 }}>
+              {done ? (
+                <span
+                  style={{ display: 'grid', placeItems: 'center', width: 32, height: 32, borderRadius: '50%', background: 'var(--ranch-ok-bg)', color: 'var(--ranch-ok-ink)' }}
+                >
+                  <Check size={16} strokeWidth={3} aria-hidden="true" />
+                </span>
               ) : (
-                <ProgressRing
-                  percentage={entry.percentPaid}
-                  size={32}
-                  strokeWidth={3}
-                  showLabel={false}
-                  showSparkle={false}
-                />
+                <ProgressRing percentage={entry.percentPaid} size={32} strokeWidth={4} showLabel={false} />
               )}
-              {/* Connecting line */}
               {!isLast && (
-                <div className={`w-0.5 flex-1 min-h-[24px] ${entry.isCompleted ? 'bg-green-300 dark:bg-green-700' : 'bg-gray-200 dark:bg-gray-700'}`} />
+                <span style={{ width: 3, flex: 1, minHeight: 22, borderRadius: 2, background: done ? 'var(--ranch-ok-fill)' : 'var(--ranch-track)' }} />
               )}
             </div>
 
-            {/* Content */}
-            <div className={`flex-1 pb-4 ${isLast ? 'pb-0' : ''}`}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className={`font-semibold text-sm ${entry.isCompleted ? 'text-green-600 dark:text-green-400 line-through' : 'text-gray-900 dark:text-white'}`}>
+            <div style={{ flex: 1, minWidth: 0, paddingBottom: isLast ? 0 : 16 }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12 }}>
+                <div style={{ minWidth: 0 }}>
+                  <h4
+                    style={{
+                      margin: 0, font: '600 16px/1.25 Fredoka, sans-serif',
+                      color: done ? 'var(--ranch-ok-ink)' : 'var(--ranch-ink)',
+                    }}
+                  >
                     {entry.debtName}
-                    {entry.isCompleted && (
-                      <PartyPopper size={14} className="inline ml-1.5 text-green-500" />
-                    )}
                   </h4>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {entry.isCompleted
+                  <p style={{ margin: '2px 0 0', font: '600 13.5px/1.35 Nunito, sans-serif', color: 'var(--ranch-ink2)' }}>
+                    {done
                       ? 'Paid off!'
                       : entry.payoffDate
                         ? `${format(parseISO(entry.payoffDate), 'MMM yyyy')} · ${formatCurrency(entry.currentBalance)} left`
-                        : `Plan stalls · ${formatCurrency(entry.currentBalance)} left`
-                    }
+                        : `Plan stalls · ${formatCurrency(entry.currentBalance)} left`}
                   </p>
                 </div>
-                <span className={`text-xs font-bold tabular-nums ${entry.isCompleted ? 'text-green-500' : 'text-primary-500 dark:text-primary-400'}`}>
+                <span style={{ font: '700 13px/1 Quicksand, sans-serif', fontVariantNumeric: 'tabular-nums', color: done ? 'var(--ranch-ok-ink)' : 'var(--ranch-ink2)' }}>
                   {entry.percentPaid.toFixed(0)}%
                 </span>
               </div>
 
-              {/* Mini progress bar */}
-              {!entry.isCompleted && (
-                <div className="mt-2 h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-primary-400 to-primary-500 rounded-full transition-all duration-700"
-                    style={{ width: `${entry.percentPaid}%` }}
-                  />
+              {!done && (
+                <div style={{ marginTop: 8, height: 7, borderRadius: 999, background: 'var(--ranch-track)', overflow: 'hidden' }}>
+                  <div style={{ width: `${entry.percentPaid}%`, height: '100%', borderRadius: 999, background: 'var(--ranch-fill)', transition: 'width .9s cubic-bezier(.16, 1, .3, 1)' }} />
                 </div>
               )}
             </div>
-          </div>
+          </li>
         );
       })}
-    </div>
+    </ol>
   );
 }

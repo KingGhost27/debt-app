@@ -1,0 +1,47 @@
+/* Shared widgets for the Debts and Plan pages: AnimatedTabs and Sparkline. Ranch tokens only. */
+
+/* ---------- AnimatedTabs ---------- */
+.at { position: relative; display: inline-flex; max-width: 100%; font-family: Fredoka, sans-serif; }
+.at-tab {
+  position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center; gap: 8px; flex: 1;
+  min-height: 44px; padding: 0 18px; border: 0; background: none; cursor: pointer; white-space: nowrap;
+  font: 600 16px/1 Fredoka, sans-serif; color: var(--ranch-ink2); transition: color .2s;
+}
+.at-tab:hover { color: var(--ranch-ink); }
+.at-tab:focus-visible { outline: 3px solid var(--ranch-ring); outline-offset: 2px; }
+.at-ind { position: absolute; z-index: 0; left: 0; transform: translateX(var(--at-x, 0)); width: var(--at-w, 0); pointer-events: none; }
+.at.is-ready .at-ind { transition: transform .3s cubic-bezier(.16, 1, .3, 1), width .3s cubic-bezier(.16, 1, .3, 1); }
+.at-segment { padding: 4px; gap: 2px; border-radius: 18px; background: var(--ranch-page2); box-shadow: inset 0 0 0 1px var(--ranch-line); }
+.at-segment .at-tab { border-radius: 14px; }
+.at-segment .at-tab.is-on { color: var(--ranch-btn-fg); }
+.at-segment .at-ind { top: 4px; bottom: 4px; border-radius: 14px; background: var(--ranch-btn-bg); box-shadow: 0 8px 14px -10px var(--ranch-btn-sh); }
+.at-underline { gap: 4px; box-shadow: inset 0 -2px 0 var(--ranch-line); }
+.at-underline .at-tab { min-height: 40px; padding: 0 14px; font-size: 15px; }
+.at-underline .at-tab.is-on { color: var(--ranch-ink); }
+.at-underline .at-ind { bottom: 0; height: 4px; border-radius: 3px 3px 0 0; background: var(--ranch-ink); }
+@media (prefers-reduced-motion: reduce) { .at.is-ready .at-ind, .at-tab { transition: none; } }
+
+/* ---------- Sparkline ---------- */
+.spk { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.spk-chart { position: relative; width: 100%; touch-action: pan-y; border-radius: 10px; }
+.spk-chart:focus-visible { outline: 3px solid var(--ranch-ring); outline-offset: 3px; }
+.spk-chart svg { display: block; overflow: visible; }
+.spk-guide { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--spk-color); opacity: .3; pointer-events: none; transform: translateX(-50%); }
+.spk-dot {
+  position: absolute; width: 11px; height: 11px; border-radius: 50%; background: var(--spk-color); pointer-events: none;
+  transform: translate(-50%, -50%); box-shadow: 0 0 0 2.5px var(--ranch-page);
+}
+.spk-cols { display: flex; align-items: stretch; gap: 3%; height: 100%; }
+.spk-col { position: relative; flex: 1; border-radius: 4px; }
+.spk-col.is-on { background: var(--ranch-page2); }
+.spk-col i { position: absolute; left: 0; right: 0; background: var(--spk-color); border-radius: 4px 4px 0 0; transition: top .3s, height .3s; }
+.spk-base { position: absolute; left: 0; right: 0; height: 1px; background: var(--ranch-line); pointer-events: none; }
+.spk-tip {
+  position: absolute; z-index: 5; transform: translate(-50%, -100%); margin-top: -10px; pointer-events: none; display: flex; gap: 6px; align-items: baseline;
+  padding: 5px 9px; border-radius: 10px; background: var(--ranch-ink); color: var(--ranch-page); white-space: nowrap;
+  font: 600 12.5px/1.2 Nunito, sans-serif; box-shadow: 0 8px 16px -8px var(--ranch-sh);
+}
+.spk-tip b { font: 700 13px/1.2 Quicksand, sans-serif; font-variant-numeric: tabular-nums; }
+.spk-value { font: 700 15px/1.2 Quicksand, sans-serif; font-variant-numeric: tabular-nums; color: var(--ranch-ink); }
+.spk-label { font: 600 13px/1.2 Nunito, sans-serif; color: var(--ranch-ink2); }
+@media (prefers-reduced-motion: reduce) { .spk-col i { transition: none; } }

@@ -1,19 +1,27 @@
 /**
- * Debts Page - Kawaii Edition
+ * Debts Page - the ranch.
  *
- * Manage all debts - add, edit, delete.
- * Shows balance by category chart and sortable debt list.
- * Features cute animations, soft gradients, and delightful interactions.
+ * Manage all debts: add, edit, delete, update a balance from a statement.
+ * The debt-free countdown leads, then collapsible insights (balance chart,
+ * monthly interest, APR comparison, payoff timeline), then the searchable,
+ * sortable debt list on ranch cards. The focus debt and paid-off debts carry
+ * the same badges as the dashboard; a sparkline shows a debt's balance over
+ * its payment history. debts.css reads only --ranch-* tokens (plus the user's
+ * category colors, which are data).
  */
 
-import React, { useState, useMemo, useRef } from 'react';
-import { Plus, Search, Pencil, Trash2, ChevronDown, ArrowUpDown, Calendar, HelpCircle, RefreshCw, Check, X, Sparkles, TrendingDown, Flame, Lock } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Plus, Search, Pencil, Trash2, ChevronDown, ArrowUpDown, Calendar, HelpCircle, RefreshCw, Check, X, Sparkles, TrendingDown, Flame, Lock, CreditCard, PieChart as PieChartIcon } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { useApp } from '../context/AppContext';
 import { PageHeader } from '../components/layout/PageHeader';
 import { ProgressRing } from '../components/ui/ProgressRing';
 import { DebtModal } from '../components/ui/DebtModal';
-import { EmptyState } from '../components/ui/EmptyState';
+import { Plank } from '../components/dashboard/RanchPanels';
+import { AnimatedTabs } from '../components/plan/AnimatedTabs';
+import { Sparkline, SparklineChart, SparklineLabel, SparklineValue } from '../components/plan/Sparkline';
+import { nextDue, orderDebts } from '../lib/dashboardTrail';
+import './debts.css';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { UpgradeModal } from '../components/ui/UpgradeModal';
 import { useConfirmDialog } from '../hooks/useConfirmDialog';
@@ -52,8 +60,14 @@ const DEBT_COLORS = [
   '#0ea5e9', // sky
 ];
 
+// 1st, 2nd, 3rd, 4th ... 11th, 12th, 13th, 21st, 22nd
+const ordinalSuffix = (n: number) => {
+  if (n % 100 >= 11 && n % 100 <= 13) return 'th';
+  return n % 10 === 1 ? 'st' : n % 10 === 2 ? 'nd' : n % 10 === 3 ? 'rd' : 'th';
+};
+
 export function DebtsPage() {
-  const { debts, deleteDebt, updateDebt, settings, customCategories, strategy } = useApp();
+  const { debts, deleteDebt, updateDebt, settings, customCategories, strategy, payments } = useApp();
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('balance');
   const [sortAscending, setSortAscending] = useState(false);
@@ -74,7 +88,6 @@ export function DebtsPage() {
   const [recalibratingDebtId, setRecalibratingDebtId] = useState<string | null>(null);
   const [newBalanceInput, setNewBalanceInput] = useState('');
   const [insightsExpanded, setInsightsExpanded] = useState(false);
-  const insightsRef = useRef<HTMLDivElement>(null);
   const { confirm, dialogProps } = useConfirmDialog();
 
   // Helper to get category info (supports custom categories)
@@ -204,12 +217,33 @@ export function DebtsPage() {
     };
   }, [debts, strategy]);
 
-  // Get APR color based on risk level
-  const getAPRColor = (apr: number): string => {
-    if (apr >= 20) return '#ef4444'; // red - high risk
-    if (apr >= 10) return '#f59e0b'; // amber - medium risk
-    return '#22c55e'; // green - low risk
-  };
+  // APR risk level: high (>=20), medium (>=10), low. The page styles each with a ranch token.
+  const aprLevel = (apr: number): 'high' | 'mid' | 'low' => (apr >= 20 ? 'high' : apr >= 10 ? 'mid' : 'low');
+
+  // Focus debt = the one the active strategy clears next (same rule as the dashboard)
+  const focusId = useMemo(() => {
+    if (debts.length === 0) return null;
+    return orderDebts(debts, generatePayoffPlan(debts, strategy)).find((t) => t.status === 'focus')?.debt.id ?? null;
+  }, [debts, strategy]);
+
+  // Balance over each debt's completed payments, rebuilt backwards from today's balance
+  const balanceHistory = useMemo(() => {
+    const out = new Map<string, { data: number[]; labels: string[] }>();
+    debts.forEach((d) => {
+      const done = payments.filter((p) => p.debtId === d.id && p.isCompleted).sort((a, b) => a.date.localeCompare(b.date));
+      if (done.length < 2) return;
+      let bal = d.balance + done.reduce((s, p) => s + p.principal, 0);
+      const data = [bal];
+      const labels = ['Before first payment'];
+      done.forEach((p) => {
+        bal -= p.principal;
+        data.push(Math.max(0, bal));
+        labels.push(format(parseISO(p.date), 'MMM d, yyyy'));
+      });
+      out.set(d.id, { data, labels });
+    });
+    return out;
+  }, [debts, payments]);
 
   // Filter and sort debts
   const filteredDebts = useMemo(() => {
@@ -297,653 +331,427 @@ export function DebtsPage() {
     cancelRecalibration();
   };
 
+  const chartTabs = [
+    { id: 'category', label: 'Category' },
+    { id: 'debt', label: 'By Debt' },
+  ];
+  const money0 = { style: 'currency', currency: 'USD', maximumFractionDigits: 0 } as const;
+
   return (
-    <div className="min-h-screen bg-gray-50 animate-page-enter">
+    <div className="db animate-page-enter">
       <PageHeader
         title="Debts"
         subtitle="Manage all your debts in one place"
-        emoji="💳"
         action={
           <button
+            type="button"
             onClick={handleAddDebtClick}
-            className="relative w-9 h-9 flex items-center justify-center rounded-2xl bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg shadow-primary-500/30 transition-all hover:scale-105 active:scale-95 sm:w-auto sm:h-auto sm:px-4 sm:py-2.5 sm:gap-1.5 sm:text-sm sm:font-semibold"
+            className="db-add"
+            aria-label="Add Debt"
             title={
               !canAddDebt
                 ? `Free plan is limited to ${FREE_LIMITS.DEBTS} debts — upgrade for unlimited`
                 : 'Add a new debt'
             }
           >
-            <Plus size={18} />
-            <span className="hidden sm:inline">Add Debt</span>
+            <Plus size={20} aria-hidden="true" />
+            <span className="db-add-t">Add Debt</span>
             {!isPro && !canAddDebt && (
-              <span className="absolute -top-1.5 -right-1.5 rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 p-1 shadow-md">
-                <Lock size={10} strokeWidth={3} className="text-white" />
-              </span>
+              <span className="db-lock"><Lock size={11} strokeWidth={3} aria-hidden="true" /></span>
             )}
           </button>
         }
       />
 
-      <div className="px-4 py-6 space-y-6">
+      <div className="db-body">
         {/* Debt-Free Countdown */}
         {debtFreeDate && (
-          <div className="relative bg-gradient-to-r from-primary-600 to-primary-500 rounded-3xl p-5 text-white overflow-hidden shadow-lg shadow-primary-400/30">
-            {/* Decorative elements */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/4" />
-            <div className="absolute bottom-0 left-0 w-20 h-20 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/4" />
-            <Sparkles size={16} className="absolute top-4 right-16 text-white/30 animate-kawaii-pulse" />
-
-            <div className="relative z-10">
-              <div className="flex items-center gap-2 mb-2">
-                <Calendar size={16} className="text-primary-200" />
-                <p className="text-primary-200 text-xs font-semibold tracking-wider uppercase">Debt-Free Countdown</p>
+          <section className="rui-card db-hero" aria-label="Debt-free countdown">
+            <div className="db-hero-main">
+              <span className="db-chip"><Calendar size={20} aria-hidden="true" /></span>
+              <div>
+                <p className="db-hero-k">Debt-Free Countdown</p>
+                <p className="db-hero-t">{format(debtFreeDate, 'MMMM yyyy')}</p>
+                {timeUntilDebtFree && (
+                  <p className="db-hero-s"><Sparkles size={14} aria-hidden="true" />{timeUntilDebtFree} to go!</p>
+                )}
               </div>
-              <p className="text-2xl font-bold tracking-tight">
-                {format(debtFreeDate, 'MMMM yyyy')}
-              </p>
-              {timeUntilDebtFree && (
-                <p className="text-primary-200 text-sm mt-1 flex items-center gap-1">
-                  <Sparkles size={12} className="animate-kawaii-pulse" />
-                  {timeUntilDebtFree} to go!
-                </p>
-              )}
             </div>
-          </div>
+            <div className="db-hero-r">
+              <span className="num">{formatCurrency(totalBalance)}</span>
+              <span>left across {debts.length} debt{debts.length !== 1 ? 's' : ''}</span>
+            </div>
+          </section>
         )}
 
         {/* Insights Section - Collapsible */}
         {debts.length > 0 && (
-          <div>
-            <button
-              onClick={() => setInsightsExpanded(!insightsExpanded)}
-              className="w-full flex items-center justify-between py-3 group"
-            >
-              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                <Sparkles size={18} className="text-primary-400" />
-                Insights
-                <span className="text-sm font-normal text-gray-500">
-                  ({debts.length} debts)
-                </span>
-              </h2>
-              <ChevronDown
-                size={20}
-                className={`text-gray-400 group-hover:text-gray-600 transition-transform duration-300 ${
-                  insightsExpanded ? 'rotate-180' : ''
-                }`}
-              />
+          <section className="rui-card db-ins">
+            <button type="button" className="db-ins-btn" aria-expanded={insightsExpanded} aria-controls="db-insights" onClick={() => setInsightsExpanded(!insightsExpanded)}>
+              <Plank icon={<Sparkles size={18} aria-hidden="true" />}>Insights</Plank>
+              <span className="db-note">({debts.length} debts)</span>
+              <ChevronDown size={20} className={`db-chev${insightsExpanded ? ' is-open' : ''}`} aria-hidden="true" />
             </button>
 
-            <div
-              ref={insightsRef}
-              className="overflow-hidden transition-all duration-300 ease-in-out"
-              style={{
-                maxHeight: insightsExpanded
-                  ? `${insightsRef.current?.scrollHeight || 2000}px`
-                  : '0px',
-                opacity: insightsExpanded ? 1 : 0,
-              }}
-            >
-              <div className="space-y-6 pb-2">
-
-        {/* Balance Chart & Monthly Interest */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Balance Chart Card */}
-            <div className="card bg-white rounded-3xl shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-sm font-medium text-gray-500 flex items-center gap-2">
-                  <Sparkles size={14} className="text-primary-400" />
-                  Balance by {chartView === 'category' ? 'category' : 'debt'}
-                </h2>
-                <div className="flex bg-gray-100 rounded-xl p-1">
-                  <button
-                    onClick={() => setChartView('category')}
-                    className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
-                      chartView === 'category'
-                        ? 'bg-white text-gray-900 shadow-sm'
-                        : 'text-gray-500 hover:text-gray-700'
-                    }`}
-                  >
-                    Category
-                  </button>
-                  <button
-                    onClick={() => setChartView('debt')}
-                    className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
-                      chartView === 'debt'
-                        ? 'bg-white text-gray-900 shadow-sm'
-                        : 'text-gray-500 hover:text-gray-700'
-                    }`}
-                  >
-                    By Debt
-                  </button>
-                </div>
-              </div>
-              <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
-                {/* Donut chart - centered above legend on mobile */}
-                <div className="relative w-28 h-28 sm:w-32 sm:h-32 flex-shrink-0 mx-auto sm:mx-0">
-                  <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-                    {(() => {
-                      const radius = 40;
-                      const circumference = 2 * Math.PI * radius;
-                      return chartData.reduce(
-                        (acc, item) => {
-                          const fraction = item.balance / totalBalance;
-                          const arcLength = fraction * circumference;
-                          acc.elements.push(
-                            <circle
-                              key={'id' in item ? item.id : item.category}
-                              cx="50"
-                              cy="50"
-                              r={radius}
-                              fill="none"
-                              stroke={item.color}
-                              strokeWidth="20"
-                              strokeDasharray={`${arcLength} ${circumference - arcLength}`}
-                              strokeDashoffset={-acc.offset}
-                              className="transition-all duration-500"
-                            />
-                          );
-                          acc.offset += arcLength;
-                          return acc;
-                        },
-                        { elements: [] as React.ReactElement[], offset: 0 }
-                      ).elements;
-                    })()}
-                  </svg>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-sm font-bold text-gray-900">{formatCompactCurrency(totalBalance)}</span>
-                  </div>
-                </div>
-
-                {/* Enhanced Legend with amounts and progress bars */}
-                <div className="flex-1 space-y-2 overflow-y-auto max-h-40">
-                  {(chartView === 'category' ? categoryTotals : debtTotals).map((item) => {
-                    const percent = totalBalance > 0 ? (item.balance / totalBalance) * 100 : 0;
-                    const key = 'id' in item ? item.id : item.category;
-                    const label = 'name' in item ? item.name : item.label;
-
-                    return (
-                      <div key={key} className="flex items-center gap-2 group">
-                        <div
-                          className="w-3 h-3 rounded-full flex-shrink-0 ring-2 ring-white shadow-sm"
-                          style={{ backgroundColor: item.color }}
-                        />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex justify-between text-xs sm:text-sm">
-                            <span className="text-gray-700 truncate group-hover:text-gray-900 transition-colors">{label}</span>
-                            <span className="font-semibold text-gray-900 ml-2 flex-shrink-0">
-                              {formatCurrency(item.balance)}
-                            </span>
-                          </div>
-                          <div className="h-1.5 bg-gray-100 rounded-full mt-1 overflow-hidden">
-                            <div
-                              className="h-full rounded-full transition-all duration-500"
-                              style={{
-                                width: `${percent}%`,
-                                backgroundColor: item.color,
-                              }}
-                            />
-                          </div>
-                        </div>
+            <div id="db-insights" className={`db-collapse${insightsExpanded ? ' is-open' : ''}`}>
+              <div className="db-collapse-in">
+                <div className="db-ins-grid">
+                  {/* Balance Chart */}
+                  <div className="db-mod">
+                    <div className="db-mod-h">
+                      <h2 className="db-h2"><PieChartIcon size={17} aria-hidden="true" />Balance by {chartView === 'category' ? 'category' : 'debt'}</h2>
+                      <AnimatedTabs variant="underline" tabs={chartTabs} activeTab={chartView} onChange={(id) => setChartView(id as ChartView)} label="Balance view" />
+                    </div>
+                    <div className="db-chart">
+                      <div className="db-donut">
+                        <svg viewBox="0 0 100 100" role="img" aria-label={`Balance by ${chartView === 'category' ? 'category' : 'debt'}, total ${formatCompactCurrency(totalBalance)}`}>
+                          {(() => {
+                            const radius = 40;
+                            const circumference = 2 * Math.PI * radius;
+                            return chartData.reduce(
+                              (acc, item) => {
+                                const fraction = totalBalance > 0 ? item.balance / totalBalance : 0;
+                                const arcLength = fraction * circumference;
+                                acc.elements.push(
+                                  <circle
+                                    key={'id' in item ? item.id : item.category}
+                                    cx="50"
+                                    cy="50"
+                                    r={radius}
+                                    fill="none"
+                                    stroke={item.color}
+                                    strokeWidth="20"
+                                    strokeDasharray={`${arcLength} ${circumference - arcLength}`}
+                                    strokeDashoffset={-acc.offset}
+                                  />
+                                );
+                                acc.offset += arcLength;
+                                return acc;
+                              },
+                              { elements: [] as React.ReactElement[], offset: 0 }
+                            ).elements;
+                          })()}
+                        </svg>
+                        <span className="num db-donut-c">{formatCompactCurrency(totalBalance)}</span>
                       </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
 
-            {/* Monthly Interest Cost Card */}
-            <div className="card bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-900/30 dark:to-orange-900/20 rounded-3xl border border-red-100/50 dark:border-red-800/30 flex flex-col justify-center relative overflow-hidden">
-              {/* Decorative flame */}
-              <div className="absolute top-4 right-4 text-red-200">
-                <Flame size={48} className="opacity-50" />
-              </div>
+                      <ul className="db-legend">
+                        {chartData.map((item) => {
+                          const percent = totalBalance > 0 ? (item.balance / totalBalance) * 100 : 0;
+                          const key = 'id' in item ? item.id : item.category;
+                          const label = 'name' in item ? item.name : item.label;
+                          return (
+                            <li key={key}>
+                              <i className="db-dot" style={{ background: item.color }} aria-hidden="true" />
+                              <div>
+                                <p><span>{label}</span><b className="num">{formatCurrency(item.balance)}</b></p>
+                                <span className="db-bar"><i style={{ width: `${percent}%`, background: item.color }} /></span>
+                              </div>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </div>
+                  </div>
 
-              <div className="relative z-10">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-red-400 to-orange-500 flex items-center justify-center shadow-lg shadow-red-300/30">
-                    <TrendingDown size={20} className="text-white" />
-                  </div>
-                  <h2 className="text-sm font-medium text-gray-600">Monthly Interest Cost</h2>
-                </div>
-                <p className="text-3xl font-bold text-red-500">
-                  {formatCurrency(monthlyInterestCost)}
-                  <span className="text-lg font-normal text-gray-400">/mo</span>
-                </p>
-                <p className="text-sm text-gray-500 mt-2">
-                  This is how much your debt costs you every month in interest alone.
-                </p>
-                <div className="mt-4 pt-4 border-t border-red-100">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">Daily cost</span>
-                    <span className="font-semibold text-gray-900">{formatCurrency(monthlyInterestCost / 30)}/day</span>
-                  </div>
-                  <div className="flex justify-between text-sm mt-1">
-                    <span className="text-gray-500">Yearly cost</span>
-                    <span className="font-semibold text-gray-900">{formatCurrency(monthlyInterestCost * 12)}/yr</span>
+                  {/* Monthly Interest Cost */}
+                  <div className="db-mod db-cost">
+                    <div className="db-mod-h">
+                      <h2 className="db-h2"><TrendingDown size={17} aria-hidden="true" />Monthly Interest Cost</h2>
+                    </div>
+                    <p className="db-cost-n num">{formatCurrency(monthlyInterestCost)}<span>/mo</span></p>
+                    <p className="db-note">This is how much your debt costs you every month in interest alone.</p>
+                    <dl className="db-sum">
+                      <div><dt>Daily cost</dt><dd className="num">{formatCurrency(monthlyInterestCost / 30)}/day</dd></div>
+                      <div><dt>Yearly cost</dt><dd className="num">{formatCurrency(monthlyInterestCost * 12)}/yr</dd></div>
+                    </dl>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
 
-        {/* APR Comparison Chart */}
-          <div className="card bg-white rounded-3xl shadow-sm">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
-                <Flame size={16} className="text-white" />
-              </div>
-              <h2 className="text-sm font-medium text-gray-600">APR Comparison</h2>
-              <div className="relative ml-auto">
-                <button
-                  onMouseEnter={() => setShowAPRTooltip(true)}
-                  onMouseLeave={() => setShowAPRTooltip(false)}
-                  onClick={() => setShowAPRTooltip(!showAPRTooltip)}
-                  className="text-gray-400 hover:text-primary-500 transition-colors p-1 rounded-lg hover:bg-primary-50"
-                >
-                  <HelpCircle size={16} />
-                </button>
-                {showAPRTooltip && (
-                  <div className="absolute z-20 right-0 top-8 w-56 p-4 bg-gray-900 text-white text-xs rounded-2xl shadow-xl">
-                    <div className="absolute -top-2 right-4 border-8 border-transparent border-b-gray-900" />
-                    <p className="font-semibold mb-2 flex items-center gap-1">
-                      <Sparkles size={12} className="text-primary-400" />
-                      What is APR?
-                    </p>
-                    <p className="text-gray-300">
-                      APR (Annual Percentage Rate) is the yearly interest rate you pay on your debt.
-                      Higher APR means more money going to interest instead of paying down your balance.
-                    </p>
-                    <p className="mt-3 text-gray-300">
-                      <span className="text-green-400 font-medium">Green</span> = Low risk (&lt;10%)<br/>
-                      <span className="text-amber-400 font-medium">Amber</span> = Medium (10-20%)<br/>
-                      <span className="text-red-400 font-medium">Red</span> = High (&gt;20%)
-                    </p>
+                {/* APR Comparison Chart */}
+                <div className="db-mod db-rule">
+                  <div className="db-mod-h">
+                    <h2 className="db-h2"><Flame size={17} aria-hidden="true" />APR Comparison</h2>
+                    <div className="db-tipwrap">
+                      <button
+                        type="button"
+                        className="db-icon-btn"
+                        aria-label="What is APR?"
+                        aria-expanded={showAPRTooltip}
+                        onMouseEnter={() => setShowAPRTooltip(true)}
+                        onMouseLeave={() => setShowAPRTooltip(false)}
+                        onClick={() => setShowAPRTooltip(!showAPRTooltip)}
+                      >
+                        <HelpCircle size={18} aria-hidden="true" />
+                      </button>
+                      {showAPRTooltip && (
+                        <div className="db-tip" role="tooltip">
+                          <p><Sparkles size={13} aria-hidden="true" />What is APR?</p>
+                          <p>
+                            APR (Annual Percentage Rate) is the yearly interest rate you pay on your debt.
+                            Higher APR means more money going to interest instead of paying down your balance.
+                          </p>
+                          <p>
+                            <b className="lo">Green</b> = Low risk (&lt;10%)<br />
+                            <b className="mid">Amber</b> = Medium (10-20%)<br />
+                            <b className="hi">Red</b> = High (&gt;20%)
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <ul className="db-apr">
+                    {debtsByAPR.map((debt) => {
+                      const barWidth = (debt.apr / maxAPR) * 100;
+                      return (
+                        <li key={debt.id}>
+                          <span className="n">{debt.name}</span>
+                          <span className="db-bar big"><i className={`lv-${aprLevel(debt.apr)}`} style={{ width: `${Math.max(barWidth, 4)}%` }} /></span>
+                          <b className={`num v lv-${aprLevel(debt.apr)}`}>{debt.apr.toFixed(1)}%</b>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                  <div className="db-key">
+                    <span><i className="lv-low" />&lt;10%</span>
+                    <span><i className="lv-mid" />10-20%</span>
+                    <span><i className="lv-high" />&gt;20%</span>
+                  </div>
+                </div>
+
+                {/* Payoff Timeline */}
+                {payoffMilestones.length > 0 && (
+                  <div className="db-mod db-rule">
+                    <div className="db-mod-h">
+                      <h2 className="db-h2"><Calendar size={17} aria-hidden="true" />Payoff Timeline</h2>
+                    </div>
+                    <ol className="db-tl">
+                      {payoffMilestones.map((milestone, index) => (
+                        <li key={milestone.debtId}>
+                          <span className="pt">{index + 1}</span>
+                          <span className="nm">{milestone.debtName}</span>
+                          <span className="dt">{format(new Date(milestone.payoffDate), 'MMM yyyy')}</span>
+                        </li>
+                      ))}
+                      <li className="end">
+                        <span className="pt"><Check size={16} strokeWidth={3} aria-hidden="true" /></span>
+                        <span className="nm">Debt Free!</span>
+                        <span className="dt">
+                          {payoffMilestones.length > 0 &&
+                            format(new Date(payoffMilestones[payoffMilestones.length - 1].payoffDate), 'MMM yyyy')}
+                        </span>
+                      </li>
+                    </ol>
                   </div>
                 )}
               </div>
             </div>
-            <div className="space-y-3">
-              {debtsByAPR.map((debt) => {
-                const barWidth = (debt.apr / maxAPR) * 100;
-                const color = getAPRColor(debt.apr);
-
-                return (
-                  <div key={debt.id} className="flex items-center gap-3 group">
-                    <span className="w-24 text-sm text-gray-700 truncate flex-shrink-0 group-hover:text-gray-900 transition-colors">
-                      {debt.name}
-                    </span>
-                    <div className="flex-1 h-7 bg-gray-100 rounded-xl overflow-hidden">
-                      <div
-                        className="h-full rounded-xl transition-all duration-500 flex items-center justify-end pr-2 shadow-sm"
-                        style={{
-                          width: `${Math.max(barWidth, 10)}%`,
-                          backgroundColor: color,
-                        }}
-                      >
-                        {barWidth > 20 && (
-                          <span className="text-xs font-semibold text-white drop-shadow-sm">
-                            {debt.apr.toFixed(1)}%
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    {barWidth <= 20 && (
-                      <span className="text-sm font-semibold text-gray-700 w-14 text-right">
-                        {debt.apr.toFixed(1)}%
-                      </span>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-            {/* Legend */}
-            <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-center gap-6 text-xs text-gray-500">
-              <div className="flex items-center gap-1.5">
-                <div className="w-3 h-3 rounded-full bg-green-500 ring-2 ring-green-200" />
-                <span>&lt;10%</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-3 h-3 rounded-full bg-amber-500 ring-2 ring-amber-200" />
-                <span>10-20%</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-3 h-3 rounded-full bg-red-500 ring-2 ring-red-200" />
-                <span>&gt;20%</span>
-              </div>
-            </div>
-          </div>
-
-        {/* Payoff Timeline */}
-        {payoffMilestones.length > 0 && (
-          <div className="card bg-white rounded-3xl shadow-sm overflow-hidden">
-            <div className="flex items-center gap-2 mb-5">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center">
-                <Calendar size={16} className="text-white" />
-              </div>
-              <h2 className="text-sm font-medium text-gray-600">Payoff Timeline</h2>
-            </div>
-            <div className="relative">
-              {/* Timeline line */}
-              <div className="absolute top-4 left-0 right-0 h-1 bg-gradient-to-r from-primary-200 via-primary-300 to-green-300 dark:from-primary-700 dark:via-primary-600 dark:to-green-700 rounded-full" />
-
-              {/* Timeline markers */}
-              <div className="relative flex justify-between">
-                {payoffMilestones.map((milestone, index) => (
-                  <div
-                    key={milestone.debtId}
-                    className="flex flex-col items-center group"
-                    style={{ flex: 1 }}
-                  >
-                    {/* Dot */}
-                    <div
-                      className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-xs font-bold z-10 shadow-lg shadow-primary-300/40 group-hover:scale-110 transition-transform ring-2 ring-white"
-                    >
-                      {index + 1}
-                    </div>
-                    {/* Debt name */}
-                    <span className="mt-2 text-xs font-semibold text-gray-700 text-center max-w-[80px] truncate group-hover:text-primary-600 transition-colors">
-                      {milestone.debtName}
-                    </span>
-                    {/* Date */}
-                    <span className="text-[10px] text-gray-400">
-                      {format(new Date(milestone.payoffDate), 'MMM yyyy')}
-                    </span>
-                  </div>
-                ))}
-
-                {/* Debt Free marker */}
-                <div className="flex flex-col items-center group" style={{ flex: 1 }}>
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center z-10 shadow-lg shadow-green-300/40 group-hover:scale-110 transition-transform ring-2 ring-white">
-                    <span className="text-white text-sm">✓</span>
-                  </div>
-                  <span className="mt-2 text-xs font-bold text-green-600 text-center flex items-center gap-1">
-                    <Sparkles size={10} className="animate-kawaii-pulse" />
-                    Debt Free!
-                  </span>
-                  <span className="text-[10px] text-gray-400">
-                    {payoffMilestones.length > 0 &&
-                      format(
-                        new Date(payoffMilestones[payoffMilestones.length - 1].payoffDate),
-                        'MMM yyyy'
-                      )}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-              </div>
-            </div>
-          </div>
+          </section>
         )}
 
         {/* Debts List Header */}
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-            <span className="text-xl">💳</span>
-            Debts
-            <span className="text-sm font-normal text-gray-500">({debts.length})</span>
-          </h2>
+        <div className="db-list-h">
+          <Plank icon={<CreditCard size={18} aria-hidden="true" />}>Debts</Plank>
+          <span className="db-note">({debts.length})</span>
         </div>
 
         {/* Search and Sort */}
-        <div className="flex gap-2">
-          <div className="flex-1 relative">
-            <Search
-              size={18}
-              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
-            />
+        {debts.length > 0 && (
+        <div className="db-tools">
+          <div className="db-search">
+            <Search size={18} aria-hidden="true" />
             <input
               type="text"
               placeholder="Search debts..."
+              aria-label="Search debts"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white text-gray-900 placeholder-gray-400 transition-all"
             />
           </div>
-          <div className="relative">
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as SortOption)}
-              className="appearance-none pl-4 pr-9 py-2.5 border-2 border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-white text-gray-900 text-sm font-medium cursor-pointer transition-all"
-            >
+          <div className="db-select">
+            <select value={sortBy} aria-label="Sort debts by" onChange={(e) => setSortBy(e.target.value as SortOption)}>
               <option value="balance">Balance</option>
               <option value="apr">APR</option>
               <option value="minimum">Minimum</option>
               <option value="dueDay">Due Date</option>
               <option value="name">Name</option>
             </select>
-            <ChevronDown
-              size={16}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
-            />
+            <ChevronDown size={16} aria-hidden="true" />
           </div>
           <button
-            onClick={() => setSortAscending(!sortAscending)}
-            className={`p-2.5 border-2 rounded-2xl transition-all ${
-              sortAscending
-                ? 'border-primary-500 bg-primary-50 text-primary-600 shadow-sm'
-                : 'border-gray-200 text-gray-400 hover:text-gray-600 hover:border-gray-300'
-            }`}
+            type="button"
+            className="db-sortdir"
+            aria-pressed={sortAscending}
+            aria-label={sortAscending ? 'Ascending (Low to High)' : 'Descending (High to Low)'}
             title={sortAscending ? 'Ascending (Low to High)' : 'Descending (High to Low)'}
+            onClick={() => setSortAscending(!sortAscending)}
           >
-            <ArrowUpDown size={18} />
+            <ArrowUpDown size={18} aria-hidden="true" />
           </button>
         </div>
+        )}
 
         {/* Debt Cards */}
         {filteredDebts.length === 0 ? (
           debts.length === 0 ? (
-            <EmptyState
-              icon="💳"
-              title="No Debts Yet"
-              description="Add your debts to start tracking your payoff journey."
-              action={{
-                label: 'Add Your First Debt',
-                onClick: () => setIsModalOpen(true),
-              }}
-              encouragement="You've got this!"
-            />
+            <div className="rui-card db-empty">
+              <span className="big"><CreditCard size={36} aria-hidden="true" /></span>
+              <h2>No Debts Yet</h2>
+              <p>Add your debts to start tracking your payoff journey.</p>
+              <button type="button" className="db-btn" onClick={() => setIsModalOpen(true)}>
+                <Plus size={18} aria-hidden="true" />
+                Add Your First Debt
+              </button>
+              <small>You've got this!</small>
+            </div>
           ) : (
-            <div className="text-center py-12 bg-white rounded-3xl">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gray-100 flex items-center justify-center">
-                <Search size={28} className="text-gray-400" />
-              </div>
-              <p className="text-gray-500 font-medium">No debts match your search</p>
-              <p className="text-sm text-gray-400 mt-1">Try a different search term</p>
+            <div className="rui-card db-empty">
+              <span className="big"><Search size={34} aria-hidden="true" /></span>
+              <h2>No debts match your search</h2>
+              <p>Try a different search term</p>
             </div>
           )
         ) : (
-          <div className="space-y-4">
+          <ul className="db-cards">
             {filteredDebts.map((debt) => {
               const percentPaid =
-                debt.originalBalance > 0
-                  ? ((debt.originalBalance - debt.balance) / debt.originalBalance) * 100
-                  : 0;
-              const utilization = debt.creditLimit
-                ? calculateUtilization(debt.balance, debt.creditLimit)
-                : null;
+                debt.originalBalance > 0 ? ((debt.originalBalance - debt.balance) / debt.originalBalance) * 100 : 0;
+              const utilization = debt.creditLimit ? calculateUtilization(debt.balance, debt.creditLimit) : null;
               const categoryInfo = getCategoryInfo(debt.category);
+              const isPaid = debt.balance <= 0;
+              const isFocus = debt.id === focusId;
+              const dueIn = isPaid ? null : nextDue([debt]);
+              const soon = dueIn && dueIn.days <= 7;
+              const history = balanceHistory.get(debt.id);
 
               return (
-                <div
-                  key={debt.id}
-                  className="card bg-white rounded-3xl shadow-sm hover:shadow-md transition-all overflow-hidden group"
-                >
-                  {/* Category color bar at top */}
-                  <div
-                    className="h-1.5 -mx-4 -mt-4 mb-4"
-                    style={{ backgroundColor: categoryInfo.color }}
-                  />
-
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className="w-12 h-12 rounded-2xl flex items-center justify-center text-xl shadow-sm"
-                        style={{ backgroundColor: `${categoryInfo.color}20` }}
-                      >
-                        💳
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-gray-900 text-lg">{debt.name}</h3>
-                        <span
-                          className="text-xs font-medium px-2 py-0.5 rounded-full"
-                          style={{
-                            backgroundColor: `${categoryInfo.color}20`,
-                            color: categoryInfo.color
-                          }}
-                        >
-                          {categoryInfo.label}
-                        </span>
+                <li key={debt.id} className={`rui-card db-card${isFocus ? ' is-focus' : ''}${isPaid ? ' is-paid' : ''}`}>
+                  <div className="db-card-h">
+                    <span className="db-swatch" style={{ background: `${categoryInfo.color}26`, color: 'var(--ranch-ink)' }}>
+                      <CreditCard size={22} aria-hidden="true" />
+                    </span>
+                    <div className="db-card-n">
+                      <h3>{debt.name}</h3>
+                      <div className="db-badges">
+                        <span className="db-cat"><i style={{ background: categoryInfo.color }} aria-hidden="true" />{categoryInfo.label}</span>
+                        {isFocus && <span className="rui-badge focus"><Sparkles size={13} aria-hidden="true" />Focus</span>}
+                        {soon && <span className="rui-badge soon">Due soon</span>}
+                        {isPaid && <span className="rui-badge ok"><Check size={13} aria-hidden="true" />Paid off</span>}
                       </div>
                     </div>
-                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button
-                        onClick={() => handleEdit(debt)}
-                        className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all"
-                      >
-                        <Pencil size={16} />
+                    <div className="db-acts">
+                      <button type="button" onClick={() => handleEdit(debt)} className="db-icon-btn" aria-label={`Edit ${debt.name}`}>
+                        <Pencil size={17} aria-hidden="true" />
                       </button>
-                      <button
-                        onClick={() => handleDelete(debt)}
-                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
-                      >
-                        <Trash2 size={16} />
+                      <button type="button" onClick={() => handleDelete(debt)} className="db-icon-btn danger" aria-label={`Delete ${debt.name}`}>
+                        <Trash2 size={17} aria-hidden="true" />
                       </button>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4">
+                  <div className="db-card-b">
                     {percentPaid > 0 && (
-                      <ProgressRing
-                        percentage={percentPaid}
-                        size={64}
-                        strokeWidth={7}
-                        color={categoryInfo.color}
-                      />
+                      <ProgressRing percentage={percentPaid} size={72} strokeWidth={8} color={isPaid ? 'var(--ranch-ok-fill)' : categoryInfo.color} />
                     )}
 
-                    <div className="flex-1 grid grid-cols-2 gap-x-4 gap-y-3">
-                      <div className="min-w-0">
-                        <p className="text-xs text-gray-500 flex items-center gap-1 mb-1">
+                    <dl className="db-stats">
+                      <div>
+                        <dt>
                           Balance
                           {recalibratingDebtId !== debt.id && (
-                            <button
-                              onClick={() => startRecalibration(debt)}
-                              className="text-primary-500 hover:text-primary-600 transition-colors hover:scale-110"
-                              title="Update balance from statement"
-                            >
-                              <RefreshCw size={10} />
+                            <button type="button" className="db-recal" onClick={() => startRecalibration(debt)} title="Update balance from statement" aria-label={`Update ${debt.name} balance from statement`}>
+                              <RefreshCw size={13} aria-hidden="true" />
                             </button>
                           )}
-                        </p>
-                        {recalibratingDebtId === debt.id ? (
-                          <div className="flex items-center gap-1">
-                            <span className="text-gray-400">$</span>
-                            <input
-                              type="number"
-                              value={newBalanceInput}
-                              onChange={(e) => setNewBalanceInput(e.target.value)}
-                              className="w-24 text-lg font-bold border-b-2 border-primary-500 focus:outline-none bg-transparent text-gray-900"
-                              autoFocus
-                              step="0.01"
-                              min="0"
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') saveRecalibration(debt.id);
-                                if (e.key === 'Escape') cancelRecalibration();
-                              }}
-                            />
-                            <button
-                              onClick={() => saveRecalibration(debt.id)}
-                              className="p-1.5 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                              title="Save"
-                            >
-                              <Check size={14} />
-                            </button>
-                            <button
-                              onClick={cancelRecalibration}
-                              className="p-1.5 text-gray-400 hover:bg-gray-100 rounded-lg transition-colors"
-                              title="Cancel"
-                            >
-                              <X size={14} />
-                            </button>
-                          </div>
-                        ) : (
-                          <p className="text-lg font-bold text-gray-900">{formatCurrency(debt.balance)}</p>
-                        )}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-xs text-gray-500 flex items-center mb-1">Minimum</p>
-                        <p className="text-lg font-bold text-gray-900">{formatCurrency(debt.minimumPayment)}</p>
+                        </dt>
+                        <dd>
+                          {recalibratingDebtId === debt.id ? (
+                            <span className="db-edit">
+                              <span className="cur" aria-hidden="true">$</span>
+                              <input
+                                type="number"
+                                value={newBalanceInput}
+                                onChange={(e) => setNewBalanceInput(e.target.value)}
+                                aria-label={`New balance for ${debt.name}`}
+                                autoFocus
+                                step="0.01"
+                                min="0"
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') saveRecalibration(debt.id);
+                                  if (e.key === 'Escape') cancelRecalibration();
+                                }}
+                              />
+                              <button type="button" onClick={() => saveRecalibration(debt.id)} className="db-icon-btn ok" title="Save" aria-label="Save balance">
+                                <Check size={16} aria-hidden="true" />
+                              </button>
+                              <button type="button" onClick={cancelRecalibration} className="db-icon-btn" title="Cancel" aria-label="Cancel">
+                                <X size={16} aria-hidden="true" />
+                              </button>
+                            </span>
+                          ) : (
+                            <span className={`num big${isPaid ? ' paid' : ''}`}>{formatCurrency(debt.balance)}</span>
+                          )}
+                        </dd>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 mb-1">APR</p>
-                        <p className="font-bold" style={{ color: getAPRColor(debt.apr) }}>{formatPercent(debt.apr, 2)}</p>
+                        <dt>Minimum</dt>
+                        <dd><span className="num big">{formatCurrency(debt.minimumPayment)}</span></dd>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 flex items-center gap-1 mb-1">
-                          <Calendar size={10} />
-                          Due
-                        </p>
-                        <p className="font-bold text-gray-900">
-                          {debt.dueDay}{debt.dueDay === 1 ? 'st' : debt.dueDay === 2 ? 'nd' : debt.dueDay === 3 ? 'rd' : 'th'}
-                        </p>
+                        <dt>APR</dt>
+                        <dd><span className={`num lv-${aprLevel(debt.apr)} t`}>{formatPercent(debt.apr, 2)}</span></dd>
                       </div>
-                    </div>
+                      <div>
+                        <dt><Calendar size={12} aria-hidden="true" />Due</dt>
+                        <dd>
+                          <span className="num">
+                            {debt.dueDay}{ordinalSuffix(debt.dueDay)}
+                          </span>
+                        </dd>
+                      </div>
+                    </dl>
                   </div>
 
                   {/* Estimated Interest Fee */}
-                  <div className="mt-4 pt-4 border-t border-gray-100">
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs text-gray-500 flex items-center gap-1">
-                        <Flame size={12} className="text-red-400" />
-                        Est. monthly interest
-                      </span>
-                      <span className="text-sm font-bold text-red-500">
-                        {formatCurrency(debt.balance * (debt.apr / 100) / 12)}/mo
-                      </span>
-                    </div>
+                  <div className="db-foot">
+                    <span><Flame size={14} aria-hidden="true" />Est. monthly interest</span>
+                    <b className="num bad">{formatCurrency(debt.balance * (debt.apr / 100) / 12)}/mo</b>
                   </div>
 
                   {/* Utilization bar */}
                   {utilization !== null && (
-                    <div className="mt-3 pt-3 border-t border-gray-100">
-                      <div className="flex justify-between text-xs text-gray-500 mb-2">
+                    <div className="db-foot col">
+                      <div className="row">
                         <span>Credit utilization</span>
-                        <span
-                          className={`font-semibold ${utilization > 30 ? 'text-red-500' : 'text-green-500'}`}
-                        >
-                          {formatPercent(utilization, 0)}
-                        </span>
+                        <b className={`num ${utilization > 30 ? 'bad' : 'good'}`}>{formatPercent(utilization, 0)}</b>
                       </div>
-                      <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
-                        <div
-                          className={`h-full rounded-full transition-all duration-500 ${
-                            utilization > 100
-                              ? 'bg-gradient-to-r from-red-400 to-red-500'
-                              : utilization > 30
-                              ? 'bg-gradient-to-r from-amber-400 to-orange-500'
-                              : 'bg-gradient-to-r from-green-400 to-emerald-500'
-                          }`}
-                          style={{ width: `${Math.min(100, utilization)}%` }}
-                        />
-                      </div>
+                      <span className="db-bar big" role="img" aria-label={`${Math.round(utilization)}% of the credit limit used`}>
+                        <i className={utilization > 30 ? 'lv-high' : 'lv-low'} style={{ width: `${Math.min(100, utilization)}%` }} />
+                      </span>
                     </div>
                   )}
-                </div>
+
+                  {/* Balance over its payment history */}
+                  {history && (
+                    <div className="db-foot col">
+                      <Sparkline data={history.data} labels={history.labels} color={categoryInfo.color} format={money0}>
+                        <div className="row">
+                          <span>Balance over {history.data.length - 1} payments</span>
+                          <span className="db-spk-r"><SparklineLabel /><SparklineValue /></span>
+                        </div>
+                        <SparklineChart variant="area" baseline={Math.min(...history.data)} height={46} tooltip aria-label={`${debt.name} balance over its payments`} />
+                      </Sparkline>
+                    </div>
+                  )}
+                </li>
               );
             })}
-          </div>
+          </ul>
         )}
       </div>
 
       {/* Add/Edit Modal */}
-      <DebtModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        debt={editingDebt}
-      />
+      <DebtModal isOpen={isModalOpen} onClose={handleCloseModal} debt={editingDebt} />
 
       <ConfirmDialog {...dialogProps} />
 

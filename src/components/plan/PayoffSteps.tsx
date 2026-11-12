@@ -1,13 +1,15 @@
 /**
- * Payoff Steps Component - Kawaii Edition
+ * Payoff Steps - ranch edition.
  *
- * Displays the step-by-step payoff timeline with visual progress indicators.
- * Features cute styling, animations, and delightful interactions.
+ * The step-by-step payoff plan: one ranch card per step with its number,
+ * completion date, the debt paid off, who gets the extra payment and a
+ * progress bar. The last step takes the ok colors.
  */
 
 import { useMemo } from 'react';
 import { format, parseISO } from 'date-fns';
 import { Sparkles, Target, Clock, PartyPopper } from 'lucide-react';
+import { Plank } from '../dashboard/RanchPanels';
 import { formatTimeUntil, formatCurrency } from '../../lib/calculations';
 import type { PayoffPlan, PayoffStep, MonthlyPayment, Debt } from '../../types';
 
@@ -119,172 +121,92 @@ export function PayoffSteps({ plan, sortedDebts }: PayoffStepsProps) {
   }
 
   return (
-    <div>
-      <div className="flex items-center gap-3 mb-5">
-        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow-lg shadow-primary-300/30">
-          <Target size={20} className="text-white" />
-        </div>
-        <h2 className="text-lg font-bold text-gray-900">Step-by-Step Plan</h2>
-      </div>
+    <section>
+      <div className="pl-h"><Plank icon={<Target size={18} aria-hidden="true" />}>Step-by-Step Plan</Plank></div>
 
-      <div className="space-y-4">
+      <ol className="pl-steps">
         {plan.steps.map((step, index) => {
           const isLast = index === plan.steps.length - 1;
           const stepDate = parseISO(step.completionDate);
-          const debtGettingExtra = sortedDebts.find(
-            (d) => d.id === step.debtReceivingExtra
-          );
+          const debtGettingExtra = sortedDebts.find((d) => d.id === step.debtReceivingExtra);
           const stepProgress = stepProgressMap.get(step.stepNumber)!;
 
-          // Calculate what percent of THIS step's paydown this represents
+          // what percent of THIS step's starting balance was paid down
           const stepPaydownPercent =
-            stepProgress.startingBalance > 0
-              ? (stepProgress.paidThisStep / stepProgress.startingBalance) * 100
-              : 0;
+            stepProgress.startingBalance > 0 ? (stepProgress.paidThisStep / stepProgress.startingBalance) * 100 : 0;
 
           return (
-            <div key={step.stepNumber}>
-              <div className="card bg-white rounded-3xl shadow-sm hover:shadow-md transition-all overflow-hidden">
-                {/* Step number indicator bar */}
-                <div
-                  className={`h-1.5 -mx-4 -mt-4 mb-4 ${
-                    isLast
-                      ? 'bg-gradient-to-r from-green-400 to-emerald-500'
-                      : 'bg-gradient-to-r from-primary-400 to-primary-600'
-                  }`}
-                />
-
-                <div className="flex items-start gap-4 mb-4">
-                  <div
-                    className={`w-14 h-14 rounded-2xl flex flex-col items-center justify-center text-white font-bold shrink-0 shadow-lg ${
-                      isLast
-                        ? 'bg-gradient-to-br from-green-400 to-emerald-500 shadow-green-300/40'
-                        : 'bg-gradient-to-br from-primary-400 to-primary-600 shadow-primary-300/40'
-                    }`}
-                  >
-                    <span className="text-[10px] font-semibold opacity-80">STEP</span>
-                    <span className="text-xl">{step.stepNumber}</span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-700">
-                      Completes on {format(stepDate, 'MMM d, yyyy')}
-                    </p>
-                    <p className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
-                      <Clock size={12} />
-                      {formatTimeUntil(stepDate)}
-                    </p>
-                  </div>
-                  {stepProgress.avgMonthlyPayment > 0 && (
-                    <div className="text-right flex-shrink-0">
-                      <p className="text-base font-bold text-gray-800">
-                        {formatCurrency(stepProgress.avgMonthlyPayment)}
-                      </p>
-                      <p className="text-xs text-gray-400">/mo this step</p>
-                    </div>
-                  )}
+            <li key={step.stepNumber} className={`rui-card pl-step${isLast ? ' is-last' : ''}`}>
+              <div className="pl-step-top">
+                <span className="pl-step-n" aria-hidden="true"><small>Step</small>{step.stepNumber}</span>
+                <div className="pl-step-t">
+                  <h3><span className="sr-only">Step {step.stepNumber}: </span>Completes on {format(stepDate, 'MMM d, yyyy')}</h3>
+                  <p><Clock size={13} aria-hidden="true" />{formatTimeUntil(stepDate)}</p>
                 </div>
-
-                {/* Milestones (debts paid off in this step) */}
-                {step.milestonesInStep.map((milestone) => (
-                  <div
-                    key={milestone.debtId}
-                    className="flex items-center gap-3 p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/20 rounded-2xl mb-3 border border-green-100"
-                  >
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-md shadow-green-300/30">
-                      <PartyPopper size={20} className="text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-bold text-green-700 flex items-center gap-1">
-                        {milestone.debtName} Paid Off!
-                        <Sparkles size={14} className="text-green-400 animate-kawaii-pulse" />
-                      </p>
-                      <p className="text-sm text-green-600">
-                        {format(parseISO(milestone.payoffDate), 'MMM d, yyyy')}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-
-                {/* Debt receiving extra payments */}
-                {debtGettingExtra && (
-                  <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
-                    <span className="px-3 py-1.5 bg-gradient-to-r from-primary-100 to-primary-50 dark:from-primary-900/40 dark:to-primary-800/30 text-primary-700 rounded-xl text-xs font-semibold">
-                      Extra Payment
-                    </span>
-                    <span className="truncate font-medium">→ {debtGettingExtra.name}</span>
+                {stepProgress.avgMonthlyPayment > 0 && (
+                  <div className="pl-step-mo">
+                    <span className="num">{formatCurrency(stepProgress.avgMonthlyPayment)}</span>
+                    <span>/mo this step</span>
                   </div>
                 )}
-
-                {/* Debts paying minimum */}
-                {step.debtsPayingMinimum.length > 0 && (
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <span className="px-3 py-1.5 bg-gray-100 text-gray-600 rounded-xl text-xs font-medium">
-                      Minimum
-                    </span>
-                    <span>
-                      {step.debtsPayingMinimum.length} account
-                      {step.debtsPayingMinimum.length !== 1 ? 's' : ''}
-                    </span>
-                  </div>
-                )}
-
-                {/* Progress visualization */}
-                <div className="mt-5 pt-5 border-t border-gray-100">
-                  {/* Balance decrease summary */}
-                  <div className="flex items-center justify-between text-sm mb-1">
-                    <span className="text-gray-600">Paid this step</span>
-                    <span className="font-bold text-gray-900">
-                      {formatCurrency(stepProgress.paidThisStep)}
-                    </span>
-                  </div>
-                  {stepProgress.stepPrincipal > 0 && (
-                    <div className="flex items-center justify-end gap-2 text-xs text-gray-400 mb-3">
-                      <span>{formatCurrency(stepProgress.stepPrincipal)} principal</span>
-                      <span>·</span>
-                      <span className="text-rose-400">{formatCurrency(stepProgress.stepInterest)} interest</span>
-                    </div>
-                  )}
-
-                  {/* Progress bar showing step completion */}
-                  <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full transition-all duration-500 ease-out ${
-                        isLast
-                          ? 'bg-gradient-to-r from-green-400 to-emerald-500'
-                          : 'bg-gradient-to-r from-primary-400 to-primary-600'
-                      }`}
-                      style={{ width: `${Math.min(100, stepPaydownPercent)}%` }}
-                    />
-                  </div>
-
-                  {/* Journey progress indicator */}
-                  <div className="flex items-center justify-between mt-3">
-                    <span className="text-xs text-gray-500">
-                      {formatCurrency(stepProgress.endingBalance)} remaining
-                    </span>
-                    <span
-                      className={`text-xs font-semibold flex items-center gap-1 ${
-                        isLast ? 'text-green-600' : 'text-primary-600'
-                      }`}
-                    >
-                      <Sparkles size={10} />
-                      {stepProgress.percentComplete.toFixed(0)}% of journey
-                    </span>
-                  </div>
-
-                  {/* Step duration */}
-                  {stepProgress.monthCount > 0 && (
-                    <div className="mt-2 text-xs text-gray-400">
-                      {stepProgress.monthCount} month
-                      {stepProgress.monthCount !== 1 ? 's' : ''} in this step
-                    </div>
-                  )}
-                </div>
               </div>
-            </div>
+
+              {step.milestonesInStep.map((milestone) => (
+                <div key={milestone.debtId} className="pl-paid">
+                  <PartyPopper size={22} aria-hidden="true" />
+                  <div>
+                    <strong>{milestone.debtName} Paid Off!</strong>
+                    <span>{format(parseISO(milestone.payoffDate), 'MMM d, yyyy')}</span>
+                  </div>
+                </div>
+              ))}
+
+              {(debtGettingExtra || step.debtsPayingMinimum.length > 0) && (
+                <div className="pl-tags">
+                  {debtGettingExtra && (
+                    <div className="pl-tag">
+                      <span className="rui-badge focus"><Sparkles size={13} aria-hidden="true" />Extra Payment</span>
+                      <span>→ {debtGettingExtra.name}</span>
+                    </div>
+                  )}
+                  {step.debtsPayingMinimum.length > 0 && (
+                    <div className="pl-tag min">
+                      <span className="rui-badge soon">Minimum</span>
+                      <span>
+                        {step.debtsPayingMinimum.length} account{step.debtsPayingMinimum.length !== 1 ? 's' : ''}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="pl-prog">
+                <div className="pl-prog-row">
+                  <span>Paid this step</span>
+                  <span className="num">{formatCurrency(stepProgress.paidThisStep)}</span>
+                </div>
+                {stepProgress.stepPrincipal > 0 && (
+                  <p className="pl-split">
+                    {formatCurrency(stepProgress.stepPrincipal)} principal · <b>{formatCurrency(stepProgress.stepInterest)}</b> interest
+                  </p>
+                )}
+                <span className="pl-track" role="img" aria-label={`${Math.round(Math.min(100, stepPaydownPercent))}% of this step's balance paid`}>
+                  <i style={{ width: `${Math.min(100, stepPaydownPercent)}%` }} />
+                </span>
+                <div className="pl-prog-foot">
+                  <span><b>{formatCurrency(stepProgress.endingBalance)}</b> remaining</span>
+                  <span className="j"><Sparkles size={13} aria-hidden="true" />{stepProgress.percentComplete.toFixed(0)}% of journey</span>
+                </div>
+                {stepProgress.monthCount > 0 && (
+                  <p className="pl-dur">
+                    {stepProgress.monthCount} month{stepProgress.monthCount !== 1 ? 's' : ''} in this step
+                  </p>
+                )}
+              </div>
+            </li>
           );
         })}
-      </div>
-    </div>
+      </ol>
+    </section>
   );
 }
