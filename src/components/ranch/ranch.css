@@ -1,0 +1,311 @@
+/*
+ * RanchScene styles.
+ *
+ * Illustration fills read the scene's --r-* properties (set inline from
+ * lib/ranchScenes). Product surfaces in the scene (bubble, chips, tags,
+ * ground edge) read the app-wide --ranch-* tokens from index.css.
+ *
+ * Two stages: the phone stage (390×420) below a 768px container and the
+ * wide stage (1300×600) from 768px up. --u is the px size of one stage
+ * unit, so overlays can sit exactly on a point of the art.
+ */
+
+.ranch {
+  position: relative;
+  display: grid;
+  grid-template-areas: "art" "bub" "act";
+  grid-template-columns: minmax(0, 1fr);
+  container: ranch / inline-size;
+  background: var(--ranch-ground);
+  --ranch-sky-ink: var(--r-title);
+  --ranch-sky-ink-2: var(--r-title2);
+}
+.ranch > * {
+  --vbw: 390;
+  --vbh: 420;
+  --artH: clamp(380px, 107.7cqw, 620px);
+  --u: max(100cqw / var(--vbw), var(--artH) / var(--vbh));
+  --bx: var(--bxp);
+  --by: var(--byp);
+}
+.ranch-layer {
+  grid-area: art;
+  position: relative;
+  height: var(--artH);
+  overflow: hidden;
+}
+.ranch-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.ranch-art-wide { display: none; }
+
+.ranch-sky { display: contents; --ranch-u: var(--u); }
+.ranch-copy {
+  grid-area: art;
+  align-self: start;
+  position: relative;
+  z-index: 2;
+  padding: 14px 16px 0;
+  color: var(--ranch-sky-ink);
+  min-width: 0;
+}
+.ranch-act {
+  grid-area: act;
+  position: relative;
+  z-index: 2;
+  padding: 12px 16px 2px;
+  min-width: 0;
+}
+
+.ranch-bubble {
+  grid-area: bub;
+  position: relative;
+  z-index: 3;
+  justify-self: start;
+  margin: -6px 16px 0 clamp(16px, calc(50cqw + (var(--bx) - var(--vbw) / 2) * var(--u) - 30px), calc(100cqw - 246px));
+  max-width: 230px;
+  width: max-content;
+  background: var(--ranch-page);
+  color: var(--ranch-ink);
+  border-radius: 18px;
+  padding: 9px 13px;
+  font: 600 14px/1.32 Nunito, system-ui, sans-serif;
+  box-shadow: 0 10px 22px -12px var(--ranch-sh), 0 2px 5px -2px var(--ranch-sh);
+  transition: left .7s cubic-bezier(.16, 1, .3, 1), top .7s cubic-bezier(.16, 1, .3, 1), margin .7s cubic-bezier(.16, 1, .3, 1), opacity .25s;
+}
+.ranch-bubble::after {
+  content: "";
+  position: absolute;
+  left: 22px;
+  top: -6px;
+  width: 14px;
+  height: 14px;
+  background: var(--ranch-page);
+  transform: rotate(45deg);
+  border-radius: 4px 0 0 0;
+}
+.ranch-night .ranch-bubble { box-shadow: inset 0 0 0 1px var(--ranch-line), 0 10px 22px -12px var(--ranch-sh); }
+.ranch-bubble.is-hushed { opacity: 0; }
+
+.ranch-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  margin: 0;
+}
+
+/* ---------------- wide stage ---------------- */
+@container ranch (min-width: 768px) {
+  .ranch > * {
+    --vbw: 1300;
+    --vbh: 600;
+    --artH: clamp(440px, 46.15cqw, 600px);
+    --bx: var(--bxw);
+    --by: var(--byw);
+  }
+  .ranch-art-wide { display: block; }
+  .ranch-art-phone { display: none; }
+  .ranch-sky {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    grid-area: art;
+    align-self: start;
+    justify-self: start;
+    position: relative;
+    z-index: 2;
+    margin: max(26px, calc(var(--artH) - 552 * var(--u))) 0 0 calc(50cqw - 160 * var(--u));
+    width: min(540px, calc(500 * var(--u)));
+  }
+  .ranch-copy { grid-area: auto; padding: 0; }
+  .ranch-act { grid-area: auto; padding: min(20px, calc(18 * var(--u))) 0 0; }
+  .ranch-bubble {
+    grid-area: art;
+    position: absolute;
+    margin: 0;
+    left: calc(50cqw + (var(--bx) - var(--vbw) / 2) * var(--u));
+    top: calc(var(--artH) - (var(--vbh) - var(--by)) * var(--u));
+    transform: translate(-30px, calc(-100% - 12px));
+    max-width: 212px;
+  }
+  .ranch-bubble::after { top: auto; bottom: -6px; border-radius: 0 0 4px 0; }
+}
+
+/* ---------------- illustration fills ---------------- */
+.ranch .r-gshadow { fill: var(--r-gshadow); }
+.ranch .r-orb { fill: var(--r-orb); }
+.ranch .r-orb-sh { fill: var(--r-orb-sh); stroke: var(--r-orb-sh); opacity: .55; }
+.ranch .r-orb-hi { fill: #fff; opacity: .35; }
+.ranch .r-orb-core { fill: #FFF6DA; opacity: .6; }
+.ranch .r-orb-band { fill: none; stroke: var(--r-orb-sh); opacity: .8; }
+.ranch .r-rays { fill: none; stroke: var(--r-orb); stroke-width: 4; stroke-linecap: round; opacity: .45; }
+.ranch .r-rays-soft { stroke-width: 6; opacity: .28; }
+.ranch .r-stars { fill: var(--r-orb); }
+.ranch .r-cl { fill: var(--r-cloud); }
+.ranch .r-cl-sh { fill: var(--r-cloud-sh); }
+.ranch .r-birds { fill: none; stroke: var(--r-title2); stroke-linecap: round; opacity: .55; }
+.ranch .r-rim { fill: none; stroke: var(--r-rim); stroke-width: 2; opacity: var(--r-rim-o); stroke-linecap: round; }
+.ranch .r-gedge { fill: var(--ranch-ground); }
+
+.ranch .r-tr-edge { fill: var(--r-path-edge); }
+.ranch .r-tr-base { fill: var(--r-path); }
+.ranch .r-tr-hi { fill: var(--r-path-hi); opacity: .75; }
+.ranch .r-tr-peb { fill: var(--r-path-edge); opacity: .7; }
+
+.ranch .r-b-front { fill: var(--r-barn); }
+.ranch .r-b-side { fill: var(--r-barn-sh); }
+.ranch .r-b-door { fill: var(--r-barn-door); }
+.ranch .r-b-roof { fill: var(--r-roof); }
+.ranch .r-b-roof2 { fill: var(--r-roof2); }
+.ranch .r-b-seam { fill: none; stroke: var(--r-roof-line); stroke-width: 2; }
+.ranch .r-b-eave { fill: var(--r-barn-dark); opacity: .28; }
+.ranch .r-b-line { fill: none; stroke: var(--r-barn-line); stroke-width: 1.6; opacity: .55; }
+.ranch .r-b-trim { fill: var(--r-trim); }
+.ranch .r-b-barge { fill: none; stroke: var(--r-trim); stroke-width: 9; stroke-linejoin: round; stroke-linecap: round; }
+.ranch .r-b-x { fill: none; stroke: var(--r-trim); stroke-width: 5; stroke-linejoin: round; }
+.ranch .r-b-win, .ranch .r-b-gap { fill: var(--r-window); }
+.ranch .r-b-mull { fill: none; stroke: var(--r-trim); stroke-width: 3; }
+.ranch .r-b-hay { fill: var(--r-hay); }
+.ranch .r-b-box { fill: var(--r-wood-d); }
+.ranch .r-b-stone { fill: var(--r-stone); }
+.ranch .r-b-dark { fill: var(--r-barn-dark); }
+.ranch .r-b-lamp-arm { fill: none; stroke: var(--r-barn-dark); stroke-width: 2.4; stroke-linecap: round; }
+.ranch .r-b-bulb { fill: var(--r-lamp); }
+.ranch .r-b-vane { fill: var(--r-barn-dark); stroke: var(--r-barn-dark); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.ranch .r-b-vane-ball { fill: var(--r-barn-dark); }
+
+.ranch .r-s-body { fill: var(--r-silo); }
+.ranch .r-s-hi { fill: var(--r-silo-hi); opacity: .55; }
+.ranch .r-s-shade { fill: var(--r-silo-sh); }
+.ranch .r-s-band { fill: none; stroke: var(--r-silo-band); stroke-width: 2.2; }
+.ranch .r-s-ladder { fill: none; stroke: var(--r-silo-band); stroke-width: 1.6; }
+.ranch .r-s-dome, .ranch .r-s-cap { fill: var(--r-dome); }
+.ranch .r-s-domehi { fill: #fff; opacity: .22; }
+
+.ranch .r-snow { fill: var(--r-snow); }
+.ranch .r-snow-sh { fill: var(--r-snow-sh); }
+.ranch .r-snow-line { fill: none; stroke: var(--r-snow); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+
+.ranch .r-trunk { fill: var(--r-trunk); }
+.ranch .r-tree-d { fill: var(--r-tree-d); }
+.ranch .r-tree { fill: var(--r-tree); }
+.ranch .r-tree-l { fill: var(--r-tree-l); opacity: .85; }
+.ranch .r-tree-d2 { fill: var(--r-tree-d2); }
+.ranch .r-tree2 { fill: var(--r-tree2); }
+.ranch .r-tree-l2 { fill: var(--r-tree-l2); opacity: .85; }
+.ranch .r-tree-d3 { fill: var(--r-tree-d3); }
+.ranch .r-tree3 { fill: var(--r-tree3); }
+.ranch .r-tree-l3 { fill: var(--r-tree-l3); opacity: .85; }
+.ranch .r-blossom { fill: var(--r-fall2); opacity: .95; }
+
+.ranch .r-f-post { fill: var(--r-wood); }
+.ranch .r-f-rail { fill: none; stroke: var(--r-wood-d); stroke-linecap: round; stroke-linejoin: round; }
+.ranch .r-hay-b { fill: var(--r-hay); }
+.ranch .r-hay-f { fill: var(--r-hay-face); }
+.ranch .r-hay-l { fill: none; stroke: var(--r-hay-line); stroke-width: 1.4; }
+
+.ranch .r-fl1 { fill: var(--r-fl1); }
+.ranch .r-fl2 { fill: var(--r-fl2); }
+.ranch .r-fl3 { fill: var(--r-fl3); }
+.ranch .r-flc { fill: var(--r-flc); }
+.ranch .r-tuft { fill: none; stroke: var(--r-tuft); stroke-linecap: round; }
+
+.ranch .r-row-d { fill: var(--r-row-d); }
+.ranch .r-row-m { fill: var(--r-row); }
+.ranch .r-row-h { fill: var(--r-row-h); }
+.ranch .r-row-h2 { fill: var(--r-row-h2); }
+.ranch .r-row-stem { fill: none; stroke: var(--r-row-d); stroke-width: 1.1; stroke-linecap: round; }
+.ranch .r-mrow { fill: none; stroke: var(--r-row-d); stroke-linecap: round; stroke-linejoin: round; opacity: .8; }
+.ranch .r-mrow-h { fill: none; stroke: var(--r-row); stroke-linecap: round; opacity: .9; }
+
+.ranch .r-pond-bank { fill: var(--r-water-edge); }
+.ranch .r-pond-ripple { fill: none; stroke: #fff; stroke-width: 1.8; stroke-linecap: round; opacity: .75; }
+.ranch .r-lily { fill: var(--r-lily); }
+.ranch .r-lily-d { fill: none; stroke: var(--r-lily-d); stroke-width: 1.2; stroke-linecap: round; }
+.ranch .r-reed { fill: none; stroke: var(--r-tuft); stroke-linecap: round; }
+.ranch .r-cattail { fill: var(--r-trunk); }
+
+.ranch .r-sm-arm { fill: none; stroke: var(--r-trunk); stroke-width: 1.8; stroke-linecap: round; }
+.ranch .r-sm-scarf { fill: var(--r-fl2); }
+.ranch .r-sm-coal { fill: var(--r-barn-dark); }
+.ranch .r-sm-nose { fill: #EE8A3A; }
+
+.ranch .r-pumpkin { fill: var(--r-pumpkin); }
+.ranch .r-pumpkin-d { fill: var(--r-pumpkin-d); }
+.ranch .r-pumpkin-rib { fill: none; stroke: var(--r-pumpkin-d); opacity: .75; stroke-linecap: round; }
+.ranch .r-vine { fill: none; stroke: var(--r-vine); stroke-linecap: round; }
+
+.ranch .r-banner, .ranch .r-finial { fill: var(--r-banner); }
+.ranch .r-banner-sh { fill: var(--r-gshadow); }
+.ranch .r-banner-text { font-family: Fredoka, system-ui, sans-serif; font-weight: 600; fill: var(--r-banner-ink); }
+.ranch .r-pole { fill: var(--r-pole); }
+.ranch .r-ff-c { fill: #FFF6C8; }
+
+/* signposts */
+.ranch .r-p-post { fill: var(--r-wood-d); }
+.ranch .r-p-board { fill: var(--r-board); stroke: var(--r-wood); stroke-width: 1.6; }
+.ranch .r-p-grain { fill: none; stroke: var(--r-wood); stroke-width: 1.1; opacity: .45; }
+.ranch .r-p-nail { fill: var(--r-nail); }
+.ranch .r-p-text { font-family: Fredoka, system-ui, sans-serif; font-weight: 600; fill: var(--r-board-ink); }
+.ranch .r-post-focus .r-p-board { fill: var(--r-sign-focus); stroke: none; }
+.ranch .r-post-focus .r-p-text { fill: var(--r-sign-focus-ink); }
+.ranch .r-post-focus .r-p-grain { stroke: #fff; opacity: .3; }
+.ranch .r-post-focus .r-p-nail { fill: #fff; opacity: .7; }
+.ranch .r-ribbon { fill: var(--r-sign-ok); }
+.ranch .r-ribbon-ring { fill: none; stroke: #fff; stroke-width: 1.2; opacity: .55; }
+.ranch .r-ribbon-check { fill: none; stroke: #fff; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.ranch .r-tag rect { fill: var(--ranch-page); }
+.ranch .r-tag-text { font-family: Quicksand, system-ui, sans-serif; font-weight: 700; fill: var(--ranch-ink); font-variant-numeric: tabular-nums; }
+.ranch .r-tag-cord, .ranch .r-chip-cord { fill: none; stroke: var(--r-wood-d); stroke-width: 1.5; }
+
+/* label chips for far posts */
+.ranch .r-chip rect { fill: var(--ranch-page); }
+.ranch .r-chip-text { font-family: Quicksand, system-ui, sans-serif; font-weight: 700; fill: var(--ranch-ink); font-variant-numeric: tabular-nums; }
+.ranch .r-chip-focus rect { fill: var(--r-sign-focus); }
+.ranch .r-chip-focus .r-chip-text { fill: var(--r-sign-focus-ink); }
+.ranch .r-chip-ok { fill: var(--r-sign-ok); }
+.ranch .r-chip-check { fill: none; stroke: #fff; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+/* the bloom left behind by a walk */
+.ranch .r-bl-stem { fill: none; stroke: var(--ranch-ok-fill); stroke-width: 2.2; stroke-linecap: round; }
+.ranch .r-bl-leaf { fill: var(--ranch-ok-fill); }
+.ranch .r-bl-pet { fill: var(--r-sign-focus); }
+.ranch .r-bloom-pop { animation: r-bloom .7s cubic-bezier(.34, 1.56, .64, 1) both; transform-box: fill-box; transform-origin: 50% 100%; }
+
+/* falling weather */
+.ranch .r-fall1 { fill: var(--r-fall1); }
+.ranch .r-fall2 { fill: var(--r-fall2); }
+.ranch .r-fall3 { fill: var(--r-fall3); }
+.ranch .r-fall-snow path { opacity: .92; }
+.ranch-art-wide { --fall: 600px; }
+.ranch-art-phone { --fall: 420px; }
+
+/* ---------------- motion ---------------- */
+.ranch .r-cloud { animation: r-drift 70s ease-in-out infinite alternate; }
+.ranch .r-c2 { animation-duration: 90s; animation-direction: alternate-reverse; }
+.ranch .r-c3 { animation-duration: 110s; }
+.ranch .r-fly { animation: r-glim 3.2s ease-in-out infinite alternate; }
+.ranch .r-fall { animation: r-sway 9s ease-in-out infinite alternate; }
+.ranch .r-fall-lane { animation: r-fall 60s linear infinite; }
+.ranch .r-fall-mid { animation-duration: 44s; }
+.ranch .r-fall-fast { animation-duration: 32s; }
+.ranch .r-fall-leaves .r-fall-lane, .ranch .r-fall-petals .r-fall-lane { animation-duration: 90s; }
+.ranch .r-fall-leaves .r-fall-mid, .ranch .r-fall-petals .r-fall-mid { animation-duration: 70s; }
+.ranch .r-fall-leaves .r-fall-fast, .ranch .r-fall-petals .r-fall-fast { animation-duration: 54s; }
+
+@keyframes r-drift { from { transform: translateX(0); } to { transform: translateX(46px); } }
+@keyframes r-glim { from { opacity: 1; } to { opacity: .35; } }
+@keyframes r-fall { from { transform: translateY(0); } to { transform: translateY(var(--fall)); } }
+@keyframes r-sway { from { transform: translateX(0); } to { transform: translateX(18px); } }
+@keyframes r-bloom { from { scale: .1; opacity: 0; } to { scale: 1; opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .ranch *, .ranch *::before, .ranch *::after { animation: none !important; transition: none !important; }
+}

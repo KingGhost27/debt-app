@@ -93,12 +93,73 @@
   /* Font families */
   --font-sans: 'Nunito', 'Quicksand', system-ui, sans-serif;
   --font-display: 'Quicksand', 'Nunito', system-ui, sans-serif;
+
+  /* Ranch surfaces - set per theme by applyTheme() from lib/ranchScenes.ts.
+     Utilities: bg-ranch-ground, text-ranch-ink, bg-ranch-plank, ... */
+  --color-ranch-ground: var(--ranch-ground);
+  --color-ranch-page: var(--ranch-page);
+  --color-ranch-page2: var(--ranch-page2);
+  --color-ranch-line: var(--ranch-line);
+  --color-ranch-track: var(--ranch-track);
+  --color-ranch-ink: var(--ranch-ink);
+  --color-ranch-ink2: var(--ranch-ink2);
+  --color-ranch-ring: var(--ranch-ring);
+  --color-ranch-btn: var(--ranch-btn-bg);
+  --color-ranch-btn-ink: var(--ranch-btn-fg);
+  --color-ranch-focus: var(--ranch-focus);
+  --color-ranch-focus-bg: var(--ranch-focus-bg);
+  --color-ranch-ok: var(--ranch-ok-ink);
+  --color-ranch-ok-bg: var(--ranch-ok-bg);
+  --color-ranch-soon: var(--ranch-soon-ink);
+  --color-ranch-soon-bg: var(--ranch-soon-bg);
+  --color-ranch-fill: var(--ranch-fill);
+  --color-ranch-ok-fill: var(--ranch-ok-fill);
+  --color-ranch-plank: var(--ranch-plank);
+  --color-ranch-plank-ink: var(--ranch-plank-ink);
+  --color-ranch-picket: var(--ranch-picket);
+  --color-ranch-picket-line: var(--ranch-picket-line);
+  --color-ranch-sel: var(--ranch-sel);
+  --color-ranch-sel-ink: var(--ranch-sel-ink);
+  --color-ranch-thumb: var(--ranch-thumb);
 }
 
 /* Theme gradient variables for header backgrounds */
 :root {
   --gradient-from: var(--theme-gradient-from, #e9d5ff);
   --gradient-to: var(--theme-gradient-to, #faf5ff);
+}
+
+/* Ranch surface defaults (Lavender Dream). applyTheme() overrides these
+   inline on :root for the active preset, custom colors and dark mode. */
+:root {
+  --ranch-scheme: light;
+  --ranch-ground: #F5EFFA;
+  --ranch-page: #FFFCFF;
+  --ranch-page2: #F0E8F8;
+  --ranch-line: #E0D3EE;
+  --ranch-track: #E7DCF3;
+  --ranch-ink: #2B1A4F;
+  --ranch-ink2: #5B4A7F;
+  --ranch-ring: #2B1A4F;
+  --ranch-btn-bg: #3A2466;
+  --ranch-btn-fg: #FFFFFF;
+  --ranch-btn-sh: rgb(58 36 102 / .32);
+  --ranch-focus: #B1335F;
+  --ranch-focus-bg: #FBE4EC;
+  --ranch-ok-ink: #1D6A45;
+  --ranch-ok-bg: #D6F1E1;
+  --ranch-soon-ink: #694700;
+  --ranch-soon-bg: #FBE9AE;
+  --ranch-fill: #7B58C9;
+  --ranch-ok-fill: #3E9C6B;
+  --ranch-sh: rgb(70 40 130 / .16);
+  --ranch-thumb: #C9B6E6;
+  --ranch-sel: #D9C4F5;
+  --ranch-sel-ink: #2B1A4F;
+  --ranch-plank: #84593F;
+  --ranch-plank-ink: #FFF5EC;
+  --ranch-picket: #FFFFFF;
+  --ranch-picket-line: #B99C8C;
 }
 
 /* ============================================
