@@ -1,8 +1,10 @@
 /**
  * CelebrationModal
  *
- * Full-screen milestone celebration overlay. Fires confetti, shows kawaii
- * animal parade, ShareCard for download/social sharing.
+ * Milestone celebration: a ranch celebration. The active theme's scene sits at the
+ * top with Debtsy and the theme friend (or the full herd for big wins), confetti
+ * falls behind, and the ShareCard below can be saved or shared. Built on ModalShell
+ * (focus trap, Escape, scroll lock); motion is off under prefers-reduced-motion.
  *
  * Two modes:
  *  - Two-animal: theme mascot + Debtsy (for progress/interest/streak milestones)
@@ -11,6 +13,10 @@
 
 import { useRef, useCallback, useEffect, useState } from 'react';
 import { toPng } from 'html-to-image';
+import { Star, Sparkles, Coins, CircleDollarSign, Download, Share2, Copy, Loader2, TriangleAlert } from 'lucide-react';
+import { ModalShell } from './ModalShell';
+import { RanchStrip } from '../ranch/RanchStrip';
+import { RANCH_SCENES, sceneKeyForPreset } from '../../lib/ranchScenes';
 import type { MilestoneEvent, CelebrationStats } from '../../types/celebrations';
 import type { ThemePreset } from '../../types';
 import { ShareCard } from './ShareCard';
@@ -107,27 +113,27 @@ const FIREWORK_POSITIONS_BIG = [
 
 // Money decorations for big wins (debt paid off / debt free) — layered with ring fireworks
 const BIG_WIN_MONEY_DECORATIONS = [
-  { className: 'decoration-coin',    content: '💰', top: '6%',  left: '5%',  delay: '0s' },
-  { className: 'decoration-twinkle', content: '⭐', top: '3%',  left: '28%', delay: '0.3s' },
-  { className: 'decoration-coin',    content: '🪙', top: '8%',  left: '55%', delay: '0.7s' },
-  { className: 'decoration-twinkle', content: '✨', top: '5%',  left: '72%', delay: '1.1s' },
-  { className: 'decoration-coin',    content: '💵', top: '4%',  left: '88%', delay: '0.5s' },
-  { className: 'decoration-twinkle', content: '💫', top: '18%', left: '3%',  delay: '1.4s' },
-  { className: 'decoration-coin',    content: '💸', top: '16%', left: '40%', delay: '0.9s' },
-  { className: 'decoration-twinkle', content: '⭐', top: '20%', left: '92%', delay: '0.2s' },
-  { className: 'decoration-coin',    content: '🪙', top: '22%', left: '18%', delay: '1.8s' },
-  { className: 'decoration-twinkle', content: '✨', top: '25%', left: '65%', delay: '1.6s' },
+  { className: 'decoration-coin',    content: 'coin', top: '6%',  left: '5%',  delay: '0s' },
+  { className: 'decoration-twinkle', content: 'star', top: '3%',  left: '28%', delay: '0.3s' },
+  { className: 'decoration-coin',    content: 'coin', top: '8%',  left: '55%', delay: '0.7s' },
+  { className: 'decoration-twinkle', content: 'star', top: '5%',  left: '72%', delay: '1.1s' },
+  { className: 'decoration-coin',    content: 'coin', top: '4%',  left: '88%', delay: '0.5s' },
+  { className: 'decoration-twinkle', content: 'star', top: '18%', left: '3%',  delay: '1.4s' },
+  { className: 'decoration-coin',    content: 'coin', top: '16%', left: '40%', delay: '0.9s' },
+  { className: 'decoration-twinkle', content: 'star', top: '20%', left: '92%', delay: '0.2s' },
+  { className: 'decoration-coin',    content: 'coin', top: '22%', left: '18%', delay: '1.8s' },
+  { className: 'decoration-twinkle', content: 'star', top: '25%', left: '65%', delay: '1.6s' },
 ];
 
 // Twinkling stars + coin pops for small milestone wins
 const SMALL_WIN_DECORATIONS = [
-  { className: 'decoration-twinkle', content: '⭐', top: '6%',  left: '8%',  delay: '0s' },
-  { className: 'decoration-coin',    content: '🪙', top: '4%',  left: '75%', delay: '0.4s' },
-  { className: 'decoration-twinkle', content: '✨', top: '14%', left: '88%', delay: '0.9s' },
-  { className: 'decoration-coin',    content: '💰', top: '5%',  left: '50%', delay: '1.3s' },
-  { className: 'decoration-twinkle', content: '💫', top: '12%', left: '22%', delay: '0.6s' },
-  { className: 'decoration-coin',    content: '💵', top: '9%',  left: '38%', delay: '1.7s' },
-  { className: 'decoration-twinkle', content: '⭐', top: '7%',  left: '62%', delay: '0.2s' },
+  { className: 'decoration-twinkle', content: 'star', top: '6%',  left: '8%',  delay: '0s' },
+  { className: 'decoration-coin',    content: 'coin', top: '4%',  left: '75%', delay: '0.4s' },
+  { className: 'decoration-twinkle', content: 'star', top: '14%', left: '88%', delay: '0.9s' },
+  { className: 'decoration-coin',    content: 'coin', top: '5%',  left: '50%', delay: '1.3s' },
+  { className: 'decoration-twinkle', content: 'star', top: '12%', left: '22%', delay: '0.6s' },
+  { className: 'decoration-coin',    content: 'coin', top: '9%',  left: '38%', delay: '1.7s' },
+  { className: 'decoration-twinkle', content: 'star', top: '7%',  left: '62%', delay: '0.2s' },
 ];
 
 // ─── Props ────────────────────────────────────────────────────────
@@ -154,7 +160,7 @@ export function CelebrationModal({ event, stats, themePreset, onDismiss }: Celeb
   const [capturedUrl, setCapturedUrl] = useState<string | null>(null);
   const [captureError, setCaptureError] = useState(false);
   const [showDesktopShare, setShowDesktopShare] = useState(false);
-  const [clipboardLabel, setClipboardLabel] = useState('📋 Copy Image');
+  const [clipboardLabel, setClipboardLabel] = useState('Copy Image');
 
   const doCaptureCard = useCallback(async () => {
     if (!cardRef.current) return;
@@ -225,60 +231,43 @@ export function CelebrationModal({ event, stats, themePreset, onDismiss }: Celeb
     const blob = dataUrlToBlob(capturedUrl);
     try {
       await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-      setClipboardLabel('✅ Copied!');
-      setTimeout(() => setClipboardLabel('📋 Copy Image'), 2500);
+      setClipboardLabel('Copied!');
+      setTimeout(() => setClipboardLabel('Copy Image'), 2500);
     } catch {
       // Clipboard API not supported — fall back to download with explanation
       triggerDownload(capturedUrl, 'cowculator-win.png');
-      setClipboardLabel('⬇️ Saved instead');
-      setTimeout(() => setClipboardLabel('📋 Copy Image'), 2500);
+      setClipboardLabel('Saved instead');
+      setTimeout(() => setClipboardLabel('Copy Image'), 2500);
     }
   }, [capturedUrl]);
 
   const handleTwitterShare = useCallback(() => {
     const text = encodeURIComponent(
-      `${event.headline} 🐄 Tracking my debt-free journey on cowculator.net`
+      `${event.headline} Tracking my debt-free journey on cowculator.net`
     );
     window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank', 'noopener');
   }, [event.headline]);
 
   const handleFacebookShare = useCallback(() => {
     const url = encodeURIComponent('https://cowculator.net');
-    const quote = encodeURIComponent(`${event.headline} 🐄 Tracking my debt-free journey on Cowculator!`);
+    const quote = encodeURIComponent(`${event.headline} Tracking my debt-free journey on Cowculator!`);
     window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${quote}`, '_blank', 'noopener');
   }, [event.headline]);
 
-  return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-label="Milestone celebration"
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 9999,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '16px',
-      }}
-      onClick={onDismiss}
-    >
-      {/* Backdrop */}
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          background: `linear-gradient(135deg, ${themePrimary}33, ${themeColors.gradientFrom}cc)`,
-          backdropFilter: 'blur(8px)',
-        }}
-      />
+  const scene = RANCH_SCENES[sceneKeyForPreset(themePreset)];
+  const ui = scene.ui;
+  const decoIcon = (kind: string, i: number) => {
+    const gold = kind === 'coin';
+    const Icon = gold ? (i % 2 ? Coins : CircleDollarSign) : (i % 3 === 0 ? Sparkles : Star);
+    return <Icon size={gold ? 22 : 20} className={`cel-deco${gold ? ' gold' : ''}`} aria-hidden="true" />;
+  };
+
+  const behind = (
+    <>
+      <div className="mdl-back cel-scrim" onClick={onDismiss} aria-hidden="true" />
 
       {/* Confetti layer — infinite rain for big wins, one-pass fade for milestones */}
-      <div
-        style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}
-        className={event.isFullHerd ? undefined : 'confetti-layer-finite'}
-      >
+      <div className={`cel-back${event.isFullHerd ? '' : ' confetti-layer-finite'}`} aria-hidden="true">
         {(event.isFullHerd ? CONFETTI_PIECES : CONFETTI_PIECES.slice(0, 40)).map((p) => (
           <div
             key={p.id}
@@ -300,7 +289,7 @@ export function CelebrationModal({ event, stats, themePreset, onDismiss }: Celeb
       </div>
 
       {/* Fireworks / decorations layer */}
-      <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+      <div className="cel-back" aria-hidden="true">
         {event.isFullHerd
           ? <>
               {FIREWORK_POSITIONS_BIG.map((fw, i) => (
@@ -322,145 +311,74 @@ export function CelebrationModal({ event, stats, themePreset, onDismiss }: Celeb
               ))}
               {BIG_WIN_MONEY_DECORATIONS.map((d, i) => (
                 <div key={`money-${i}`} className={d.className} style={{ top: d.top, left: d.left, animationDelay: d.delay }}>
-                  {d.content}
+                  {decoIcon(d.content, i)}
                 </div>
               ))}
             </>
           : SMALL_WIN_DECORATIONS.map((d, i) => (
-              <div
-                key={i}
-                className={d.className}
-                style={{
-                  top: d.top,
-                  left: d.left,
-                  animationDelay: d.delay,
-                }}
-              >
-                {d.content}
+              <div key={i} className={d.className} style={{ top: d.top, left: d.left, animationDelay: d.delay }}>
+                {decoIcon(d.content, i)}
               </div>
             ))}
       </div>
+    </>
+  );
 
-      {/* Content card */}
-      <div
-        className="animate-celebration-slide-up relative z-[1] w-full max-w-[320px] sm:max-w-[420px] max-h-[calc(100dvh-32px)] overflow-y-auto overflow-x-hidden flex flex-col items-center gap-3 sm:gap-4 pt-3 sm:pt-5"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Animal parade — offset right by button column width so it centers over the card */}
-        <div
-          className="flex items-end justify-center flex-wrap sm:flex-nowrap pr-0 sm:pr-[106px]"
-          style={{
-            gap: event.isFullHerd ? 3 : 10,
-            flexWrap: event.isFullHerd ? 'wrap' : 'nowrap',
-            maxWidth: event.isFullHerd ? 260 : 160,
-          }}
-        >
+  return (
+    <ModalShell onClose={onDismiss} size="md" bare padded={false} label="Milestone celebration" closeLabel="Close celebration" behind={behind}>
+      {/* The theme's ranch scene with the animals standing on the hill */}
+      <div className="cel-scene">
+        <RanchStrip sceneKey={sceneKeyForPreset(themePreset)} />
+        <div className="cel-herd" aria-hidden="true">
           {event.isFullHerd ? (
             ALL_MASCOTS.map(({ Component, delay }, i) => (
-              <div
-                key={i}
-                className="animate-mascot-bounce-in"
-                style={{ animationDelay: `${delay}ms` }}
-              >
-                <Component size={36} animated />
+              <div key={i} className="animate-mascot-bounce-in" style={{ animationDelay: `${delay}ms` }}>
+                <Component size={38} animated />
               </div>
             ))
           ) : (
             <>
-              <div className="animate-mascot-bounce-in" style={{ animationDelay: '0ms' }}>
-                <ThemeMascot size={56} animated />
-              </div>
-              <div className="animate-mascot-bounce-in" style={{ animationDelay: '150ms' }}>
-                <DebtsyCow size={56} animated />
-              </div>
+              <div className="animate-mascot-bounce-in" style={{ animationDelay: '0ms' }}><ThemeMascot size={72} animated /></div>
+              <div className="animate-mascot-bounce-in" style={{ animationDelay: '150ms' }}><DebtsyCow size={72} animated /></div>
             </>
           )}
         </div>
-
-        {/* Card + buttons — stacked on mobile, side by side on desktop */}
-        <div className="flex flex-col sm:flex-row gap-2 sm:gap-[10px] w-full items-stretch">
-
-          {/* ShareCard — takes most of the width */}
-          <div className="flex-1 min-w-0">
-            <ShareCard
-              ref={cardRef}
-              event={event}
-              stats={stats}
-              themePrimary={themePrimary}
-              animalEmojis={animalEmojis}
-            />
-          </div>
-
-          {/* Button column — horizontal on mobile, vertical on desktop */}
-          <div className="flex flex-row sm:flex-col gap-2 sm:gap-2 justify-center sm:w-[96px] sm:flex-shrink-0">
-            {showDesktopShare ? (
-              /* Share options — stacked vertically in the same narrow column */
-              <>
-                <button onClick={handleTwitterShare} style={{ width: '100%', padding: '9px 6px', borderRadius: 12, border: 'none', background: '#000', color: 'white', fontSize: 11, fontWeight: 700, cursor: 'pointer', lineHeight: 1.2 }}>
-                  𝕏 Twitter
-                </button>
-                <button onClick={handleFacebookShare} style={{ width: '100%', padding: '9px 6px', borderRadius: 12, border: 'none', background: '#1877F2', color: 'white', fontSize: 11, fontWeight: 700, cursor: 'pointer', lineHeight: 1.2 }}>
-                  f Facebook
-                </button>
-                <button onClick={handleClipboardCopy} style={{ width: '100%', padding: '9px 6px', borderRadius: 12, border: `1.5px solid ${themePrimary}`, background: 'white', color: themePrimary, fontSize: 11, fontWeight: 700, cursor: 'pointer', lineHeight: 1.2 }}>
-                  {clipboardLabel}
-                </button>
-                <button onClick={handleDownload} style={{ width: '100%', padding: '9px 6px', borderRadius: 12, border: '1.5px solid #e5e7eb', background: 'white', color: '#6b7280', fontSize: 11, fontWeight: 700, cursor: 'pointer', lineHeight: 1.2 }}>
-                  ⬇️ Save
-                </button>
-                <button onClick={() => setShowDesktopShare(false)} style={{ background: 'none', border: 'none', fontSize: 10, color: '#d1d5db', cursor: 'pointer', padding: '2px' }}>
-                  ← back
-                </button>
-              </>
-            ) : (
-              /* Default: Save + Share stacked */
-              <>
-                <button
-                  onClick={captureError ? doCaptureCard : handleDownload}
-                  disabled={!captureError && !capturedUrl}
-                  className="flex-1 sm:flex-none"
-                  style={{
-                    width: undefined,
-                    padding: '10px 12px',
-                    borderRadius: 12,
-                    border: 'none',
-                    background: captureError ? '#ef4444' : capturedUrl ? themePrimary : '#d1d5db',
-                    color: 'white',
-                    fontSize: 12,
-                    fontWeight: 700,
-                    cursor: captureError || capturedUrl ? 'pointer' : 'wait',
-                    lineHeight: 1.3,
-                    transition: 'background 0.3s',
-                  }}
-                >
-                  {captureError ? '⚠️ Retry' : capturedUrl ? '⬇️ Save Card' : '⏳ Getting ready…'}
-                </button>
-                <button
-                  onClick={handleShare}
-                  disabled={!capturedUrl}
-                  className="flex-1 sm:flex-none"
-                  style={{
-                    width: undefined,
-                    padding: '10px 12px',
-                    borderRadius: 12,
-                    border: `2px solid ${capturedUrl ? themePrimary : '#d1d5db'}`,
-                    background: 'white',
-                    color: capturedUrl ? themePrimary : '#9ca3af',
-                    fontSize: 12,
-                    fontWeight: 700,
-                    cursor: capturedUrl ? 'pointer' : 'wait',
-                    lineHeight: 1.3,
-                    transition: 'color 0.3s, border-color 0.3s',
-                  }}
-                >
-                  📤 Share
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-
       </div>
-    </div>
+
+      <div className="cel-body">
+        <ShareCard
+          ref={cardRef}
+          event={event}
+          stats={stats}
+          themePrimary={themePrimary}
+          animalEmojis={animalEmojis}
+          palette={{ accent: ui.btnBg, accentInk: ui.btnFg, ink: ui.ink, ink2: ui.ink2, page: ui.page, page2: ui.page2, line: ui.line }}
+        />
+
+        {showDesktopShare ? (
+          <div className="cel-btns">
+            <button type="button" onClick={handleTwitterShare} className="mdl-btn">Share on X</button>
+            <button type="button" onClick={handleFacebookShare} className="mdl-btn">Share on Facebook</button>
+            <button type="button" onClick={handleClipboardCopy} className="mdl-btn ghost"><Copy size={18} />{clipboardLabel}</button>
+            <button type="button" onClick={handleDownload} className="mdl-btn ghost"><Download size={18} />Save</button>
+            <button type="button" onClick={() => setShowDesktopShare(false)} className="tut-skip cel-back-link" style={{ gridColumn: '1 / -1' }}>Back</button>
+          </div>
+        ) : (
+          <div className="cel-btns">
+            <button
+              type="button"
+              onClick={captureError ? doCaptureCard : handleDownload}
+              disabled={!captureError && !capturedUrl}
+              className={`mdl-btn${captureError ? ' danger' : ''}`}
+            >
+              {captureError ? <><TriangleAlert size={18} />Retry</> : capturedUrl ? <><Download size={18} />Save Card</> : <><Loader2 size={18} className="animate-spin" />Getting ready…</>}
+            </button>
+            <button type="button" onClick={handleShare} disabled={!capturedUrl} className="mdl-btn ghost">
+              <Share2 size={18} />Share
+            </button>
+          </div>
+        )}
+      </div>
+    </ModalShell>
   );
 }

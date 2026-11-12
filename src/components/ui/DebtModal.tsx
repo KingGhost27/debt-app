@@ -6,7 +6,8 @@
  */
 
 import { useState, useEffect } from 'react';
-import { X, Plus, CreditCard, Sparkles } from 'lucide-react';
+import { Plus, CreditCard, Sparkles } from 'lucide-react';
+import { ModalShell } from './ModalShell';
 import { useApp } from '../../context/AppContext';
 import type { Debt, DebtCategory } from '../../types';
 import { CATEGORY_INFO } from '../../types';
@@ -171,42 +172,8 @@ export function DebtModal({ isOpen, onClose, debt }: DebtModalProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-4 pb-20">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-        onClick={onClose}
-      />
-
-      {/* Modal */}
-      <div className="relative bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[90vh] overflow-hidden shadow-2xl animate-slide-up">
-        {/* Header */}
-        <div className="sticky top-0 bg-gradient-to-r from-primary-100 to-primary-50 dark:from-primary-900/40 dark:to-primary-800/30 px-5 py-4 border-b border-primary-100/50 dark:border-primary-700/50">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow-lg shadow-primary-300/30">
-                <CreditCard size={20} className="text-white" />
-              </div>
-              <div>
-                <h2 className="text-lg font-bold text-gray-900">
-                  {isEditing ? 'Edit Debt' : 'Add New Debt'}
-                </h2>
-                <p className="text-xs text-gray-500">
-                  {isEditing ? 'Update your debt details' : 'Track a new debt'}
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={onClose}
-              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-white/50 rounded-xl transition-colors"
-            >
-              <X size={20} />
-            </button>
-          </div>
-        </div>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto max-h-[calc(90vh-80px)]">
+    <ModalShell onClose={onClose} size="lg" title={isEditing ? 'Edit Debt' : 'Add New Debt'} subtitle={isEditing ? 'Update your debt details' : 'Track a new debt'} icon={<CreditCard size={18} />}>
+        <form onSubmit={handleSubmit} className="mdl-form">
           {/* Name */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1.5">
@@ -440,12 +407,10 @@ export function DebtModal({ isOpen, onClose, debt }: DebtModalProps) {
               type="submit"
               className="w-full py-3.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-bold rounded-2xl hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg shadow-primary-300/40 hover:shadow-xl hover:shadow-primary-400/40 hover:-translate-y-0.5 flex items-center justify-center gap-2"
             >
-              <Sparkles size={18} />
               {isEditing ? 'Save Changes' : 'Add Debt'}
             </button>
           </div>
         </form>
-      </div>
-    </div>
+    </ModalShell>
   );
 }

@@ -6,7 +6,8 @@
  */
 
 import { useState, useEffect } from 'react';
-import { X, Sparkles, RefreshCw } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
+import { ModalShell } from './ModalShell';
 import { useApp } from '../../context/AppContext';
 import type { Subscription, SubscriptionCategory, SubscriptionFrequencyUnit } from '../../types';
 import { SUBSCRIPTION_CATEGORY_INFO } from '../../types';
@@ -130,32 +131,8 @@ export function SubscriptionModal({ isOpen, onClose, subscription }: Subscriptio
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-4 pb-20">
-      {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-
-      {/* Modal */}
-      <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-xl animate-slide-up max-h-[75vh] sm:max-h-[85vh] overflow-hidden">
-        {/* Header */}
-        <div className="sticky top-0 z-10 bg-gradient-to-r from-primary-500 to-primary-600 px-5 py-4 flex items-center justify-between rounded-t-3xl">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
-              <RefreshCw size={20} className="text-white" />
-            </div>
-            <h2 className="text-lg font-bold text-white">
-              {isEditing ? 'Edit Subscription' : 'Add Subscription'}
-            </h2>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-2 text-white/80 hover:text-white hover:bg-white/20 rounded-xl transition-colors"
-          >
-            <X size={20} />
-          </button>
-        </div>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto max-h-[calc(75vh-72px)] sm:max-h-[calc(85vh-72px)]">
+    <ModalShell onClose={onClose} size="lg" title={isEditing ? 'Edit Subscription' : 'Add Subscription'} icon={<RefreshCw size={18} />}>
+        <form onSubmit={handleSubmit} className="mdl-form">
           {/* Name */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -300,11 +277,9 @@ export function SubscriptionModal({ isOpen, onClose, subscription }: Subscriptio
             type="submit"
             className="w-full py-3.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-2xl hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg shadow-primary-500/30 hover:shadow-primary-500/40 flex items-center justify-center gap-2"
           >
-            <Sparkles size={18} />
             {isEditing ? 'Save Changes' : 'Add Subscription'}
           </button>
         </form>
-      </div>
-    </div>
+    </ModalShell>
   );
 }

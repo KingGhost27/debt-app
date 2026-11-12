@@ -7,6 +7,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { HelpCircle, X } from 'lucide-react';
+import { ModalShell } from './ModalShell';
 
 interface HelpTooltipProps {
   title: string;
@@ -65,53 +66,28 @@ export function HelpTooltip({ title, content, className = '' }: HelpTooltipProps
         ref={buttonRef}
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className={`text-gray-400 hover:text-primary-500 transition-colors ${className}`}
+        className={`ht-btn ${className}`}
         aria-label={`Help: ${title}`}
+        aria-expanded={isOpen}
       >
         <HelpCircle size={16} />
       </button>
 
-      {/* Mobile: Full modal */}
+      {/* Mobile: bottom sheet */}
       {isOpen && isMobile && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center">
-          <div
-            className="absolute inset-0 bg-black/50"
-            onClick={() => setIsOpen(false)}
-          />
-          <div className="relative bg-white w-full rounded-t-2xl p-4 pb-8 animate-slide-up">
-            <div className="flex justify-between items-center mb-3">
-              <h3 className="font-semibold text-gray-900">{title}</h3>
-              <button
-                onClick={() => setIsOpen(false)}
-                className="p-1 text-gray-400 hover:text-gray-600"
-              >
-                <X size={20} />
-              </button>
-            </div>
-            <p className="text-gray-600 text-sm leading-relaxed">{content}</p>
-          </div>
-        </div>
+        <ModalShell onClose={() => setIsOpen(false)} size="sm" title={title}>
+          <p className="mdl-note" style={{ fontSize: 16, color: 'var(--ranch-ink)' }}>{content}</p>
+        </ModalShell>
       )}
 
-      {/* Desktop: Popover */}
+      {/* Desktop: popover */}
       {isOpen && !isMobile && (
-        <div
-          ref={tooltipRef}
-          className="absolute z-50 w-72 p-3 bg-white rounded-xl shadow-lg border border-gray-100 mt-2 left-0"
-          style={{ transform: 'translateY(4px)' }}
-        >
-          <div className="flex justify-between items-start mb-2">
-            <h4 className="font-medium text-gray-900 text-sm">{title}</h4>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="text-gray-400 hover:text-gray-600"
-            >
-              <X size={14} />
-            </button>
+        <div ref={tooltipRef} className="ht-pop" role="dialog" aria-label={title}>
+          <div className="ht-pop-h">
+            <h4>{title}</h4>
+            <button type="button" onClick={() => setIsOpen(false)} aria-label="Close help"><X size={14} /></button>
           </div>
-          <p className="text-gray-600 text-xs leading-relaxed">{content}</p>
-          {/* Arrow */}
-          <div className="absolute -top-2 left-4 w-3 h-3 bg-white border-l border-t border-gray-100 rotate-45" />
+          <p>{content}</p>
         </div>
       )}
     </>

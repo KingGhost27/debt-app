@@ -5,7 +5,8 @@
  */
 
 import { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { Wallet } from 'lucide-react';
+import { ModalShell } from './ModalShell';
 import { useApp } from '../../context/AppContext';
 import type { Asset } from '../../types';
 import { formatCurrency } from '../../lib/calculations';
@@ -52,24 +53,8 @@ export function UpdateBalanceModal({ isOpen, onClose, asset }: UpdateBalanceModa
   const isIncrease = difference > 0;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50">
-      <div className="w-full max-w-lg bg-white rounded-t-3xl">
-        {/* Header */}
-        <div className="px-6 py-4 border-b flex justify-between items-center">
-          <div>
-            <h2 className="text-xl font-semibold">Update Balance</h2>
-            <p className="text-sm text-gray-500">{asset.name}</p>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-          >
-            <X size={24} />
-          </button>
-        </div>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+    <ModalShell onClose={onClose} size="md" title="Update Balance" subtitle={asset.name} icon={<Wallet size={18} />}>
+        <form onSubmit={handleSubmit} className="mdl-form">
           {/* Current Balance Display */}
           <div className="bg-gray-50 rounded-xl p-4">
             <p className="text-sm text-gray-500">Current Balance</p>
@@ -138,7 +123,6 @@ export function UpdateBalanceModal({ isOpen, onClose, asset }: UpdateBalanceModa
             Update Balance
           </button>
         </form>
-      </div>
-    </div>
+    </ModalShell>
   );
 }

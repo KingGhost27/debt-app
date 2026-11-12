@@ -7,7 +7,8 @@
  */
 
 import { useState, useCallback } from 'react';
-import { X, Crown, Sparkles, Zap, Star } from 'lucide-react';
+import { Crown, Check, Zap, Star } from 'lucide-react';
+import { ModalShell } from './ModalShell';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { isRunningInTwa } from '../../lib/twa';
@@ -108,150 +109,65 @@ export function UpgradeModal({ onDismiss }: UpgradeModalProps) {
   }, [user]);
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-label="Upgrade to Pro"
-      className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
-      onClick={onDismiss}
-    >
-      {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+    <ModalShell onClose={onDismiss} size="sm" title="Upgrade to Pro" subtitle="Unlock the full Cowculator experience" icon={<Crown size={18} />}>
+      <div className="up-feats">
+        <p className="up-h">Everything in Pro</p>
+        <ul>
+          {PRO_FEATURES.map((feature) => (
+            <li key={feature}><Check size={15} strokeWidth={3} />{feature}</li>
+          ))}
+        </ul>
+      </div>
 
-      {/* Modal */}
-      <div
-        className="relative z-10 w-full max-w-sm max-h-[calc(100dvh-24px)] overflow-y-auto bg-white rounded-2xl shadow-2xl animate-celebration-slide-up"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Close button */}
-        <button
-          type="button"
-          onClick={onDismiss}
-          className="absolute top-2.5 right-2.5 p-1 rounded-full hover:bg-white/20 transition-colors z-10"
-        >
-          <X size={16} className="text-white/80" />
-        </button>
-
-        {/* Header — compact */}
-        <div className="bg-gradient-to-br from-primary-500 to-primary-700 px-4 pt-4 pb-3 text-center rounded-t-2xl">
-          <div className="inline-flex items-center justify-center w-9 h-9 bg-white/20 rounded-xl mb-1.5">
-            <Crown size={18} className="text-white" />
-          </div>
-          <h2 className="text-base font-extrabold text-white leading-tight">Upgrade to Pro</h2>
-          <p className="text-white/80 text-[11px] mt-0.5">Unlock the full Cowculator experience</p>
+      {/*
+        Google Play consumption-only compliance: inside the Android wrapper we may not
+        present a purchase flow, and may not link out to one. Plain text only — the
+        absence of a tappable path to checkout is the point, so do not "helpfully" turn
+        cowculator.net into a link here.
+      */}
+      {inTwa ? (
+        <div className="grid gap-3">
+          <p className="mdl-note" style={{ fontSize: 16, color: 'var(--ranch-ink)' }}>
+            Pro is managed on the Cowculator website. Visit{' '}
+            <b>cowculator.net</b> in your
+            browser to see plans.
+          </p>
+          <p className="mdl-note">
+            Already have Pro? Sign in here with the same account and your features unlock
+            automatically.
+          </p>
+          <button type="button" onClick={onDismiss} className="mdl-btn">Got it</button>
         </div>
-
-        {/* Pro features — tighter */}
-        <div className="px-4 py-3 border-b border-gray-100">
-          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-1.5">Everything in Pro</p>
-          <div className="grid grid-cols-2 gap-y-1 gap-x-2">
-            {PRO_FEATURES.map((feature) => (
-              <div key={feature} className="flex items-center gap-1 text-[11px] text-gray-600">
-                <Sparkles size={10} className="text-primary-400 flex-shrink-0" />
-                <span className="truncate">{feature}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/*
-          Google Play consumption-only compliance: inside the Android wrapper we may not
-          present a purchase flow, and may not link out to one. Plain text only — the
-          absence of a tappable path to checkout is the point, so do not "helpfully" turn
-          cowculator.net into a link here.
-        */}
-        {inTwa ? (
-          <div className="px-4 py-4">
-            <p className="text-sm text-gray-700 leading-relaxed">
-              Pro is managed on the Cowculator website. Visit{' '}
-              <span className="font-semibold text-gray-900">cowculator.net</span> in your
-              browser to see plans.
-            </p>
-            <p className="text-xs text-gray-500 mt-2 leading-relaxed">
-              Already have Pro? Sign in here with the same account and your features unlock
-              automatically.
-            </p>
-            <button
-              type="button"
-              onClick={onDismiss}
-              className="mt-4 w-full py-2.5 rounded-xl bg-primary-500 hover:bg-primary-600 text-white text-sm font-bold transition-colors"
-            >
-              Got it
-            </button>
-          </div>
-        ) : (
-        /* Plan cards — clearly separated buttons */
-        <div className="px-4 py-3 space-y-2">
+      ) : (
+        <div className="up-plans">
           {PLANS.map((plan) => (
             <button
               key={plan.id}
               type="button"
               onClick={() => handleSelectPlan(plan.id)}
               disabled={!!loadingPlan}
-              className={`
-                w-full text-left p-3 rounded-xl border transition-all
-                border-gray-200 hover:border-primary-400 hover:bg-primary-50/40 active:scale-[0.99]
-                ${loadingPlan === plan.id ? 'opacity-70' : ''}
-                disabled:cursor-wait
-              `}
+              className={`up-plan${plan.highlight ? ' is-hi' : ''}${loadingPlan === plan.id ? ' is-busy' : ''}`}
             >
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-1.5 min-w-0">
-                  {plan.id === 'annual' ? (
-                    <Zap size={14} className="text-primary-500 flex-shrink-0" />
-                  ) : plan.id === 'lifetime' ? (
-                    <Star size={14} className="text-amber-500 flex-shrink-0" />
-                  ) : null}
-                  <span className="font-bold text-sm text-gray-900">{plan.name}</span>
-                  {plan.badge && (
-                    <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full whitespace-nowrap ${
-                      plan.id === 'lifetime'
-                        ? 'bg-amber-100 text-amber-700'
-                        : 'bg-primary-100 text-primary-700'
-                    }`}>
-                      {plan.badge}
-                    </span>
-                  )}
-                </div>
-                <div className="text-right flex-shrink-0">
-                  <span className="text-base font-extrabold text-gray-900">{plan.price}</span>
-                  <span className="text-[10px] text-gray-400 ml-0.5">{plan.period}</span>
-                </div>
-              </div>
-
-              {/* Sub-features */}
-              <div className="mt-1.5 flex flex-wrap gap-1">
-                {plan.features.map((f) => (
-                  <span key={f} className="text-[9px] text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-full">
-                    {f}
-                  </span>
-                ))}
-              </div>
-
-              {loadingPlan === plan.id && (
-                <p className="text-[10px] text-primary-500 mt-1 animate-pulse">
-                  Redirecting to checkout...
-                </p>
-              )}
+              <span className="up-top">
+                <span className="up-name">
+                  {plan.id === 'annual' ? <Zap size={16} /> : plan.id === 'lifetime' ? <Star size={16} /> : null}
+                  {plan.name}
+                  {plan.badge && <span className={`rui-badge ${plan.id === 'lifetime' ? 'soon' : 'ok'}`}>{plan.badge}</span>}
+                </span>
+                <span className="up-price"><b>{plan.price}</b> <small>{plan.period}</small></span>
+              </span>
+              <span className="up-sub">{plan.features.join(' · ')}</span>
+              {loadingPlan === plan.id && <span className="up-sub" role="status">Redirecting to checkout...</span>}
             </button>
           ))}
         </div>
-        )}
+      )}
 
-        {/* Error */}
-        {error && !inTwa && (
-          <div className="px-4 pb-2">
-            <p className="text-[10px] text-red-500 text-center">{error}</p>
-          </div>
-        )}
+      {error && !inTwa && <p className="mdl-err" role="alert" style={{ textAlign: 'center' }}>{error}</p>}
 
-        {/* Footer */}
-        <div className="px-4 pb-3 text-center">
-          <p className="text-[9px] text-gray-300">
-            Powered by Stripe. Cancel anytime. No hidden fees.
-          </p>
-        </div>
-      </div>
-    </div>
+      <p className="mdl-note" style={{ textAlign: 'center', fontSize: 13 }}>
+        Powered by Stripe. Cancel anytime. No hidden fees.
+      </p>
+    </ModalShell>
   );
 }

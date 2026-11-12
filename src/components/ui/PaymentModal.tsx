@@ -7,7 +7,8 @@
  */
 
 import { useState, useEffect } from 'react';
-import { X, Sparkles, DollarSign } from 'lucide-react';
+import { DollarSign } from 'lucide-react';
+import { ModalShell } from './ModalShell';
 import { useApp } from '../../context/AppContext';
 import { formatCurrency } from '../../lib/calculations';
 import type { Debt, PaymentType, Payment } from '../../types';
@@ -189,35 +190,8 @@ export function PaymentModal({
     : [];
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 pb-20">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
-      />
-
-      {/* Modal */}
-      <div className="relative w-full max-w-md max-h-[85vh] bg-white dark:bg-gray-800 rounded-3xl shadow-xl animate-slide-up overflow-hidden flex flex-col">
-        {/* Header */}
-        <div className="bg-gradient-to-r from-primary-500 to-primary-600 px-5 py-3 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
-              <DollarSign size={18} className="text-white" />
-            </div>
-            <h2 className="text-lg font-bold text-white">
-              {isEditMode ? 'Edit Payment' : 'Log Payment'}
-            </h2>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-2 text-white/80 hover:text-white hover:bg-white/20 rounded-xl transition-colors"
-          >
-            <X size={20} />
-          </button>
-        </div>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-4 space-y-3 overflow-y-auto">
+    <ModalShell onClose={onClose} size="md" title={isEditMode ? 'Edit Payment' : 'Log Payment'} icon={<DollarSign size={18} />}>
+        <form onSubmit={handleSubmit} className="mdl-form">
           {/* Debt Selector */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
@@ -355,11 +329,9 @@ export function PaymentModal({
             type="submit"
             className="w-full py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-2xl hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg shadow-primary-500/30 hover:shadow-primary-500/40 flex items-center justify-center gap-2"
           >
-            <Sparkles size={18} />
             {isEditMode ? 'Update Payment' : 'Log Payment'}
           </button>
         </form>
-      </div>
-    </div>
+    </ModalShell>
   );
 }

@@ -5,7 +5,8 @@
  */
 
 import { useState, useEffect } from 'react';
-import { X, DollarSign, Calendar, Gift } from 'lucide-react';
+import { DollarSign, Calendar, Gift, Lightbulb } from 'lucide-react';
+import { ModalShell } from './ModalShell';
 import type { OneTimeFunding } from '../../types';
 
 interface OneTimeFundingModalProps {
@@ -128,30 +129,8 @@ export function OneTimeFundingModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-      {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-
-      {/* Modal */}
-      <div className="relative bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="sticky top-0 bg-white flex justify-between items-center p-4 border-b border-gray-100">
-          <div className="flex items-center gap-2">
-            <Gift size={20} className="text-amber-500" />
-            <h2 className="text-lg font-semibold">
-              {isEditing ? 'Edit Funding' : 'Add One-Time Funding'}
-            </h2>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <X size={20} />
-          </button>
-        </div>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-4 space-y-4">
+    <ModalShell onClose={onClose} size="md" title={isEditing ? 'Edit Funding' : 'Add One-Time Funding'} icon={<Gift size={18} />}>
+        <form onSubmit={handleSubmit} className="mdl-form">
           {/* Preset buttons */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -165,11 +144,11 @@ export function OneTimeFundingModal({
                   onClick={() => handlePresetClick(preset.label)}
                   className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
                     formData.name === preset.label
-                      ? 'bg-amber-100 border-amber-300 text-amber-700'
+                      ? 'bg-amber-100 border-amber-300 text-amber-700 font-semibold'
                       : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'
                   }`}
                 >
-                  {preset.emoji} {preset.label}
+                  {preset.label}
                 </button>
               ))}
             </div>
@@ -252,9 +231,10 @@ export function OneTimeFundingModal({
           </div>
 
           {/* Info box */}
-          <div className="p-3 bg-amber-50 rounded-xl border border-amber-100">
+          <div className="flex items-start gap-2.5 p-3 bg-amber-50 rounded-xl">
+            <Lightbulb size={18} className="flex-none mt-0.5 text-amber-700" />
             <p className="text-sm text-amber-800">
-              💡 This amount will be applied as an extra payment to your focus debt on the specified date, accelerating your payoff.
+              This amount will be applied as an extra payment to your focus debt on the specified date, accelerating your payoff.
             </p>
           </div>
 
@@ -268,7 +248,6 @@ export function OneTimeFundingModal({
             </button>
           </div>
         </form>
-      </div>
-    </div>
+    </ModalShell>
   );
 }

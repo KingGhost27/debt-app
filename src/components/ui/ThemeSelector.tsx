@@ -1,17 +1,25 @@
 /**
- * Theme Selector Component - Kawaii Edition
+ * Theme Selector: ranch edition.
  *
- * Cute theme selection with character-based presets.
- * Features playful animations and delightful interactions.
+ * Day/Night is a SegmentedControl. The nine presets are tiles that each carry a
+ * live thumbnail of their own ranch scene (RanchStrip at tile size, friend
+ * included), the theme name, and a Pro badge where the theme is locked. Locked
+ * tiles open the upgrade modal exactly as before; "Create Your Own" keeps the
+ * free-form color picker. Styles: pages/settings.css (section 5).
  */
 
 import { useState } from 'react';
-import { Check, Palette, Moon, Sun, Sparkles, Crown } from 'lucide-react';
+import { Check, Palette, Moon, Sun, Lock } from 'lucide-react';
 import { useTheme, THEME_PRESETS, THEME_METADATA } from '../../hooks/useTheme';
 import type { ThemePreset } from '../../types';
-import { THEME_DECORATIONS } from '../../lib/themes';
 import { useFeatureGate } from '../../hooks/useFeatureGate';
 import { UpgradeModal } from './UpgradeModal';
+import { SegmentedControl } from './SegmentedControl';
+import { RanchStrip } from '../ranch/RanchStrip';
+import { sceneKeyForPreset } from '../../lib/ranchScenes';
+import '../../pages/settings.css';
+
+const QUICK_COLORS = ['#f472b6', '#a855f7', '#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#ec4899', '#8b5cf6'];
 
 export function ThemeSelector() {
   const { currentPreset, setPreset, setCustomFromColor, theme, isDarkMode, toggleDarkMode } = useTheme();
@@ -38,156 +46,54 @@ export function ThemeSelector() {
     setCustomFromColor(color);
   };
 
+  const customOn = showCustom || currentPreset === 'custom';
+
   return (
-    <div className="space-y-4 sm:space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-2 sm:gap-3">
-        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center">
-          <Palette size={16} className="text-white sm:hidden" />
-          <Palette size={20} className="text-white hidden sm:block" />
+    <div className="th">
+      {/* Day / Night */}
+      <div className="th-mode">
+        <div className="set-row-copy">
+          <p className="th-mode-t">{isDarkMode ? 'Night Mode' : 'Day Mode'}</p>
+          <p className="set-hint">{isDarkMode ? 'Cozy vibes for evening' : 'Bright and cheerful'}</p>
         </div>
-        <div>
-          <h3 className="text-sm sm:text-lg font-bold text-gray-900">Theme & Colors</h3>
-          <p className="text-xs sm:text-sm text-gray-500">Make it yours!</p>
-        </div>
+        <SegmentedControl
+          label="Day or night mode"
+          value={isDarkMode ? 'night' : 'day'}
+          onValueChange={(v) => { if ((v === 'night') !== isDarkMode) toggleDarkMode(); }}
+          options={[
+            { value: 'day', label: <><Sun size={16} /> Day</> },
+            { value: 'night', label: <><Moon size={16} /> Night</> },
+          ]}
+        />
       </div>
 
-      {/* Dark Mode Toggle */}
-      <div className="card hover:shadow-md transition-shadow">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className={`w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center transition-colors ${
-              isDarkMode
-                ? 'bg-gradient-to-br from-indigo-500 to-purple-600'
-                : 'bg-gradient-to-br from-amber-400 to-orange-500'
-            }`}>
-              {isDarkMode ? (
-                <>
-                  <Moon size={18} className="text-white sm:hidden" />
-                  <Moon size={24} className="text-white hidden sm:block" />
-                </>
-              ) : (
-                <>
-                  <Sun size={18} className="text-white sm:hidden" />
-                  <Sun size={24} className="text-white hidden sm:block" />
-                </>
-              )}
-            </div>
-            <div>
-              <p className="text-sm sm:text-base font-semibold text-gray-900">
-                {isDarkMode ? 'Night Mode' : 'Day Mode'}
-              </p>
-              <p className="text-xs sm:text-sm text-gray-500">
-                {isDarkMode ? 'Cozy vibes for evening' : 'Bright and cheerful'}
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={toggleDarkMode}
-            className={`relative w-14 h-8 sm:w-16 sm:h-9 rounded-full transition-all duration-300 ${
-              isDarkMode
-                ? 'bg-gradient-to-r from-indigo-500 to-purple-600'
-                : 'bg-gradient-to-r from-gray-200 to-gray-300'
-            }`}
-          >
-            <span
-              className={`absolute top-1 sm:top-1.5 w-6 h-6 bg-white rounded-full shadow-lg transition-all duration-300 flex items-center justify-center ${
-                isDarkMode ? 'translate-x-7 sm:translate-x-8' : 'translate-x-1 sm:translate-x-1.5'
-              }`}
-            >
-              {isDarkMode ? (
-                <Moon size={12} className="text-indigo-500" />
-              ) : (
-                <Sun size={12} className="text-amber-500" />
-              )}
-            </span>
-          </button>
-        </div>
-      </div>
-
-      {/* Theme Presets Grid */}
-      <div>
-        <h4 className="text-xs sm:text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2 sm:mb-3 flex items-center gap-1.5">
-          <Sparkles size={12} className="sm:hidden" />
-          <Sparkles size={14} className="hidden sm:block" />
-          Color Vibes 🌈
-        </h4>
-        <div className="grid grid-cols-2 gap-2 sm:gap-3">
+      {/* Presets */}
+      <div className="grid gap-3">
+        <h3 className="th-h">Color Vibes</h3>
+        <div className="th-grid">
           {presetKeys.map((preset) => {
             const meta = THEME_METADATA[preset];
-            const colors = THEME_PRESETS[preset];
-            const decorations = THEME_DECORATIONS[preset];
             const isSelected = currentPreset === preset && !showCustom;
             const locked = isThemeLocked(preset);
 
             return (
               <button
                 key={preset}
+                type="button"
                 onClick={() => handlePresetSelect(preset)}
-                className={`relative p-2.5 sm:p-4 rounded-xl sm:rounded-2xl border-2 text-left transition-all duration-300 group overflow-hidden ${
-                  isSelected
-                    ? 'border-primary-400 bg-primary-50 shadow-lg shadow-primary-200/50'
-                    : locked
-                    ? 'border-amber-200 bg-white hover:border-amber-300 hover:shadow-md'
-                    : 'border-gray-100 bg-white hover:border-primary-200 hover:shadow-md'
-                }`}
+                aria-pressed={isSelected}
+                aria-label={`${meta.name}${locked ? ', Pro theme' : ''}${isSelected ? ', selected' : ''}`}
+                className={`th-tile${isSelected ? ' is-on' : ''}`}
               >
-                {/* Background gradient on hover/select */}
-                <div
-                  className={`absolute inset-0 opacity-0 transition-opacity ${
-                    isSelected ? 'opacity-100' : 'group-hover:opacity-50'
-                  }`}
-                  style={{
-                    background: `linear-gradient(135deg, ${colors.gradientTo}40, ${colors.gradientFrom}30)`,
-                  }}
-                />
-
-                {/* Locked crown badge */}
-                {locked && (
-                  <div className="absolute top-2 right-2 z-20 w-6 h-6 rounded-full bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center shadow-md shadow-amber-300/50">
-                    <Crown size={12} className="text-white" strokeWidth={2.5} />
-                  </div>
-                )}
-
-                {/* Content */}
-                <div className={`relative z-10 ${locked ? 'opacity-60' : ''}`}>
-                  {/* Color dots */}
-                  <div className="flex -space-x-1 mb-2 sm:mb-3">
-                    <div
-                      className="w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 border-white shadow-sm transition-transform group-hover:scale-110"
-                      style={{ backgroundColor: colors.primary500 }}
-                    />
-                    <div
-                      className="w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 border-white shadow-sm transition-transform group-hover:scale-110"
-                      style={{ backgroundColor: colors.primary300, transitionDelay: '50ms' }}
-                    />
-                    <div
-                      className="w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 border-white shadow-sm transition-transform group-hover:scale-110"
-                      style={{ backgroundColor: colors.accent, transitionDelay: '100ms' }}
-                    />
-                  </div>
-
-                  {/* Theme info */}
-                  <div className="flex items-center gap-1 sm:gap-1.5 mb-0.5 sm:mb-1">
-                    <span className={`text-base sm:text-lg transition-transform ${isSelected ? 'animate-kawaii-bounce' : ''}`}>
-                      {meta.emoji}
-                    </span>
-                    <span className="font-semibold text-xs sm:text-sm text-gray-900">{meta.name}</span>
-                  </div>
-                  <p className="text-[10px] sm:text-xs text-gray-500 line-clamp-1">{meta.description}</p>
-
-                  {/* Floating emoji decoration */}
-                  <span className="absolute top-2 right-2 text-sm opacity-30">
-                    {decorations.floatingEmojis[0]}
-                  </span>
-                </div>
-
-                {/* Selection indicator */}
-                {isSelected && (
-                  <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-primary-500 flex items-center justify-center animate-pop-in">
-                    <Check size={12} className="text-white" />
-                  </div>
-                )}
+                <span className="th-prev" aria-hidden="true">
+                  <RanchStrip sceneKey={sceneKeyForPreset(preset)} />
+                  {locked && <span className="rui-badge soon th-lock"><Lock size={12} strokeWidth={2.5} />Pro</span>}
+                  {isSelected && <span className="th-sel"><Check size={16} strokeWidth={3} /></span>}
+                </span>
+                <span className="th-copy">
+                  <span className="th-name">{meta.name}</span>
+                  <span className="th-desc">{meta.description}</span>
+                </span>
               </button>
             );
           })}
@@ -195,88 +101,52 @@ export function ThemeSelector() {
       </div>
 
       {/* Custom Theme */}
-      <div>
-        <h4 className="text-xs sm:text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2 sm:mb-3 flex items-center gap-1.5">
-          <Palette size={12} className="sm:hidden" />
-          <Palette size={14} className="hidden sm:block" />
-          Custom Theme
-        </h4>
-        <button
-          onClick={() => setShowCustom(true)}
-          className={`w-full relative p-3 sm:p-4 rounded-xl sm:rounded-2xl border-2 text-left transition-all duration-300 overflow-hidden ${
-            showCustom || currentPreset === 'custom'
-              ? 'border-primary-400 bg-primary-50 shadow-lg'
-              : 'border-gray-100 bg-white hover:border-primary-200 hover:shadow-md'
-          }`}
-        >
-          {/* Rainbow gradient background */}
-          <div className="absolute inset-0 bg-gradient-to-r from-pink-100 via-purple-100 to-blue-100 opacity-30" />
-
-          <div className="relative z-10 flex items-center gap-3 sm:gap-4">
-            {/* Color preview */}
-            <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-pink-400 via-purple-500 to-blue-500 flex items-center justify-center shadow-lg">
-              <span className="text-base sm:text-xl">🎨</span>
-            </div>
-
-            <div className="flex-1">
-              <span className="text-sm sm:text-base font-semibold text-gray-900">Create Your Own</span>
-              <p className="text-xs sm:text-sm text-gray-500">Pick any color you love!</p>
-            </div>
-
-            {(showCustom || currentPreset === 'custom') && (
-              <div className="w-6 h-6 rounded-full bg-primary-500 flex items-center justify-center animate-pop-in">
-                <Check size={14} className="text-white" />
-              </div>
-            )}
-          </div>
+      <div className="grid gap-3">
+        <h3 className="th-h">Custom Theme</h3>
+        <button type="button" onClick={() => setShowCustom(true)} aria-pressed={customOn} className={`th-custom${customOn ? ' is-on' : ''}`}>
+          <span className="th-wheel"><Palette size={22} /></span>
+          <span className="th-custom-copy">
+            <span className="th-name">Create Your Own</span>
+            <span className="set-hint">Pick any color you love!</span>
+          </span>
+          {customOn && <span className="th-sel" style={{ position: 'static' }}><Check size={16} strokeWidth={3} /></span>}
         </button>
 
-        {/* Custom color picker */}
         {showCustom && (
-          <div className="mt-2 sm:mt-3 p-3 sm:p-5 bg-white rounded-xl sm:rounded-2xl border border-gray-100 shadow-sm animate-slide-up space-y-3 sm:space-y-4">
-            <label className="block text-xs sm:text-sm font-semibold text-gray-700">
-              Pick your favorite color
-            </label>
-            <div className="flex items-center gap-3 sm:gap-4">
-              <div className="relative">
-                <input
-                  type="color"
-                  value={customColor}
-                  onChange={(e) => handleCustomColorChange(e.target.value)}
-                  className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl border-2 border-gray-200 cursor-pointer hover:border-primary-300 transition-colors"
-                  style={{ padding: '2px' }}
-                />
-                <Sparkles size={14} className="absolute -top-1 -right-1 text-primary-400 animate-kawaii-pulse" />
-              </div>
-              <div className="flex-1">
-                <input
-                  type="text"
-                  value={customColor}
-                  onChange={(e) => handleCustomColorChange(e.target.value)}
-                  placeholder="#a855f7"
-                  className="w-full px-3 py-2 sm:px-4 sm:py-3 border-2 border-gray-200 rounded-xl text-xs sm:text-sm font-mono focus:border-primary-400 focus:outline-none focus:ring-4 focus:ring-primary-100 transition-all"
-                />
-              </div>
+          <div className="th-picker">
+            <label className="set-label" htmlFor="th-color">Pick your favorite color</label>
+            <div className="th-picker-row">
+              <input
+                id="th-color"
+                type="color"
+                value={customColor}
+                onChange={(e) => handleCustomColorChange(e.target.value)}
+                className="th-color"
+                aria-label="Theme color"
+              />
+              <input
+                type="text"
+                value={customColor}
+                onChange={(e) => handleCustomColorChange(e.target.value)}
+                placeholder="#a855f7"
+                aria-label="Theme color as hex"
+                className="set-input th-hex"
+              />
             </div>
-
-            {/* Quick color suggestions */}
-            <div className="flex flex-wrap gap-2">
-              {['#f472b6', '#a855f7', '#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#ec4899', '#8b5cf6'].map((color) => (
+            <div className="th-sw" role="group" aria-label="Quick colors">
+              {QUICK_COLORS.map((color) => (
                 <button
                   key={color}
+                  type="button"
                   onClick={() => handleCustomColorChange(color)}
-                  className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl border-2 transition-all hover:scale-110 ${
-                    customColor === color ? 'border-gray-900 scale-110' : 'border-transparent'
-                  }`}
-                  style={{ backgroundColor: color }}
+                  aria-label={`Use ${color}`}
+                  aria-pressed={customColor === color}
+                  className={customColor === color ? 'is-on' : ''}
+                  style={{ '--c': color } as React.CSSProperties}
                 />
               ))}
             </div>
-
-            <p className="text-xs text-gray-500 flex items-center gap-1">
-              <Sparkles size={12} />
-              We'll create a beautiful palette from your color!
-            </p>
+            <p className="set-hint">We'll create a beautiful palette from your color!</p>
           </div>
         )}
       </div>

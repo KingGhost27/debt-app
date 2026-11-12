@@ -6,7 +6,8 @@
  */
 
 import { useState, useEffect, useMemo } from 'react';
-import { X, DollarSign, Calendar, Sparkles } from 'lucide-react';
+import { DollarSign, Calendar } from 'lucide-react';
+import { ModalShell } from './ModalShell';
 import { format, parseISO, addDays } from 'date-fns';
 import { useApp } from '../../context/AppContext';
 import {
@@ -226,38 +227,8 @@ export function PaycheckModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-start justify-center z-50 p-4 pt-8 pb-24 overflow-y-auto">
-      <div
-        className="bg-white rounded-3xl shadow-2xl w-full max-w-md animate-in fade-in zoom-in-95 duration-200"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="bg-gradient-to-r from-primary-100 to-primary-50 dark:from-primary-900/40 dark:to-primary-800/30 px-4 py-3 border-b border-primary-200 dark:border-primary-700/50 rounded-t-3xl">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-full bg-white/80 dark:bg-gray-900/30 flex items-center justify-center shadow-sm shrink-0">
-                <DollarSign className="w-4 h-4 text-primary-600" />
-              </div>
-              <div>
-                <h2 className="text-sm font-bold text-primary-900 leading-tight">
-                  {isEditing ? 'Edit Paycheck' : 'Log Paycheck'}
-                </h2>
-                <p className="text-xs text-primary-600 leading-tight">
-                  Record your actual take-home pay
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={onClose}
-              className="p-1.5 hover:bg-white/50 rounded-full transition-colors"
-            >
-              <X className="w-4 h-4 text-primary-600" />
-            </button>
-          </div>
-        </div>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-4 space-y-4">
+    <ModalShell onClose={onClose} size="md" title={isEditing ? 'Edit Paycheck' : 'Log Paycheck'} subtitle="Record your actual take-home pay" icon={<DollarSign size={18} />}>
+        <form onSubmit={handleSubmit} className="mdl-form">
           {/* No income sources warning */}
           {incomeSources.length === 0 && (
             <div className="bg-amber-50 border border-amber-200 rounded-2xl p-3 text-center">
@@ -454,11 +425,9 @@ export function PaycheckModal({
             disabled={incomeSources.length === 0}
             className="w-full py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white text-sm font-bold rounded-xl shadow-lg hover:shadow-xl hover:from-primary-600 hover:to-primary-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            <Sparkles className="w-4 h-4" />
             {isEditing ? 'Update Paycheck' : 'Log Paycheck'}
           </button>
         </form>
-      </div>
-    </div>
+    </ModalShell>
   );
 }

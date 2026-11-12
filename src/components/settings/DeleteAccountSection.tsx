@@ -6,6 +6,7 @@
  *
  * Deliberately gated behind type-to-confirm: this is irreversible, it destroys real
  * financial history, and a mis-tap on mobile must not be able to trigger it.
+ * Ranch edition: restyle only; the request, the confirm word and the sign-out are unchanged.
  */
 
 import { useState } from 'react';
@@ -13,6 +14,7 @@ import { AlertTriangle, Trash2 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../ui/Toast';
+import '../../pages/settings.css';
 
 const CONFIRM_WORD = 'DELETE';
 
@@ -69,37 +71,29 @@ export function DeleteAccountSection() {
   };
 
   return (
-    <div className="card !p-3 sm:!p-4 border border-red-200 dark:border-red-900/40">
-      <div className="flex items-center gap-2.5 mb-2">
-        <div className="w-7 h-7 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0">
-          <AlertTriangle size={15} className="text-red-500" />
-        </div>
-        <h2 className="text-sm sm:text-base font-bold text-gray-900 dark:text-gray-100">
-          Delete account
-        </h2>
+    <section className="rui-card set-danger" aria-labelledby="delete-account-h">
+      <div className="set-danger-h">
+        <span className="set-ic red"><AlertTriangle size={20} /></span>
+        <h2 id="delete-account-h" className="set-danger-t">Delete account</h2>
       </div>
 
-      <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+      <p className="set-hint" style={{ fontSize: 15 }}>
         Permanently deletes your account and everything in it — debts, payments, income,
         assets, and subscriptions. If you have an active Pro subscription, it is cancelled
         first. This cannot be undone.
       </p>
 
       {!expanded ? (
-        <button
-          onClick={() => setExpanded(true)}
-          className="mt-3 flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-        >
-          <Trash2 size={15} />
-          Delete my account
-        </button>
+        <div className="set-btns">
+          <button type="button" onClick={() => setExpanded(true)} className="set-btn ghost sm" style={{ color: 'var(--ranch-focus)', boxShadow: 'inset 0 0 0 2px var(--ranch-focus)' }}>
+            <Trash2 size={16} />
+            Delete my account
+          </button>
+        </div>
       ) : (
-        <div className="mt-3 space-y-2.5">
-          <label
-            htmlFor="delete-confirm"
-            className="block text-xs text-gray-600 dark:text-gray-300"
-          >
-            Type <span className="font-bold text-red-500">{CONFIRM_WORD}</span> to confirm:
+        <div className="set-confirm">
+          <label htmlFor="delete-confirm" className="set-label">
+            Type <b>{CONFIRM_WORD}</b> to confirm:
           </label>
           <input
             id="delete-confirm"
@@ -109,31 +103,28 @@ export function DeleteAccountSection() {
             autoComplete="off"
             autoCapitalize="characters"
             disabled={deleting}
-            className="w-full sm:max-w-xs px-3 py-2 rounded-xl border border-red-200 dark:border-red-900/40 bg-white dark:bg-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-red-400 disabled:opacity-50"
+            className="set-input"
             placeholder={CONFIRM_WORD}
           />
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleDelete}
-              disabled={!canDelete}
-              className="flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold text-white bg-red-500 hover:bg-red-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-            >
-              <Trash2 size={15} />
+          <div className="set-btns">
+            <button type="button" onClick={handleDelete} disabled={!canDelete} className="set-btn danger sm">
+              <Trash2 size={16} />
               {deleting ? 'Deleting…' : 'Permanently delete'}
             </button>
             <button
+              type="button"
               onClick={() => {
                 setExpanded(false);
                 setTyped('');
               }}
               disabled={deleting}
-              className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 transition-colors"
+              className="set-btn ghost sm"
             >
               Cancel
             </button>
           </div>
         </div>
       )}
-    </div>
+    </section>
   );
 }
