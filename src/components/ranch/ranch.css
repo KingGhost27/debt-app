@@ -140,6 +140,17 @@
   .ranch-bubble.is-low::after { top: -6px; bottom: auto; border-radius: 4px 0 0 0; }
 }
 
+/* "you are here" pin over the walking friend: a product surface, so it takes the button colors */
+.ranch .r-pin-body { fill: var(--ranch-btn-bg); stroke: var(--ranch-page); stroke-width: 2.6; stroke-linejoin: round; paint-order: stroke; }
+.ranch .r-pin-dot { fill: var(--ranch-page); }
+@media (prefers-reduced-motion: no-preference) {
+  .ranch .r-pin-bob { animation: r-pin-bob 2.4s ease-in-out infinite; }
+}
+@keyframes r-pin-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2.5px); }
+}
+
 /* ---------------- illustration fills ---------------- */
 .ranch .r-gshadow { fill: var(--r-gshadow); }
 .ranch .r-orb { fill: var(--r-orb); }

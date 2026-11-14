@@ -10,7 +10,7 @@
 
 import type { ReactNode } from 'react';
 import {
-  along, chainD, circleD, ellipseD, hillD, pt, r1, rng, textEm, trailShapes,
+  along, chainD, circleD, ellipseD, GOAL_SIGN, goalSignRect, hillD, pt, r1, rng, trailShapes,
   type Cubic, type Layer, type P,
 } from './geometry';
 import type { Oval } from './compositions';
@@ -27,14 +27,8 @@ type Crest = (x: number) => number;
 /* ------------------------------------------------------------------ */
 
 /** The barn is home: the end of the trail. Its doors stand open, the other friends wait inside, and a sign over the door names the goal. */
-const GOAL_SIGN = 'Debt-free';
-
 function Barn({ x, y, s, u, f, idp, friend }: { x: number; y: number; s: number; u: Url; f: RanchFeatures; idp: string; friend: RanchFriend }) {
-  // Sign lettering stays ≥ ~11.5px however small the barn is drawn.
-  const sf = Math.max(15, 11.5 / s);
-  const sw = textEm(GOAL_SIGN) * sf + sf * 1.5;
-  const sh = sf * 1.5;
-  const sx = 80 - sw / 2, sy = -85;
+  const { sf, sw, sh, sx, sy } = goalSignRect(s);
   const gableY = (gx: number) => (gx <= 80 ? -130 - (gx / 80) * 66 : -130 - ((160 - gx) / 80) * 66);
   let boards = '';
   for (let bx = 14; bx < 160; bx += 13) boards += `M${bx},-8 V${r1(gableY(bx) + 3)} `;

@@ -9,7 +9,7 @@
  * dropped rather than shrunk: readable or absent, never tiny.
  */
 
-import { clip, farNormal, overlaps, textEm, type Box, type Layer, type Trail } from './geometry';
+import { clip, farNormal, goalSignRect, overlaps, textEm, type Box, type Layer, type Trail } from './geometry';
 import type { Composition } from './compositions';
 
 export type DebtStatus = 'paid' | 'focus' | 'upcoming';
@@ -70,10 +70,40 @@ const boardBox = (x: number, y: number, s: number, bx: number, bw: number, bh: n
 export const FRIEND_MIN = 0.66;
 export const friendScale = (comp: Composition, w: number) => Math.max(FRIEND_MIN, w / comp.wRef);
 
+/**
+ * The "you are here" pin floats over the friend's head. It shrinks less
+ * than the friend does, so it still reads as a map pin out in the far hills.
+ * `h` is its height; `tip` and `top` are y offsets from the friend's feet.
+ * Right by the barn it steps sideways (`dx`, away from the barn) so it
+ * never covers the goal sign over the door. Once the friend stands under
+ * the sign there is no room left, and the pin bows out (`show` false):
+ * the friend is visibly at the door by then.
+ */
+const PIN_MAX_STEP = 0.45;
+export function pinFor(comp: Composition, q: { x: number; y: number }, sz: number) {
+  const h = comp.friendSize * 0.26 + sz * 0.16;
+  const tip = -sz * 0.95 - sz * 0.04;
+  const half = h * 0.36;
+  const [bx, by, bs] = comp.barn;
+  const g = goalSignRect(bs);
+  const pad = 3;
+  const sign: Box = { x0: bx + g.sx * bs, y0: by + g.sy * bs, x1: bx + (g.sx + g.sw) * bs, y1: by + (g.sy + g.sh + 2.5) * bs };
+  const pinBox: Box = { x0: q.x - half, y0: q.y + tip - h, x1: q.x + half, y1: q.y + tip };
+  const step = overlaps(pinBox, sign, pad) ? sign.x1 + pad - pinBox.x0 : 0;
+  const show = step <= sz * PIN_MAX_STEP;
+  return { h, tip, top: show ? tip - h : -sz * 0.98, dx: show ? step : 0, half, show };
+}
+
 export function friendBoxAt(trail: Trail, comp: Composition, pct: number) {
   const q = trail.at(pct);
   const sz = comp.friendSize * friendScale(comp, q.w);
-  return { q, sz, box: { x0: q.x - sz * 0.42, y0: q.y - sz * 0.98, x1: q.x + sz * 0.42, y1: q.y + 2 } as Box };
+  const pin = pinFor(comp, q, sz);
+  // The box covers the pin too, so labels and the bubble keep clear of it.
+  const box: Box = {
+    x0: q.x - sz * 0.42, y0: q.y + pin.top - 2,
+    x1: pin.show ? Math.max(q.x + sz * 0.42, q.x + pin.dx + pin.half + 2) : q.x + sz * 0.42, y1: q.y + 2,
+  };
+  return { q, sz, pin, box };
 }
 
 export function layoutPosts(inp: LayoutInput): PlacedPost[] {
@@ -95,7 +125,7 @@ export function layoutPosts(inp: LayoutInput): PlacedPost[] {
     if (inp.bubbleLow) {
       obstacles.push({ x0: fb.q.x - 36, y0: fb.q.y + 8, x1: fb.q.x - 36 + comp.bubble.w, y1: fb.q.y + 14 + comp.bubble.h });
     } else {
-      const headY = fb.q.y - fb.sz * 0.95;
+      const headY = fb.q.y + fb.pin.top;
       obstacles.push({ x0: fb.q.x - 36, y0: headY - 14 - comp.bubble.h, x1: fb.q.x - 36 + comp.bubble.w, y1: headY - 8 });
     }
   }

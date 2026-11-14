@@ -156,14 +156,14 @@ export function RanchScene({
   /* text alternative */
   const text = summary ?? describe(def.moment, share, debts, goalLabel);
 
-  /* bubble anchor: friend head on wide (bubble above), feet on phone (bubble below).
+  /* bubble anchor: top of the friend's pin on wide (bubble above), feet on phone (bubble below).
      Near home the wide bubble drops under the friend's feet so the barn, the sign and the herd stay in view. */
   const fw = friendBoxAt(stages[0].model.trail, WIDE, restShare * 100);
   const fp = friendBoxAt(stages[1].model.trail, PHONE, restShare * 100);
   const bubbleLow = restShare >= NEAR_HOME;
   const style = {
     ...ranchArtVars(def.art),
-    '--bxw': r1(fw.q.x), '--byw': r1(bubbleLow ? fw.q.y + 4 : fw.q.y - fw.sz * 0.95),
+    '--bxw': r1(fw.q.x), '--byw': r1(bubbleLow ? fw.q.y + 4 : fw.q.y + fw.pin.top),
     '--bxp': r1(fp.q.x), '--byp': r1(fp.q.y),
   } as CSSProperties;
 
@@ -223,6 +223,14 @@ export function RanchScene({
                   <g transform={`translate(${r1(-f.sz / 2)} ${r1(-f.sz * 0.95)})`}>
                     <Friend size={r1(f.sz)} animated={false} />
                   </g>
+                  {restShare < 1 && f.pin.show && (
+                    <g className="r-pin" transform={`translate(${r1(f.pin.dx)} ${r1(f.pin.tip)}) scale(${(f.pin.h / 20).toFixed(3)})`}>
+                      <g className="r-pin-bob">
+                        <path className="r-pin-body" d="M0 0C0 0-7-7.5-7-13A7 7 0 0 1 7-13C7-7.5 0 0 0 0Z" />
+                        <circle className="r-pin-dot" cx="0" cy="-13" r="2.9" />
+                      </g>
+                    </g>
+                  )}
                 </g>
               </g>
               {a.fx}

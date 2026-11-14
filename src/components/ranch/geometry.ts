@@ -234,6 +234,21 @@ export function trailShapes(trail: Trail, segs: TrailSeg[], seed: number) {
  * Approximate advance width of a label in em, tuned for Fredoka 600 /
  * Quicksand 700. Generous on purpose: boards and chips are sized from it.
  */
+/** The goal sign hung over the barn door. */
+export const GOAL_SIGN = 'Debt-free';
+
+/**
+ * The goal sign's rectangle in barn-local units for a barn drawn at scale
+ * `s`. Its lettering (font size `sf`) stays at least ~11.5px however small
+ * the barn is drawn.
+ */
+export function goalSignRect(s: number) {
+  const sf = Math.max(15, 11.5 / s);
+  const sw = textEm(GOAL_SIGN) * sf + sf * 1.5;
+  const sh = sf * 1.5;
+  return { sf, sw, sh, sx: 80 - sw / 2, sy: -85 };
+}
+
 export function textEm(s: string) {
   let w = 0;
   for (const ch of s) {
