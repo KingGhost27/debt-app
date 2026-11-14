@@ -1,10 +1,13 @@
 /**
- * Ranch scene model: the trail, hill crests and flag geometry for one
- * composition. Pure data, shared by the layers, the signpost layout and
- * the walk animation.
+ * Ranch scene model: the trail and hill crests for one composition. Pure
+ * data, shared by the layers, the signpost layout and the walk animation.
+ *
+ * The trail is walked home: progress 0% is its far end out in the hills and
+ * 100% is the barn door, where the other friends are waiting. `trail.at()`
+ * takes that progress and returns a point whose tangent faces the barn.
  */
 
-import { crestFn, makeTrail, textEm, type Box, type Trail } from './geometry';
+import { crestFn, makeTrail, type Trail } from './geometry';
 import type { Composition } from './compositions';
 
 type Crest = (x: number) => number;
@@ -14,27 +17,21 @@ export interface SceneModel {
   comp: Composition;
   trail: Trail;
   crest: Record<HillKey, Crest>;
-  flag: FlagGeom;
 }
 
-export interface FlagGeom { x: number; y: number; s: number; font: number; len: number; boxes: Box[] }
-
-export function makeModel(comp: Composition, goalLabel: string): SceneModel {
-  const trail = makeTrail(comp.trail, comp.anchors);
+export function makeModel(comp: Composition): SceneModel {
+  const drawn = makeTrail(comp.trail, comp.anchors);
+  // The segments are drawn from the barn outward; walking home runs the other way.
+  const trail: Trail = {
+    ...drawn,
+    at: (pct) => {
+      const q = drawn.at(pct);
+      return { ...q, tx: -q.tx, ty: -q.ty };
+    },
+  };
   const crest = {
     A1: crestFn(comp.hills.A1), A2: crestFn(comp.hills.A2), B: crestFn(comp.hills.B),
     C: crestFn(comp.hills.C), D: crestFn(comp.hills.D),
   };
-  const end = trail.at(100);
-  const s = comp.flag.s;
-  const font = comp.id === 'wide' ? 16 : 12.5;
-  const len = Math.max(comp.flag.bannerLen, textEm(goalLabel) * font + 40 * s);
-  const top = end.y - 78 * s;
-  const by = top + 6 * s;
-  const bh = Math.max(24 * s, font * 1.55);
-  const boxes = [
-    { x0: end.x - len - 4, y0: by - 9 * s, x1: end.x + 6 * s, y1: by + bh + 10 * s },
-    { x0: end.x - 4 * s, y0: top - 6 * s, x1: end.x + 4 * s, y1: end.y + 2 },
-  ];
-  return { comp, trail, crest, flag: { x: end.x, y: end.y, s, font, len, boxes } };
+  return { comp, trail, crest };
 }

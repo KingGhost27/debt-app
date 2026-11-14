@@ -66,8 +66,8 @@ export function RanchStrip({ sceneKey, children }: { sceneKey: RanchSceneKey; ch
   const idp = 'rst' + useId().replace(/[^a-zA-Z0-9_-]/g, '');
   const def = RANCH_SCENES[sceneKey] ?? RANCH_SCENES.default;
   const Friend = FRIENDS[def.friend];
-  const model = useMemo(() => makeModel(STRIP, ''), []);
-  const art = useMemo(() => buildArt(model, def, idp, ''), [model, def, idp]);
+  const model = useMemo(() => makeModel(STRIP), []);
+  const art = useMemo(() => buildArt(model, def, idp), [model, def, idp]);
   const fy = model.crest.C(FRIEND_X) + 6;
   const snow = def.features.snow;
 

@@ -38,7 +38,7 @@ export function orderDebts(debts: Debt[], plan: PayoffPlan): TrailDebt[] {
 /**
  * Signposts: a paid debt sits at the share of the original total cleared by
  * then; an unpaid debt sits at the paid share plus the balance still ahead of
- * it, so the last post lands on the debt-free flag.
+ * it, so the last post lands at the barn door (debt-free).
  */
 export function toRanchDebts(ordered: TrailDebt[], paidShare: number): RanchDebt[] {
   const total = ordered.reduce((s, t) => s + Math.max(0, t.debt.originalBalance), 0);

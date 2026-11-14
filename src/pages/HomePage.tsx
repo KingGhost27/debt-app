@@ -1,7 +1,7 @@
 /**
  * Home Page (Dashboard) - the ranch.
  *
- * The scene leads: the trail from the barn to the debt-free flag is the
+ * The scene leads: the walk home to the barn (debt-free) is the
  * user's real progress, each debt is a signpost placed where the active
  * strategy clears it, and the greeting, headline, figures and "Log a
  * payment" sit over the sky. Logging a payment plays the walk-the-trail move

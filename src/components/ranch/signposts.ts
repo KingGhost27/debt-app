@@ -5,7 +5,7 @@
  * off. Near posts carry their name on the board itself. Posts too far
  * down the trail to letter legibly get a label chip at a fixed reading
  * size, placed where it collides with nothing (copy, bubble, friend,
- * flag, barn, other labels). A label that cannot be placed cleanly is
+ * barn, other labels). A label that cannot be placed cleanly is
  * dropped rather than shrunk: readable or absent, never tiny.
  */
 
@@ -17,7 +17,7 @@ export type DebtStatus = 'paid' | 'focus' | 'upcoming';
 export interface RanchDebt {
   id: string;
   name: string;
-  /** Where the debt clears along the trail: 0 = barn, 1 = the debt-free flag. */
+  /** Where the debt clears along the walk home: 0 = the far end of the trail, 1 = the barn. */
   position: number;
   status: DebtStatus;
   /** Short line for the focus debt's hang tag, e.g. "$640 left". */
@@ -55,9 +55,9 @@ export interface LayoutInput {
   debts: RanchDebt[];
   friendPct: number;
   friendSize: number;
-  /** Banner and pole of the debt-free flag. */
-  flagBoxes: Box[];
   hasBubble: boolean;
+  /** Wide stage: the bubble sits under the friend's feet instead of over its head. */
+  bubbleLow?: boolean;
   /** Area kept clear around the barn, silo and Debtsy. */
   keepOut: Box[];
 }
@@ -66,9 +66,13 @@ const boardBox = (x: number, y: number, s: number, bx: number, bw: number, bh: n
   x0: x + bx * s, x1: x + (bx + bw) * s, y0: y - POST_H * s - 2 * s, y1: y + (-POST_H + bh) * s,
 });
 
+/** The walking friend shrinks with distance, but never below this share of its near size. */
+export const FRIEND_MIN = 0.66;
+export const friendScale = (comp: Composition, w: number) => Math.max(FRIEND_MIN, w / comp.wRef);
+
 export function friendBoxAt(trail: Trail, comp: Composition, pct: number) {
   const q = trail.at(pct);
-  const sz = comp.friendSize * Math.max(0.5, q.w / comp.wRef);
+  const sz = comp.friendSize * friendScale(comp, q.w);
   return { q, sz, box: { x0: q.x - sz * 0.42, y0: q.y - sz * 0.98, x1: q.x + sz * 0.42, y1: q.y + 2 } as Box };
 }
 
@@ -83,13 +87,17 @@ export function layoutPosts(inp: LayoutInput): PlacedPost[] {
   const chosen = [...focus, ...upcoming, ...paid].slice(0, cap);
 
   const fb = friendBoxAt(trail, comp, friendPct);
-  const obstacles: Box[] = [...inp.flagBoxes, fb.box, ...inp.keepOut];
+  const obstacles: Box[] = [fb.box, ...inp.keepOut];
   // Lettering on a board must not hide behind the friend or Debtsy (keepOut[1]).
   const softs: Box[] = [fb.box, inp.keepOut[1]].filter(Boolean);
   if (comp.id === 'wide') obstacles.push(comp.copyBox);
   if (inp.hasBubble && comp.bubble.above) {
-    const headY = fb.q.y - fb.sz * 0.95;
-    obstacles.push({ x0: fb.q.x - 36, y0: headY - 14 - comp.bubble.h, x1: fb.q.x - 36 + comp.bubble.w, y1: headY - 8 });
+    if (inp.bubbleLow) {
+      obstacles.push({ x0: fb.q.x - 36, y0: fb.q.y + 8, x1: fb.q.x - 36 + comp.bubble.w, y1: fb.q.y + 14 + comp.bubble.h });
+    } else {
+      const headY = fb.q.y - fb.sz * 0.95;
+      obstacles.push({ x0: fb.q.x - 36, y0: headY - 14 - comp.bubble.h, x1: fb.q.x - 36 + comp.bubble.w, y1: headY - 8 });
+    }
   }
   const taken: Box[] = [];
   const free = (b: Box, pad = 3) => {
@@ -101,7 +109,10 @@ export function layoutPosts(inp: LayoutInput): PlacedPost[] {
   const out: PlacedPost[] = [];
   const bh = Math.round(comp.boardFont * 1.72);
   for (const d of chosen) {
-    const pct0 = Math.max(1.5, Math.min(98.5, d.position * 100));
+    // Posts stop short of the barn door so the doorway and its herd stay clear,
+    // but a debt still ahead never ends up behind the friend.
+    const lim = d.status === 'paid' ? comp.postMax : Math.min(98.5, Math.max(comp.postMax, friendPct + 2));
+    const pct0 = Math.max(1.5, Math.min(lim, d.position * 100));
     const label = clip(d.name, MAX_LABEL);
     const tag = d.status === 'focus' && d.detail ? clip(d.detail, 18) : null;
     const fullW = textEm(label) * comp.boardFont + 26;
@@ -112,10 +123,10 @@ export function layoutPosts(inp: LayoutInput): PlacedPost[] {
     const onRightSide = (pct0 - friendPct) * away >= 0;
     const nudges = onRightSide ? [0, 1.5, 3, 4.5, 6].map((n) => pct0 + n * away) : [pct0];
     const at = (pct: number) => {
-      const q = trail.at(Math.max(1.5, Math.min(98.5, pct)));
+      const q = trail.at(Math.max(1.5, Math.min(lim, pct)));
       const s = Math.max(0.3, q.w / comp.wRef) * comp.postScale;
       const forward: 1 | -1 = q.tx >= 0 ? 1 : -1;
-      // Paid boards point back toward the barn; the rest point ahead.
+      // Paid boards point back the way the friend came; the rest point ahead, toward the barn.
       const dir = (d.status === 'paid' ? -forward : forward) as 1 | -1;
       return { q, s, dir };
     };
@@ -124,7 +135,7 @@ export function layoutPosts(inp: LayoutInput): PlacedPost[] {
     const alignsFor = (bw: number, dir: 1 | -1) => d.status === 'paid'
       ? [dir < 0 ? -bw + 3 : -3, -bw / 2]
       : [-bw / 2 + dir * 6, dir > 0 ? -6 : -bw + 6, dir > 0 ? -bw + 6 : -6];
-    const hitsHard = (b: Box) => taken.some((o) => overlaps(b, o, 2)) || inp.flagBoxes.some((o) => overlaps(b, o, 2)) || (comp.id === 'wide' && overlaps(b, comp.copyBox, 0));
+    const hitsHard = (b: Box) => taken.some((o) => overlaps(b, o, 2)) || (comp.id === 'wide' && overlaps(b, comp.copyBox, 0));
     const hitsSoft = (b: Box) => softs.some((o) => overlaps(b, o, 1));
 
     const make = (pct: number, side: 1 | -1, bxOf: (bw: number, dir: 1 | -1) => number, bw: number, text: boolean): PlacedPost => {
@@ -171,14 +182,14 @@ export function layoutPosts(inp: LayoutInput): PlacedPost[] {
     if (!placed.boardText) {
       const text = d.status === 'focus' && d.detail ? `${label} · ${clip(d.detail, 14)}` : label;
       placed.chip = placeChip(comp, placed, text, free, Math.abs(q.ty) > 0.45);
-      // A paid debt's post stands at the barn door, inside the keep-out. Its name
+      // The last debt's post stands at the barn door, inside the keep-out. Its name
       // may sit on the barn wall (the chip has its own background) rather than go unlabelled.
-      if (!placed.chip && d.status === 'paid') {
+      if (!placed.chip) {
         const barn = inp.keepOut[0];
         const freeAtBarn = (b: Box, pad = 3) => {
           const sf = comp.safe;
           if (b.x0 < sf.x0 || b.x1 > sf.x1 || b.y0 < sf.y0 || b.y1 > sf.y1) return false;
-          const hard = [...inp.flagBoxes, fb.box, ...inp.keepOut.filter((o) => o !== barn)];
+          const hard = [fb.box, ...inp.keepOut.filter((o) => o !== barn)];
           return !hard.some((o) => overlaps(b, o, pad)) && !taken.some((o) => overlaps(b, o, pad));
         };
         placed.chip = placeChip(comp, placed, label, freeAtBarn, Math.abs(q.ty) > 0.45, true);
@@ -215,14 +226,18 @@ function placeChip(comp: Composition, p: PlacedPost, text: string, free: (b: Box
     [{ x0: ax - 14, y0: ay - 2 * g - 2 * h, x1: ax - 14 + w, y1: ay - 2 * g - h }, [ax, ay]],
   ];
   // On a steep stretch posts stack vertically, so labels go beside them first.
-  // Last resort for a post boxed in by the barn and Debtsy: the name under the post's foot.
+  // Last resorts for a post boxed in by the barn and Debtsy: up on the barn wall, or under the post's foot.
   const fy = p.y + 8;
   const below: [Box, [number, number]][] = allowBelow ? [
     [{ x0: p.x - w / 2, y0: fy, x1: p.x + w / 2, y1: fy + h }, [p.x, p.y]],
     [{ x0: p.x - w + 14, y0: fy, x1: p.x + 14, y1: fy + h }, [p.x, p.y]],
     [{ x0: p.x - 14, y0: fy, x1: p.x - 14 + w, y1: fy + h }, [p.x, p.y]],
   ] : [];
-  const cands = steep ? [...sides, ...above, ...high, ...below] : [...above, ...sides, ...high, ...below];
+  const higher: [Box, [number, number]][] = allowBelow ? [3, 4].flatMap((k): [Box, [number, number]][] => [
+    [{ x0: ax - w / 2, y0: ay - k * (g + h), x1: ax + w / 2, y1: ay - k * (g + h) + h }, [ax, ay]],
+    [{ x0: ax - 14, y0: ay - k * (g + h), x1: ax - 14 + w, y1: ay - k * (g + h) + h }, [ax, ay]],
+  ]) : [];
+  const cands = steep ? [...sides, ...above, ...high, ...higher, ...below] : [...above, ...sides, ...high, ...higher, ...below];
   for (const [box, anchor] of cands) {
     if (!free(box)) continue;
     // Leader starts at the chip edge nearest the anchor.

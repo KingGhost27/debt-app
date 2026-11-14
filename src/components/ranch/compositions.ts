@@ -21,6 +21,11 @@ export interface Composition {
   hills: { A1: Cubic[]; A2: Cubic[]; B: Cubic[]; C: Cubic[]; D: Cubic[] };
   edge: Cubic[];
   trail: TrailSeg[];
+  /**
+   * Progress anchors [pct, segment, t] for the walk home: 0% at the far end of
+   * the trail, 100% on the barn doorstep. The near stretch gets most of the
+   * range so the friend comes forward early and stays readable.
+   */
   anchors: [number, number, number][];
   barn: [number, number, number];
   silo: [number, number, number];
@@ -28,6 +33,8 @@ export interface Composition {
   debtsy: [number, number, number, number];
   debtsyFront: boolean;
   friendSize: number;
+  /** Furthest a signpost may stand along the walk home, so the barn door and its herd stay clear. */
+  postMax: number;
   wRef: number;
   postScale: number;
   /** Board lettering size (user units) at post scale 1. */
@@ -36,7 +43,6 @@ export interface Composition {
   boardTextMin: number;
   /** Label-chip lettering size (user units); sized to stay ≥ ~11.5px at the smallest stage. */
   chipFont: number;
-  flag: { s: number; bannerLen: number };
   trees: { x: number; y: number; s: number; layer: TreeLayer; kind?: 'poplar' }[];
   clouds: [number, number, number][];
   fluffyClouds: [number, number, number][];
@@ -91,18 +97,18 @@ export const WIDE: Composition = {
     { c: [[1010, 415], [1030, 406], [1050, 401], [1064, 395]], w0: 10.5, w1: 8.5, layer: 'B' },
     { c: [[1064, 395], [1088, 376], [1122, 338], [1150, 313]], w0: 8.5, w1: 3.5, layer: 'A' },
   ],
-  anchors: [[0, 0, 0], [25, 0, 0.97], [40, 2, 0.32], [55, 3, 1], [80, 5, 1], [100, 6, 1]],
+  anchors: [[0, 6, 1], [8, 6, 0], [20, 4, 0], [28, 3, 0], [36, 2, 0], [70, 1, 0], [100, 0, 0.15]],
   barn: [120, 458, 1],
   silo: [120, 455, 1],
   debtsy: [318, 467, 96, -5],
   debtsyFront: false,
   friendSize: 78,
+  postMax: 88,
   wRef: 27,
   postScale: 1,
   boardFont: 16,
   boardTextMin: 0.86,
   chipFont: 15.5,
-  flag: { s: 0.95, bannerLen: 160 },
   trees: [
     { x: 76, y: 452, s: 1.3, layer: 'behindBarn' },
     { x: 1016, y: 398, s: 0.5, layer: 'B' }, { x: 1036, y: 402, s: 0.4, layer: 'B' },
@@ -164,18 +170,18 @@ export const PHONE: Composition = {
     { c: [[330, 322], [334, 312], [344, 304], [344, 295]], w0: 9, w1: 7, layer: 'B' },
     { c: [[344, 295], [343, 280], [338, 256], [334, 238]], w0: 7, w1: 3, layer: 'A' },
   ],
-  anchors: [[0, 0, 0], [20, 0, 0.72], [30, 1, 0.3], [42, 1, 0.92], [58, 3, 0.6], [80, 4, 1], [100, 5, 1]],
+  anchors: [[0, 5, 1], [8, 5, 0], [16, 4, 0], [24, 3, 0], [36, 2, 0], [70, 1, 0], [100, 0, 0.18]],
   barn: [10, 336, 0.6],
   silo: [10, 333, 0.6],
   debtsy: [37, 387, 58, -6],
   debtsyFront: true,
   friendSize: 56,
+  postMax: 90,
   wRef: 16,
   postScale: 0.9,
   boardFont: 14,
   boardTextMin: 0.86,
   chipFont: 13.5,
-  flag: { s: 0.8, bannerLen: 132 },
   trees: [
     { x: 378, y: 293, s: 0.36, layer: 'B' },
     { x: 212, y: 298, s: 0.42, layer: 'B', kind: 'poplar' }, { x: 224, y: 299, s: 0.32, layer: 'B', kind: 'poplar' },

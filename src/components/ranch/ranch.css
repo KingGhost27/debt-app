@@ -130,12 +130,14 @@
     grid-area: art;
     position: absolute;
     margin: 0;
-    left: calc(50cqw + (var(--bx) - var(--vbw) / 2) * var(--u));
+    left: clamp(46px, calc(50cqw + (var(--bx) - var(--vbw) / 2) * var(--u)), calc(100cqw - 200px));
     top: calc(var(--artH) - (var(--vbh) - var(--by)) * var(--u));
     transform: translate(-30px, calc(-100% - 12px));
     max-width: 212px;
   }
   .ranch-bubble::after { top: auto; bottom: -6px; border-radius: 0 0 4px 0; }
+  .ranch-bubble.is-low { transform: translate(-30px, 12px); }
+  .ranch-bubble.is-low::after { top: -6px; bottom: auto; border-radius: 4px 0 0 0; }
 }
 
 /* ---------------- illustration fills ---------------- */
@@ -170,6 +172,11 @@
 .ranch .r-b-trim { fill: var(--r-trim); }
 .ranch .r-b-barge { fill: none; stroke: var(--r-trim); stroke-width: 9; stroke-linejoin: round; stroke-linecap: round; }
 .ranch .r-b-x { fill: none; stroke: var(--r-trim); stroke-width: 5; stroke-linejoin: round; }
+.ranch .r-b-x-open { stroke-width: 3.4; }
+.ranch .r-b-inside { fill: color-mix(in oklab, var(--r-barn-dark) 78%, var(--r-barn)); }
+.ranch .r-b-inside.is-lit { fill: color-mix(in oklab, var(--r-barn-dark) 55%, var(--r-banner)); }
+.ranch .r-herd-floor { fill: var(--r-barn-dark); opacity: .45; }
+.ranch .r-b-rope { fill: none; stroke: var(--r-barn-dark); stroke-width: 1.6; stroke-linecap: round; }
 .ranch .r-b-win, .ranch .r-b-gap { fill: var(--r-window); }
 .ranch .r-b-mull { fill: none; stroke: var(--r-trim); stroke-width: 3; }
 .ranch .r-b-hay { fill: var(--r-hay); }
@@ -242,10 +249,9 @@
 .ranch .r-pumpkin-rib { fill: none; stroke: var(--r-pumpkin-d); opacity: .75; stroke-linecap: round; }
 .ranch .r-vine { fill: none; stroke: var(--r-vine); stroke-linecap: round; }
 
-.ranch .r-banner, .ranch .r-finial { fill: var(--r-banner); }
+.ranch .r-banner { fill: var(--r-banner); }
 .ranch .r-banner-sh { fill: var(--r-gshadow); }
 .ranch .r-banner-text { font-family: Fredoka, system-ui, sans-serif; font-weight: 600; fill: var(--r-banner-ink); }
-.ranch .r-pole { fill: var(--r-pole); }
 .ranch .r-ff-c { fill: #FFF6C8; }
 
 /* signposts */

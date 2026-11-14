@@ -10,13 +10,14 @@
 
 import type { ReactNode } from 'react';
 import {
-  along, chainD, circleD, ellipseD, hillD, pt, r1, rng, trailShapes,
+  along, chainD, circleD, ellipseD, hillD, pt, r1, rng, textEm, trailShapes,
   type Cubic, type Layer, type P,
 } from './geometry';
 import type { Oval } from './compositions';
-import type { RanchFeatures, RanchSceneDef } from '../../lib/ranchScenes';
-import type { FlagGeom, SceneModel } from './model';
+import type { RanchFeatures, RanchFriend, RanchSceneDef } from '../../lib/ranchScenes';
+import type { SceneModel } from './model';
 import { Bloomer, Tufts } from './paint';
+import { DoorwayHerd, LoftHerd } from './herd';
 
 type Url = (name: string) => string;
 type Crest = (x: number) => number;
@@ -25,7 +26,15 @@ type Crest = (x: number) => number;
 /* structures                                                         */
 /* ------------------------------------------------------------------ */
 
-function Barn({ x, y, s, u, f }: { x: number; y: number; s: number; u: Url; f: RanchFeatures }) {
+/** The barn is home: the end of the trail. Its doors stand open, the other friends wait inside, and a sign over the door names the goal. */
+const GOAL_SIGN = 'Debt-free';
+
+function Barn({ x, y, s, u, f, idp, friend }: { x: number; y: number; s: number; u: Url; f: RanchFeatures; idp: string; friend: RanchFriend }) {
+  // Sign lettering stays ≥ ~11.5px however small the barn is drawn.
+  const sf = Math.max(15, 11.5 / s);
+  const sw = textEm(GOAL_SIGN) * sf + sf * 1.5;
+  const sh = sf * 1.5;
+  const sx = 80 - sw / 2, sy = -85;
   const gableY = (gx: number) => (gx <= 80 ? -130 - (gx / 80) * 66 : -130 - ((160 - gx) / 80) * 66);
   let boards = '';
   for (let bx = 14; bx < 160; bx += 13) boards += `M${bx},-8 V${r1(gableY(bx) + 3)} `;
@@ -82,16 +91,20 @@ function Barn({ x, y, s, u, f }: { x: number; y: number; s: number; u: Url; f: R
       <rect className="r-b-trim" x="153" y="-130" width="7" height="121" />
       <path className="r-b-barge" d="M-9,-123 L80,-205 L169,-123" />
       {f.snow && <path className="r-snow-line" d="M-11,-128 L80,-211 L171,-128" />}
+      <clipPath id={`${idp}-loft`}><rect x="62" y="-174" width="36" height="35" /></clipPath>
+      <clipPath id={`${idp}-door`}><rect x="35" y="-88" width="90" height="88" /></clipPath>
       <rect className="r-b-trim" x="57" y="-179" width="46" height="45" rx="2" />
-      <rect className="r-b-win" x="62" y="-174" width="36" height="35" />
+      <rect className={`r-b-inside${f.glow ? ' is-lit' : ''}`} x="62" y="-174" width="36" height="35" />
+      <g clipPath={u('loft')}><LoftHerd active={friend} /></g>
       <path className="r-b-hay" d="M62,-139 V-143 q3,-8 6,-1 q3,-9 7,-1 q3,-8 6,0 q4,-9 7,-1 q3,-7 5,0 q2,-6 3,-1 V-139 Z" />
-      <path className="r-b-mull" d="M80,-174 V-147" />
       <rect className="r-b-trim" x="73" y="-193" width="14" height="8" rx="1.5" />
+      <rect className={`r-b-inside${f.glow ? ' is-lit' : ''}`} x="35" y="-88" width="90" height="88" />
+      <g clipPath={u('door')}><DoorwayHerd active={friend} /></g>
       <rect className="r-b-dark" x="28" y="-94" width="104" height="6" rx="3" />
-      <rect className="r-b-door" x="35" y="-88" width="45" height="88" />
-      <rect className="r-b-door" x="80" y="-88" width="45" height="88" />
-      {f.glow && <rect className="r-b-gap" x="78.5" y="-86" width="3" height="86" />}
-      <path className="r-b-x" d="M37.5,-85.5 h40 v83 h-40 z M82.5,-85.5 h40 v83 h-40 z M37.5,-85.5 L77.5,-2.5 M77.5,-85.5 L37.5,-2.5 M82.5,-85.5 L122.5,-2.5 M122.5,-85.5 L82.5,-2.5" />
+      {/* the doors, swung open toward us */}
+      <path className="r-b-door" d="M35,-88 L13,-94 L13,5 L35,0 Z" />
+      <path className="r-b-door" d="M125,-88 L147,-94 L147,5 L125,0 Z" />
+      <path className="r-b-x r-b-x-open" d="M16,-89.5 L32.5,-85 L32.5,-2.5 L16,1.5 Z M16,-89.5 L32.5,-2.5 M32.5,-85 L16,1.5 M144,-89.5 L127.5,-85 L127.5,-2.5 L144,1.5 Z M144,-89.5 L127.5,-2.5 M127.5,-85 L144,1.5" />
       <path className="r-b-lamp-arm" d="M80,-112 V-120 M80,-120 q0,-4 -4,-4 h-6" />
       {f.glow && (
         <>
@@ -101,6 +114,11 @@ function Barn({ x, y, s, u, f }: { x: number; y: number; s: number; u: Url; f: R
       )}
       <path className="r-b-dark" d="M71,-112 h18 l-4,-7 h-10 z" />
       <circle className="r-b-bulb" cx="80" cy="-110.5" r="3" />
+      {/* the goal, hung over the door */}
+      <path className="r-b-rope" d={`M${r1(sx + 12)},-90 V${r1(sy + 3)} M${r1(sx + sw - 12)},-90 V${r1(sy + 3)}`} />
+      <rect className="r-banner-sh" x={r1(sx + 1.5)} y={r1(sy + 2.5)} width={r1(sw)} height={r1(sh)} rx={r1(sh * 0.24)} />
+      <rect className="r-banner" x={r1(sx)} y={r1(sy)} width={r1(sw)} height={r1(sh)} rx={r1(sh * 0.24)} />
+      <text className="r-banner-text" x="80" y={r1(sy + sh / 2 + sf * 0.36)} textAnchor="middle" style={{ fontSize: `${r1(sf)}px` }}>{GOAL_SIGN}</text>
       <path className="r-b-side" d="M146,-197 L156,-196 V-224 L146,-226 Z" />
       <rect className="r-b-front" x="124" y="-226" width="22" height="30" />
       <path className="r-b-mull" d="M128,-220 h14 M128,-215 h14 M128,-210 h14 M128,-205 h14" />
@@ -497,36 +515,6 @@ export function Fence({ ch, step, h0, depth, snow }: { ch: Cubic[]; step: number
   );
 }
 
-/* the flag at the end of the trail --------------------------------- */
-
-function Flag({ fg, idp, text }: { fg: FlagGeom; idp: string; text: string }) {
-  const { x, y, s, len: L, font } = fg;
-  const d = -1;
-  const top = y - 78 * s;
-  const bx0 = x + d * 3 * s, bx1 = x + d * L;
-  const bh = Math.max(24 * s, font * 1.55);
-  const by = top + 6 * s;
-  const mid = (bx0 + bx1) / 2;
-  const wave = `M${r1(bx0)},${r1(by)} C${r1(mid - d * L * 0.15)},${r1(by - 7 * s)} ${r1(mid + d * L * 0.15)},${r1(by + 9 * s)} ${r1(bx1)},${r1(by + 2 * s)}`;
-  const tail = `L${r1(bx1 + 9 * s)},${r1(by + 2 * s + bh / 2)} L${r1(bx1)},${r1(by + 2 * s + bh)}`;
-  const bottom = `C${r1(mid + d * L * 0.15)},${r1(by + bh + 9 * s)} ${r1(mid - d * L * 0.15)},${r1(by + bh - 7 * s)} ${r1(bx0)},${r1(by + bh)} Z`;
-  const banner = `${wave} ${tail} ${bottom}`;
-  const tp = `M${r1(bx1 + 6 * s)},${r1(by + bh / 2 + 2 * s + font * 0.36)} C${r1(mid + d * L * 0.15)},${r1(by + bh / 2 + 7 * s + font * 0.36)} ${r1(mid - d * L * 0.15)},${r1(by + bh / 2 - 9 * s + font * 0.36)} ${r1(bx0)},${r1(by + bh / 2 - 3 * s + font * 0.36)}`;
-  return (
-    <g>
-      <ellipse className="r-gshadow" cx={r1(x)} cy={r1(y + 1)} rx={r1(10 * s)} ry={r1(2.5 * s)} />
-      <path className="r-banner-sh" transform={`translate(${r1(1.5 * s)} ${r1(2.5 * s)})`} d={banner} />
-      <path className="r-banner" d={banner} />
-      <path id={`${idp}-bp`} d={tp} fill="none" />
-      <text className="r-banner-text" style={{ fontSize: `${r1(font)}px` }}>
-        <textPath href={`#${idp}-bp`} startOffset="50%" textAnchor="middle">{text}</textPath>
-      </text>
-      <rect className="r-pole" x={r1(x - 1.6 * s)} y={r1(top)} width={r1(3.2 * s)} height={r1(y - top + 1)} rx={r1(1.6 * s)} />
-      <circle className="r-finial" cx={r1(x)} cy={r1(top - 2 * s)} r={r1(3.4 * s)} />
-    </g>
-  );
-}
-
 /* ------------------------------------------------------------------ */
 /* the static layers                                                  */
 /* ------------------------------------------------------------------ */
@@ -540,11 +528,10 @@ export interface ArtLayers {
   front: ReactNode;
   fx: ReactNode;
   edge: ReactNode;
-  flag: ReactNode;
   trailOf: (layer: Layer) => ReactNode;
 }
 
-export function buildArt(m: SceneModel, def: RanchSceneDef, idp: string, goalLabel: string): ArtLayers {
+export function buildArt(m: SceneModel, def: RanchSceneDef, idp: string): ArtLayers {
   const { comp, trail, crest } = m;
   const f = def.features;
   const u: Url = (n) => `url(#${idp}-${n})`;
@@ -679,7 +666,7 @@ export function buildArt(m: SceneModel, def: RanchSceneDef, idp: string, goalLab
       {comp.fenceC && <Fence ch={comp.fenceC} step={22} h0={30} depth={comp.depth} snow={f.snow} />}
       {treesOf('behindBarn')}
       <Silo x={comp.silo[0]} y={comp.silo[1]} s={comp.silo[2]} snow={f.snow} />
-      <Barn x={comp.barn[0]} y={comp.barn[1]} s={comp.barn[2]} u={u} f={f} />
+      <Barn x={comp.barn[0]} y={comp.barn[1]} s={comp.barn[2]} u={u} f={f} idp={idp} friend={def.friend} />
       {hayPos && <Hay x={hayPos[0]} y={hayPos[1]} s={hayPos[2]} />}
       {f.extraHay && comp.extraHay.map(([x, y, s], i) => <Hay key={`eh${i}`} x={x} y={y} s={s} />)}
       {f.snowman && comp.id === 'wide' && <Snowman x={comp.snowman[0]} y={comp.snowman[1]} s={comp.snowman[2]} />}
@@ -776,7 +763,6 @@ export function buildArt(m: SceneModel, def: RanchSceneDef, idp: string, goalLab
     </g>
   );
   const edge = <path key="edge" className="r-gedge" d={hillD(comp.edge, H + 4)} />;
-  const flag = <Flag fg={m.flag} idp={idp} text={goalLabel} />;
 
-  return { sky, hillsA, hillB, hillC, hillD: hillD_, front, fx, edge, flag, trailOf };
+  return { sky, hillsA, hillB, hillC, hillD: hillD_, front, fx, edge, trailOf };
 }

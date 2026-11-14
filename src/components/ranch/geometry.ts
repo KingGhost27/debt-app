@@ -123,8 +123,8 @@ export interface Trail {
 const SEG_STEPS = 60;
 
 /**
- * anchors: [pct, segment index, t] — hand-tuned so the near (wide) part of
- * the trail gets more of the percentage range than the far, foreshortened part.
+ * anchors: [pct, segment index, t], in rising pct. They may run either way
+ * along the segments; the ranch walks them from the far end home to the barn.
  */
 export function makeTrail(segs: TrailSeg[], anchors: [number, number, number][]): Trail {
   const per: Smp[][] = [];

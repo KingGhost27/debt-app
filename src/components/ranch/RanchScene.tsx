@@ -1,10 +1,11 @@
 /**
  * RanchScene — the dashboard's illustrated ranch.
  *
- * The trail from the barn to the debt-free flag is the user's real
- * progress: the theme's friend stands on it at `paidShare`, each debt is
- * a signpost where it gets paid off, and Debtsy grazes by the barn. Every
- * theme preset is its own time of day or season (see lib/ranchScenes).
+ * The walk home is the user's real progress: the theme's friend sets off
+ * from the far end of the trail (0% paid) and reaches the barn door when
+ * they are debt-free. Each debt is a signpost where it gets paid off, and
+ * Debtsy and the other friends wait at the barn. Every theme preset is its
+ * own time of day or season (see lib/ranchScenes).
  *
  * Layout: a wide 1300×600 stage at container widths ≥ 768px and a
  * dedicated 390×420 phone stage below that. `children` sit in the sky
@@ -18,28 +19,20 @@
  * state appears at once.
  */
 
-import { useEffect, useId, useMemo, useRef, useState, type ComponentType, type CSSProperties, type ReactNode } from 'react';
+import { useEffect, useId, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { flushSync } from 'react-dom';
 import { DebtsyCow } from '../ui/DebtsyCow';
-import {
-  BooBoo, ChaiBear, CherryKitty, LiloOtter, LunaBunny, MapleFox, MochiFrog, ShadowBunny, SunshineChick,
-} from '../ui/mascots';
-import { RANCH_SCENES, ranchArtVars, type RanchFriend, type RanchSceneKey } from '../../lib/ranchScenes';
+import { RANCH_SCENES, ranchArtVars, type RanchSceneKey } from '../../lib/ranchScenes';
 import { PHONE, WIDE, type Composition } from './compositions';
 import { Bloom, Chip, Defs, Signpost } from './art';
 import { buildArt } from './layers';
 import { makeModel, type SceneModel } from './model';
-import { friendBoxAt, layoutPosts, type PlacedPost, type RanchDebt } from './signposts';
+import { friendBoxAt, friendScale, layoutPosts, type PlacedPost, type RanchDebt } from './signposts';
+import { FRIENDS } from './friends';
 import { r1 } from './geometry';
 import './ranch.css';
 
 export type { RanchDebt, DebtStatus } from './signposts';
-
-type MascotProps = { size?: number; className?: string; animated?: boolean };
-
-const FRIENDS: Record<RanchFriend, ComponentType<MascotProps>> = {
-  LunaBunny, BooBoo, ShadowBunny, LiloOtter, SunshineChick, CherryKitty, MochiFrog, ChaiBear, MapleFox,
-};
 
 export interface RanchWalk {
   /** Change this to play the walk once. */
@@ -55,7 +48,7 @@ export interface RanchSceneProps {
   paidShare: number;
   /** Debts as signposts along the trail. */
   debts: RanchDebt[];
-  /** Flag text at the end of the trail. Only include a date the plan backs. */
+  /** The goal, read out in the text alternative. Only include a date the plan backs. */
   goalLabel?: string;
   /** The friend's speech bubble. */
   friendLine?: ReactNode;
@@ -73,6 +66,8 @@ export interface RanchSceneProps {
 
 const clamp01 = (n: number) => (Number.isFinite(n) ? Math.max(0, Math.min(1, n)) : 0);
 const WALK_MS = 860;
+/** From this paid share on, the friend is in the barnyard. */
+const NEAR_HOME = 0.75;
 
 interface Stage {
   comp: Composition;
@@ -100,18 +95,18 @@ export function RanchScene({
   const restShare = active ? active.from : share;
 
   const stages = useMemo<Stage[]>(
-    () => [WIDE, PHONE].map((comp) => ({ comp, model: makeModel(comp, goalLabel) })),
-    [goalLabel],
+    () => [WIDE, PHONE].map((comp) => ({ comp, model: makeModel(comp) })),
+    [],
   );
   const art = useMemo(
-    () => stages.map((st) => buildArt(st.model, def, `${idp}-${st.comp.id}`, goalLabel)),
-    [stages, def, idp, goalLabel],
+    () => stages.map((st) => buildArt(st.model, def, `${idp}-${st.comp.id}`)),
+    [stages, def, idp],
   );
   const hasBubble = friendLine != null && friendLine !== false;
   const posts = useMemo(
     () => stages.map((st) => layoutPosts({
       comp: st.comp, trail: st.model.trail, debts, friendPct: restShare * 100, friendSize: st.comp.friendSize,
-      flagBoxes: st.model.flag.boxes, hasBubble, keepOut: keepOutFor(st.comp),
+      hasBubble, bubbleLow: restShare >= NEAR_HOME, keepOut: keepOutFor(st.comp),
     })),
     [stages, debts, restShare, hasBubble],
   );
@@ -146,7 +141,7 @@ export function RanchScene({
         if (!g || !inner) return;
         const q = st.model.trail.at(pct);
         const sz0 = friendBoxAt(st.model.trail, st.comp, active.from * 100).sz;
-        const sz = st.comp.friendSize * Math.max(0.5, q.w / st.comp.wRef);
+        const sz = st.comp.friendSize * friendScale(st.comp, q.w);
         const k = sz / sz0;
         g.setAttribute('transform', `translate(${q.x.toFixed(2)} ${q.y.toFixed(2)})`);
         inner.setAttribute('transform', `translate(0 ${(-hop * sz * 0.4).toFixed(2)}) scale(${(k * (1 + sq * 0.08)).toFixed(3)} ${(k * (1 - sq * 0.12)).toFixed(3)})`);
@@ -161,12 +156,14 @@ export function RanchScene({
   /* text alternative */
   const text = summary ?? describe(def.moment, share, debts, goalLabel);
 
-  /* bubble anchor: friend head on wide (bubble above), feet on phone (bubble below) */
+  /* bubble anchor: friend head on wide (bubble above), feet on phone (bubble below).
+     Near home the wide bubble drops under the friend's feet so the barn, the sign and the herd stay in view. */
   const fw = friendBoxAt(stages[0].model.trail, WIDE, restShare * 100);
   const fp = friendBoxAt(stages[1].model.trail, PHONE, restShare * 100);
+  const bubbleLow = restShare >= NEAR_HOME;
   const style = {
     ...ranchArtVars(def.art),
-    '--bxw': r1(fw.q.x), '--byw': r1(fw.q.y - fw.sz * 0.95),
+    '--bxw': r1(fw.q.x), '--byw': r1(bubbleLow ? fw.q.y + 4 : fw.q.y - fw.sz * 0.95),
     '--bxp': r1(fp.q.x), '--byp': r1(fp.q.y),
   } as CSSProperties;
 
@@ -202,7 +199,6 @@ export function RanchScene({
               {a.sky}
               {a.hillsA}
               {a.trailOf('A')}
-              {a.flag}
               {on('A').map(post)}
               {a.hillB}
               {a.trailOf('B')}
@@ -217,10 +213,10 @@ export function RanchScene({
               {on('D').map(post)}
               {blooms.map((b) => {
                 const bq = st.model.trail.at(b.at * 100);
-                const bs = (st.comp.friendSize * Math.max(0.5, bq.w / st.comp.wRef)) / 78;
+                const bs = (st.comp.friendSize * friendScale(st.comp, bq.w)) / 78;
                 return <Bloom key={b.key} x={bq.x - 22 * bs} y={bq.y - bq.w * 0.5 + 1} s={bs} pop={b.pop} />;
               })}
-              <g ref={(el) => { friendRefs.current[i] = el; }} transform={`translate(${r1(f.q.x)} ${r1(f.q.y)})`}>
+              <g className="r-friend" ref={(el) => { friendRefs.current[i] = el; }} transform={`translate(${r1(f.q.x)} ${r1(f.q.y)})`}>
                 <g ref={(el) => { innerRefs.current[i] = el; }}>
                   {def.features.friendGlow && <ellipse fill={`url(#${sid}-fglow)`} cx="0" cy={r1(-f.sz * 0.45)} rx={r1(f.sz * 0.85)} ry={r1(f.sz * 0.75)} />}
                   <ellipse className="r-gshadow" cx="0" cy="1" rx={r1(f.sz * 0.33)} ry={r1(f.sz * 0.07)} />
@@ -236,7 +232,7 @@ export function RanchScene({
           );
         })}
       </div>
-      {hasBubble && <p className={`ranch-bubble${active ? ' is-hushed' : ''}`}>{friendLine}</p>}
+      {hasBubble && <p className={`ranch-bubble${active ? ' is-hushed' : ''}${bubbleLow ? ' is-low' : ''}`}>{friendLine}</p>}
       <div className="ranch-sky">
         {children != null && <div className="ranch-copy">{children}</div>}
         {actions != null && <div className="ranch-act">{actions}</div>}
@@ -246,13 +242,14 @@ export function RanchScene({
   );
 }
 
-/** Keep labels off the barn, silo and Debtsy. */
+/** Keep labels off the barn, Debtsy, and (always, even for barn-wall labels) the open door, its herd and the goal sign. */
 function keepOutFor(comp: Composition) {
   const [bx, by, bs] = comp.barn;
   const [dx, dy, dsz] = comp.debtsy;
   return [
     { x0: bx - 12 * bs, y0: by - 270 * bs, x1: bx + 310 * bs, y1: by + 4 },
     { x0: dx - dsz * 0.5, y0: dy - dsz, x1: dx + dsz * 0.5, y1: dy + 4 },
+    { x0: bx + 10 * bs, y0: by - 98 * bs, x1: bx + 150 * bs, y1: by + 6 },
   ];
 }
 
@@ -260,7 +257,7 @@ function describe(moment: string, share: number, debts: RanchDebt[], goal: strin
   const pct = Math.round(share * 100);
   const names = (s: RanchDebt['status']) => debts.filter((d) => d.status === s).sort((a, b) => a.position - b.position).map((d) => d.name);
   const paid = names('paid'), focus = names('focus'), ahead = names('upcoming');
-  const parts = [`Ranch at ${moment}. Your friend is ${pct}% of the way along the trail to the flag: ${goal}.`];
+  const parts = [`Ranch at ${moment}. Your friend is ${pct}% of the way home to the barn, where everyone is waiting. Goal: ${goal}.`];
   if (paid.length) parts.push(`Paid off: ${paid.join(', ')}.`);
   if (focus.length) parts.push(`Working on now: ${focus.join(', ')}.`);
   if (ahead.length) parts.push(`Still ahead: ${ahead.join(', ')}.`);

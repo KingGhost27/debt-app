@@ -58,6 +58,7 @@ export default function RanchLab() {
       isPro: q.get('pro') !== '0',
       initial: buildFixtureData({
         empty: q.get('empty') === '1',
+        paid: q.get('paid') != null && Number.isFinite(Number(q.get('paid'))) ? Number(q.get('paid')) : undefined,
         theme: { preset, darkMode: q.get('dark') === '1' },
       }),
     };

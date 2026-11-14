@@ -114,10 +114,27 @@ const ASSETS: Asset[] = [
   asset('lab-a3', 'Roth IRA', 'roth_ira', 3400, 'Sample Brokerage'),
 ];
 
-export function buildFixtureData(opts: { empty: boolean; theme: ThemeSettings }): AppData {
+/**
+ * Lab-only: re-balance the sample debts so `share` (0–1) of the original
+ * total is paid, clearing the smallest debts first like the snowball plan.
+ */
+function debtsPaidTo(share: number): Debt[] {
+  const total = DEBTS.reduce((s, d) => s + d.originalBalance, 0);
+  let left = Math.max(0, Math.min(1, share)) * total;
+  const order = [...DEBTS].sort((a, b) => a.originalBalance - b.originalBalance);
+  const paid = new Map<string, number>();
+  for (const d of order) {
+    const take = Math.min(d.originalBalance, left);
+    paid.set(d.id, take);
+    left -= take;
+  }
+  return DEBTS.map((d) => ({ ...d, balance: Math.round((d.originalBalance - (paid.get(d.id) ?? 0)) * 100) / 100 }));
+}
+
+export function buildFixtureData(opts: { empty: boolean; theme: ThemeSettings; paid?: number }): AppData {
   return {
     version: '1.4.0',
-    debts: opts.empty ? [] : DEBTS,
+    debts: opts.empty ? [] : opts.paid != null ? debtsPaidTo(opts.paid) : DEBTS,
     payments: opts.empty ? [] : PAYMENTS,
     strategy: {
       strategy: 'snowball',

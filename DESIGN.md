@@ -145,7 +145,7 @@ Scope: the signed-in app interior (Dashboard, Debts, Plan, Track, Subscriptions,
 
 **Creative North Star: "The Ranch You're Walking Home Across"**
 
-The dashboard is a place, not a card grid. A layered flat-vector scene (sky, hazed hills, barn, silo, fence, trees, flowers, a dirt trail with a signpost per debt) fills the top of the main area, and the trail from the barn to the debt-free flag is the real progress. Each of the nine themes is a time of day or a season on the same ranch. Everything below the scene sits on the scene's own ground color, so the page reads as the meadow in front of the picture.
+The dashboard is a place, not a card grid. A layered flat-vector scene (sky, hazed hills, barn, silo, fence, trees, flowers, a dirt trail with a signpost per debt) fills the top of the main area, and the walk home along that trail is the real progress: the theme's friend sets off from the far hills and reaches the barn, with the "Debt-free" sign over its open door, on the day the last debt is paid. Debtsy and the other friends wait at the barn. Each of the nine themes is a time of day or a season on the same ranch. Everything below the scene sits on the scene's own ground color, so the page reads as the meadow in front of the picture.
 
 Surfaces are soft, large-radius pages lifted by one diffuse tinted shadow. Headings are wooden plank tabs. Ink is a deep tint of the theme hue, never neutral black or gray. Type pairs a fat display face for the headline moment with a rounded friendly UI face; figures are tabular so money never jitters. The mood is warm, confident and playful without being babyish or bank-like. The animals (Debtsy and one friend per theme) stay as characters in the scene and in empty states.
 
