@@ -107,7 +107,7 @@ export function SettingsPage() {
   };
 
   const testStats: CelebrationStats = {
-    userName: settings.userName || 'Flora',
+    userName: settings.userName || 'Mari',
     totalOriginal: 22000,
     totalPaid: 10520.75,
     percentPaid: 47.8,
