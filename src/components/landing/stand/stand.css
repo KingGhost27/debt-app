@@ -534,7 +534,7 @@
 .fs-close-fine { margin: 14px auto 0 !important; font-size: 13.5px !important; opacity: 0.85; }
 .fs-close-friends { position: relative; z-index: 2; display: flex; justify-content: center; gap: 8px; margin-top: 18px; --head: clamp(86px, 8vw, 118px); }
 .fs-friend--big { width: auto; }
-.fs-meadow--close { width: auto; margin: -10px calc(var(--fs-gutter) * -1) 0; }
+.fs-meadow--close { width: calc(100% + var(--fs-gutter) * 2); margin: -10px calc(var(--fs-gutter) * -1) 0; }
 
 .fs-foot {
   display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 20px;
