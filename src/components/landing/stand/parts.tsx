@@ -1,6 +1,7 @@
 /**
  * Pieces of the farm stand home page: the re-lettering date, the friends who
- * work the stand, the painted date sign and the bunting.
+ * work the stand, the painted date sign, the bunting, the paint rack, the
+ * garden-marker promises and the recipe-card FAQ.
  *
  * The re-lettering is adapted from 21st.dev "Text Roll" (#19782 by
  * cnippet-dev), rebuilt in CSS so it needs no motion library.
@@ -21,7 +22,7 @@ import {
 import { DebtsyCow } from '../../ui/DebtsyCow';
 import { THEME_METADATA } from '../../../lib/themes';
 import { isThemeFree } from '../../../lib/tierLimits';
-import { PaintPot, Rosette, Sparkle } from './art';
+import { ChalkPlus, MarkerBloom, PaintPot, Rosette, Sparkle } from './art';
 import { STAND_ORDER, STAND_PALETTES, type StandTheme } from './palettes';
 import { useSettled } from './useSettled';
 
@@ -218,3 +219,52 @@ export function ThemeRack({ theme, onPick }: { theme: StandTheme; onPick: (t: St
     </fieldset>
   );
 }
+
+const PROMISES = [
+  { title: 'Both strategies, side by side', text: 'Snowball or avalanche: see which one frees you faster.' },
+  { title: 'Private by default', text: 'No signup required. Your numbers never leave your browser.' },
+  { title: 'Instant results', text: 'Real payoff math, not a vague estimate. Updates as you type.' },
+];
+
+/** The stand's three promises, painted on garden markers staked in the meadow. */
+export function Promises() {
+  return (
+    <section className="fs-promises" aria-label="Why use the Cowculator">
+      <ul className="fs-markers">
+        {PROMISES.map((m, i) => (
+          <li className="fs-marker" key={m.title}>
+            <MarkerBloom className="fs-marker-bloom" kind={i as 0 | 1 | 2} />
+            <div className="fs-marker-board">
+              <strong className="fs-marker-title">{m.title}</strong>
+              <span className="fs-marker-text">{m.text}</span>
+            </div>
+            <span className="fs-marker-stake" aria-hidden="true" />
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+/** Questions on recipe cards, taped up with washi tape. One opens at a time (native details). */
+export function FaqCards({ faqs }: { faqs: { q: string; a: string }[] }) {
+  return (
+    <section id="faq" className="fs-faq" aria-labelledby="fs-faq-title">
+      <h2 id="fs-faq-title" data-cb-sparkle>
+        Questions?
+      </h2>
+      <div className="fs-cards">
+        {faqs.map((f, i) => (
+          <details className="fs-card" name="fs-faq" open={i === 0} key={f.q}>
+            <summary>
+              <span>{f.q}</span>
+              <ChalkPlus className="fs-card-mark" />
+            </summary>
+            <p>{f.a}</p>
+          </details>
+        ))}
+      </div>
+    </section>
+  );
+}
+

@@ -36,7 +36,16 @@ import {
   Sparkle,
   WateringCan,
 } from '../components/landing/stand/art';
-import { Bunting, DateSign, Friend, SettledRoll, ThemeRack, type FriendName } from '../components/landing/stand/parts';
+import {
+  Bunting,
+  DateSign,
+  FaqCards,
+  Friend,
+  Promises,
+  SettledRoll,
+  ThemeRack,
+  type FriendName,
+} from '../components/landing/stand/parts';
 import {
   DEFAULT_STAND_THEME,
   STAND_PALETTES,
@@ -548,6 +557,8 @@ export function LandingPage() {
           <Meadow className="fs-meadow" />
         </section>
 
+        <Promises />
+
         <section id="how-it-works" className="fs-how" aria-labelledby="fs-how-title">
           <Bunting className="fs-bunting--path" />
           <h2 id="fs-how-title" data-cb-sparkle>
@@ -597,6 +608,8 @@ export function LandingPage() {
           </aside>
         </section>
 
+        <FaqCards faqs={FAQS} />
+
         <section className="fs-close" aria-labelledby="fs-close-title">
           <div className="fs-close-sign">
             <FlowerSpray className="fs-spray fs-spray--tl" />
@@ -625,6 +638,7 @@ export function LandingPage() {
         </span>
         <span>The free debt payoff calculator that moos at your debt</span>
         <span className="fs-foot-links">
+          <a href="#faq">FAQ</a>
           <Link to="/privacy">Privacy</Link>
           <Link to="/terms">Terms</Link>
         </span>

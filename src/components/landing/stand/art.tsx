@@ -353,6 +353,19 @@ export function HangingBasket({ className }: { className?: string }) {
   );
 }
 
+/** The little plant growing beside a garden marker: one of three blooms. */
+export function MarkerBloom({ className, kind }: { className?: string; kind: 0 | 1 | 2 }) {
+  return (
+    <svg className={className} viewBox="0 0 80 64" aria-hidden="true">
+      <LeafG x={40} y={52} s={0.8} turn={-150} />
+      <LeafG x={40} y={52} s={0.8} turn={-30} fill="#7DBF77" />
+      {kind === 0 && <PeonyG x={40} y={30} r={20} tone="pink" turn={12} />}
+      {kind === 1 && <DaisyG x={40} y={30} r={17} turn={8} />}
+      {kind === 2 && <PeonyG x={40} y={30} r={20} tone="blush" turn={-16} />}
+    </svg>
+  );
+}
+
 /** A climbing-rose cluster for the stand's posts. */
 export function RoseCluster({ className, style, flip = false }: { className?: string; style?: CSSProperties; flip?: boolean }) {
   return (

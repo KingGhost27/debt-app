@@ -86,9 +86,13 @@ export const PAIRS: Pair[] = [
   { what: 'section heading on cloth', kind: 'large', test: (p) => ({ fg: p.howHead, on: [p.howBg, check(p)] }) },
   { what: 'lede on cloth', kind: 'text', test: (p) => ({ fg: p.howInk, on: [p.howBg, check(p)] }) },
   { what: 'focus ring on cloth', kind: 'ui', test: (p) => ({ fg: p.howHead, on: [p.howBg, check(p)] }) },
+  // headings set straight on the page ground (FAQ)
+  { what: 'section heading on page ground', kind: 'large', test: (p) => ({ fg: p.howHead, on: [p.sky, p.pageMid, p.closeLow] }) },
   // packets, cards, markers (paper)
   { what: 'card heading', kind: 'large', test: (p) => ({ fg: p.berry, on: [p.milk, p.face] }) },
   { what: 'card tag line', kind: 'text', test: (p) => ({ fg: p.strawInk, on: [p.milk, p.face] }) },
+  { what: 'card question, marker title', kind: 'text', test: (p) => ({ fg: p.berry, on: [p.milk, p.face, p.faceLow] }) },
+  { what: 'card open/close mark', kind: 'ui', test: (p) => ({ fg: p.strawInk, on: [p.milk] }) },
   { what: 'card body', kind: 'text', test: (p) => ({ fg: p.packetInk, on: [p.milk, p.face, p.faceLow] }) },
   { what: 'best-for notes', kind: 'text', test: (p) => ({ fg: p.packetInk, on: [p.bestA, p.bestB] }) },
   // footer on the meadow
