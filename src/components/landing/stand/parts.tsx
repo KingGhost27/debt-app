@@ -1,7 +1,7 @@
 /**
  * Pieces of the farm stand home page: the re-lettering date, the friends who
  * work the stand, the painted date sign, the bunting, the paint rack, the
- * garden-marker promises and the recipe-card FAQ.
+ * garden-marker promises, the recipe-card FAQ and the price board.
  *
  * The re-lettering is adapted from 21st.dev "Text Roll" (#19782 by
  * cnippet-dev), rebuilt in CSS so it needs no motion library.
@@ -22,6 +22,7 @@ import {
 import { DebtsyCow } from '../../ui/DebtsyCow';
 import { THEME_METADATA } from '../../../lib/themes';
 import { isThemeFree } from '../../../lib/tierLimits';
+import { PLANS } from '../../../lib/plans';
 import { ChalkPlus, MarkerBloom, PaintPot, Rosette, Sparkle } from './art';
 import { STAND_ORDER, STAND_PALETTES, type StandTheme } from './palettes';
 import { useSettled } from './useSettled';
@@ -268,3 +269,35 @@ export function FaqCards({ faqs }: { faqs: { q: string; a: string }[] }) {
   );
 }
 
+/**
+ * The stand's price board: the three Pro plans chalked up like a menu, read
+ * from the same PLANS the in-app upgrade dialog uses. It only shows prices;
+ * buying happens inside the app, so the tag opens the account page.
+ */
+export function PriceBoard({ onStart }: { onStart: () => void }) {
+  return (
+    <section className="fs-prices-wrap" aria-labelledby="fs-prices-title">
+      <div className="fs-prices">
+        <h2 id="fs-prices-title">Pro, if you want it</h2>
+        <p className="fs-prices-free">Pro unlocks themes, asset tracking &amp; unlimited debts. The calculator is always free.</p>
+        <ul className="fs-menu">
+          {PLANS.map((p) => (
+            <li className="fs-menu-row" key={p.id}>
+              <span className="fs-menu-name">{p.name}</span>
+              <span className="fs-leader" aria-hidden="true" />
+              <span className="fs-menu-price">
+                <b>{p.price}</b> <small>{p.period}</small>
+              </span>
+              {p.boardNotes.length > 0 && <span className="fs-menu-notes">{p.boardNotes.join(' · ')}</span>}
+            </li>
+          ))}
+        </ul>
+        <div className="fs-prices-cta">
+          <button type="button" className="fs-tag fs-tag--gold fs-tag--big" onClick={onStart}>
+            Make a free account
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}

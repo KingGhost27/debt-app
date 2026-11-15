@@ -12,47 +12,11 @@ import { ModalShell } from './ModalShell';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { isRunningInTwa } from '../../lib/twa';
+import { PLANS } from '../../lib/plans';
 
 interface UpgradeModalProps {
   onDismiss: () => void;
 }
-
-interface PlanOption {
-  id: 'monthly' | 'annual' | 'lifetime';
-  name: string;
-  price: string;
-  period: string;
-  badge?: string;
-  highlight?: boolean;
-  features: string[];
-}
-
-const PLANS: PlanOption[] = [
-  {
-    id: 'monthly',
-    name: 'Monthly',
-    price: '$4.99',
-    period: '/month',
-    features: ['Cancel anytime', 'All Pro features'],
-  },
-  {
-    id: 'annual',
-    name: 'Annual',
-    price: '$39.99',
-    period: '/year',
-    badge: 'Save 33%',
-    highlight: true,
-    features: ['Best value', 'All Pro features', '~$3.33/month'],
-  },
-  {
-    id: 'lifetime',
-    name: 'OG Heifer',
-    price: '$19',
-    period: 'one-time',
-    badge: 'Limited!',
-    features: ['Pay once, Pro forever', 'First 200-300 members only', 'OG Heifer badge'],
-  },
-];
 
 const PRO_FEATURES = [
   'Unlimited debts',

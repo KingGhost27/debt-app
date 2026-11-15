@@ -41,6 +41,7 @@ import {
   DateSign,
   FaqCards,
   Friend,
+  PriceBoard,
   Promises,
   SettledRoll,
   ThemeRack,
@@ -609,6 +610,8 @@ export function LandingPage() {
         </section>
 
         <FaqCards faqs={FAQS} />
+
+        <PriceBoard onStart={signIn} />
 
         <section className="fs-close" aria-labelledby="fs-close-title">
           <div className="fs-close-sign">
