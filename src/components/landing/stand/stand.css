@@ -349,8 +349,10 @@
     0 16px 26px -16px color-mix(in srgb, var(--fs-shade) 60%, transparent);
 }
 .fs-date-label { margin: 0; font: 600 16px / 1.2 var(--fs-round); color: var(--fs-straw-ink); }
+/* A date longer than "August 2028" (11 letters) paints smaller, so the sign never outgrows its spot. */
 .fs-date-value {
-  margin: 4px 0 0; font: 400 clamp(38px, 4vw, 60px) / 1.04 var(--fs-display); color: var(--fs-berry);
+  --fit: clamp(38px, 4vw, 60px);
+  margin: 4px 0 0; font: 400 calc(var(--fit) * 11 / var(--len, 11)) / 1.04 var(--fs-display); color: var(--fs-berry);
   white-space: nowrap; font-variant-numeric: tabular-nums;
 }
 .fs-date-empty { margin: 4px 0; font: 600 16px / 1.35 var(--fs-round); color: var(--fs-berry); }
@@ -529,10 +531,10 @@
 .fs-close-sign::before { content: ""; position: absolute; inset: 9px; border-radius: 15px; border: 2px dashed var(--fs-dash); pointer-events: none; }
 .fs-close .fs-close-sign h2 { position: relative; color: var(--fs-candy-ink); text-shadow: 0 3px 0 var(--fs-gold), 0 10px 20px color-mix(in srgb, var(--fs-candy-ink) 22%, transparent); }
 .fs-close-sign > p { position: relative; max-width: 30em; margin: 14px auto 22px; font-size: clamp(16px, 1.3vw, 19px); line-height: 1.55; }
-.fs-close-fine { margin: 14px 0 0 !important; font-size: 13.5px !important; opacity: 0.85; }
+.fs-close-fine { margin: 14px auto 0 !important; font-size: 13.5px !important; opacity: 0.85; }
 .fs-close-friends { position: relative; z-index: 2; display: flex; justify-content: center; gap: 8px; margin-top: 18px; --head: clamp(86px, 8vw, 118px); }
 .fs-friend--big { width: auto; }
-.fs-meadow--close { margin-top: -10px; }
+.fs-meadow--close { width: auto; margin: -10px calc(var(--fs-gutter) * -1) 0; }
 
 .fs-foot {
   display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 20px;
@@ -565,7 +567,7 @@
   .fs-sign-actions .fs-tag--big { flex: 1 1 auto; }
   .fs-date--phone { display: block; justify-self: center; margin: 4px 0 6px; min-width: min(100%, 300px); }
   .fs-date--desk { display: none; }
-  .fs-date-value { font-size: clamp(34px, 10vw, 46px); }
+  .fs-date-value { --fit: clamp(34px, 10vw, 46px); }
   .fs-rosette { left: -14px; top: -24px; width: 46px; }
   .fs-cols { display: none; }
   .fs-mid { grid-template-columns: minmax(0, 1fr); }
@@ -604,6 +606,9 @@
   .fs-packet, .fs-packet--b { transform: none; }
   .fs-take { margin-top: 56px; }
   .fs-foot { justify-content: center; text-align: center; }
+}
+@media (max-width: 389px) {
+  .fs-page { --head: 40px; }
 }
 @media (max-width: 380px) {
   .fs-nav .fs-tag--milk { display: none; }

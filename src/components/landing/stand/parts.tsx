@@ -162,7 +162,7 @@ export function DateSign({ dateText, hasDate, empty, className }: { dateText: st
       ) : (
         <>
           {hasDate && <p className="fs-date-label">Debt-free by</p>}
-          <p className="fs-date-value" data-cb-date aria-live="polite">
+          <p className="fs-date-value" data-cb-date aria-live="polite" style={{ '--len': Math.max(11, dateText.length) } as CSSProperties}>
             <RollText text={dateText} startDelay={1.0} />
           </p>
         </>
