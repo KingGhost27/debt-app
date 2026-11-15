@@ -22,6 +22,7 @@ import {
   BerryPint,
   Bouquet,
   ChalkArrow,
+  ChalkLine,
   ChalkLoop,
   ChalkPlus,
   ChalkX,
@@ -35,7 +36,14 @@ import {
   Sparkle,
   WateringCan,
 } from '../components/landing/stand/art';
-import { Bunting, DateSign, Friend, SettledRoll } from '../components/landing/stand/parts';
+import { Bunting, DateSign, Friend, SettledRoll, ThemeRack, type FriendName } from '../components/landing/stand/parts';
+import {
+  DEFAULT_STAND_THEME,
+  STAND_PALETTES,
+  isStandTheme,
+  standVars,
+  type StandTheme,
+} from '../components/landing/stand/palettes';
 import { useSettled } from '../components/landing/stand/useSettled';
 // Card scenes: ChatGPT image generation from prompts written for this page; provenance beside the files.
 import snowballArt from '../components/landing/stand/img/snowball.webp';
@@ -46,6 +54,27 @@ import '../components/landing/stand/stand.css';
 // into a new account, so this exact shape (all strings) is a contract with it.
 const LANDING_DEBTS_KEY = 'cowculator_landing_debts';
 const LANDING_FUNDING_KEY = 'cowculator_landing_funding';
+const LANDING_THEME_KEY = 'cowculator_landing_theme';
+
+/** Each theme's own friend works the register (the app's theme-to-friend pairing); Debtsy takes their spot. */
+const REGISTER_FRIEND: Record<StandTheme, FriendName> = {
+  default: 'Luna',
+  'my-melody': 'BooBoo',
+  kuromi: 'Shadow',
+  cinnamoroll: 'Lilo',
+  pompompurin: 'Sunshine',
+  'hello-kitty': 'Cherry',
+  keroppi: 'Mochi',
+  chococat: 'Chai',
+  maple: 'Maple',
+};
+
+/** Paws for the friends who can peek over the sign and the board. */
+const PAWS: Partial<Record<FriendName, { fill: string; edge: string }>> = {
+  Shadow: { fill: '#FFFFFF', edge: '#7C3AED' },
+  Sunshine: { fill: '#FDE68A', edge: '#D9A400' },
+  Debtsy: { fill: '#FFFFFF', edge: '#1E1B2E' },
+};
 
 type DraftDebt = { id: string; name: string; balance: string; apr: string; minimumPayment: string };
 const DRAFT_FIELDS = ['id', 'name', 'balance', 'apr', 'minimumPayment'] as const;
@@ -72,6 +101,17 @@ function readDrafts(): DraftDebt[] {
     // blocked storage or unreadable JSON: start from the sample entries
   }
   return seedDebts();
+}
+
+/** The stand's paint from an earlier visit, or Rose Milk (the approved look). */
+function readTheme(): StandTheme {
+  try {
+    const saved = localStorage.getItem(LANDING_THEME_KEY);
+    if (isStandTheme(saved)) return saved;
+  } catch {
+    // storage blocked: use the default paint
+  }
+  return DEFAULT_STAND_THEME;
 }
 
 function readFunding(): string {
@@ -138,14 +178,31 @@ export function LandingPage() {
   const [debts, setDebts] = useState<DraftDebt[]>(readDrafts);
   const [extraFunding, setExtraFunding] = useState(readFunding);
   const [strategy, setStrategy] = useState<'avalanche' | 'snowball'>('avalanche');
+  const [theme, setTheme] = useState<StandTheme>(readTheme);
   const firstInput = useRef<HTMLInputElement>(null);
+  const palette = STAND_PALETTES[theme];
+  const pageVars = useMemo(() => standVars(palette) as CSSProperties, [palette]);
+  // The theme's friend and Debtsy trade places; everyone else keeps their spot.
+  const atRegister = REGISTER_FRIEND[theme];
+  const cast = (name: FriendName): FriendName => (name === atRegister ? 'Debtsy' : name === 'Debtsy' ? atRegister : name);
+  const peekSign = cast('Shadow');
+  const peekBoard = cast('Sunshine');
 
-  // Smooth in-page scrolling and the overscroll color belong to this page only.
+  // Smooth in-page scrolling belongs to this page only.
   useEffect(() => {
     const root = document.documentElement;
     root.classList.add('fs-html');
     return () => root.classList.remove('fs-html');
   }, []);
+
+  // Overscroll past the top shows the stand's sky, not the app background.
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.backgroundColor = palette.sky;
+    return () => {
+      root.style.backgroundColor = '';
+    };
+  }, [palette.sky]);
 
   // SEO + social meta: set once on mount
   useEffect(() => {
@@ -187,6 +244,7 @@ export function LandingPage() {
   // Persist drafts so the signup flow can pick them up
   useEffect(() => store(LANDING_DEBTS_KEY, JSON.stringify(debts)), [debts]);
   useEffect(() => store(LANDING_FUNDING_KEY, extraFunding), [extraFunding]);
+  useEffect(() => store(LANDING_THEME_KEY, theme), [theme]);
 
   const validDebts: Debt[] = useMemo(() => {
     const out: Debt[] = [];
@@ -264,8 +322,8 @@ export function LandingPage() {
   const hasDate = !!plan?.debtFreeDate;
 
   return (
-    <div className="fs-page">
-      <Stardust ink="#7A1F45" theme="#F2789F" accent="#F6C75B" />
+    <div className="fs-page" style={pageVars} data-stand={theme}>
+      <Stardust ink={palette.dust.ink} theme={palette.dust.theme} accent={palette.dust.accent} />
 
       <header className="fs-awning">
         <div className="fs-valance">
@@ -296,7 +354,7 @@ export function LandingPage() {
           ))}
           <div className="fs-stage">
             <div className="fs-sign-col">
-              <Friend name="Shadow" i={0} className="fs-peek fs-peek--sign" paws={{ fill: '#FFFFFF', edge: '#7C3AED' }} />
+              <Friend name={peekSign} i={0} className="fs-peek fs-peek--sign" paws={PAWS[peekSign]} />
               <div className="fs-sign">
                 <FlowerSpray className="fs-spray fs-spray--tl" />
                 <FlowerSpray className="fs-spray fs-spray--br" variant="b" />
@@ -323,8 +381,8 @@ export function LandingPage() {
             <DateSign className="fs-date--phone" dateText={shownDate} hasDate={hasDate} empty={empty} />
 
             <div className="fs-board-col">
-              <Friend name="Sunshine" i={1} className="fs-peek fs-peek--board" paws={{ fill: '#FDE68A', edge: '#D9A400' }} />
-              <Friend name="Cherry" i={2} className="fs-peek fs-peek--side" />
+              <Friend name={peekBoard} i={1} className="fs-peek fs-peek--board" paws={PAWS[peekBoard]} />
+              <Friend name={cast('Cherry')} i={2} className="fs-peek fs-peek--side" />
               <form className="fs-board" id="board" aria-label="Your debts" onSubmit={(e) => e.preventDefault()}>
                 <div className="fs-board-head">
                   <h2 className="fs-board-title">Your debts</h2>
@@ -401,9 +459,7 @@ export function LandingPage() {
                   </div>
                 </div>
 
-                <svg className="fs-chalkline" viewBox="0 0 600 10" preserveAspectRatio="none" aria-hidden="true">
-                  <path d="M4 6 C 120 2, 260 8, 380 4 S 560 6, 596 4" stroke="#F4F0E6" strokeOpacity=".55" strokeWidth="2" fill="none" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
-                </svg>
+                <ChalkLine className="fs-chalkline" />
 
                 <div className="fs-result">
                   <fieldset className="fs-strategy">
@@ -458,34 +514,36 @@ export function LandingPage() {
           <div className="fs-counter">
             <div className="fs-shelf">
               <div className="fs-group fs-group--left">
-                <Friend name="Luna" i={0}>
+                <Friend name={cast('Luna')} i={0}>
                   <FlowerBucket className="fs-prop" />
                 </Friend>
-                <Friend name="Mochi" i={1}>
+                <Friend name={cast('Mochi')} i={1}>
                   <BerryPint className="fs-prop" />
                 </Friend>
-                <Friend name="Debtsy" i={2} className="fs-friend--wide">
+                <Friend name={atRegister} i={2} className="fs-friend--wide">
                   <Register className="fs-prop" />
                 </Friend>
-                <Friend name="Maple" i={3}>
+                <Friend name={cast('Maple')} i={3}>
                   <AppleCrate className="fs-prop" />
                 </Friend>
               </div>
               <div className="fs-group fs-group--right">
                 <DateSign className="fs-date--desk" dateText={shownDate} hasDate={hasDate} empty={empty} />
-                <Friend name="BooBoo" i={4}>
+                <Friend name={cast('BooBoo')} i={4}>
                   <Bouquet className="fs-prop" />
                 </Friend>
-                <Friend name="Chai" i={5}>
+                <Friend name={cast('Chai')} i={5}>
                   <HoneyJar className="fs-prop" />
                 </Friend>
-                <Friend name="Lilo" i={6}>
+                <Friend name={cast('Lilo')} i={6}>
                   <WateringCan className="fs-prop" />
                 </Friend>
               </div>
             </div>
             <div className="fs-ledge" />
-            <div className="fs-front" />
+            <div className="fs-front">
+              <ThemeRack theme={theme} onPick={setTheme} />
+            </div>
           </div>
           <Meadow className="fs-meadow" />
         </section>

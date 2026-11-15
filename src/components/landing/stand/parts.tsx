@@ -19,7 +19,10 @@ import {
   SunshineChick,
 } from '../../ui/mascots';
 import { DebtsyCow } from '../../ui/DebtsyCow';
-import { Rosette, Sparkle } from './art';
+import { THEME_METADATA } from '../../../lib/themes';
+import { isThemeFree } from '../../../lib/tierLimits';
+import { PaintPot, Rosette, Sparkle } from './art';
+import { STAND_ORDER, STAND_PALETTES, type StandTheme } from './palettes';
 import { useSettled } from './useSettled';
 
 type MascotProps = { size?: number; className?: string; animated?: boolean };
@@ -167,20 +170,51 @@ export function DateSign({ dateText, hasDate, empty, className }: { dateText: st
   );
 }
 
-const FLAG_COLORS = ['#F2789F', '#F6C75B', '#FFF4F7', '#A8DCC6', '#DCC0F7', '#E46A95'];
-
 /** Paper bunting strung across the stand; one line also carries the path into "How it works". */
 export function Bunting({ className = '' }: { className?: string }) {
   return (
     <div className={`fs-bunting ${className}`} aria-hidden="true">
       <svg className="fs-bunting-string" viewBox="0 0 1440 20" preserveAspectRatio="none">
-        <path d="M0 4 Q 180 16 360 6 T 720 6 T 1080 6 T 1440 4" fill="none" stroke="#9A6238" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+        <path d="M0 4 Q 180 16 360 6 T 720 6 T 1080 6 T 1440 4" fill="none" stroke="var(--fs-wood-deep)" strokeWidth="2" vectorEffect="non-scaling-stroke" />
       </svg>
       <div className="fs-flags">
         {Array.from({ length: 34 }, (_, i) => (
-          <span key={i} className="fs-flag" style={{ background: FLAG_COLORS[i % FLAG_COLORS.length], '--i': i } as CSSProperties} />
+          <span key={i} className="fs-flag" style={{ '--i': i } as CSSProperties} />
         ))}
       </div>
     </div>
+  );
+}
+
+const tier = (t: StandTheme) => (isThemeFree(t) ? 'free theme' : 'Pro theme');
+
+/**
+ * The paint rack on the counter front: one tin per app theme. Picking a tin
+ * repaints the whole stand at once (native radios, so arrow keys move the pick).
+ */
+export function ThemeRack({ theme, onPick }: { theme: StandTheme; onPick: (t: StandTheme) => void }) {
+  return (
+    <fieldset className="fs-rack">
+      <legend className="fs-sr">Paint the stand in an app theme</legend>
+      <div className="fs-rack-in">
+        <div className="fs-rack-sign" aria-hidden="true">
+          <span className="fs-rack-title">Paint the stand</span>
+          <span className="fs-rack-now">
+            {THEME_METADATA[theme].name} · {tier(theme)}
+          </span>
+        </div>
+        <div className="fs-pots">
+          {STAND_ORDER.map((t) => (
+            <label className={`fs-pot${t === theme ? ' is-on' : ''}`} key={t} title={THEME_METADATA[t].name}>
+              <input type="radio" name="fs-theme" value={t} checked={t === theme} onChange={() => onPick(t)} className="fs-sr" />
+              <PaintPot p={STAND_PALETTES[t]} />
+              <span className="fs-sr">
+                {THEME_METADATA[t].name}, {tier(t)}
+              </span>
+            </label>
+          ))}
+        </div>
+      </div>
+    </fieldset>
   );
 }
