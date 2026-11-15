@@ -10,7 +10,7 @@
  */
 
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import { generatePayoffPlan } from '../lib/calculations';
 import type { Debt, PayoffMilestone } from '../types';
@@ -42,7 +42,15 @@ import snowballArt from '../components/landing/stand/img/snowball.webp';
 import avalancheArt from '../components/landing/stand/img/avalanche.webp';
 import '../components/landing/stand/stand.css';
 
+// Drafts persist so the signup flow can pick them up: AppContext imports cowculator_landing_debts
+// into a new account, so this exact shape (all strings) is a contract with it.
+const LANDING_DEBTS_KEY = 'cowculator_landing_debts';
+const LANDING_FUNDING_KEY = 'cowculator_landing_funding';
+
 type DraftDebt = { id: string; name: string; balance: string; apr: string; minimumPayment: string };
+const DRAFT_FIELDS = ['id', 'name', 'balance', 'apr', 'minimumPayment'] as const;
+const isDraft = (d: unknown): d is DraftDebt =>
+  typeof d === 'object' && d !== null && DRAFT_FIELDS.every((k) => typeof (d as Record<string, unknown>)[k] === 'string');
 
 const blankDebt = (): DraftDebt => ({ id: uuidv4(), name: '', balance: '', apr: '', minimumPayment: '' });
 
@@ -51,6 +59,67 @@ const seedDebts = (): DraftDebt[] => [
   { id: uuidv4(), name: 'Credit Card', balance: '6800', apr: '24', minimumPayment: '170' },
   { id: uuidv4(), name: 'Car Loan', balance: '3900', apr: '6.9', minimumPayment: '240' },
 ];
+
+/** Saved drafts from an earlier visit, or the sample entries. Storage may be blocked; never throw. */
+function readDrafts(): DraftDebt[] {
+  try {
+    const raw = localStorage.getItem(LANDING_DEBTS_KEY);
+    const saved: unknown = raw ? JSON.parse(raw) : null;
+    if (Array.isArray(saved) && saved.length > 0 && saved.length <= 5 && saved.every(isDraft)) {
+      return saved.map(({ id, name, balance, apr, minimumPayment }) => ({ id, name, balance, apr, minimumPayment }));
+    }
+  } catch {
+    // blocked storage or unreadable JSON: start from the sample entries
+  }
+  return seedDebts();
+}
+
+function readFunding(): string {
+  try {
+    return localStorage.getItem(LANDING_FUNDING_KEY) || '200';
+  } catch {
+    return '200';
+  }
+}
+
+function store(key: string, value: string) {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    // storage blocked (private window, sandboxed frame): the calculator still works, it just forgets
+  }
+}
+
+function setMeta(name: string, content: string, attr: 'name' | 'property' = 'name') {
+  let el = document.head.querySelector(`meta[${attr}="${name}"]`);
+  if (!el) {
+    el = document.createElement('meta');
+    el.setAttribute(attr, name);
+    document.head.appendChild(el);
+  }
+  el.setAttribute('content', content);
+}
+
+function setCanonical(href: string) {
+  let el = document.head.querySelector('link[rel="canonical"]');
+  if (!el) {
+    el = document.createElement('link');
+    el.setAttribute('rel', 'canonical');
+    document.head.appendChild(el);
+  }
+  el.setAttribute('href', href);
+}
+
+function setJsonLd(id: string, data: object) {
+  let el = document.head.querySelector(`script[data-jsonld="${id}"]`);
+  if (!el) {
+    el = document.createElement('script');
+    el.setAttribute('type', 'application/ld+json');
+    el.setAttribute('data-jsonld', id);
+    document.head.appendChild(el);
+  }
+  el.textContent = JSON.stringify(data);
+}
 
 // The engine wants timestamps on a Debt; drafts never persist as debts, so one stamp per load is enough.
 const DRAFT_STAMP = new Date().toISOString();
@@ -66,8 +135,8 @@ const monthIndex = (iso: string) => {
 
 export function LandingPage() {
   const navigate = useNavigate();
-  const [debts, setDebts] = useState<DraftDebt[]>(seedDebts);
-  const [extraFunding, setExtraFunding] = useState('200');
+  const [debts, setDebts] = useState<DraftDebt[]>(readDrafts);
+  const [extraFunding, setExtraFunding] = useState(readFunding);
   const [strategy, setStrategy] = useState<'avalanche' | 'snowball'>('avalanche');
   const firstInput = useRef<HTMLInputElement>(null);
 
@@ -77,6 +146,47 @@ export function LandingPage() {
     root.classList.add('fs-html');
     return () => root.classList.remove('fs-html');
   }, []);
+
+  // SEO + social meta: set once on mount
+  useEffect(() => {
+    document.title = 'Free Debt Payoff Calculator — Snowball & Avalanche | Cowculator';
+    setMeta(
+      'description',
+      'Free debt payoff calculator. No signup. No credit card. Compare the snowball vs avalanche methods, see your debt-free date instantly, and build a real plan to be debt free.'
+    );
+    setMeta('keywords', 'free debt payoff calculator, debt snowball calculator, debt avalanche calculator, debt-free date, debt tracker, no signup');
+    setCanonical('https://cowculator.net/');
+    setMeta('og:title', 'Free Debt Payoff Calculator — Cowculator', 'property');
+    setMeta('og:description', 'Snowball & avalanche calculators. See your debt-free date in seconds. No signup needed.', 'property');
+    setMeta('og:url', 'https://cowculator.net/', 'property');
+    setMeta('twitter:title', 'Free Debt Payoff Calculator — Cowculator');
+    setMeta('twitter:description', 'Snowball & avalanche calculators. See your debt-free date in seconds. No signup needed.');
+
+    setJsonLd('webapp', {
+      '@context': 'https://schema.org',
+      '@type': 'WebApplication',
+      name: 'Cowculator',
+      url: 'https://cowculator.net/',
+      applicationCategory: 'FinanceApplication',
+      operatingSystem: 'Web',
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+      description: 'Free debt payoff calculator with snowball and avalanche strategies.',
+    });
+
+    setJsonLd('faq', {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: FAQS.map((f) => ({
+        '@type': 'Question',
+        name: f.q,
+        acceptedAnswer: { '@type': 'Answer', text: f.a },
+      })),
+    });
+  }, []);
+
+  // Persist drafts so the signup flow can pick them up
+  useEffect(() => store(LANDING_DEBTS_KEY, JSON.stringify(debts)), [debts]);
+  useEffect(() => store(LANDING_FUNDING_KEY, extraFunding), [extraFunding]);
 
   const validDebts: Debt[] = useMemo(() => {
     const out: Debt[] = [];
@@ -457,10 +567,44 @@ export function LandingPage() {
         </span>
         <span>The free debt payoff calculator that moos at your debt</span>
         <span className="fs-foot-links">
-          <a href="/privacy">Privacy</a>
-          <a href="/terms">Terms</a>
+          <Link to="/privacy">Privacy</Link>
+          <Link to="/terms">Terms</Link>
         </span>
       </footer>
     </div>
   );
 }
+
+// ───────────────────────────  FAQ CONTENT  ───────────────────────────
+// Feeds both the FAQ cards and the FAQPage JSON-LD.
+
+const FAQS = [
+  {
+    q: 'Is the Cowculator really free?',
+    a: 'Yes. The debt payoff calculator on this page is 100% free — no signup, no credit card, no email. If you sign up to save and track your plan, the free account stays free forever (with sensible caps). Pro is optional and unlocks extras like asset tracking, advanced charts, themes, and unlimited debts.',
+  },
+  {
+    q: 'What is the debt snowball method?',
+    a: 'The debt snowball is a payoff strategy where you pay the minimum on every debt and throw all your extra money at the smallest balance first. Once that debt is gone, you roll its payment into the next-smallest. The wins are quick and motivating, even if the math isn\'t the most efficient.',
+  },
+  {
+    q: 'What is the debt avalanche method?',
+    a: 'The debt avalanche pays minimums on every debt and attacks the highest-interest-rate (APR) debt first. It\'s mathematically optimal — you pay the least interest and (usually) finish faster. The downside is your first payoff might take a while, so it requires more patience.',
+  },
+  {
+    q: 'Snowball vs avalanche — which is better?',
+    a: 'Avalanche almost always saves more money. Snowball almost always feels better and keeps people in the game. The truth: the best strategy is the one you actually stick to. Use the calculator above to compare both with your real numbers, then pick the one you can commit to.',
+  },
+  {
+    q: 'Do you store my data?',
+    a: 'On this calculator page, no. All math runs in your browser and the numbers stay on your device. If you choose to create a free account to save your plan, your data is stored encrypted in our database (Supabase) and only you can see it.',
+  },
+  {
+    q: 'How is Cowculator different from other debt apps?',
+    a: 'Most debt payoff tools are either bare spreadsheets or paid apps that hide the calculator behind a paywall. Cowculator is genuinely free, doesn\'t need your credit card, runs both strategies side-by-side, and (let\'s be honest) is a lot cuter than the others. The cow is named Debtsy.',
+  },
+  {
+    q: 'Can I use this on my phone?',
+    a: 'Yes. Cowculator works in any browser on any device. You can also install it as an app on your phone\'s home screen for a native-app feel.',
+  },
+];
