@@ -11,6 +11,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
+// NOTE: package.json sets "type": "module" — relative specifiers MUST carry .js.
+import { decideCheckoutWrite } from './_lib/purchase-guard.js';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-04-30.basil' as Stripe.LatestApiVersion,
@@ -117,7 +119,8 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
   const isLifetime = plan === 'lifetime';
 
-  // For subscriptions, fetch period end from Stripe.
+  // For subscriptions, fetch period end from Stripe. Done before the row lookup so
+  // the read-then-write window below is two quick database calls, not a Stripe call.
   // Newer Stripe API versions moved current_period_end onto the subscription item.
   let currentPeriodEnd: string | null = null;
   if (subscriptionId && !isLifetime) {
@@ -128,6 +131,42 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     if (typeof periodEnd === 'number' && !Number.isNaN(periodEnd)) {
       currentPeriodEnd = new Date(periodEnd * 1000).toISOString();
     }
+  }
+
+  const { data: existing, error: lookupError } = await supabase
+    .from('user_subscriptions')
+    .select('plan_type, status, current_period_end, stripe_subscription_id')
+    .eq('user_id', userId)
+    .maybeSingle();
+  if (lookupError) {
+    // Throw so Stripe retries instead of us writing blind over a paid plan.
+    console.error('Supabase lookup error:', lookupError);
+    throw lookupError;
+  }
+
+  const decision = decideCheckoutWrite(existing, subscriptionId ?? null);
+  if (decision.action === 'keep-lifetime') {
+    if (isLifetime) {
+      // Usually Stripe re-delivering the event that made this row lifetime.
+      console.warn(
+        `Lifetime already active for user ${userId}; ignored checkout ${session.id}. ` +
+          'If this was a second lifetime payment rather than a retry, refund it in Stripe.',
+      );
+    } else {
+      console.error(
+        `DUPLICATE PURCHASE: user ${userId} already has lifetime Pro; kept it and ignored ` +
+          `checkout ${session.id} (${plan}). Refund this payment in the Stripe dashboard` +
+          (subscriptionId ? ` and cancel subscription ${subscriptionId}.` : '.'),
+      );
+    }
+    return;
+  }
+  if (decision.orphanedSubscriptionId) {
+    console.error(
+      `ORPHANED SUBSCRIPTION: user ${userId} bought ${plan} (checkout ${session.id}) while ` +
+        `subscription ${decision.orphanedSubscriptionId} was not canceled. It may keep billing; ` +
+        `check it in the Stripe dashboard and cancel it if so.`,
+    );
   }
 
   const { error } = await supabase
@@ -197,7 +236,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
       ? new Date(periodEnd * 1000).toISOString()
       : null;
 
-  const { error } = await supabase
+  const { data: updated, error } = await supabase
     .from('user_subscriptions')
     .update({
       status: statusMap[subscription.status] || 'active',
@@ -205,11 +244,19 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
       cancel_at_period_end: subscription.cancel_at_period_end,
       updated_at: new Date().toISOString(),
     })
-    .eq('stripe_customer_id', customerId);
+    // Match the subscription, not the customer: an event for an old or
+    // orphaned subscription must not rewrite the customer's current plan.
+    .eq('stripe_subscription_id', subscription.id)
+    .select('id');
 
   if (error) {
     console.error('Subscription update error:', error);
     throw error;
+  }
+  if (!updated?.length) {
+    // Normal when the event beats checkout.session.completed or the subscription
+    // was replaced; worth seeing if it happens for a live customer's only plan.
+    console.warn(`subscription.updated ${subscription.id}: no row holds this subscription`);
   }
 }
 
@@ -224,17 +271,22 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
     return;
   }
 
-  const { error } = await supabase
+  const { data: updated, error } = await supabase
     .from('user_subscriptions')
     .update({
       status: 'canceled',
       cancel_at_period_end: false,
       updated_at: new Date().toISOString(),
     })
-    .eq('stripe_customer_id', customerId);
+    // Same rule as the update handler: only the row holding this subscription.
+    .eq('stripe_subscription_id', subscription.id)
+    .select('id');
 
   if (error) {
     console.error('Subscription delete error:', error);
     throw error;
+  }
+  if (!updated?.length) {
+    console.warn(`subscription.deleted ${subscription.id}: no row holds this subscription`);
   }
 }

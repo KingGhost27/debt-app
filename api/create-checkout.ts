@@ -14,6 +14,7 @@ import { createClient } from '@supabase/supabase-js';
 // NOTE: package.json sets "type": "module" — this relative specifier MUST carry the
 // .js extension. See the matching note in create-portal.ts.
 import { getAuthenticatedUser } from './_lib/auth.js';
+import { hasActivePro } from './_lib/purchase-guard.js';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-04-30.basil' as Stripe.LatestApiVersion,
@@ -81,12 +82,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       safeOrigin(req.headers.origin as string | undefined) ||
       'https://cowculator.net';
 
-    // Reuse the existing Stripe customer when one exists to avoid duplicates.
-    const { data: subscription } = await supabase
+    const { data: subscription, error: lookupError } = await supabase
       .from('user_subscriptions')
-      .select('stripe_customer_id')
+      .select('stripe_customer_id, plan_type, status, current_period_end')
       .eq('user_id', user.id)
       .maybeSingle();
+    if (lookupError) {
+      // Fail closed: without the row we cannot tell whether this is a second purchase.
+      throw lookupError;
+    }
+
+    // A second purchase would replace the plan they already paid for
+    // (lifetime turning into monthly). Plan changes go through Manage.
+    if (hasActivePro(subscription)) {
+      return res.status(409).json({
+        error: 'You already have Pro. You can manage your plan in Settings.',
+      });
+    }
+
+    // Reuse the existing Stripe customer when one exists to avoid duplicates.
     const existingCustomerId = subscription?.stripe_customer_id || undefined;
 
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
@@ -96,6 +110,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       cancel_url: `${origin}/settings`,
       client_reference_id: user.id,
       metadata: { userId: user.id, plan },
+      // Stripe allows 30 min to 24h (default 24h). A stale tab left open is how a
+      // second purchase slips past the "already Pro" check above. 35 min, not 30:
+      // Stripe measures from its own creation time, a beat after this clock reads.
+      expires_at: Math.floor(Date.now() / 1000) + 35 * 60,
       ...(existingCustomerId
         ? { customer: existingCustomerId }
         : user.email && { customer_email: user.email }),
