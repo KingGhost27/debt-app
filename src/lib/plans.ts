@@ -50,6 +50,6 @@ export const PLANS: PlanOption[] = [
     period: 'one-time',
     badge: 'Limited!',
     features: ['Pay once, Pro forever', 'First 200-300 members only', 'OG Heifer badge'],
-    boardNotes: ['Pay once, Pro forever', 'First 200-300 members only'],
+    boardNotes: ['Pay once, Pro forever', 'An early-member price for our first 200-300 members'],
   },
 ];
