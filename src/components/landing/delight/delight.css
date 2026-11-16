@@ -1,6 +1,6 @@
 /*
- * Home page delight: the cursor, the stardust canvas, sparkling words,
- * button glints and the shooting star. Every moving piece is declared inside
+ * Home page delight: the cursor, the stardust canvas, button glints and the
+ * shooting star. Every moving piece is declared inside
  * prefers-reduced-motion: no-preference, so reduced motion gets still,
  * complete art with nothing to switch off.
  */
@@ -30,21 +30,6 @@
   height: 100vh;
   pointer-events: none;
   z-index: 60;
-}
-
-/* ---------------- sparkles around a word ---------------- */
-.cb-sw {
-  position: relative;
-  display: inline-block;
-}
-.cb-sw-star {
-  position: absolute;
-  width: 0.5em;
-  height: 0.5em;
-  margin: -0.25em 0 0 -0.25em;
-  pointer-events: none;
-  transform: scale(var(--s, 0.8)) rotate(100deg);
-  opacity: 0.85;
 }
 
 /* ---------------- gold glint on the main buttons ---------------- */
@@ -120,11 +105,6 @@
 
 /* ---------------- motion ---------------- */
 @media (prefers-reduced-motion: no-preference) {
-  .cb-sw-star {
-    opacity: 0;
-    animation: cb-sw var(--t, 1.8s) ease-in-out infinite;
-    animation-delay: var(--d, 0s);
-  }
   .cb-glint:hover::after,
   .cb-glint:focus-visible::after {
     animation: cb-glint 0.85s cubic-bezier(0.16, 1, 0.3, 1);
@@ -143,10 +123,6 @@
   }
 }
 
-@keyframes cb-sw {
-  0%, 100% { opacity: 0; transform: scale(0) rotate(75deg); }
-  50% { opacity: 1; transform: scale(var(--s, 0.8)) rotate(120deg); }
-}
 @keyframes cb-glint {
   to { transform: translateX(130%); }
 }
