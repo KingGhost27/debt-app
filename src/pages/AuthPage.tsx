@@ -5,6 +5,7 @@
  */
 
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { DebtsyCow } from '../components/ui/DebtsyCow';
 
@@ -18,7 +19,11 @@ const PW_RULES = [
 
 export function AuthPage() {
   const { signIn, signUp, signInWithGoogle, resetPasswordForEmail } = useAuth();
-  const [mode, setMode] = useState<'login' | 'signup' | 'forgot'>('login');
+  // /auth?mode=signup (the home page's save and sign-up buttons) opens on the Sign Up tab; anything else starts on Sign In.
+  const [searchParams] = useSearchParams();
+  const [mode, setMode] = useState<'login' | 'signup' | 'forgot'>(() =>
+    searchParams.get('mode') === 'signup' ? 'signup' : 'login'
+  );
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
