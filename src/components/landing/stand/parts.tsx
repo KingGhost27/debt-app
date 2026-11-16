@@ -221,27 +221,38 @@ export function ThemeRack({ theme, onPick }: { theme: StandTheme; onPick: (t: St
   );
 }
 
-const PROMISES = [
-  { title: 'Both strategies, side by side', text: 'Snowball or avalanche: see which one frees you faster.' },
-  { title: 'Private by default', text: 'No signup required. Your numbers never leave your browser.' },
-  { title: 'Instant results', text: 'Real payoff math, not a vague estimate. Updates as you type.' },
-];
-
-/** The stand's three promises, painted on garden markers staked in the meadow. */
+/**
+ * The stand's three promises, each on a different garden object staked in the meadow, so
+ * they read as things at the stand rather than a row of badges: a painted marker, a seed
+ * packet on a stick (how gardeners mark a row), and a little chalk A-frame.
+ */
 export function Promises() {
   return (
     <section className="fs-promises" aria-label="Why use the Cowculator">
       <ul className="fs-markers">
-        {PROMISES.map((m, i) => (
-          <li className="fs-marker" key={m.title}>
-            <MarkerBloom className="fs-marker-bloom" kind={i as 0 | 1 | 2} />
-            <div className="fs-marker-board">
-              <strong className="fs-marker-title">{m.title}</strong>
-              <span className="fs-marker-text">{m.text}</span>
-            </div>
-            <span className="fs-marker-stake" aria-hidden="true" />
-          </li>
-        ))}
+        <li className="fs-marker fs-marker--stake">
+          <MarkerBloom className="fs-marker-bloom" kind={0} />
+          <div className="fs-marker-board">
+            <strong className="fs-marker-title">Both strategies, side by side</strong>
+            <span className="fs-marker-text">Snowball or avalanche: see which one frees you faster.</span>
+          </div>
+          <span className="fs-marker-stake" aria-hidden="true" />
+        </li>
+        <li className="fs-marker fs-marker--packet">
+          <div className="fs-seed">
+            <MarkerBloom className="fs-seed-art" kind={2} />
+            <strong className="fs-marker-title">Private by default</strong>
+            <span className="fs-marker-text">No signup required. Your numbers never leave your browser.</span>
+          </div>
+          <span className="fs-marker-stick" aria-hidden="true" />
+        </li>
+        <li className="fs-marker fs-marker--chalk">
+          <div className="fs-aframe">
+            <strong className="fs-marker-title">Instant results</strong>
+            <span className="fs-marker-text">Real payoff math, not a vague estimate. Updates as you type.</span>
+          </div>
+          <span className="fs-aframe-legs" aria-hidden="true" />
+        </li>
       </ul>
     </section>
   );

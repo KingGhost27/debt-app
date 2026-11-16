@@ -22,7 +22,8 @@
   --fs-hand: "Quicksand", system-ui, sans-serif;
   --fs-gutter: clamp(16px, 3vw, 40px);
   --fs-max: 1320px;
-  --head: clamp(54px, 5.2vw, 82px);
+  /* counter friends: sized so the sign and all seven fit between the posts from 900px up */
+  --head: clamp(44px, 4.6vw, 66px);
   color-scheme: var(--fs-scheme);
   min-height: 100vh;
   overflow-x: clip;
@@ -191,6 +192,7 @@
 .fs-board-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
 .fs-board-title { margin: 0; font: 400 clamp(24px, 2.1vw, 30px) / 1.1 var(--fs-display); color: var(--fs-chalk); }
 .fs-count { font: 600 14px / 1 var(--fs-hand); color: var(--fs-chalk-soft); font-variant-numeric: tabular-nums; }
+.fs-sample { margin: 4px 0 0; font: 600 13.5px / 1.35 var(--fs-hand); color: var(--fs-chalk-hi); }
 
 .fs-cols, .fs-row {
   display: grid; align-items: end; gap: 10px;
@@ -295,11 +297,13 @@
 .fs-shelf {
   position: relative; z-index: 1;
   max-width: var(--fs-max); margin: 0 auto; padding: 0 var(--fs-gutter);
-  display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6.1fr); gap: clamp(28px, 3.4vw, 56px);
-  align-items: end;
+  display: flex; justify-content: space-between; align-items: flex-end; gap: clamp(20px, 3vw, 48px);
 }
-.fs-group { display: flex; align-items: flex-end; justify-content: space-around; gap: 6px; min-width: 0; }
-.fs-group--right { justify-content: space-between; }
+.fs-group { display: flex; align-items: flex-end; gap: 6px; min-width: 0; }
+.fs-group--left { flex: 1 1 auto; justify-content: space-around; }
+.fs-group--right { flex: 0 1 auto; justify-content: flex-end; }
+/* if the window is tight, the friends beside the date sign give a little width before anything spills */
+.fs-group--right .fs-friend { flex: 0 1 auto; min-width: calc(var(--head) * 1.1); }
 .fs-ledge {
   position: relative; z-index: 2; height: 20px; margin-top: -6px;
   background: linear-gradient(180deg, var(--fs-counter-top) 0 5px, var(--fs-counter-deep) 5px);
@@ -351,7 +355,7 @@
 .fs-date-label { margin: 0; font: 600 16px / 1.2 var(--fs-round); color: var(--fs-straw-ink); }
 /* A date longer than "August 2028" (11 letters) paints smaller, so the sign never outgrows its spot. */
 .fs-date-value {
-  --fit: clamp(38px, 4vw, 60px);
+  --fit: clamp(38px, 4vw, 56px);
   margin: 4px 0 0; font: 400 calc(var(--fit) * 11 / var(--len, 11)) / 1.04 var(--fs-display); color: var(--fs-berry);
   white-space: nowrap; font-variant-numeric: tabular-nums;
 }
@@ -373,15 +377,19 @@
 .fs-roll-out { position: absolute; left: 0; top: 0; display: inline-block; transform-origin: 50% 25%; }
 .fs-roll-in { transform-origin: 50% 100%; }
 
-/* ---------------- three promises: garden markers in the meadow ---------------- */
-.fs-promises { position: relative; z-index: 2; margin-top: -2px; padding: 6px var(--fs-gutter) 0; background: var(--fs-meadow-deep); }
+/* ---------------- three promises: three different garden objects in the meadow ---------------- */
+.fs-promises { position: relative; z-index: 2; margin-top: -2px; padding: 10px var(--fs-gutter) 0; background: var(--fs-meadow-deep); }
 .fs-markers {
-  list-style: none; max-width: 1120px; margin: 0 auto; padding: 0;
-  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(18px, 3vw, 44px); align-items: end;
+  list-style: none; max-width: 1080px; margin: 0 auto; padding: 0;
+  display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.8fr) minmax(0, 1fr);
+  gap: clamp(18px, 3.4vw, 52px); align-items: end;
 }
 .fs-marker { position: relative; display: flex; flex-direction: column; align-items: center; }
-.fs-marker:nth-child(1) { transform: rotate(-1.5deg); }
-.fs-marker:nth-child(3) { transform: rotate(1.2deg); }
+.fs-marker-title { font: 600 clamp(17px, 1.4vw, 20px) / 1.2 var(--fs-round); color: var(--fs-berry); text-wrap: balance; }
+.fs-marker-text { font-size: 15px; line-height: 1.5; color: var(--fs-packet-ink); text-wrap: pretty; }
+
+/* a painted wooden marker on a stake */
+.fs-marker--stake { transform: rotate(-1.5deg); }
 .fs-marker-bloom { position: absolute; z-index: 2; top: -30px; right: 8%; width: 66px; height: auto; }
 .fs-marker-board {
   position: relative; z-index: 1; display: grid; gap: 4px; width: 100%;
@@ -390,13 +398,52 @@
   border: 6px solid var(--fs-wood); border-radius: 16px;
   box-shadow: inset 0 0 0 2px var(--fs-wood-deep), 0 14px 22px -16px color-mix(in srgb, var(--fs-shade) 55%, transparent);
 }
-.fs-marker-title { font: 600 clamp(17px, 1.4vw, 20px) / 1.2 var(--fs-round); color: var(--fs-berry); text-wrap: balance; }
-.fs-marker-text { font-size: 15px; line-height: 1.5; color: var(--fs-packet-ink); text-wrap: pretty; }
 .fs-marker-stake {
   width: 14px; height: clamp(26px, 3vw, 40px); margin-top: -2px;
   background: linear-gradient(90deg, var(--fs-post-0), var(--fs-post-1) 45%, var(--fs-post-2));
   clip-path: polygon(0 0, 100% 0, 100% 78%, 50% 100%, 0 78%);
 }
+
+/* an empty seed packet on a stick, the way gardeners mark a row */
+.fs-marker--packet { transform: rotate(2.2deg); }
+.fs-seed {
+  position: relative; display: grid; justify-items: center; gap: 4px; width: min(100%, 250px); margin-top: 18px;
+  padding: 6px 16px 18px; text-align: center;
+  background: var(--fs-milk); border: 3px solid var(--fs-straw); border-top: 0; border-radius: 0 0 14px 14px;
+  box-shadow: 0 14px 22px -16px color-mix(in srgb, var(--fs-shade) 55%, transparent);
+}
+.fs-seed::before {
+  content: ""; position: absolute; left: -3px; right: -3px; top: -14px; height: 14px; background: var(--fs-straw);
+  -webkit-mask: radial-gradient(circle at 9px 14px, #000 8.5px, transparent 9.5px) 0 0 / 18px 14px repeat-x;
+  mask: radial-gradient(circle at 9px 14px, #000 8.5px, transparent 9.5px) 0 0 / 18px 14px repeat-x;
+}
+.fs-seed-art { width: 62px; height: auto; }
+.fs-marker-stick {
+  width: 8px; height: clamp(34px, 4vw, 54px); margin-top: -3px; border-radius: 0 0 4px 4px;
+  background: linear-gradient(90deg, var(--fs-post-0), var(--fs-post-1) 50%, var(--fs-post-2));
+}
+
+/* a little chalk A-frame */
+.fs-marker--chalk { transform: rotate(-0.8deg); }
+.fs-aframe {
+  position: relative; z-index: 1; display: grid; gap: 4px; width: 100%;
+  padding: 14px 18px 16px; text-align: center;
+  color: var(--fs-chalk); background: var(--fs-board);
+  border: 8px solid var(--fs-wood); border-radius: 10px;
+  box-shadow:
+    inset 0 0 0 2px var(--fs-wood-deep), inset 0 0 26px rgb(0 0 0 / 0.3),
+    0 14px 22px -16px color-mix(in srgb, var(--fs-wood-shade) 60%, transparent);
+  text-shadow: 0 0 1px color-mix(in srgb, var(--fs-chalk) 35%, transparent);
+}
+.fs-aframe .fs-marker-title { color: var(--fs-chalk-hi); }
+.fs-aframe .fs-marker-text { color: var(--fs-chalk-soft); font-family: var(--fs-hand); font-weight: 600; }
+.fs-aframe-legs { position: relative; width: 74%; height: clamp(22px, 2.6vw, 34px); margin-top: -6px; }
+.fs-aframe-legs::before, .fs-aframe-legs::after {
+  content: ""; position: absolute; top: 0; width: 8px; height: 100%; border-radius: 3px; background: var(--fs-wood-deep);
+  transform-origin: top center;
+}
+.fs-aframe-legs::before { left: 4%; transform: rotate(9deg); }
+.fs-aframe-legs::after { right: 4%; transform: rotate(-9deg); }
 
 /* ---------------- how it works ---------------- */
 .fs-how::before {
@@ -428,15 +475,38 @@
   mask: radial-gradient(circle at 10px 16px, #000 9.5px, transparent 10.5px) 0 0 / 20px 16px repeat-x;
 }
 .fs-packet--b::before { background: var(--fs-gold); }
-.fs-packet-art { margin: 0 calc(clamp(20px, 2.4vw, 32px) * -1); overflow: hidden; border-radius: 5px 5px 0 0; background: var(--fs-art-a); border-bottom: 3px solid var(--fs-straw); }
-.fs-packet--b .fs-packet-art { background: var(--fs-art-b); border-bottom-color: var(--fs-gold); }
-.fs-packet-art img { display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: cover; }
+/* The art is a postcard pinned to the packet: a paper mat keeps the pink scene its own object in every theme. */
+.fs-packet-art {
+  position: relative; margin: 28px 2px 0; padding: 8px 8px 9px;
+  background: var(--fs-face); border-radius: 6px;
+  box-shadow:
+    0 12px 20px -14px color-mix(in srgb, var(--fs-shade) 60%, transparent),
+    0 1px 3px color-mix(in srgb, var(--fs-shade) 25%, transparent);
+  transform: rotate(-1.8deg);
+}
+.fs-packet--b .fs-packet-art { transform: rotate(1.5deg); }
+.fs-packet-art::after {
+  content: ""; position: absolute; top: -8px; left: 50%; width: 16px; height: 16px; margin-left: -8px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, var(--fs-gold-lite), var(--fs-gold) 55%, var(--fs-gold-deep));
+  box-shadow: 0 2px 3px rgb(0 0 0 / 0.3);
+}
+.fs-packet-art img { display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: cover; border-radius: 3px; }
 .fs-packet h3 { margin: 18px 0 0; font: 400 clamp(26px, 2.4vw, 34px) / 1.05 var(--fs-display); color: var(--fs-berry); }
 .fs-packet-tag { margin: 4px 0 0; font: 600 16px / 1.3 var(--fs-round); color: var(--fs-straw-ink); }
 .fs-packet p { line-height: 1.6; color: var(--fs-packet-ink); }
 .fs-packet > p:not(.fs-packet-tag):not(.fs-best) { margin: 12px 0 0; font-size: 16px; }
-.fs-best { margin: 14px 0 0; padding: 10px 14px; border-radius: 12px; background: var(--fs-best-a); font-size: 14.5px; }
-.fs-packet--b .fs-best { background: var(--fs-best-b); }
+.fs-best { margin: 16px 0 0; font-size: 14.5px; }
+.fs-best strong {
+  position: relative; display: inline-block; margin-right: 6px; padding: 2px 10px 3px 20px;
+  border-radius: 6px; background: var(--fs-best-a); color: var(--fs-packet-ink);
+  font: 600 13.5px / 1.3 var(--fs-round); transform: rotate(-2deg);
+  box-shadow: 0 3px 6px -4px color-mix(in srgb, var(--fs-shade) 55%, transparent);
+}
+.fs-best strong::before {
+  content: ""; position: absolute; left: 7px; top: 50%; width: 6px; height: 6px; margin-top: -3px; border-radius: 50%;
+  background: var(--fs-milk); box-shadow: inset 0 1px 1px rgb(0 0 0 / 0.25);
+}
+.fs-packet--b .fs-best strong { background: var(--fs-best-b); }
 
 .fs-take {
   position: relative; max-width: 720px; margin: clamp(34px, 4vw, 54px) auto 0;
@@ -599,7 +669,7 @@
   .fs-pots { gap: 0; }
   .fs-pot { width: 38px; }
   .fs-markers { grid-template-columns: minmax(0, 1fr); gap: 30px; padding-top: 14px; max-width: 420px; }
-  .fs-marker-stake { height: 18px; }
+  .fs-marker-stake, .fs-marker-stick, .fs-aframe-legs { height: 18px; }
   .fs-card summary { padding: 18px 18px 16px; }
   .fs-card p { margin: 0 18px; }
   .fs-packets { grid-template-columns: minmax(0, 1fr); gap: 34px; }

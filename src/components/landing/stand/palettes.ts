@@ -74,10 +74,8 @@ export interface StandPalette {
   howBg: string;
   howHead: string;
   howInk: string;
-  /** Body ink on packets and cards; the packets' art and note backings. */
+  /** Body ink on packets and cards; the backings of the strategy cards' "Best for" tags. */
   packetInk: string;
-  artA: string;
-  artB: string;
   bestA: string;
   bestB: string;
   /** Price tag bottom edge. */
@@ -113,7 +111,7 @@ export const STAND_PALETTES: Record<StandTheme, StandPalette> = {
     counter: '#DDCCF3', counterDeep: '#C3A9EA', counterLine: '#D2BDEF', counterTop: '#EEE5F9', counterInk: '#3A2466',
     meadow: '#D9C8F2', meadowDeep: '#C3ABEA', footInk: '#2B1A4F', footName: '#3A2466',
     howBg: '#F8F4FD', howHead: '#3A2466', howInk: '#4A3474',
-    packetInk: '#33205C', artA: '#EEE5F9', artB: '#FBE4EC', bestA: '#F3ECFB', bestB: '#FCEAF0',
+    packetInk: '#33205C', bestA: '#F3ECFB', bestB: '#FCEAF0',
     tagEdge: '#D9CBEE',
     shade: '#3A2466', shadeDeep: '#1F1338', woodShade: '#3E2A20',
     register: '#563797', registerBase: '#2B1A4F', gingham: '#B79AE3',
@@ -141,7 +139,7 @@ export const STAND_PALETTES: Record<StandTheme, StandPalette> = {
     counter: '#F7B6CB', counterDeep: '#EC93B1', counterLine: '#F2A6C0', counterTop: '#FFD3E0', counterInk: '#7A1F45',
     meadow: '#CDE8B5', meadowDeep: '#B8DD9D', footInk: '#2F4A2A', footName: '#7A1F45',
     howBg: '#FFF1F5', howHead: '#7A1F45', howInk: '#6A2342',
-    packetInk: '#5C1A38', artA: '#FFE2EB', artB: '#FFF1CC', bestA: '#FFE9F0', bestB: '#FFF4D6',
+    packetInk: '#5C1A38', bestA: '#FFE9F0', bestB: '#FFF4D6',
     tagEdge: '#E9C6D3',
     shade: '#7A1F45', shadeDeep: '#3E0B22', woodShade: '#50280C',
     register: '#7A1F45', registerBase: '#5C1433', gingham: '#E58FAD',
@@ -169,7 +167,7 @@ export const STAND_PALETTES: Record<StandTheme, StandPalette> = {
     counter: '#3E2E7A', counterDeep: '#2D2160', counterLine: '#36286C', counterTop: '#5B45A8', counterInk: '#F4EDFF',
     meadow: '#2A1F5D', meadowDeep: '#21184E', footInk: '#E6DEFF', footName: '#FFD58A',
     howBg: '#1A1140', howHead: '#F4EDFF', howInk: '#C6B9EA',
-    packetInk: '#2A1740', artA: '#E6DEFF', artB: '#FFF1D6', bestA: '#EEE8FF', bestB: '#FFF3DC',
+    packetInk: '#2A1740', bestA: '#EEE8FF', bestB: '#FFF3DC',
     tagEdge: '#C9BCEB',
     shade: '#05010F', shadeDeep: '#05010F', woodShade: '#05010F',
     register: '#4E33A0', registerBase: '#1D1344', gingham: '#B39CFF',
@@ -197,7 +195,7 @@ export const STAND_PALETTES: Record<StandTheme, StandPalette> = {
     counter: '#C4E0F6', counterDeep: '#97CBF0', counterLine: '#B0D5F3', counterTop: '#E2EFFA', counterInk: '#12324F',
     meadow: '#C6E8BE', meadowDeep: '#A6D79A', footInk: '#173A1F', footName: '#12324F',
     howBg: '#F2F8FD', howHead: '#12324F', howInk: '#21466A',
-    packetInk: '#163A5A', artA: '#E2EFFA', artB: '#FFF3D1', bestA: '#E9F3FC', bestB: '#FFF6DC',
+    packetInk: '#163A5A', bestA: '#E9F3FC', bestB: '#FFF6DC',
     tagEdge: '#C6DAEC',
     shade: '#12324F', shadeDeep: '#0A1C2E', woodShade: '#3E2A14',
     register: '#1C5D93', registerBase: '#0B2238', gingham: '#7FBDEB',
@@ -225,7 +223,7 @@ export const STAND_PALETTES: Record<StandTheme, StandPalette> = {
     counter: '#FCE1A6', counterDeep: '#F8CA6C', counterLine: '#FAD68A', counterTop: '#FEF1D4', counterInk: '#4A2A0C',
     meadow: '#EBD08A', meadowDeep: '#D9B65E', footInk: '#3B2408', footName: '#5E300A',
     howBg: '#FFFAEE', howHead: '#4A2A0C', howInk: '#5E380C',
-    packetInk: '#4A2A0C', artA: '#FEF1D4', artB: '#FDE4D5', bestA: '#FEF5E0', bestB: '#FDEBDF',
+    packetInk: '#4A2A0C', bestA: '#FEF5E0', bestB: '#FDEBDF',
     tagEdge: '#EBD3A4',
     shade: '#5E380C', shadeDeep: '#2E1A05', woodShade: '#3E2208',
     register: '#8E4A10', registerBase: '#3B2408', gingham: '#F2B66A',
@@ -253,7 +251,7 @@ export const STAND_PALETTES: Record<StandTheme, StandPalette> = {
     counter: '#FFC9D4', counterDeep: '#FF9EB2', counterLine: '#FFB5C4', counterTop: '#FFE5EA', counterInk: '#40101F',
     meadow: '#C9E6B4', meadowDeep: '#A9D690', footInk: '#1E3D1C', footName: '#7A1830',
     howBg: '#FFF5F7', howHead: '#40101F', howInk: '#6E1D33',
-    packetInk: '#4E1427', artA: '#FFE5EA', artB: '#FFF1CC', bestA: '#FFEEF2', bestB: '#FFF4D6',
+    packetInk: '#4E1427', bestA: '#FFEEF2', bestB: '#FFF4D6',
     tagEdge: '#F0C4CE',
     shade: '#7A1830', shadeDeep: '#3A0A16', woodShade: '#3E1A10',
     register: '#9E1E3C', registerBase: '#40101F', gingham: '#F28FA6',
@@ -281,7 +279,7 @@ export const STAND_PALETTES: Record<StandTheme, StandPalette> = {
     counter: '#C3E7D1', counterDeep: '#97D6B0', counterLine: '#AEDFC0', counterTop: '#E1F3E8', counterInk: '#143D2E',
     meadow: '#B9E3A6', meadowDeep: '#98D184', footInk: '#123620', footName: '#143D2E',
     howBg: '#F3FBF5', howHead: '#143D2E', howInk: '#1D4A38',
-    packetInk: '#143D2E', artA: '#E1F3E8', artB: '#FFF6D1', bestA: '#E9F6EE', bestB: '#FFF8DC',
+    packetInk: '#143D2E', bestA: '#E9F6EE', bestB: '#FFF8DC',
     tagEdge: '#C4E0CF',
     shade: '#18503B', shadeDeep: '#0A2219', woodShade: '#33240F',
     register: '#1D5C44', registerBase: '#0E2C21', gingham: '#7ACB9C',
@@ -309,7 +307,7 @@ export const STAND_PALETTES: Record<StandTheme, StandPalette> = {
     counter: '#FAD3B5', counterDeep: '#F5B384', counterLine: '#F8C49E', counterTop: '#FDEBDC', counterInk: '#3A1F0F',
     meadow: '#D8C77A', meadowDeep: '#BFAE5C', footInk: '#2E1A0C', footName: '#5E2A10',
     howBg: '#FFF8F1', howHead: '#3A1F0F', howInk: '#6A3118',
-    packetInk: '#4A2612', artA: '#FDEBDC', artB: '#FDEFCD', bestA: '#FEF2E7', bestB: '#FEF4DA',
+    packetInk: '#4A2612', bestA: '#FEF2E7', bestB: '#FEF4DA',
     tagEdge: '#EED0B8',
     shade: '#6A3118', shadeDeep: '#2A1208', woodShade: '#3A1E0A',
     register: '#8A3C16', registerBase: '#2A160A', gingham: '#F0A274',
@@ -337,7 +335,7 @@ export const STAND_PALETTES: Record<StandTheme, StandPalette> = {
     counter: '#E8D5C6', counterDeep: '#D6B8A2', counterLine: '#DFC7B5', counterTop: '#F4EAE2', counterInk: '#3A2419',
     meadow: '#FBF9FD', meadowDeep: '#E2DCEC', footInk: '#3A2419', footName: '#6B3A2A',
     howBg: '#FBF8FC', howHead: '#3A2419', howInk: '#553528',
-    packetInk: '#3A2419', artA: '#F4EAE2', artB: '#FFF0D6', bestA: '#F8F1EB', bestB: '#FFF4E0',
+    packetInk: '#3A2419', bestA: '#F8F1EB', bestB: '#FFF4E0',
     tagEdge: '#E0D0C2',
     shade: '#553528', shadeDeep: '#2A1A12', woodShade: '#2A1A12',
     register: '#6B3A2A', registerBase: '#2A1A12', gingham: '#C9A48E',

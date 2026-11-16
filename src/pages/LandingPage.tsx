@@ -66,8 +66,12 @@ const LANDING_DEBTS_KEY = 'cowculator_landing_debts';
 const LANDING_FUNDING_KEY = 'cowculator_landing_funding';
 const LANDING_THEME_KEY = 'cowculator_landing_theme';
 
-/** Each theme's own friend works the register (the app's theme-to-friend pairing); Debtsy takes their spot. */
-const REGISTER_FRIEND: Record<StandTheme, FriendName> = {
+/**
+ * Each theme's own friend (the app's theme-to-friend pairing). Debtsy always works the register;
+ * the theme's friend takes the featured spot beside the date sign, which is BooBoo's in the
+ * approved sample, and BooBoo takes their usual spot.
+ */
+const THEME_FRIEND: Record<StandTheme, FriendName> = {
   default: 'Luna',
   'my-melody': 'BooBoo',
   kuromi: 'Shadow',
@@ -83,7 +87,7 @@ const REGISTER_FRIEND: Record<StandTheme, FriendName> = {
 const PAWS: Partial<Record<FriendName, { fill: string; edge: string }>> = {
   Shadow: { fill: '#FFFFFF', edge: '#7C3AED' },
   Sunshine: { fill: '#FDE68A', edge: '#D9A400' },
-  Debtsy: { fill: '#FFFFFF', edge: '#1E1B2E' },
+  BooBoo: { fill: '#FCE7F3', edge: '#E879A9' },
 };
 
 type DraftDebt = { id: string; name: string; balance: string; apr: string; minimumPayment: string };
@@ -94,10 +98,18 @@ const isDraft = (d: unknown): d is DraftDebt =>
 const blankDebt = (): DraftDebt => ({ id: uuidv4(), name: '', balance: '', apr: '', minimumPayment: '' });
 
 // Sample entries, editable. Chosen so snowball and avalanche give different dates out of the box.
-const seedDebts = (): DraftDebt[] => [
-  { id: uuidv4(), name: 'Credit Card', balance: '6800', apr: '24', minimumPayment: '170' },
-  { id: uuidv4(), name: 'Car Loan', balance: '3900', apr: '6.9', minimumPayment: '240' },
+const SEED: Omit<DraftDebt, 'id'>[] = [
+  { name: 'Credit Card', balance: '6800', apr: '24', minimumPayment: '170' },
+  { name: 'Car Loan', balance: '3900', apr: '6.9', minimumPayment: '240' },
 ];
+const SEED_FUNDING = '200';
+const seedDebts = (): DraftDebt[] => SEED.map((d) => ({ id: uuidv4(), ...d }));
+
+/** True while the board still holds exactly the sample entries (from this visit or restored unchanged). */
+const holdsSample = (debts: DraftDebt[], funding: string) =>
+  funding === SEED_FUNDING &&
+  debts.length === SEED.length &&
+  debts.every((d, i) => DRAFT_FIELDS.every((k) => k === 'id' || d[k] === SEED[i][k]));
 
 /** Saved drafts from an earlier visit, or the sample entries. Storage may be blocked; never throw. */
 function readDrafts(): DraftDebt[] {
@@ -126,9 +138,9 @@ function readTheme(): StandTheme {
 
 function readFunding(): string {
   try {
-    return localStorage.getItem(LANDING_FUNDING_KEY) || '200';
+    return localStorage.getItem(LANDING_FUNDING_KEY) || SEED_FUNDING;
   } catch {
-    return '200';
+    return SEED_FUNDING;
   }
 }
 
@@ -189,12 +201,14 @@ export function LandingPage() {
   const [extraFunding, setExtraFunding] = useState(readFunding);
   const [strategy, setStrategy] = useState<'avalanche' | 'snowball'>('avalanche');
   const [theme, setTheme] = useState<StandTheme>(readTheme);
+  // Any edit to the board retires the "sample numbers" note for good, even if the numbers come back.
+  const [touched, setTouched] = useState(false);
   const firstInput = useRef<HTMLInputElement>(null);
   const palette = STAND_PALETTES[theme];
   const pageVars = useMemo(() => standVars(palette) as CSSProperties, [palette]);
-  // The theme's friend and Debtsy trade places; everyone else keeps their spot.
-  const atRegister = REGISTER_FRIEND[theme];
-  const cast = (name: FriendName): FriendName => (name === atRegister ? 'Debtsy' : name === 'Debtsy' ? atRegister : name);
+  // The theme's friend and BooBoo trade places; everyone else keeps their spot.
+  const featured = THEME_FRIEND[theme];
+  const cast = (name: FriendName): FriendName => (name === featured ? 'BooBoo' : name === 'BooBoo' ? featured : name);
   const peekSign = cast('Shadow');
   const peekBoard = cast('Sunshine');
 
@@ -315,13 +329,28 @@ export function LandingPage() {
     if (before && settledIso && monthIndex(before) - monthIndex(settledIso) >= 1) celebrateCloser();
   }, [settledIso]);
 
-  const update = (id: string, field: keyof DraftDebt, value: string) =>
+  const update = (id: string, field: keyof DraftDebt, value: string) => {
+    setTouched(true);
     setDebts((prev) => prev.map((d) => (d.id === id ? { ...d, [field]: value } : d)));
-  const addDebt = () => setDebts((prev) => (prev.length >= 5 ? prev : [...prev, blankDebt()]));
-  const removeDebt = (id: string) => setDebts((prev) => (prev.length > 1 ? prev.filter((d) => d.id !== id) : prev));
+  };
+  const addDebt = () => {
+    setTouched(true);
+    setDebts((prev) => (prev.length >= 5 ? prev : [...prev, blankDebt()]));
+  };
+  const removeDebt = (id: string) => {
+    setTouched(true);
+    setDebts((prev) => (prev.length > 1 ? prev.filter((d) => d.id !== id) : prev));
+  };
+  const updateFunding = (value: string) => {
+    setTouched(true);
+    setExtraFunding(value);
+  };
   // Drafts are already in localStorage; the signup flow reads them and seeds the new account.
-  const savePlan = () => navigate('/auth?from=landing');
+  // Both save buttons open the Sign Up tab; "Sign in" opens the plain Sign In tab.
+  const savePlan = () => navigate('/auth?from=landing&mode=signup');
+  const signUp = () => navigate('/auth?mode=signup');
   const signIn = () => navigate('/auth');
+  const showSampleNote = !touched && holdsSample(debts, extraFunding);
   const toBoard = (e: MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     document.getElementById('board')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -398,6 +427,7 @@ export function LandingPage() {
                   <h2 className="fs-board-title">Your debts</h2>
                   <span className="fs-count">{debts.length} / 5</span>
                 </div>
+                {showSampleNote && <p className="fs-sample">These are sample numbers. Type your own over them.</p>}
                 <div className="fs-cols" aria-hidden="true">
                   <span>Name</span>
                   <span>Balance</span>
@@ -456,7 +486,7 @@ export function LandingPage() {
                       <span className="fs-extra-label">Extra you can pay each month (on top of minimums)</span>
                       <span className="fs-extra-input">
                         <span className="fs-affix">$</span>
-                        <input type="number" inputMode="decimal" value={extraFunding} onChange={(e) => setExtraFunding(e.target.value)} placeholder="200" />
+                        <input type="number" inputMode="decimal" value={extraFunding} onChange={(e) => updateFunding(e.target.value)} placeholder="200" />
                         <span className="fs-per">/ month</span>
                       </span>
                     </label>
@@ -530,7 +560,7 @@ export function LandingPage() {
                 <Friend name={cast('Mochi')} i={1}>
                   <BerryPint className="fs-prop" />
                 </Friend>
-                <Friend name={atRegister} i={2} className="fs-friend--wide">
+                <Friend name="Debtsy" i={2} className="fs-friend--wide">
                   <Register className="fs-prop" />
                 </Friend>
                 <Friend name={cast('Maple')} i={3}>
@@ -539,7 +569,7 @@ export function LandingPage() {
               </div>
               <div className="fs-group fs-group--right">
                 <DateSign className="fs-date--desk" dateText={shownDate} hasDate={hasDate} empty={empty} />
-                <Friend name={cast('BooBoo')} i={4}>
+                <Friend name={featured} i={4} className="fs-friend--featured">
                   <Bouquet className="fs-prop" />
                 </Friend>
                 <Friend name={cast('Chai')} i={5}>
@@ -611,7 +641,7 @@ export function LandingPage() {
 
         <FaqCards faqs={FAQS} />
 
-        <PriceBoard onStart={signIn} />
+        <PriceBoard onStart={signUp} />
 
         <section className="fs-close" aria-labelledby="fs-close-title">
           <div className="fs-close-sign">
@@ -620,7 +650,7 @@ export function LandingPage() {
             <h2 id="fs-close-title" data-cb-sparkle>
               Your debt-free date is closer than you think.
             </h2>
-            <p>Save your plan, log your payments, and let Debtsy &amp; Luna cheer you on the whole way.</p>
+            <p>Save your plan, log your payments, and let Debtsy &amp; {featured} cheer you on the whole way.</p>
             <button type="button" className="fs-tag fs-tag--gold fs-tag--big cb-glint" onClick={savePlan}>
               Save my plan — free
             </button>
@@ -628,7 +658,7 @@ export function LandingPage() {
           </div>
           <div className="fs-close-friends">
             <Friend name="Debtsy" i={0} className="fs-friend--big" />
-            <Friend name="Luna" i={1} className="fs-friend--big" />
+            <Friend name={featured} i={1} className="fs-friend--big" />
           </div>
           <Meadow className="fs-meadow fs-meadow--close" />
         </section>
