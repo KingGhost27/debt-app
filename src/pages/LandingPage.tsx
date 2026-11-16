@@ -13,6 +13,7 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties, type MouseEve
 import { Link, useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import { generatePayoffPlan } from '../lib/calculations';
+import { LANDING_SEED_FUNDING, LANDING_SEED_ROWS } from '../lib/landingSeed';
 import type { Debt, PayoffMilestone } from '../types';
 import { DebtsyCow } from '../components/ui/DebtsyCow';
 import { Stardust } from '../components/landing/delight/Stardust';
@@ -97,19 +98,14 @@ const isDraft = (d: unknown): d is DraftDebt =>
 
 const blankDebt = (): DraftDebt => ({ id: uuidv4(), name: '', balance: '', apr: '', minimumPayment: '' });
 
-// Sample entries, editable. Chosen so snowball and avalanche give different dates out of the box.
-const SEED: Omit<DraftDebt, 'id'>[] = [
-  { name: 'Credit Card', balance: '6800', apr: '24', minimumPayment: '170' },
-  { name: 'Car Loan', balance: '3900', apr: '6.9', minimumPayment: '240' },
-];
-const SEED_FUNDING = '200';
-const seedDebts = (): DraftDebt[] => SEED.map((d) => ({ id: uuidv4(), ...d }));
+// The sample rows a fresh board starts with (shared with the signup handoff, which skips them).
+const seedDebts = (): DraftDebt[] => LANDING_SEED_ROWS.map((d) => ({ id: uuidv4(), ...d }));
 
 /** True while the board still holds exactly the sample entries (from this visit or restored unchanged). */
 const holdsSample = (debts: DraftDebt[], funding: string) =>
-  funding === SEED_FUNDING &&
-  debts.length === SEED.length &&
-  debts.every((d, i) => DRAFT_FIELDS.every((k) => k === 'id' || d[k] === SEED[i][k]));
+  funding === LANDING_SEED_FUNDING &&
+  debts.length === LANDING_SEED_ROWS.length &&
+  debts.every((d, i) => DRAFT_FIELDS.every((k) => k === 'id' || d[k] === LANDING_SEED_ROWS[i][k]));
 
 /** Saved drafts from an earlier visit, or the sample entries. Storage may be blocked; never throw. */
 function readDrafts(): DraftDebt[] {
@@ -138,9 +134,9 @@ function readTheme(): StandTheme {
 
 function readFunding(): string {
   try {
-    return localStorage.getItem(LANDING_FUNDING_KEY) || SEED_FUNDING;
+    return localStorage.getItem(LANDING_FUNDING_KEY) || LANDING_SEED_FUNDING;
   } catch {
-    return SEED_FUNDING;
+    return LANDING_SEED_FUNDING;
   }
 }
 

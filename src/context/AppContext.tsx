@@ -27,6 +27,7 @@ import { DEFAULT_APP_DATA, DEFAULT_STRATEGY, DEFAULT_BUDGET } from '../types';
 import { exportData, exportPaymentsCSV, importData } from '../lib/storage';
 import { supabase } from '../lib/supabase';
 import { useAuth } from './AuthContext';
+import { withoutSampleRows } from '../lib/landingSeed';
 
 // ============================================
 // CONTEXT TYPES
@@ -288,13 +289,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
 
       // Landing-page handoff: if this account has no debts AND we have stashed
-      // landing debts in localStorage, seed them into Supabase.
+      // landing debts in localStorage, seed them into Supabase. The home page's
+      // untouched sample rows are skipped; only rows the visitor typed or edited carry over.
       if (loaded.debts.length === 0) {
         try {
           const raw = localStorage.getItem('cowculator_landing_debts');
           if (raw) {
             const drafts: Array<{ name: string; balance: string; apr: string; minimumPayment: string }> = JSON.parse(raw);
-            const valid = drafts.filter((d) => {
+            const valid = withoutSampleRows(drafts).filter((d) => {
               const b = parseFloat(d.balance);
               const a = parseFloat(d.apr);
               const m = parseFloat(d.minimumPayment);
