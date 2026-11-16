@@ -23,7 +23,7 @@
   --fs-gutter: clamp(16px, 3vw, 40px);
   --fs-max: 1320px;
   /* counter friends: sized so the sign and all seven fit between the posts from 900px up */
-  --head: clamp(44px, 4.6vw, 66px);
+  --head: clamp(42px, 4.3vw, 62px);
   color-scheme: var(--fs-scheme);
   min-height: 100vh;
   overflow-x: clip;
@@ -297,12 +297,16 @@
 .fs-shelf {
   position: relative; z-index: 1;
   max-width: var(--fs-max); margin: 0 auto; padding: 0 var(--fs-gutter);
-  display: flex; justify-content: space-between; align-items: flex-end; gap: clamp(20px, 3vw, 48px);
+  /* the stage's own columns, so the date sign starts under the board, clear of the headline sign's flowers */
+  display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6.1fr); gap: clamp(28px, 3.4vw, 56px);
+  align-items: end;
 }
 .fs-group { display: flex; align-items: flex-end; gap: 6px; min-width: 0; }
-.fs-group--left { flex: 1 1 auto; justify-content: space-around; }
-.fs-group--right { flex: 0 1 auto; justify-content: flex-end; }
-/* if the window is tight, the friends beside the date sign give a little width before anything spills */
+.fs-group--left { justify-content: space-around; }
+/* The right group may reach half a gutter past its column, except between 1240px and 1365px, where the
+   stand's posts stand right at the gutter. If that still isn't room, its friends give a little width. */
+.fs-group--right { justify-content: space-between; margin-right: calc(var(--fs-gutter) * -0.5); }
+@media (min-width: 1240px) and (max-width: 1365px) { .fs-group--right { margin-right: 0; } }
 .fs-group--right .fs-friend { flex: 0 1 auto; min-width: calc(var(--head) * 1.1); }
 .fs-ledge {
   position: relative; z-index: 2; height: 20px; margin-top: -6px;
@@ -368,6 +372,7 @@
 }
 .fs-easel::before { left: 0; transform: rotate(8deg); }
 .fs-easel::after { right: 0; transform: rotate(-8deg); }
+.fs-date--desk { padding-inline: 20px; }
 .fs-date--phone { display: none; }
 
 /* re-lettering */
