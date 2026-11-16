@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-12T22:34:25.062Z",
-  "title": "Design System: Cowculator Ranch",
+  "generatedAt": "2026-11-16T01:49:46.844Z",
+  "title": "Design System: Cowculator",
   "extensions": {
     "colorMeta": {
       "ground": {
@@ -333,6 +333,1026 @@
           "#F0E7FB",
           "#F7F3FD"
         ]
+      },
+      "stand-sky": {
+        "role": "neutral",
+        "displayName": "Sunrise Sky",
+        "canonical": "#FFE2EB",
+        "tonalRamp": [
+          "#665A5E",
+          "#99888D",
+          "#CCB5BC",
+          "#FFE2EB",
+          "#FFE8EF",
+          "#FFEEF3",
+          "#FFF3F7",
+          "#FFF9FB"
+        ]
+      },
+      "stand-page-mid": {
+        "role": "neutral",
+        "displayName": "Page Ground",
+        "canonical": "#FFE8EF",
+        "tonalRamp": [
+          "#665D60",
+          "#998B8F",
+          "#CCBABF",
+          "#FFE8EF",
+          "#FFEDF2",
+          "#FFF1F5",
+          "#FFF6F9",
+          "#FFFAFC"
+        ]
+      },
+      "stand-close-low": {
+        "role": "neutral",
+        "displayName": "Closing Ground",
+        "canonical": "#FFD9E5",
+        "tonalRamp": [
+          "#66575C",
+          "#998289",
+          "#CCAEB7",
+          "#FFD9E5",
+          "#FFE1EA",
+          "#FFE8EF",
+          "#FFF0F5",
+          "#FFF7FA"
+        ]
+      },
+      "stand-straw": {
+        "role": "primary",
+        "displayName": "Strawberry",
+        "canonical": "#F2789F",
+        "tonalRamp": [
+          "#613040",
+          "#91485F",
+          "#C2607F",
+          "#F2789F",
+          "#F593B2",
+          "#F7AEC5",
+          "#FAC9D9",
+          "#FCE4EC"
+        ]
+      },
+      "stand-straw-ink": {
+        "role": "primary",
+        "displayName": "Strawberry Ink",
+        "canonical": "#B8346A",
+        "tonalRamp": [
+          "#4A152A",
+          "#6E1F40",
+          "#932A55",
+          "#B8346A",
+          "#C65D88",
+          "#D485A6",
+          "#E3AEC3",
+          "#F1D6E1"
+        ]
+      },
+      "stand-milk": {
+        "role": "neutral",
+        "displayName": "Milk Paper",
+        "canonical": "#FFF4F7",
+        "tonalRamp": [
+          "#666263",
+          "#999294",
+          "#CCC3C6",
+          "#FFF4F7",
+          "#FFF6F9",
+          "#FFF8FA",
+          "#FFFBFC",
+          "#FFFDFD"
+        ]
+      },
+      "stand-candy": {
+        "role": "primary",
+        "displayName": "Candy Valance",
+        "canonical": "#E8608F",
+        "tonalRamp": [
+          "#5D2639",
+          "#8B3A56",
+          "#BA4D72",
+          "#E8608F",
+          "#ED80A5",
+          "#F1A0BC",
+          "#F6BFD2",
+          "#FADFE9"
+        ]
+      },
+      "stand-candy-deep": {
+        "role": "primary",
+        "displayName": "Candy Shade",
+        "canonical": "#C24476",
+        "tonalRamp": [
+          "#4E1B2F",
+          "#742947",
+          "#9B365E",
+          "#C24476",
+          "#CE6991",
+          "#DA8FAD",
+          "#E7B4C8",
+          "#F3DAE4"
+        ]
+      },
+      "stand-candy-ink": {
+        "role": "primary",
+        "displayName": "Candy Ink",
+        "canonical": "#D43F78",
+        "tonalRamp": [
+          "#551930",
+          "#7F2648",
+          "#AA3260",
+          "#D43F78",
+          "#DD6593",
+          "#E58CAE",
+          "#EEB2C9",
+          "#F6D9E4"
+        ]
+      },
+      "stand-berry": {
+        "role": "neutral",
+        "displayName": "Berry Ink",
+        "canonical": "#7A1F45",
+        "tonalRamp": [
+          "#310C1C",
+          "#491329",
+          "#621937",
+          "#7A1F45",
+          "#954C6A",
+          "#AF798F",
+          "#CAA5B5",
+          "#E4D2DA"
+        ]
+      },
+      "stand-berry-deep": {
+        "role": "neutral",
+        "displayName": "Deep Berry",
+        "canonical": "#561331",
+        "tonalRamp": [
+          "#220814",
+          "#340B1D",
+          "#450F27",
+          "#561331",
+          "#78425A",
+          "#9A7183",
+          "#BBA1AD",
+          "#DDD0D6"
+        ]
+      },
+      "stand-gold": {
+        "role": "primary",
+        "displayName": "Gold Leaf",
+        "canonical": "#F6C75B",
+        "tonalRamp": [
+          "#625024",
+          "#947737",
+          "#C59F49",
+          "#F6C75B",
+          "#F8D27C",
+          "#FADD9D",
+          "#FBE9BD",
+          "#FDF4DE"
+        ]
+      },
+      "stand-gold-deep": {
+        "role": "primary",
+        "displayName": "Gold Leaf Deep",
+        "canonical": "#B57A17",
+        "tonalRamp": [
+          "#483109",
+          "#6D490E",
+          "#916212",
+          "#B57A17",
+          "#C49545",
+          "#D3AF74",
+          "#E1CAA2",
+          "#F0E4D1"
+        ]
+      },
+      "stand-gold-lite": {
+        "role": "primary",
+        "displayName": "Gold Leaf Light",
+        "canonical": "#FFE6A3",
+        "tonalRamp": [
+          "#665C41",
+          "#998A62",
+          "#CCB882",
+          "#FFE6A3",
+          "#FFEBB5",
+          "#FFF0C8",
+          "#FFF5DA",
+          "#FFFAED"
+        ]
+      },
+      "stand-gold-line": {
+        "role": "primary",
+        "displayName": "Gold Outline",
+        "canonical": "#C98A1E",
+        "tonalRamp": [
+          "#50370C",
+          "#795312",
+          "#A16E18",
+          "#C98A1E",
+          "#D4A14B",
+          "#DFB978",
+          "#E9D0A5",
+          "#F4E8D2"
+        ]
+      },
+      "stand-board": {
+        "role": "secondary",
+        "displayName": "Chalkboard",
+        "canonical": "#2F4A3A",
+        "tonalRamp": [
+          "#131E17",
+          "#1C2C23",
+          "#263B2E",
+          "#2F4A3A",
+          "#596E61",
+          "#829289",
+          "#ACB7B0",
+          "#D5DBD8"
+        ]
+      },
+      "stand-chalk": {
+        "role": "secondary",
+        "displayName": "Chalk",
+        "canonical": "#F4F0E6",
+        "tonalRamp": [
+          "#62605C",
+          "#92908A",
+          "#C3C0B8",
+          "#F4F0E6",
+          "#F6F3EB",
+          "#F8F6F0",
+          "#FBF9F5",
+          "#FDFCFA"
+        ]
+      },
+      "stand-chalk-hi": {
+        "role": "secondary",
+        "displayName": "Chalk Gold",
+        "canonical": "#F6C75B",
+        "tonalRamp": [
+          "#625024",
+          "#947737",
+          "#C59F49",
+          "#F6C75B",
+          "#F8D27C",
+          "#FADD9D",
+          "#FBE9BD",
+          "#FDF4DE"
+        ]
+      },
+      "stand-wood": {
+        "role": "secondary",
+        "displayName": "Honey Wood",
+        "canonical": "#C98F5E",
+        "tonalRamp": [
+          "#503926",
+          "#795638",
+          "#A1724B",
+          "#C98F5E",
+          "#D4A57E",
+          "#DFBC9E",
+          "#E9D2BF",
+          "#F4E9DF"
+        ]
+      },
+      "stand-wood-deep": {
+        "role": "secondary",
+        "displayName": "Honey Wood Deep",
+        "canonical": "#9A6238",
+        "tonalRamp": [
+          "#3E2716",
+          "#5C3B22",
+          "#7B4E2D",
+          "#9A6238",
+          "#AE8160",
+          "#C2A188",
+          "#D7C0AF",
+          "#EBE0D7"
+        ]
+      },
+      "stand-basket": {
+        "role": "secondary",
+        "displayName": "Basket Wicker",
+        "canonical": "#D9A06A",
+        "tonalRamp": [
+          "#57402A",
+          "#826040",
+          "#AE8055",
+          "#D9A06A",
+          "#E1B388",
+          "#E8C6A6",
+          "#F0D9C3",
+          "#F7ECE1"
+        ]
+      },
+      "stand-face": {
+        "role": "neutral",
+        "displayName": "Sign Face",
+        "canonical": "#FFF7FA",
+        "tonalRamp": [
+          "#666364",
+          "#999496",
+          "#CCC6C8",
+          "#FFF7FA",
+          "#FFF9FB",
+          "#FFFAFC",
+          "#FFFCFD",
+          "#FFFDFE"
+        ]
+      },
+      "stand-face-low": {
+        "role": "neutral",
+        "displayName": "Sign Face Low",
+        "canonical": "#FFE4EE",
+        "tonalRamp": [
+          "#665B5F",
+          "#99898F",
+          "#CCB6BE",
+          "#FFE4EE",
+          "#FFE9F1",
+          "#FFEFF5",
+          "#FFF4F8",
+          "#FFFAFC"
+        ]
+      },
+      "stand-counter": {
+        "role": "tertiary",
+        "displayName": "Painted Counter",
+        "canonical": "#F7B6CB",
+        "tonalRamp": [
+          "#634951",
+          "#946D7A",
+          "#C692A2",
+          "#F7B6CB",
+          "#F9C5D5",
+          "#FAD3E0",
+          "#FCE2EA",
+          "#FDF0F5"
+        ]
+      },
+      "stand-counter-deep": {
+        "role": "tertiary",
+        "displayName": "Counter Ledge",
+        "canonical": "#EC93B1",
+        "tonalRamp": [
+          "#5E3B47",
+          "#8E586A",
+          "#BD768E",
+          "#EC93B1",
+          "#F0A9C1",
+          "#F4BED0",
+          "#F7D4E0",
+          "#FBE9EF"
+        ]
+      },
+      "stand-counter-line": {
+        "role": "tertiary",
+        "displayName": "Counter Board Line",
+        "canonical": "#F2A6C0",
+        "tonalRamp": [
+          "#61424D",
+          "#916473",
+          "#C2859A",
+          "#F2A6C0",
+          "#F5B8CD",
+          "#F7CAD9",
+          "#FADBE6",
+          "#FCEDF2"
+        ]
+      },
+      "stand-counter-top": {
+        "role": "tertiary",
+        "displayName": "Counter Top",
+        "canonical": "#FFD3E0",
+        "tonalRamp": [
+          "#66545A",
+          "#997F86",
+          "#CCA9B3",
+          "#FFD3E0",
+          "#FFDCE6",
+          "#FFE5EC",
+          "#FFEDF3",
+          "#FFF6F9"
+        ]
+      },
+      "stand-counter-ink": {
+        "role": "tertiary",
+        "displayName": "Counter Ink",
+        "canonical": "#7A1F45",
+        "tonalRamp": [
+          "#310C1C",
+          "#491329",
+          "#621937",
+          "#7A1F45",
+          "#954C6A",
+          "#AF798F",
+          "#CAA5B5",
+          "#E4D2DA"
+        ]
+      },
+      "stand-meadow": {
+        "role": "tertiary",
+        "displayName": "Meadow",
+        "canonical": "#CDE8B5",
+        "tonalRamp": [
+          "#525D48",
+          "#7B8B6D",
+          "#A4BA91",
+          "#CDE8B5",
+          "#D7EDC4",
+          "#E1F1D3",
+          "#EBF6E1",
+          "#F5FAF0"
+        ]
+      },
+      "stand-meadow-deep": {
+        "role": "tertiary",
+        "displayName": "Meadow Deep",
+        "canonical": "#B8DD9D",
+        "tonalRamp": [
+          "#4A583F",
+          "#6E855E",
+          "#93B17E",
+          "#B8DD9D",
+          "#C6E4B1",
+          "#D4EBC4",
+          "#E3F1D8",
+          "#F1F8EB"
+        ]
+      },
+      "stand-foot-ink": {
+        "role": "neutral",
+        "displayName": "Foot Ink",
+        "canonical": "#2F4A2A",
+        "tonalRamp": [
+          "#131E11",
+          "#1C2C19",
+          "#263B22",
+          "#2F4A2A",
+          "#596E55",
+          "#82927F",
+          "#ACB7AA",
+          "#D5DBD4"
+        ]
+      },
+      "stand-foot-name": {
+        "role": "neutral",
+        "displayName": "Footer Wordmark",
+        "canonical": "#7A1F45",
+        "tonalRamp": [
+          "#310C1C",
+          "#491329",
+          "#621937",
+          "#7A1F45",
+          "#954C6A",
+          "#AF798F",
+          "#CAA5B5",
+          "#E4D2DA"
+        ]
+      },
+      "stand-how-bg": {
+        "role": "neutral",
+        "displayName": "Gingham Cloth",
+        "canonical": "#FFF1F5",
+        "tonalRamp": [
+          "#666062",
+          "#999193",
+          "#CCC1C4",
+          "#FFF1F5",
+          "#FFF4F7",
+          "#FFF7F9",
+          "#FFF9FB",
+          "#FFFCFD"
+        ]
+      },
+      "stand-how-head": {
+        "role": "neutral",
+        "displayName": "Cloth Heading Ink",
+        "canonical": "#7A1F45",
+        "tonalRamp": [
+          "#310C1C",
+          "#491329",
+          "#621937",
+          "#7A1F45",
+          "#954C6A",
+          "#AF798F",
+          "#CAA5B5",
+          "#E4D2DA"
+        ]
+      },
+      "stand-how-ink": {
+        "role": "neutral",
+        "displayName": "Cloth Body Ink",
+        "canonical": "#6A2342",
+        "tonalRamp": [
+          "#2A0E1A",
+          "#401528",
+          "#551C35",
+          "#6A2342",
+          "#884F68",
+          "#A67B8E",
+          "#C3A7B3",
+          "#E1D3D9"
+        ]
+      },
+      "stand-packet-ink": {
+        "role": "neutral",
+        "displayName": "Packet Ink",
+        "canonical": "#5C1A38",
+        "tonalRamp": [
+          "#250A16",
+          "#371022",
+          "#4A152D",
+          "#5C1A38",
+          "#7D4860",
+          "#9D7688",
+          "#BEA3AF",
+          "#DED1D7"
+        ]
+      },
+      "stand-best-a": {
+        "role": "neutral",
+        "displayName": "Best-for Tag A",
+        "canonical": "#FFE9F0",
+        "tonalRamp": [
+          "#665D60",
+          "#998C90",
+          "#CCBAC0",
+          "#FFE9F0",
+          "#FFEDF3",
+          "#FFF2F6",
+          "#FFF6F9",
+          "#FFFBFC"
+        ]
+      },
+      "stand-best-b": {
+        "role": "neutral",
+        "displayName": "Best-for Tag B",
+        "canonical": "#FFF4D6",
+        "tonalRamp": [
+          "#666256",
+          "#999280",
+          "#CCC3AB",
+          "#FFF4D6",
+          "#FFF6DE",
+          "#FFF8E6",
+          "#FFFBEF",
+          "#FFFDF7"
+        ]
+      },
+      "stand-tag-edge": {
+        "role": "neutral",
+        "displayName": "Tag Edge",
+        "canonical": "#E9C6D3",
+        "tonalRamp": [
+          "#5D4F54",
+          "#8C777F",
+          "#BA9EA9",
+          "#E9C6D3",
+          "#EDD1DC",
+          "#F2DDE5",
+          "#F6E8ED",
+          "#FBF4F6"
+        ]
+      },
+      "stand-shade": {
+        "role": "neutral",
+        "displayName": "Shade",
+        "canonical": "#7A1F45",
+        "tonalRamp": [
+          "#310C1C",
+          "#491329",
+          "#621937",
+          "#7A1F45",
+          "#954C6A",
+          "#AF798F",
+          "#CAA5B5",
+          "#E4D2DA"
+        ]
+      },
+      "stand-shade-deep": {
+        "role": "neutral",
+        "displayName": "Deep Shade",
+        "canonical": "#3E0B22",
+        "tonalRamp": [
+          "#19040E",
+          "#250714",
+          "#32091B",
+          "#3E0B22",
+          "#653C4E",
+          "#8B6D7A",
+          "#B29DA7",
+          "#D8CED3"
+        ]
+      },
+      "stand-wood-shade": {
+        "role": "neutral",
+        "displayName": "Wood Shade",
+        "canonical": "#50280C",
+        "tonalRamp": [
+          "#201005",
+          "#301807",
+          "#40200A",
+          "#50280C",
+          "#73533D",
+          "#967E6D",
+          "#B9A99E",
+          "#DCD4CE"
+        ]
+      },
+      "stand-register": {
+        "role": "tertiary",
+        "displayName": "Register Paint",
+        "canonical": "#7A1F45",
+        "tonalRamp": [
+          "#310C1C",
+          "#491329",
+          "#621937",
+          "#7A1F45",
+          "#954C6A",
+          "#AF798F",
+          "#CAA5B5",
+          "#E4D2DA"
+        ]
+      },
+      "stand-register-base": {
+        "role": "tertiary",
+        "displayName": "Register Base",
+        "canonical": "#5C1433",
+        "tonalRamp": [
+          "#250814",
+          "#370C1F",
+          "#4A1029",
+          "#5C1433",
+          "#7D435C",
+          "#9D7285",
+          "#BEA1AD",
+          "#DED0D6"
+        ]
+      },
+      "stand-gingham": {
+        "role": "tertiary",
+        "displayName": "Jar Gingham",
+        "canonical": "#E58FAD",
+        "tonalRamp": [
+          "#5C3945",
+          "#895668",
+          "#B7728A",
+          "#E58FAD",
+          "#EAA5BD",
+          "#EFBCCE",
+          "#F5D2DE",
+          "#FAE9EF"
+        ]
+      },
+      "stand-ring-valance": {
+        "role": "neutral",
+        "displayName": "Valance Focus Ring",
+        "canonical": "#7A1F45",
+        "tonalRamp": [
+          "#310C1C",
+          "#491329",
+          "#621937",
+          "#7A1F45",
+          "#954C6A",
+          "#AF798F",
+          "#CAA5B5",
+          "#E4D2DA"
+        ]
+      },
+      "stand-post-0": {
+        "role": "secondary",
+        "displayName": "Post Wood 0",
+        "canonical": "#A9734A",
+        "tonalRamp": [
+          "#442E1E",
+          "#65452C",
+          "#875C3B",
+          "#A9734A",
+          "#BA8F6E",
+          "#CBAB92",
+          "#DDC7B7",
+          "#EEE3DB"
+        ]
+      },
+      "stand-post-1": {
+        "role": "secondary",
+        "displayName": "Post Wood 1",
+        "canonical": "#DDA772",
+        "tonalRamp": [
+          "#58432E",
+          "#856444",
+          "#B1865B",
+          "#DDA772",
+          "#E4B98E",
+          "#EBCAAA",
+          "#F1DCC7",
+          "#F8EDE3"
+        ]
+      },
+      "stand-post-2": {
+        "role": "secondary",
+        "displayName": "Post Wood 2",
+        "canonical": "#B57E52",
+        "tonalRamp": [
+          "#483221",
+          "#6D4C31",
+          "#916542",
+          "#B57E52",
+          "#C49875",
+          "#D3B297",
+          "#E1CBBA",
+          "#F0E5DC"
+        ]
+      },
+      "stand-post-3": {
+        "role": "secondary",
+        "displayName": "Post Wood 3",
+        "canonical": "#8A5531",
+        "tonalRamp": [
+          "#372214",
+          "#53331D",
+          "#6E4427",
+          "#8A5531",
+          "#A1775A",
+          "#B99983",
+          "#D0BBAD",
+          "#E8DDD6"
+        ]
+      },
+      "stand-flag-0": {
+        "role": "tertiary",
+        "displayName": "Bunting Flag 0",
+        "canonical": "#F2789F",
+        "tonalRamp": [
+          "#613040",
+          "#91485F",
+          "#C2607F",
+          "#F2789F",
+          "#F593B2",
+          "#F7AEC5",
+          "#FAC9D9",
+          "#FCE4EC"
+        ]
+      },
+      "stand-flag-1": {
+        "role": "tertiary",
+        "displayName": "Bunting Flag 1",
+        "canonical": "#F6C75B",
+        "tonalRamp": [
+          "#625024",
+          "#947737",
+          "#C59F49",
+          "#F6C75B",
+          "#F8D27C",
+          "#FADD9D",
+          "#FBE9BD",
+          "#FDF4DE"
+        ]
+      },
+      "stand-flag-2": {
+        "role": "tertiary",
+        "displayName": "Bunting Flag 2",
+        "canonical": "#FFF4F7",
+        "tonalRamp": [
+          "#666263",
+          "#999294",
+          "#CCC3C6",
+          "#FFF4F7",
+          "#FFF6F9",
+          "#FFF8FA",
+          "#FFFBFC",
+          "#FFFDFD"
+        ]
+      },
+      "stand-flag-3": {
+        "role": "tertiary",
+        "displayName": "Bunting Flag 3",
+        "canonical": "#A8DCC6",
+        "tonalRamp": [
+          "#43584F",
+          "#658477",
+          "#86B09E",
+          "#A8DCC6",
+          "#B9E3D1",
+          "#CBEADD",
+          "#DCF1E8",
+          "#EEF8F4"
+        ]
+      },
+      "stand-flag-4": {
+        "role": "tertiary",
+        "displayName": "Bunting Flag 4",
+        "canonical": "#DCC0F7",
+        "tonalRamp": [
+          "#584D63",
+          "#847394",
+          "#B09AC6",
+          "#DCC0F7",
+          "#E3CDF9",
+          "#EAD9FA",
+          "#F1E6FC",
+          "#F8F2FD"
+        ]
+      },
+      "stand-flag-5": {
+        "role": "tertiary",
+        "displayName": "Bunting Flag 5",
+        "canonical": "#E46A95",
+        "tonalRamp": [
+          "#5B2A3C",
+          "#894059",
+          "#B65577",
+          "#E46A95",
+          "#E988AA",
+          "#EFA6BF",
+          "#F4C3D5",
+          "#FAE1EA"
+        ]
+      },
+      "stand-bl-pink-outer": {
+        "role": "tertiary",
+        "displayName": "Bloom Pink Outer",
+        "canonical": "#FFC4D6",
+        "tonalRamp": [
+          "#664E56",
+          "#997680",
+          "#CC9DAB",
+          "#FFC4D6",
+          "#FFD0DE",
+          "#FFDCE6",
+          "#FFE7EF",
+          "#FFF3F7"
+        ]
+      },
+      "stand-bl-pink-mid": {
+        "role": "tertiary",
+        "displayName": "Bloom Pink Mid",
+        "canonical": "#FF9FBD",
+        "tonalRamp": [
+          "#66404C",
+          "#995F71",
+          "#CC7F97",
+          "#FF9FBD",
+          "#FFB2CA",
+          "#FFC5D7",
+          "#FFD9E5",
+          "#FFECF2"
+        ]
+      },
+      "stand-bl-pink-inner": {
+        "role": "tertiary",
+        "displayName": "Bloom Pink Inner",
+        "canonical": "#F2789F",
+        "tonalRamp": [
+          "#613040",
+          "#91485F",
+          "#C2607F",
+          "#F2789F",
+          "#F593B2",
+          "#F7AEC5",
+          "#FAC9D9",
+          "#FCE4EC"
+        ]
+      },
+      "stand-bl-pink-deep": {
+        "role": "tertiary",
+        "displayName": "Bloom Pink Deep",
+        "canonical": "#C24C78",
+        "tonalRamp": [
+          "#4E1E30",
+          "#742E48",
+          "#9B3D60",
+          "#C24C78",
+          "#CE7093",
+          "#DA94AE",
+          "#E7B7C9",
+          "#F3DBE4"
+        ]
+      },
+      "stand-bl-blush-outer": {
+        "role": "tertiary",
+        "displayName": "Bloom Blush Outer",
+        "canonical": "#FFE3EC",
+        "tonalRamp": [
+          "#665B5E",
+          "#99888E",
+          "#CCB6BD",
+          "#FFE3EC",
+          "#FFE9F0",
+          "#FFEEF4",
+          "#FFF4F7",
+          "#FFF9FB"
+        ]
+      },
+      "stand-bl-blush-mid": {
+        "role": "tertiary",
+        "displayName": "Bloom Blush Mid",
+        "canonical": "#FFCADA",
+        "tonalRamp": [
+          "#665157",
+          "#997983",
+          "#CCA2AE",
+          "#FFCADA",
+          "#FFD5E1",
+          "#FFDFE9",
+          "#FFEAF0",
+          "#FFF4F8"
+        ]
+      },
+      "stand-bl-blush-inner": {
+        "role": "tertiary",
+        "displayName": "Bloom Blush Inner",
+        "canonical": "#FBA6C0",
+        "tonalRamp": [
+          "#64424D",
+          "#976473",
+          "#C9859A",
+          "#FBA6C0",
+          "#FCB8CD",
+          "#FDCAD9",
+          "#FDDBE6",
+          "#FEEDF2"
+        ]
+      },
+      "stand-bl-blush-deep": {
+        "role": "tertiary",
+        "displayName": "Bloom Blush Deep",
+        "canonical": "#D97B9C",
+        "tonalRamp": [
+          "#57313E",
+          "#824A5E",
+          "#AE627D",
+          "#D97B9C",
+          "#E195B0",
+          "#E8B0C4",
+          "#F0CAD7",
+          "#F7E5EB"
+        ]
+      },
+      "stand-bl-berry-outer": {
+        "role": "tertiary",
+        "displayName": "Bloom Berry Outer",
+        "canonical": "#F59BBA",
+        "tonalRamp": [
+          "#623E4A",
+          "#935D70",
+          "#C47C95",
+          "#F59BBA",
+          "#F7AFC8",
+          "#F9C3D6",
+          "#FBD7E3",
+          "#FDEBF1"
+        ]
+      },
+      "stand-bl-berry-mid": {
+        "role": "tertiary",
+        "displayName": "Bloom Berry Mid",
+        "canonical": "#E46A95",
+        "tonalRamp": [
+          "#5B2A3C",
+          "#894059",
+          "#B65577",
+          "#E46A95",
+          "#E988AA",
+          "#EFA6BF",
+          "#F4C3D5",
+          "#FAE1EA"
+        ]
+      },
+      "stand-bl-berry-inner": {
+        "role": "tertiary",
+        "displayName": "Bloom Berry Inner",
+        "canonical": "#C8406F",
+        "tonalRamp": [
+          "#501A2C",
+          "#782643",
+          "#A03359",
+          "#C8406F",
+          "#D3668C",
+          "#DE8CA9",
+          "#E9B3C5",
+          "#F4D9E2"
+        ]
+      },
+      "stand-bl-berry-deep": {
+        "role": "tertiary",
+        "displayName": "Bloom Berry Deep",
+        "canonical": "#8E2350",
+        "tonalRamp": [
+          "#390E20",
+          "#551530",
+          "#721C40",
+          "#8E2350",
+          "#A54F73",
+          "#BB7B96",
+          "#D2A7B9",
+          "#E8D3DC"
+        ]
       }
     },
     "typographyMeta": {
@@ -359,6 +1379,38 @@
       "label": {
         "displayName": "Label",
         "purpose": "Uppercase badge text."
+      },
+      "stand-display": {
+        "displayName": "Stand: Sign lettering",
+        "purpose": "The headline painted on the home page sign, Candy Ink with a gold edge."
+      },
+      "stand-section": {
+        "displayName": "Stand: Section lettering",
+        "purpose": "Home page section headings and the closing sign."
+      },
+      "stand-date": {
+        "displayName": "Stand: Painted date",
+        "purpose": "The debt-free date on the counter sign; scales to its letter count."
+      },
+      "stand-lettering": {
+        "displayName": "Stand: Board lettering",
+        "purpose": "Bagel names and figures on boards, packets and the price menu (18 to 36px)."
+      },
+      "stand-round": {
+        "displayName": "Stand: Tag and label",
+        "purpose": "Price tags, sign labels, question summaries in Fredoka 600."
+      },
+      "stand-body": {
+        "displayName": "Stand: Body",
+        "purpose": "Copy on paper in Nunito regular."
+      },
+      "stand-chalk": {
+        "displayName": "Stand: Chalk hand",
+        "purpose": "Typed values and payoff rows on chalkboards, tabular Quicksand 700."
+      },
+      "stand-chalk-note": {
+        "displayName": "Stand: Chalk note",
+        "purpose": "Labels, hints and facts in chalk, Quicksand 600."
       }
     },
     "shadows": [
@@ -386,6 +1438,36 @@
         "name": "inset-ring",
         "value": "inset 0 0 0 2px var(--ranch-ink)",
         "purpose": "Ghost button, selected plan, focus badge."
+      },
+      {
+        "name": "stand-sign",
+        "value": "inset 0 0 0 2px var(--fs-wood-deep), 0 22px 34px -20px color-mix(in srgb, var(--fs-shade) 45%, transparent)",
+        "purpose": "Home page painted signs."
+      },
+      {
+        "name": "stand-chalkboard",
+        "value": "inset 0 0 0 2px var(--fs-wood-deep), inset 0 0 44px rgb(0 0 0 / 0.38), 0 24px 34px -20px color-mix(in srgb, var(--fs-wood-shade) 65%, transparent)",
+        "purpose": "The chalkboard calculator; other boards use lighter versions."
+      },
+      {
+        "name": "stand-tag",
+        "value": "0 6px 12px -8px color-mix(in srgb, var(--fs-shade-deep) 60%, transparent)",
+        "purpose": "Price tags."
+      },
+      {
+        "name": "stand-date-sign",
+        "value": "inset 0 0 0 4px var(--fs-milk), inset 0 0 0 6px color-mix(in srgb, var(--fs-straw) 45%, transparent), 0 16px 26px -16px color-mix(in srgb, var(--fs-shade) 60%, transparent)",
+        "purpose": "The painted date sign."
+      },
+      {
+        "name": "stand-paper",
+        "value": "0 14px 24px -18px color-mix(in srgb, var(--fs-shade) 60%, transparent), 0 1px 2px color-mix(in srgb, var(--fs-shade) 18%, transparent)",
+        "purpose": "Recipe cards; packets and postcards follow it."
+      },
+      {
+        "name": "stand-awning",
+        "value": "drop-shadow(0 8px 8px color-mix(in srgb, var(--fs-shade) 18%, transparent))",
+        "purpose": "The awning over the page (a filter)."
       }
     ],
     "motion": [
@@ -403,6 +1485,41 @@
         "name": "reduced-motion",
         "value": "prefers-reduced-motion: reduce",
         "purpose": "Every animation shows its end state."
+      },
+      {
+        "name": "stand-entrance",
+        "value": "awning 0.85s; flags 0.7s from 0.3s + 18ms each; counter friends 0.65s spring from 0.65s + 85ms each; peekers 0.7s spring from 1.25s",
+        "purpose": "The one load moment on the home page."
+      },
+      {
+        "name": "stand-re-letter",
+        "value": "settle 340ms; out rotateX 0 to 90deg 0.4s ease-in; in 0.5s cubic-bezier(.16, 1, .3, 1) after 0.12s; 34ms per letter",
+        "purpose": "Changed letters of the painted date and board dates roll over."
+      },
+      {
+        "name": "stand-hop",
+        "value": "0.55s cubic-bezier(.34, 1.3, .5, 1)",
+        "purpose": "A tapped friend hops."
+      },
+      {
+        "name": "stand-press",
+        "value": "transform 0.25s cubic-bezier(.16, 1, .3, 1)",
+        "purpose": "Tags straighten and lift; paint tins lift."
+      },
+      {
+        "name": "stand-chalk-loop",
+        "value": "0.5s cubic-bezier(.16, 1, .3, 1) stroke draw",
+        "purpose": "The loop redraws around the chosen strategy."
+      },
+      {
+        "name": "stand-twinkle",
+        "value": "2.8s ease-in-out infinite",
+        "purpose": "Gold sparkles; the only loop on the home page."
+      },
+      {
+        "name": "stand-reduced-motion",
+        "value": "prefers-reduced-motion: no-preference gates every animation",
+        "purpose": "The still page is complete; dates swap without the roll; particles off."
       }
     ],
     "breakpoints": [
@@ -421,6 +1538,26 @@
       {
         "name": "content max",
         "value": "1240px"
+      },
+      {
+        "name": "stand phone nav trim",
+        "value": "380px"
+      },
+      {
+        "name": "stand small friends",
+        "value": "389px"
+      },
+      {
+        "name": "stand single column (below)",
+        "value": "900px"
+      },
+      {
+        "name": "stand posts and baskets",
+        "value": "1240px"
+      },
+      {
+        "name": "stand content max",
+        "value": "1320px"
       }
     ],
     "presets": [
@@ -486,6 +1623,701 @@
         "moment": "snowy evening",
         "ground": "#F3F0F8",
         "button": "#6B3A2A"
+      }
+    ],
+    "standPalettes": [
+      {
+        "key": "default",
+        "name": "Lavender Dream",
+        "moment": "lavender-field dusk",
+        "default": false,
+        "scheme": "light",
+        "colors": {
+          "stand-sky": "#EEE5F9",
+          "stand-page-mid": "#F3ECFB",
+          "stand-close-low": "#E6D9F6",
+          "stand-straw": "#A584DD",
+          "stand-straw-ink": "#563797",
+          "stand-milk": "#FBF8FE",
+          "stand-candy": "#8560C9",
+          "stand-candy-deep": "#6C47B5",
+          "stand-candy-ink": "#6C47B5",
+          "stand-berry": "#3A2466",
+          "stand-berry-deep": "#2B1A4F",
+          "stand-gold": "#F5C66A",
+          "stand-gold-deep": "#B5832A",
+          "stand-gold-lite": "#FFE9B0",
+          "stand-gold-line": "#C9922E",
+          "stand-board": "#2D2A44",
+          "stand-chalk": "#F6F1FB",
+          "stand-chalk-hi": "#F7CF73",
+          "stand-wood": "#B98A6E",
+          "stand-wood-deep": "#86593F",
+          "stand-basket": "#C99A7C",
+          "stand-face": "#FDFAFF",
+          "stand-face-low": "#EFE5FA",
+          "stand-counter": "#DDCCF3",
+          "stand-counter-deep": "#C3A9EA",
+          "stand-counter-line": "#D2BDEF",
+          "stand-counter-top": "#EEE5F9",
+          "stand-counter-ink": "#3A2466",
+          "stand-meadow": "#D9C8F2",
+          "stand-meadow-deep": "#C3ABEA",
+          "stand-foot-ink": "#2B1A4F",
+          "stand-foot-name": "#3A2466",
+          "stand-how-bg": "#F8F4FD",
+          "stand-how-head": "#3A2466",
+          "stand-how-ink": "#4A3474",
+          "stand-packet-ink": "#33205C",
+          "stand-best-a": "#F3ECFB",
+          "stand-best-b": "#FCEAF0",
+          "stand-tag-edge": "#D9CBEE",
+          "stand-shade": "#3A2466",
+          "stand-shade-deep": "#1F1338",
+          "stand-wood-shade": "#3E2A20",
+          "stand-register": "#563797",
+          "stand-register-base": "#2B1A4F",
+          "stand-gingham": "#B79AE3",
+          "stand-ring-valance": "#FBF8FE",
+          "stand-post-0": "#9C7258",
+          "stand-post-1": "#CFA184",
+          "stand-post-2": "#A87A5E",
+          "stand-post-3": "#7A5040",
+          "stand-flag-0": "#A584DD",
+          "stand-flag-1": "#F5C66A",
+          "stand-flag-2": "#FBF8FE",
+          "stand-flag-3": "#F2A7C3",
+          "stand-flag-4": "#C3A9EA",
+          "stand-flag-5": "#8560C9",
+          "stand-bl-pink-outer": "#E8DBFB",
+          "stand-bl-pink-mid": "#CFB7F4",
+          "stand-bl-pink-inner": "#A584DD",
+          "stand-bl-pink-deep": "#6C47B5",
+          "stand-bl-blush-outer": "#FFE3EC",
+          "stand-bl-blush-mid": "#FBCFDF",
+          "stand-bl-blush-inner": "#F2A7C3",
+          "stand-bl-blush-deep": "#C9799A",
+          "stand-bl-berry-outer": "#C7A9EE",
+          "stand-bl-berry-mid": "#A584DD",
+          "stand-bl-berry-inner": "#7C55C4",
+          "stand-bl-berry-deep": "#4A2C8A"
+        }
+      },
+      {
+        "key": "my-melody",
+        "name": "Rose Milk",
+        "moment": "strawberry-field sunrise",
+        "default": true,
+        "scheme": "light",
+        "colors": {
+          "stand-sky": "#FFE2EB",
+          "stand-page-mid": "#FFE8EF",
+          "stand-close-low": "#FFD9E5",
+          "stand-straw": "#F2789F",
+          "stand-straw-ink": "#B8346A",
+          "stand-milk": "#FFF4F7",
+          "stand-candy": "#E8608F",
+          "stand-candy-deep": "#C24476",
+          "stand-candy-ink": "#D43F78",
+          "stand-berry": "#7A1F45",
+          "stand-berry-deep": "#561331",
+          "stand-gold": "#F6C75B",
+          "stand-gold-deep": "#B57A17",
+          "stand-gold-lite": "#FFE6A3",
+          "stand-gold-line": "#C98A1E",
+          "stand-board": "#2F4A3A",
+          "stand-chalk": "#F4F0E6",
+          "stand-chalk-hi": "#F6C75B",
+          "stand-wood": "#C98F5E",
+          "stand-wood-deep": "#9A6238",
+          "stand-basket": "#D9A06A",
+          "stand-face": "#FFF7FA",
+          "stand-face-low": "#FFE4EE",
+          "stand-counter": "#F7B6CB",
+          "stand-counter-deep": "#EC93B1",
+          "stand-counter-line": "#F2A6C0",
+          "stand-counter-top": "#FFD3E0",
+          "stand-counter-ink": "#7A1F45",
+          "stand-meadow": "#CDE8B5",
+          "stand-meadow-deep": "#B8DD9D",
+          "stand-foot-ink": "#2F4A2A",
+          "stand-foot-name": "#7A1F45",
+          "stand-how-bg": "#FFF1F5",
+          "stand-how-head": "#7A1F45",
+          "stand-how-ink": "#6A2342",
+          "stand-packet-ink": "#5C1A38",
+          "stand-best-a": "#FFE9F0",
+          "stand-best-b": "#FFF4D6",
+          "stand-tag-edge": "#E9C6D3",
+          "stand-shade": "#7A1F45",
+          "stand-shade-deep": "#3E0B22",
+          "stand-wood-shade": "#50280C",
+          "stand-register": "#7A1F45",
+          "stand-register-base": "#5C1433",
+          "stand-gingham": "#E58FAD",
+          "stand-ring-valance": "#7A1F45",
+          "stand-post-0": "#A9734A",
+          "stand-post-1": "#DDA772",
+          "stand-post-2": "#B57E52",
+          "stand-post-3": "#8A5531",
+          "stand-flag-0": "#F2789F",
+          "stand-flag-1": "#F6C75B",
+          "stand-flag-2": "#FFF4F7",
+          "stand-flag-3": "#A8DCC6",
+          "stand-flag-4": "#DCC0F7",
+          "stand-flag-5": "#E46A95",
+          "stand-bl-pink-outer": "#FFC4D6",
+          "stand-bl-pink-mid": "#FF9FBD",
+          "stand-bl-pink-inner": "#F2789F",
+          "stand-bl-pink-deep": "#C24C78",
+          "stand-bl-blush-outer": "#FFE3EC",
+          "stand-bl-blush-mid": "#FFCADA",
+          "stand-bl-blush-inner": "#FBA6C0",
+          "stand-bl-blush-deep": "#D97B9C",
+          "stand-bl-berry-outer": "#F59BBA",
+          "stand-bl-berry-mid": "#E46A95",
+          "stand-bl-berry-inner": "#C8406F",
+          "stand-bl-berry-deep": "#8E2350"
+        }
+      },
+      {
+        "key": "kuromi",
+        "name": "Midnight Grape",
+        "moment": "night under the stars, signs lamp-lit (dark)",
+        "default": false,
+        "scheme": "dark",
+        "colors": {
+          "stand-sky": "#110A28",
+          "stand-page-mid": "#1D1344",
+          "stand-close-low": "#2D1D60",
+          "stand-straw": "#7556D6",
+          "stand-straw-ink": "#5B3FBF",
+          "stand-milk": "#F4EFFF",
+          "stand-candy": "#4E33A0",
+          "stand-candy-deep": "#352470",
+          "stand-candy-ink": "#5B3FBF",
+          "stand-berry": "#2A1740",
+          "stand-berry-deep": "#1D1344",
+          "stand-gold": "#FFD58A",
+          "stand-gold-deep": "#B98A3A",
+          "stand-gold-lite": "#FFF1D6",
+          "stand-gold-line": "#C9963F",
+          "stand-board": "#232C3D",
+          "stand-chalk": "#F4EDFF",
+          "stand-chalk-hi": "#FFD58A",
+          "stand-wood": "#8F6E7E",
+          "stand-wood-deep": "#5E4656",
+          "stand-basket": "#9C7A86",
+          "stand-face": "#FFF9EE",
+          "stand-face-low": "#EDE4FF",
+          "stand-counter": "#3E2E7A",
+          "stand-counter-deep": "#2D2160",
+          "stand-counter-line": "#36286C",
+          "stand-counter-top": "#5B45A8",
+          "stand-counter-ink": "#F4EDFF",
+          "stand-meadow": "#2A1F5D",
+          "stand-meadow-deep": "#21184E",
+          "stand-foot-ink": "#E6DEFF",
+          "stand-foot-name": "#FFD58A",
+          "stand-how-bg": "#1A1140",
+          "stand-how-head": "#F4EDFF",
+          "stand-how-ink": "#C6B9EA",
+          "stand-packet-ink": "#2A1740",
+          "stand-best-a": "#EEE8FF",
+          "stand-best-b": "#FFF3DC",
+          "stand-tag-edge": "#C9BCEB",
+          "stand-shade": "#05010F",
+          "stand-shade-deep": "#05010F",
+          "stand-wood-shade": "#05010F",
+          "stand-register": "#4E33A0",
+          "stand-register-base": "#1D1344",
+          "stand-gingham": "#B39CFF",
+          "stand-ring-valance": "#FFD58A",
+          "stand-post-0": "#6E5262",
+          "stand-post-1": "#A88A98",
+          "stand-post-2": "#7A5C6C",
+          "stand-post-3": "#4A3442",
+          "stand-flag-0": "#9677F2",
+          "stand-flag-1": "#FFD58A",
+          "stand-flag-2": "#F4EFFF",
+          "stand-flag-3": "#FF9EC2",
+          "stand-flag-4": "#B39CFF",
+          "stand-flag-5": "#5B3FBF",
+          "stand-bl-pink-outer": "#E3D6FF",
+          "stand-bl-pink-mid": "#C8A6FF",
+          "stand-bl-pink-inner": "#9C7DE0",
+          "stand-bl-pink-deep": "#5C40A0",
+          "stand-bl-blush-outer": "#F3ECFF",
+          "stand-bl-blush-mid": "#DCCBFF",
+          "stand-bl-blush-inner": "#B79CF5",
+          "stand-bl-blush-deep": "#7E62C8",
+          "stand-bl-berry-outer": "#B39CFF",
+          "stand-bl-berry-mid": "#9677F2",
+          "stand-bl-berry-inner": "#6343C2",
+          "stand-bl-berry-deep": "#352470"
+        }
+      },
+      {
+        "key": "cinnamoroll",
+        "name": "Cloud Nine",
+        "moment": "bright day by the pond",
+        "default": false,
+        "scheme": "light",
+        "colors": {
+          "stand-sky": "#D6EBFA",
+          "stand-page-mid": "#E6F2FB",
+          "stand-close-low": "#CFE5F7",
+          "stand-straw": "#63B0E6",
+          "stand-straw-ink": "#1C5D93",
+          "stand-milk": "#F7FBFF",
+          "stand-candy": "#2C7AB6",
+          "stand-candy-deep": "#1C5D93",
+          "stand-candy-ink": "#2170AE",
+          "stand-berry": "#12324F",
+          "stand-berry-deep": "#0B2238",
+          "stand-gold": "#F5C451",
+          "stand-gold-deep": "#B58419",
+          "stand-gold-lite": "#FFF3D1",
+          "stand-gold-line": "#C99A2E",
+          "stand-board": "#264552",
+          "stand-chalk": "#F2F8FD",
+          "stand-chalk-hi": "#F8D163",
+          "stand-wood": "#C99D6B",
+          "stand-wood-deep": "#8E6440",
+          "stand-basket": "#D9A86E",
+          "stand-face": "#F9FCFF",
+          "stand-face-low": "#E2EFFA",
+          "stand-counter": "#C4E0F6",
+          "stand-counter-deep": "#97CBF0",
+          "stand-counter-line": "#B0D5F3",
+          "stand-counter-top": "#E2EFFA",
+          "stand-counter-ink": "#12324F",
+          "stand-meadow": "#C6E8BE",
+          "stand-meadow-deep": "#A6D79A",
+          "stand-foot-ink": "#173A1F",
+          "stand-foot-name": "#12324F",
+          "stand-how-bg": "#F2F8FD",
+          "stand-how-head": "#12324F",
+          "stand-how-ink": "#21466A",
+          "stand-packet-ink": "#163A5A",
+          "stand-best-a": "#E9F3FC",
+          "stand-best-b": "#FFF6DC",
+          "stand-tag-edge": "#C6DAEC",
+          "stand-shade": "#12324F",
+          "stand-shade-deep": "#0A1C2E",
+          "stand-wood-shade": "#3E2A14",
+          "stand-register": "#1C5D93",
+          "stand-register-base": "#0B2238",
+          "stand-gingham": "#7FBDEB",
+          "stand-ring-valance": "#F7FBFF",
+          "stand-post-0": "#A9794C",
+          "stand-post-1": "#DDB27F",
+          "stand-post-2": "#B6875A",
+          "stand-post-3": "#86592F",
+          "stand-flag-0": "#63B0E6",
+          "stand-flag-1": "#F5C451",
+          "stand-flag-2": "#F7FBFF",
+          "stand-flag-3": "#A8DCC6",
+          "stand-flag-4": "#FFC9DA",
+          "stand-flag-5": "#2C7AB6",
+          "stand-bl-pink-outer": "#D9ECFB",
+          "stand-bl-pink-mid": "#AFD6F5",
+          "stand-bl-pink-inner": "#6CB4E8",
+          "stand-bl-pink-deep": "#2D6FA6",
+          "stand-bl-blush-outer": "#F4F9FE",
+          "stand-bl-blush-mid": "#DFEDF9",
+          "stand-bl-blush-inner": "#BFD9EF",
+          "stand-bl-blush-deep": "#7FA4C6",
+          "stand-bl-berry-outer": "#BCC8F5",
+          "stand-bl-berry-mid": "#93A6EC",
+          "stand-bl-berry-inner": "#6479D6",
+          "stand-bl-berry-deep": "#34479A"
+        }
+      },
+      {
+        "key": "pompompurin",
+        "name": "Golden Hour",
+        "moment": "sunset over the wheat",
+        "default": false,
+        "scheme": "light",
+        "colors": {
+          "stand-sky": "#FCDFB0",
+          "stand-page-mid": "#FDEBCB",
+          "stand-close-low": "#FBD9A0",
+          "stand-straw": "#EFAE3E",
+          "stand-straw-ink": "#8A4A0C",
+          "stand-milk": "#FFF9EC",
+          "stand-candy": "#B86418",
+          "stand-candy-deep": "#8E4A10",
+          "stand-candy-ink": "#A6560E",
+          "stand-berry": "#4A2A0C",
+          "stand-berry-deep": "#3B2408",
+          "stand-gold": "#FFD45C",
+          "stand-gold-deep": "#B57A17",
+          "stand-gold-lite": "#FFF1C2",
+          "stand-gold-line": "#C9901E",
+          "stand-board": "#3A2F2A",
+          "stand-chalk": "#FFF6E8",
+          "stand-chalk-hi": "#FFD45C",
+          "stand-wood": "#B07A4A",
+          "stand-wood-deep": "#7A4E2A",
+          "stand-basket": "#D19B62",
+          "stand-face": "#FFFBF1",
+          "stand-face-low": "#FDEBC8",
+          "stand-counter": "#FCE1A6",
+          "stand-counter-deep": "#F8CA6C",
+          "stand-counter-line": "#FAD68A",
+          "stand-counter-top": "#FEF1D4",
+          "stand-counter-ink": "#4A2A0C",
+          "stand-meadow": "#EBD08A",
+          "stand-meadow-deep": "#D9B65E",
+          "stand-foot-ink": "#3B2408",
+          "stand-foot-name": "#5E300A",
+          "stand-how-bg": "#FFFAEE",
+          "stand-how-head": "#4A2A0C",
+          "stand-how-ink": "#5E380C",
+          "stand-packet-ink": "#4A2A0C",
+          "stand-best-a": "#FEF5E0",
+          "stand-best-b": "#FDEBDF",
+          "stand-tag-edge": "#EBD3A4",
+          "stand-shade": "#5E380C",
+          "stand-shade-deep": "#2E1A05",
+          "stand-wood-shade": "#3E2208",
+          "stand-register": "#8E4A10",
+          "stand-register-base": "#3B2408",
+          "stand-gingham": "#F2B66A",
+          "stand-ring-valance": "#FFF9EC",
+          "stand-post-0": "#94633A",
+          "stand-post-1": "#CC9A66",
+          "stand-post-2": "#A06E44",
+          "stand-post-3": "#6E4524",
+          "stand-flag-0": "#EFAE3E",
+          "stand-flag-1": "#FFD45C",
+          "stand-flag-2": "#FFF9EC",
+          "stand-flag-3": "#F28C5B",
+          "stand-flag-4": "#E9BD55",
+          "stand-flag-5": "#C8553F",
+          "stand-bl-pink-outer": "#FFE6A0",
+          "stand-bl-pink-mid": "#FFD064",
+          "stand-bl-pink-inner": "#F2A93A",
+          "stand-bl-pink-deep": "#B5701A",
+          "stand-bl-blush-outer": "#FFE6D6",
+          "stand-bl-blush-mid": "#FFCDB0",
+          "stand-bl-blush-inner": "#F7A57C",
+          "stand-bl-blush-deep": "#C46F4A",
+          "stand-bl-berry-outer": "#F7A27F",
+          "stand-bl-berry-mid": "#EE7B4F",
+          "stand-bl-berry-inner": "#D0552D",
+          "stand-bl-berry-deep": "#8E3212"
+        }
+      },
+      {
+        "key": "hello-kitty",
+        "name": "Cherry Pop",
+        "moment": "cherry-blossom spring, red awning",
+        "default": false,
+        "scheme": "light",
+        "colors": {
+          "stand-sky": "#D8EDF6",
+          "stand-page-mid": "#FCEEF2",
+          "stand-close-low": "#F9DCE4",
+          "stand-straw": "#D63356",
+          "stand-straw-ink": "#A8203F",
+          "stand-milk": "#FFF6F8",
+          "stand-candy": "#BE2646",
+          "stand-candy-deep": "#9E1E3C",
+          "stand-candy-ink": "#BE2646",
+          "stand-berry": "#40101F",
+          "stand-berry-deep": "#2E0A15",
+          "stand-gold": "#F7C85B",
+          "stand-gold-deep": "#B57A17",
+          "stand-gold-lite": "#FFE7A6",
+          "stand-gold-line": "#C98A1E",
+          "stand-board": "#22433E",
+          "stand-chalk": "#FFF8F9",
+          "stand-chalk-hi": "#FFD36B",
+          "stand-wood": "#B26A50",
+          "stand-wood-deep": "#7E4434",
+          "stand-basket": "#C98466",
+          "stand-face": "#FFFAFB",
+          "stand-face-low": "#FFE5EA",
+          "stand-counter": "#FFC9D4",
+          "stand-counter-deep": "#FF9EB2",
+          "stand-counter-line": "#FFB5C4",
+          "stand-counter-top": "#FFE5EA",
+          "stand-counter-ink": "#40101F",
+          "stand-meadow": "#C9E6B4",
+          "stand-meadow-deep": "#A9D690",
+          "stand-foot-ink": "#1E3D1C",
+          "stand-foot-name": "#7A1830",
+          "stand-how-bg": "#FFF5F7",
+          "stand-how-head": "#40101F",
+          "stand-how-ink": "#6E1D33",
+          "stand-packet-ink": "#4E1427",
+          "stand-best-a": "#FFEEF2",
+          "stand-best-b": "#FFF4D6",
+          "stand-tag-edge": "#F0C4CE",
+          "stand-shade": "#7A1830",
+          "stand-shade-deep": "#3A0A16",
+          "stand-wood-shade": "#3E1A10",
+          "stand-register": "#9E1E3C",
+          "stand-register-base": "#40101F",
+          "stand-gingham": "#F28FA6",
+          "stand-ring-valance": "#FFF6F8",
+          "stand-post-0": "#97553E",
+          "stand-post-1": "#CF8E72",
+          "stand-post-2": "#A3604A",
+          "stand-post-3": "#6E3A2A",
+          "stand-flag-0": "#D63356",
+          "stand-flag-1": "#F7C85B",
+          "stand-flag-2": "#FFF6F8",
+          "stand-flag-3": "#FFB3C8",
+          "stand-flag-4": "#A8DCC6",
+          "stand-flag-5": "#F76B88",
+          "stand-bl-pink-outer": "#FFE4EC",
+          "stand-bl-pink-mid": "#FFC3D5",
+          "stand-bl-pink-inner": "#F7A3BE",
+          "stand-bl-pink-deep": "#D4668A",
+          "stand-bl-blush-outer": "#FFF3F6",
+          "stand-bl-blush-mid": "#FFE0E8",
+          "stand-bl-blush-inner": "#FFC6D5",
+          "stand-bl-blush-deep": "#E08AA6",
+          "stand-bl-berry-outer": "#F7899F",
+          "stand-bl-berry-mid": "#E8506E",
+          "stand-bl-berry-inner": "#C42646",
+          "stand-bl-berry-deep": "#7A1830"
+        }
+      },
+      {
+        "key": "keroppi",
+        "name": "Fresh Mint",
+        "moment": "spring morning by the lily pond",
+        "default": false,
+        "scheme": "light",
+        "colors": {
+          "stand-sky": "#E3F5E8",
+          "stand-page-mid": "#EEF8F0",
+          "stand-close-low": "#DAF0E1",
+          "stand-straw": "#62BE8A",
+          "stand-straw-ink": "#1D5C44",
+          "stand-milk": "#F8FDF9",
+          "stand-candy": "#2C8457",
+          "stand-candy-deep": "#1D5C44",
+          "stand-candy-ink": "#24784F",
+          "stand-berry": "#143D2E",
+          "stand-berry-deep": "#0E2C21",
+          "stand-gold": "#FFD95C",
+          "stand-gold-deep": "#B58F17",
+          "stand-gold-lite": "#FFF4C2",
+          "stand-gold-line": "#C9A027",
+          "stand-board": "#263B40",
+          "stand-chalk": "#F4FBF6",
+          "stand-chalk-hi": "#FFE27A",
+          "stand-wood": "#C9A070",
+          "stand-wood-deep": "#8C6640",
+          "stand-basket": "#D8B07E",
+          "stand-face": "#FAFEFB",
+          "stand-face-low": "#E1F3E8",
+          "stand-counter": "#C3E7D1",
+          "stand-counter-deep": "#97D6B0",
+          "stand-counter-line": "#AEDFC0",
+          "stand-counter-top": "#E1F3E8",
+          "stand-counter-ink": "#143D2E",
+          "stand-meadow": "#B9E3A6",
+          "stand-meadow-deep": "#98D184",
+          "stand-foot-ink": "#123620",
+          "stand-foot-name": "#143D2E",
+          "stand-how-bg": "#F3FBF5",
+          "stand-how-head": "#143D2E",
+          "stand-how-ink": "#1D4A38",
+          "stand-packet-ink": "#143D2E",
+          "stand-best-a": "#E9F6EE",
+          "stand-best-b": "#FFF8DC",
+          "stand-tag-edge": "#C4E0CF",
+          "stand-shade": "#18503B",
+          "stand-shade-deep": "#0A2219",
+          "stand-wood-shade": "#33240F",
+          "stand-register": "#1D5C44",
+          "stand-register-base": "#0E2C21",
+          "stand-gingham": "#7ACB9C",
+          "stand-ring-valance": "#F8FDF9",
+          "stand-post-0": "#A97F52",
+          "stand-post-1": "#DDB683",
+          "stand-post-2": "#B58A5E",
+          "stand-post-3": "#7E5A36",
+          "stand-flag-0": "#62BE8A",
+          "stand-flag-1": "#FFE27A",
+          "stand-flag-2": "#F8FDF9",
+          "stand-flag-3": "#FFB5C9",
+          "stand-flag-4": "#97D6B0",
+          "stand-flag-5": "#2C8457",
+          "stand-bl-pink-outer": "#FFDDE7",
+          "stand-bl-pink-mid": "#FFBBCF",
+          "stand-bl-pink-inner": "#F796B2",
+          "stand-bl-pink-deep": "#C7607F",
+          "stand-bl-blush-outer": "#FFF7DE",
+          "stand-bl-blush-mid": "#FFECB0",
+          "stand-bl-blush-inner": "#FFDC80",
+          "stand-bl-blush-deep": "#C9A04A",
+          "stand-bl-berry-outer": "#C4EBCF",
+          "stand-bl-berry-mid": "#97D6B0",
+          "stand-bl-berry-inner": "#5FB87C",
+          "stand-bl-berry-deep": "#2C8457"
+        }
+      },
+      {
+        "key": "maple",
+        "name": "Maple Season",
+        "moment": "autumn afternoon in the maples",
+        "default": false,
+        "scheme": "light",
+        "colors": {
+          "stand-sky": "#FCE3CC",
+          "stand-page-mid": "#FDEEE0",
+          "stand-close-low": "#FAD8BC",
+          "stand-straw": "#EE8F52",
+          "stand-straw-ink": "#8A3C16",
+          "stand-milk": "#FFF9F2",
+          "stand-candy": "#C2551C",
+          "stand-candy-deep": "#8A3C16",
+          "stand-candy-ink": "#A84A18",
+          "stand-berry": "#3A1F0F",
+          "stand-berry-deep": "#2A160A",
+          "stand-gold": "#F2B13C",
+          "stand-gold-deep": "#A86F12",
+          "stand-gold-lite": "#FDEFCD",
+          "stand-gold-line": "#B88320",
+          "stand-board": "#33302A",
+          "stand-chalk": "#FFF7EE",
+          "stand-chalk-hi": "#F6C450",
+          "stand-wood": "#B5764A",
+          "stand-wood-deep": "#7A4A2A",
+          "stand-basket": "#C98E5E",
+          "stand-face": "#FFFBF5",
+          "stand-face-low": "#FDEBDC",
+          "stand-counter": "#FAD3B5",
+          "stand-counter-deep": "#F5B384",
+          "stand-counter-line": "#F8C49E",
+          "stand-counter-top": "#FDEBDC",
+          "stand-counter-ink": "#3A1F0F",
+          "stand-meadow": "#D8C77A",
+          "stand-meadow-deep": "#BFAE5C",
+          "stand-foot-ink": "#2E1A0C",
+          "stand-foot-name": "#5E2A10",
+          "stand-how-bg": "#FFF8F1",
+          "stand-how-head": "#3A1F0F",
+          "stand-how-ink": "#6A3118",
+          "stand-packet-ink": "#4A2612",
+          "stand-best-a": "#FEF2E7",
+          "stand-best-b": "#FEF4DA",
+          "stand-tag-edge": "#EED0B8",
+          "stand-shade": "#6A3118",
+          "stand-shade-deep": "#2A1208",
+          "stand-wood-shade": "#3A1E0A",
+          "stand-register": "#8A3C16",
+          "stand-register-base": "#2A160A",
+          "stand-gingham": "#F0A274",
+          "stand-ring-valance": "#FFF9F2",
+          "stand-post-0": "#9A6038",
+          "stand-post-1": "#D0965F",
+          "stand-post-2": "#A66C42",
+          "stand-post-3": "#6E4022",
+          "stand-flag-0": "#EE8F52",
+          "stand-flag-1": "#F2B13C",
+          "stand-flag-2": "#FFF9F2",
+          "stand-flag-3": "#DD5B3B",
+          "stand-flag-4": "#E9BF62",
+          "stand-flag-5": "#8A5A9E",
+          "stand-bl-pink-outer": "#FFD9BF",
+          "stand-bl-pink-mid": "#FBB487",
+          "stand-bl-pink-inner": "#EE8F52",
+          "stand-bl-pink-deep": "#B25420",
+          "stand-bl-blush-outer": "#FFEBD9",
+          "stand-bl-blush-mid": "#FDD3B0",
+          "stand-bl-blush-inner": "#F5B384",
+          "stand-bl-blush-deep": "#C7835A",
+          "stand-bl-berry-outer": "#F29A7E",
+          "stand-bl-berry-mid": "#E8704E",
+          "stand-bl-berry-inner": "#C9472E",
+          "stand-bl-berry-deep": "#82271A"
+        }
+      },
+      {
+        "key": "chococat",
+        "name": "Cocoa Dream",
+        "moment": "snowy winter evening",
+        "default": false,
+        "scheme": "light",
+        "colors": {
+          "stand-sky": "#E9E4F1",
+          "stand-page-mid": "#F3F0F8",
+          "stand-close-low": "#E3DCEC",
+          "stand-straw": "#946A50",
+          "stand-straw-ink": "#6B3A2A",
+          "stand-milk": "#FFF9F2",
+          "stand-candy": "#7E553F",
+          "stand-candy-deep": "#553528",
+          "stand-candy-ink": "#7E553F",
+          "stand-berry": "#3A2419",
+          "stand-berry-deep": "#2A1A12",
+          "stand-gold": "#FFC873",
+          "stand-gold-deep": "#B8862F",
+          "stand-gold-lite": "#FFF0D6",
+          "stand-gold-line": "#C99442",
+          "stand-board": "#2C3A3A",
+          "stand-chalk": "#FBF7F3",
+          "stand-chalk-hi": "#FFC873",
+          "stand-wood": "#9C7560",
+          "stand-wood-deep": "#6C4E40",
+          "stand-basket": "#B48A70",
+          "stand-face": "#FFFCF8",
+          "stand-face-low": "#F4EAE2",
+          "stand-counter": "#E8D5C6",
+          "stand-counter-deep": "#D6B8A2",
+          "stand-counter-line": "#DFC7B5",
+          "stand-counter-top": "#F4EAE2",
+          "stand-counter-ink": "#3A2419",
+          "stand-meadow": "#FBF9FD",
+          "stand-meadow-deep": "#E2DCEC",
+          "stand-foot-ink": "#3A2419",
+          "stand-foot-name": "#6B3A2A",
+          "stand-how-bg": "#FBF8FC",
+          "stand-how-head": "#3A2419",
+          "stand-how-ink": "#553528",
+          "stand-packet-ink": "#3A2419",
+          "stand-best-a": "#F8F1EB",
+          "stand-best-b": "#FFF4E0",
+          "stand-tag-edge": "#E0D0C2",
+          "stand-shade": "#553528",
+          "stand-shade-deep": "#2A1A12",
+          "stand-wood-shade": "#2A1A12",
+          "stand-register": "#6B3A2A",
+          "stand-register-base": "#2A1A12",
+          "stand-gingham": "#C9A48E",
+          "stand-ring-valance": "#FFF9F2",
+          "stand-post-0": "#80604E",
+          "stand-post-1": "#B8927A",
+          "stand-post-2": "#8C6A56",
+          "stand-post-3": "#5A3E30",
+          "stand-flag-0": "#946A50",
+          "stand-flag-1": "#FFC873",
+          "stand-flag-2": "#FFF9F2",
+          "stand-flag-3": "#D9434D",
+          "stand-flag-4": "#BF967A",
+          "stand-flag-5": "#6B3A2A",
+          "stand-bl-pink-outer": "#F7B9BD",
+          "stand-bl-pink-mid": "#EE858C",
+          "stand-bl-pink-inner": "#D9434D",
+          "stand-bl-pink-deep": "#962A33",
+          "stand-bl-blush-outer": "#FFFFFF",
+          "stand-bl-blush-mid": "#F3EFF7",
+          "stand-bl-blush-inner": "#E0D9EA",
+          "stand-bl-blush-deep": "#A99FBA",
+          "stand-bl-berry-outer": "#E8C2B4",
+          "stand-bl-berry-mid": "#D49B88",
+          "stand-bl-berry-inner": "#B8735E",
+          "stand-bl-berry-deep": "#7A4434"
+        }
       }
     ]
   },
@@ -561,18 +2393,72 @@
       "description": "Ranked debt with a flat progress pill; the focus debt turns Berry.",
       "html": "<div class=\"ds-row\"><span class=\"ds-rk\">2</span><div><div class=\"ds-dn\">Store card</div><div class=\"ds-dm\">26.99% APR · min $35</div></div><div class=\"ds-am\">$640</div><span class=\"ds-tr\"><i></i></span></div>",
       "css": ":host{--ranch-ground:#F5EFFA;--ranch-page:#FFFCFF;--ranch-page2:#F0E8F8;--ranch-line:#E0D3EE;--ranch-track:#E7DCF3;--ranch-ink:#2B1A4F;--ranch-ink2:#5B4A7F;--ranch-btn-bg:#3A2466;--ranch-btn-fg:#FFFFFF;--ranch-btn-sh:rgb(58 36 102 / .32);--ranch-focus:#B1335F;--ranch-focus-bg:#FBE4EC;--ranch-ok-ink:#1D6A45;--ranch-ok-bg:#D6F1E1;--ranch-soon-ink:#694700;--ranch-soon-bg:#FBE9AE;--ranch-fill:#7B58C9;--ranch-sh:rgb(70 40 130 / .16);--ranch-plank:#84593F;--ranch-plank-ink:#FFF5EC;--ranch-ring:#2B1A4F} .ds-row{display:grid;grid-template-columns:30px 1fr auto;gap:6px 12px;align-items:center;padding:14px 0;color:var(--ranch-ink);width:360px} .ds-rk{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--ranch-focus);color:var(--ranch-page);font:700 13px/1 Quicksand,sans-serif} .ds-dn{font:600 17px/1.25 Fredoka,sans-serif} .ds-dm{font:600 13.5px/1.35 Nunito,sans-serif;color:var(--ranch-ink2)} .ds-am{font:700 21px/1.1 Quicksand,sans-serif;font-variant-numeric:tabular-nums} .ds-tr{grid-column:2/4;height:9px;border-radius:999px;background:var(--ranch-track);overflow:hidden} .ds-tr i{display:block;width:47%;height:100%;border-radius:999px;background:var(--ranch-focus)}"
+    },
+    {
+      "name": "Stand: Price Tag",
+      "kind": "button",
+      "refersTo": "stand-tag",
+      "description": "Home page pressable: a paper tag with a punched hole that straightens and lifts on hover.",
+      "html": "<button class=\"ds-fs-tag\">How it works</button>",
+      "css": ":host{--fs-milk:#FFF4F7;--fs-berry:#7A1F45;--fs-berry-deep:#561331;--fs-gold:#F6C75B;--fs-gold-deep:#B57A17;--fs-tag-edge:#E9C6D3;--fs-shade:#7A1F45;--fs-shade-deep:#3E0B22;--fs-wood:#C98F5E;--fs-wood-deep:#9A6238;--fs-wood-shade:#50280C;--fs-face:#FFF7FA;--fs-face-low:#FFE4EE;--fs-candy:#E8608F;--fs-candy-ink:#D43F78;--fs-straw:#F2789F;--fs-straw-ink:#B8346A;--fs-board:#2F4A3A;--fs-chalk:#F4F0E6;--fs-chalk-hi:#F6C75B;--fs-packet-ink:#5C1A38;--fs-flag-0:#F2789F} .ds-fs-tag{position:relative;display:inline-flex;align-items:center;padding:9px 15px 10px 27px;border:0;border-radius:9px;font:600 15px/1.1 Fredoka,Quicksand,sans-serif;letter-spacing:.01em;color:var(--fs-berry);white-space:nowrap;cursor:pointer;background:linear-gradient(180deg,var(--fs-milk) calc(100% - 3px),var(--fs-tag-edge) 0);box-shadow:0 6px 12px -8px color-mix(in srgb,var(--fs-shade-deep) 60%,transparent);transform:rotate(-2deg);transition:transform .25s cubic-bezier(.16,1,.3,1)} .ds-fs-tag::before{content:\"\";position:absolute;left:10px;top:50%;width:8px;height:8px;margin-top:-4px;border-radius:50%;background:var(--fs-berry);box-shadow:inset 0 1px 2px rgb(0 0 0 / .35)} .ds-fs-tag:hover{transform:rotate(0deg) translateY(-2px)} .ds-fs-tag:active{transform:scale(.98)} .ds-fs-tag:focus-visible{outline:3px solid var(--fs-berry);outline-offset:3px} .ds-fs-tag.gold{color:var(--fs-berry-deep);background:linear-gradient(180deg,var(--fs-gold) calc(100% - 3px),var(--fs-gold-deep) 0)} .ds-fs-tag.big{padding:13px 18px 14px 32px;font-size:17px;border-radius:12px}"
+    },
+    {
+      "name": "Stand: Gold Save Tag",
+      "kind": "button",
+      "refersTo": "stand-tag-gold",
+      "description": "The gold-leaf tag reserved for saving the plan or starting a free account.",
+      "html": "<button class=\"ds-fs-tag gold big\">Save my plan — free</button>",
+      "css": ":host{--fs-milk:#FFF4F7;--fs-berry:#7A1F45;--fs-berry-deep:#561331;--fs-gold:#F6C75B;--fs-gold-deep:#B57A17;--fs-tag-edge:#E9C6D3;--fs-shade:#7A1F45;--fs-shade-deep:#3E0B22;--fs-wood:#C98F5E;--fs-wood-deep:#9A6238;--fs-wood-shade:#50280C;--fs-face:#FFF7FA;--fs-face-low:#FFE4EE;--fs-candy:#E8608F;--fs-candy-ink:#D43F78;--fs-straw:#F2789F;--fs-straw-ink:#B8346A;--fs-board:#2F4A3A;--fs-chalk:#F4F0E6;--fs-chalk-hi:#F6C75B;--fs-packet-ink:#5C1A38;--fs-flag-0:#F2789F} .ds-fs-tag{position:relative;display:inline-flex;align-items:center;padding:9px 15px 10px 27px;border:0;border-radius:9px;font:600 15px/1.1 Fredoka,Quicksand,sans-serif;letter-spacing:.01em;color:var(--fs-berry);white-space:nowrap;cursor:pointer;background:linear-gradient(180deg,var(--fs-milk) calc(100% - 3px),var(--fs-tag-edge) 0);box-shadow:0 6px 12px -8px color-mix(in srgb,var(--fs-shade-deep) 60%,transparent);transform:rotate(-2deg);transition:transform .25s cubic-bezier(.16,1,.3,1)} .ds-fs-tag::before{content:\"\";position:absolute;left:10px;top:50%;width:8px;height:8px;margin-top:-4px;border-radius:50%;background:var(--fs-berry);box-shadow:inset 0 1px 2px rgb(0 0 0 / .35)} .ds-fs-tag:hover{transform:rotate(0deg) translateY(-2px)} .ds-fs-tag:active{transform:scale(.98)} .ds-fs-tag:focus-visible{outline:3px solid var(--fs-berry);outline-offset:3px} .ds-fs-tag.gold{color:var(--fs-berry-deep);background:linear-gradient(180deg,var(--fs-gold) calc(100% - 3px),var(--fs-gold-deep) 0)} .ds-fs-tag.big{padding:13px 18px 14px 32px;font-size:17px;border-radius:12px}"
+    },
+    {
+      "name": "Stand: Painted Sign",
+      "kind": "custom",
+      "refersTo": "stand-sign",
+      "description": "Pale sign face in a honey-wood frame with candy-ink lettering on a gold edge.",
+      "html": "<div class=\"ds-fs-sign\"><h3>Free debt payoff calculator</h3><p><strong>No signup. No credit card.</strong> See your debt-free date in seconds.</p></div>",
+      "css": ":host{--fs-milk:#FFF4F7;--fs-berry:#7A1F45;--fs-berry-deep:#561331;--fs-gold:#F6C75B;--fs-gold-deep:#B57A17;--fs-tag-edge:#E9C6D3;--fs-shade:#7A1F45;--fs-shade-deep:#3E0B22;--fs-wood:#C98F5E;--fs-wood-deep:#9A6238;--fs-wood-shade:#50280C;--fs-face:#FFF7FA;--fs-face-low:#FFE4EE;--fs-candy:#E8608F;--fs-candy-ink:#D43F78;--fs-straw:#F2789F;--fs-straw-ink:#B8346A;--fs-board:#2F4A3A;--fs-chalk:#F4F0E6;--fs-chalk-hi:#F6C75B;--fs-packet-ink:#5C1A38;--fs-flag-0:#F2789F} .ds-fs-sign{position:relative;width:340px;padding:26px 24px;background:radial-gradient(120% 90% at 30% 0%,var(--fs-face) 40%,var(--fs-face-low));color:var(--fs-berry);border:9px solid var(--fs-wood);border-radius:24px;box-shadow:inset 0 0 0 2px var(--fs-wood-deep),0 22px 34px -20px color-mix(in srgb,var(--fs-shade) 45%,transparent);font:400 16px/1.55 Nunito,sans-serif} .ds-fs-sign::before{content:\"\";position:absolute;inset:9px;border-radius:15px;border:2px dashed color-mix(in srgb,var(--fs-candy) 55%,transparent);pointer-events:none} .ds-fs-sign h3{position:relative;margin:0;font:400 40px/.98 \"Bagel Fat One\",Fredoka,sans-serif;letter-spacing:-.01em;color:var(--fs-candy-ink);text-shadow:0 3px 0 var(--fs-gold)} .ds-fs-sign p{position:relative;margin:14px 0 0} .ds-fs-sign strong{color:var(--fs-straw-ink)}"
+    },
+    {
+      "name": "Stand: Chalkboard Row",
+      "kind": "input",
+      "refersTo": "stand-chalkboard",
+      "description": "Calculator fields: dashed chalk underlines on slate that turn solid chalk gold on focus.",
+      "html": "<div class=\"ds-fs-board\"><div class=\"ds-fs-bt\">Your debts</div><div class=\"ds-fs-row\"><label class=\"ds-fs-f\"><input value=\"Credit Card\" aria-label=\"Name\"></label><label class=\"ds-fs-f\"><span>$</span><input value=\"6800\" aria-label=\"Balance\"></label><label class=\"ds-fs-f\"><input value=\"24\" aria-label=\"APR\"></label></div></div>",
+      "css": ":host{--fs-milk:#FFF4F7;--fs-berry:#7A1F45;--fs-berry-deep:#561331;--fs-gold:#F6C75B;--fs-gold-deep:#B57A17;--fs-tag-edge:#E9C6D3;--fs-shade:#7A1F45;--fs-shade-deep:#3E0B22;--fs-wood:#C98F5E;--fs-wood-deep:#9A6238;--fs-wood-shade:#50280C;--fs-face:#FFF7FA;--fs-face-low:#FFE4EE;--fs-candy:#E8608F;--fs-candy-ink:#D43F78;--fs-straw:#F2789F;--fs-straw-ink:#B8346A;--fs-board:#2F4A3A;--fs-chalk:#F4F0E6;--fs-chalk-hi:#F6C75B;--fs-packet-ink:#5C1A38;--fs-flag-0:#F2789F} .ds-fs-board{width:380px;padding:18px 20px;color:var(--fs-chalk);font-family:Quicksand,sans-serif;background:var(--fs-board);border:14px solid var(--fs-wood);border-radius:18px;box-shadow:inset 0 0 0 2px var(--fs-wood-deep),inset 0 0 44px rgb(0 0 0 / .38),0 24px 34px -20px color-mix(in srgb,var(--fs-wood-shade) 65%,transparent)} .ds-fs-bt{font:400 26px/1.1 \"Bagel Fat One\",Fredoka,sans-serif} .ds-fs-row{display:grid;grid-template-columns:1.6fr 1fr .7fr;gap:10px;margin-top:10px} .ds-fs-f{display:flex;align-items:baseline;gap:3px;min-width:0;border-bottom:2px dashed color-mix(in srgb,var(--fs-chalk) 52%,transparent)} .ds-fs-f:focus-within{border-bottom:2px solid var(--fs-chalk-hi)} .ds-fs-f span{font:600 16px/1 Quicksand,sans-serif;color:color-mix(in srgb,var(--fs-chalk) 74%,transparent)} .ds-fs-f input{width:100%;min-width:0;padding:7px 2px 6px;border:0;background:transparent;font:700 17px/1.2 Quicksand,sans-serif;color:var(--fs-chalk);caret-color:var(--fs-chalk-hi);font-variant-numeric:tabular-nums} .ds-fs-f input:focus{outline:none}"
+    },
+    {
+      "name": "Stand: Painted Date Sign",
+      "kind": "custom",
+      "refersTo": "stand-date-sign",
+      "description": "The answer to the board: a double-ringed plaque whose date re-letters when the numbers change.",
+      "html": "<div class=\"ds-fs-date\"><p class=\"ds-fs-dl\">Debt-free by</p><p class=\"ds-fs-dv\">August 2028</p></div>",
+      "css": ":host{--fs-milk:#FFF4F7;--fs-berry:#7A1F45;--fs-berry-deep:#561331;--fs-gold:#F6C75B;--fs-gold-deep:#B57A17;--fs-tag-edge:#E9C6D3;--fs-shade:#7A1F45;--fs-shade-deep:#3E0B22;--fs-wood:#C98F5E;--fs-wood-deep:#9A6238;--fs-wood-shade:#50280C;--fs-face:#FFF7FA;--fs-face-low:#FFE4EE;--fs-candy:#E8608F;--fs-candy-ink:#D43F78;--fs-straw:#F2789F;--fs-straw-ink:#B8346A;--fs-board:#2F4A3A;--fs-chalk:#F4F0E6;--fs-chalk-hi:#F6C75B;--fs-packet-ink:#5C1A38;--fs-flag-0:#F2789F} .ds-fs-date{display:inline-block;min-width:260px;padding:14px 26px 16px;text-align:center;background:var(--fs-milk);border:4px solid var(--fs-straw);border-radius:22px;box-shadow:inset 0 0 0 4px var(--fs-milk),inset 0 0 0 6px color-mix(in srgb,var(--fs-straw) 45%,transparent),0 16px 26px -16px color-mix(in srgb,var(--fs-shade) 60%,transparent)} .ds-fs-dl{margin:0;font:600 16px/1.2 Fredoka,sans-serif;color:var(--fs-straw-ink)} .ds-fs-dv{margin:4px 0 0;font:400 46px/1.04 \"Bagel Fat One\",Fredoka,sans-serif;color:var(--fs-berry);white-space:nowrap;font-variant-numeric:tabular-nums}"
+    },
+    {
+      "name": "Stand: Recipe Card",
+      "kind": "card",
+      "refersTo": "stand-recipe-card",
+      "description": "A question on milk paper with washi tape; a native disclosure that opens one at a time.",
+      "html": "<details class=\"ds-fs-card\" open><summary><span>Is the Cowculator really free?</span><svg viewBox=\"0 0 24 24\" width=\"22\" height=\"22\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.6\" stroke-linecap=\"round\"><path d=\"M12 5v14M5 12h14\"/></svg></summary><p>Yes. The calculator on this page is free, with no signup.</p></details>",
+      "css": ":host{--fs-milk:#FFF4F7;--fs-berry:#7A1F45;--fs-berry-deep:#561331;--fs-gold:#F6C75B;--fs-gold-deep:#B57A17;--fs-tag-edge:#E9C6D3;--fs-shade:#7A1F45;--fs-shade-deep:#3E0B22;--fs-wood:#C98F5E;--fs-wood-deep:#9A6238;--fs-wood-shade:#50280C;--fs-face:#FFF7FA;--fs-face-low:#FFE4EE;--fs-candy:#E8608F;--fs-candy-ink:#D43F78;--fs-straw:#F2789F;--fs-straw-ink:#B8346A;--fs-board:#2F4A3A;--fs-chalk:#F4F0E6;--fs-chalk-hi:#F6C75B;--fs-packet-ink:#5C1A38;--fs-flag-0:#F2789F} .ds-fs-card{position:relative;width:380px;margin-top:10px;background:var(--fs-milk);border-radius:6px 6px 16px 16px;box-shadow:0 14px 24px -18px color-mix(in srgb,var(--fs-shade) 60%,transparent),0 1px 2px color-mix(in srgb,var(--fs-shade) 18%,transparent);transform:rotate(-.5deg)} .ds-fs-card::before{content:\"\";position:absolute;top:-9px;left:26px;width:78px;height:20px;border-radius:2px;background:color-mix(in srgb,var(--fs-flag-0) 82%,transparent);transform:rotate(-4deg)} .ds-fs-card summary{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 22px 18px;list-style:none;cursor:pointer;font:600 17px/1.35 Fredoka,sans-serif;color:var(--fs-berry)} .ds-fs-card summary::-webkit-details-marker{display:none} .ds-fs-card summary:focus-visible{outline:3px solid var(--fs-berry);outline-offset:-5px;border-radius:10px} .ds-fs-card svg{flex:none;color:var(--fs-straw-ink);transition:transform .3s cubic-bezier(.16,1,.3,1)} .ds-fs-card[open] svg{transform:rotate(45deg)} .ds-fs-card p{margin:0 22px;padding:14px 0 22px;border-top:2px dashed color-mix(in srgb,var(--fs-straw) 55%,transparent);font:400 15.5px/1.65 Nunito,sans-serif;color:var(--fs-packet-ink)}"
     }
   ],
   "narrative": {
     "northStar": "The Ranch You're Walking Home Across",
-    "overview": "\n**Creative North Star: \"The Ranch You're Walking Home Across\"**\n\nThe dashboard is a place, not a card grid. A layered flat-vector scene (sky, hazed hills, barn, silo, fence, trees, flowers, a dirt trail with a signpost per debt) fills the top of the main area, and the walk home along that trail is the real progress: the theme's friend sets off from the far hills and reaches the barn, with the \"Debt-free\" sign over its open door, on the day the last debt is paid. Debtsy and the other friends wait at the barn. Each of the nine themes is a time of day or a season on the same ranch. Everything below the scene sits on the scene's own ground color, so the page reads as the meadow in front of the picture.\n\nSurfaces are soft, large-radius pages lifted by one diffuse tinted shadow. Headings are wooden plank tabs. Ink is a deep tint of the theme hue, never neutral black or gray. Type pairs a fat display face for the headline moment with a rounded friendly UI face; figures are tabular so money never jitters. The mood is warm, confident and playful without being babyish or bank-like. The animals (Debtsy and one friend per theme) stay as characters in the scene and in empty states.\n\nInterior pages other than the dashboard get a short strip (132px phone, 150px tablet, 172px desktop) that carries a cropped piece of the same scene, a plank title and one action, then ordinary ranch cards below it.",
+    "overview": "\n**Creative North Star: \"The Ranch You're Walking Home Across\"**\n\nThe dashboard is a place, not a card grid. A layered flat-vector scene (sky, hazed hills, barn, silo, fence, trees, flowers, a dirt trail with a signpost per debt) fills the top of the main area, and the walk home along that trail is the real progress: the theme's friend sets off from the far hills and reaches the barn, with the \"Debt-free\" sign over its open door, on the day the last debt is paid. Debtsy and the other friends wait at the barn. Each of the nine themes is a time of day or a season on the same ranch. Everything below the scene sits on the scene's own ground color, so the page reads as the meadow in front of the picture.\n\nSurfaces are soft, large-radius pages lifted by one diffuse tinted shadow. Headings are wooden plank tabs. Ink is a deep tint of the theme hue, never neutral black or gray. Type pairs a fat display face for the headline moment with a rounded friendly UI face; figures are tabular so money never jitters. The mood is warm, confident and playful without being babyish or bank-like. The animals (Debtsy and one friend per theme) stay as characters in the scene and in empty states.\n\nInterior pages other than the dashboard get a short strip (132px phone, 150px tablet, 172px desktop) that carries a cropped piece of the same scene, a plank title and one action, then ordinary ranch cards below it.\n\n### Home page: The Farm Stand\n\n**Creative North Star: \"The Stand Whose Chalkboard Does the Math\"**\n\nThe home page is a roadside flower-and-berry stand, seen front-on. A scalloped striped awning runs across the top with the wordmark and two hanging tags on its valance, and a line of paper bunting hangs under it. Beneath sit two framed objects: a pale painted sign that carries the headline and the save tag, and a chalkboard in a wood frame that is the free calculator. The visitor's debts are the rows chalked on the board; the answer is a painted \"Debt-free by\" sign standing on the counter, whose letters roll over when a number changes. Debtsy works the register in every theme and nine friends work the counter or peek over the frames.\n\nThe page keeps going down the same stand: a paint rack on the counter front repaints everything in any of the nine app themes, three garden objects in the meadow carry the promises, a gingham cloth holds the two strategy seed packets, the questions are recipe cards taped up with washi tape, the Pro prices are a second chalkboard written as a menu, and a second painted sign closes the page. Every surface is a named physical material (paper, paint, chalk, wood, cloth, grass), and the mood is girly, abundant and warm without pressure: no timers, no urgency badges, no invented claims.",
     "keyCharacteristics": [
       "The scene is the hero; modules follow on `--ranch-ground`.",
       "One surface recipe: page-colored card, 24px radius, one soft tinted shadow, no borders.",
       "Plank-tab headings with two nail dots on every module.",
       "Ink and button colors are deep tints of the active theme; dark mode is derived, not separate.",
       "Money is Quicksand 700 tabular; figures roll when they change.",
-      "Everything reads CSS custom properties, so a theme change or dark toggle needs no per-theme rules."
+      "Everything reads CSS custom properties, so a theme change or dark toggle needs no per-theme rules.",
+      "The calculator is the hero object and it works on arrival, with sample rows, real payoff math and no signup.",
+      "One stylesheet, nine paint jobs: every painted material reads a `--fs-*` property set on the page root.",
+      "Pressables are price tags, inputs are dashed chalk lines, dividers are bunting or a change of ground.",
+      "Sign faces stay pale with candy-colored lettering; the deep berry is an ink, never a sign background.",
+      "The page moves once on load, then only in answer to the visitor, plus a slow twinkle on the gold sparkles.",
+      "Rose Milk is the paint the page loads in; the pick is remembered on the device."
     ],
     "rules": [
       {
@@ -604,6 +2490,56 @@
         "name": "The Soft Lift Rule",
         "body": "One shadow recipe per surface class, always tinted by `--ranch-sh`. Never a black drop shadow, never a hard offset.",
         "section": "elevation"
+      },
+      {
+        "name": "The Paint Job Rule",
+        "body": "The stand's stylesheet holds no theme color. Every painted material reads a `--fs-*` property from the active palette, so a new surface is repainted by all nine themes without a per-theme rule. Fixed hex belongs only to art with a natural color.",
+        "section": "colors"
+      },
+      {
+        "name": "The Pale Sign Rule",
+        "body": "Sign faces are pale paper with Candy Ink lettering in every theme. Berry Ink is for text, outlines and small painted props; it is never the background of a sign.",
+        "section": "colors"
+      },
+      {
+        "name": "The Ink Follows the Surface Rule",
+        "body": "Text and focus rings take the ink of the material they sit on: Berry on paper, Chalk on boards, Counter Ink on the counter, the cloth inks on the gingham, Foot Ink on the grass. `scripts/stand-contrast.ts` checks each pairing against WCAG AA for all nine palettes (288 checks, none below AA at this build), and its alpha steps mirror the stylesheet's.",
+        "section": "colors"
+      },
+      {
+        "name": "The Chalk Hand Rule",
+        "body": "Anything written on a chalkboard is Quicksand with tabular figures or Bagel lettering, in Chalk or Chalk Gold. Nunito does not appear on a board.",
+        "section": "typography"
+      },
+      {
+        "name": "The Fits Its Sign Rule",
+        "body": "The painted date scales to its own length instead of wrapping or widening the sign.",
+        "section": "typography"
+      },
+      {
+        "name": "The Grounded Object Rule",
+        "body": "One contact shadow per object, tinted by `--fs-shade` (or `--fs-wood-shade` under wood). Nothing floats on a neutral black drop shadow.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Stand Object Rule",
+        "body": "A new element on the home page is a thing you would find at the stand (a tag, a sign, a board, a packet, a card, a marker). There are no generic cards, pills or badges here.",
+        "section": "components"
+      },
+      {
+        "name": "The Register Rule",
+        "body": "Debtsy works the register in every theme; the theme's own friend gets the featured spot by the date sign.",
+        "section": "components"
+      },
+      {
+        "name": "The One Arrival Rule",
+        "body": "The stand assembles once on load, then moves only in answer to the visitor. The twinkle is the only loop.",
+        "section": "components"
+      },
+      {
+        "name": "The Calm Price Rule",
+        "body": "Money on the home page is stated as facts in chalk. No urgency badge, countdown or timer; a limited offer is a plain sentence.",
+        "section": "components"
       }
     ],
     "dos": [
@@ -613,7 +2549,14 @@
       "**Do** put the hero action (\"Log a payment\") in the sky and make it a pill in the button color.",
       "**Do** use Berry Focus only for the thing to act on now.",
       "**Do** keep touch targets at 44px or more and give every animation a reduced-motion end state.",
-      "**Do** add new Tailwind-era markup to the shell's utility mapping only as a bridge; give the page proper ranch classes when you touch it."
+      "**Do** add new Tailwind-era markup to the shell's utility mapping only as a bridge; give the page proper ranch classes when you touch it.",
+      "**Do** paint every home page surface from `--fs-*` properties and add any new color role to all nine palettes in `palettes.ts`, then to the contrast script.",
+      "**Do** make pressables price tags, with Gold Leaf reserved for saving the plan or starting a free account.",
+      "**Do** write on boards in the chalk hand with tabular figures, and mark the chosen or computed thing in Chalk Gold.",
+      "**Do** keep the calculator usable on arrival with sample rows and real payoff math, and say \"Never pays off\" when that is the truth.",
+      "**Do** let the painted date re-letter only after typing settles, changing only the letters that differ.",
+      "**Do** declare motion under `prefers-reduced-motion: no-preference` so the still page is complete.",
+      "**Do** keep Debtsy at the register and give the active theme's friend the featured spot."
     ],
     "donts": [
       "**Don't** lead a page with a big balance number over a grid of identical cards; the scene and trail come first.",
@@ -622,7 +2565,14 @@
       "**Don't** make it babyish, bank-like or plain; no gradient-pink pastel wash, no corporate blue dashboard.",
       "**Don't** set Bagel Fat One below headline scale or in running UI text.",
       "**Don't** reuse Berry Focus or the plank brown for decoration.",
-      "**Don't** touch the landing page's older look from here, and don't copy its patterns into the app interior."
+      "**Don't** copy the home page's Farm Stand materials (tags, chalkboards, awning, bunting) into the app interior.",
+      "**Don't** put a deep berry or burgundy background behind a sign; sign faces stay pale in every theme.",
+      "**Don't** write a theme color into the stand's stylesheet or hue-filter the postcard art.",
+      "**Don't** add urgency to prices: no \"Limited!\" badge, countdown or timer on the public page.",
+      "**Don't** bring Ranch cards, plank headings or pill buttons onto the home page, or stand materials into the app.",
+      "**Don't** rebuild the hero as a headline, a calculator card and a trust row; the board, the sign and the counter are the hero.",
+      "**Don't** set Nunito on a chalkboard or box a board input; fields are dashed chalk lines.",
+      "**Don't** add a second looping animation beside the twinkle."
     ]
   }
 }
