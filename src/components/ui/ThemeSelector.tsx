@@ -1,16 +1,21 @@
 /**
  * Theme Selector: ranch edition.
  *
- * Day/Night is a SegmentedControl. The nine presets are tiles that each carry a
- * live thumbnail of their own ranch scene (RanchStrip at tile size, friend
- * included), the theme name, and a Pro badge where the theme is locked. Locked
- * tiles open the upgrade modal exactly as before; "Create Your Own" keeps the
- * free-form color picker. Styles: pages/settings.css (section 5).
+ * Day/Night is a SegmentedControl. Each theme is a tile carrying a live
+ * thumbnail of its own ranch scene (RanchStrip at tile size, friend included),
+ * the theme name, and a Pro badge where the theme is locked. Locked tiles open
+ * the upgrade modal; "Create Your Own" keeps the free-form color picker.
+ *
+ * Lavender Dream and Midnight Grape share one tile: with Pro, switching to
+ * Night turns Lavender Dream into Midnight Grape, name and scene. Without Pro,
+ * Night is the plain dark mode and a line under the switch says what Pro adds.
+ * Styles: pages/settings.css (section 5).
  */
 
 import { useState } from 'react';
 import { Check, Palette, Moon, Sun, Lock } from 'lucide-react';
-import { useTheme, THEME_PRESETS, THEME_METADATA } from '../../hooks/useTheme';
+import { useTheme, THEME_METADATA } from '../../hooks/useTheme';
+import { DAY_FACE, NIGHT_FACE, PICKER_PRESETS, themeWithDarkMode, themeWithTile, tileFace } from '../../lib/themes';
 import type { ThemePreset } from '../../types';
 import { useFeatureGate } from '../../hooks/useFeatureGate';
 import { UpgradeModal } from './UpgradeModal';
@@ -22,7 +27,7 @@ import '../../pages/settings.css';
 const QUICK_COLORS = ['#f472b6', '#a855f7', '#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#ec4899', '#8b5cf6'];
 
 export function ThemeSelector() {
-  const { currentPreset, setPreset, setCustomFromColor, theme, isDarkMode, toggleDarkMode } = useTheme();
+  const { currentPreset, setTheme, setCustomFromColor, theme, isDarkMode } = useTheme();
   const [showCustom, setShowCustom] = useState(currentPreset === 'custom');
   const [customColor, setCustomColor] = useState(
     theme?.customColors?.primary500 || '#a855f7'
@@ -30,15 +35,22 @@ export function ThemeSelector() {
   const [showUpgrade, setShowUpgrade] = useState(false);
   const { isThemeLocked } = useFeatureGate();
 
-  const presetKeys = Object.keys(THEME_PRESETS) as Exclude<ThemePreset, 'custom'>[];
+  // Midnight Grape is Lavender Dream's night face, and it comes with Pro.
+  const hasNightFace = !isThemeLocked(NIGHT_FACE);
+  const current = theme ?? { preset: DAY_FACE, darkMode: false };
+  const nightFaceTeaser = !hasNightFace && isDarkMode && currentPreset === DAY_FACE && !showCustom;
 
-  const handlePresetSelect = (preset: Exclude<ThemePreset, 'custom'>) => {
-    if (isThemeLocked(preset)) {
+  const handlePresetSelect = (tile: Exclude<ThemePreset, 'custom'>) => {
+    if (isThemeLocked(tile)) {
       setShowUpgrade(true);
       return;
     }
     setShowCustom(false);
-    setPreset(preset);
+    setTheme(themeWithTile(current, tile, hasNightFace));
+  };
+
+  const handleModeChange = (night: boolean) => {
+    if (night !== isDarkMode) setTheme(themeWithDarkMode(current, night, hasNightFace));
   };
 
   const handleCustomColorChange = (color: string) => {
@@ -59,28 +71,35 @@ export function ThemeSelector() {
         <SegmentedControl
           label="Day or night mode"
           value={isDarkMode ? 'night' : 'day'}
-          onValueChange={(v) => { if ((v === 'night') !== isDarkMode) toggleDarkMode(); }}
+          onValueChange={(v) => handleModeChange(v === 'night')}
           options={[
             { value: 'day', label: <><Sun size={16} /> Day</> },
             { value: 'night', label: <><Moon size={16} /> Night</> },
           ]}
         />
       </div>
+      {nightFaceTeaser && (
+        <button type="button" className="th-night-pro" onClick={() => setShowUpgrade(true)}>
+          <Lock size={14} strokeWidth={2.5} aria-hidden="true" />
+          With Pro, Lavender Dream turns into Midnight Grape at night.
+        </button>
+      )}
 
       {/* Presets */}
       <div className="grid gap-3">
         <h3 className="th-h">Color Vibes</h3>
         <div className="th-grid">
-          {presetKeys.map((preset) => {
+          {PICKER_PRESETS.map((tile) => {
+            const preset = tileFace(tile, isDarkMode, hasNightFace);
             const meta = THEME_METADATA[preset];
             const isSelected = currentPreset === preset && !showCustom;
             const locked = isThemeLocked(preset);
 
             return (
               <button
-                key={preset}
+                key={tile}
                 type="button"
-                onClick={() => handlePresetSelect(preset)}
+                onClick={() => handlePresetSelect(tile)}
                 aria-pressed={isSelected}
                 aria-label={`${meta.name}${locked ? ', Pro theme' : ''}${isSelected ? ', selected' : ''}`}
                 className={`th-tile${isSelected ? ' is-on' : ''}`}

@@ -460,13 +460,6 @@
         "button": "#7A410C"
       },
       {
-        "key": "cherry-pop",
-        "name": "Cherry Pop",
-        "moment": "blossom spring",
-        "ground": "#F0F6EA",
-        "button": "#A8203F"
-      },
-      {
         "key": "fresh-mint",
         "name": "Fresh Mint",
         "moment": "lily-pond morning",

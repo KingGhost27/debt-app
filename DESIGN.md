@@ -183,7 +183,7 @@ Warm pastel ground, deep tinted ink, one saturated action color per theme. All v
 - **Picket** (#FFFFFF) and **Picket Line** (#B99C8C): fence streak pickets.
 
 ### The Nine Moments
-Lavender Dream (default, lavender-field dusk, Luna the bunny, ground #F5EFFA), Rose Milk (strawberry sunrise, Boo, #EFF6EC, button #6E2440), Midnight Grape (starry night, dark, #160F2C with gold button #FFD58A), Cloud Nine (bright pond day, #E9F5EC, button #1C5487), Golden Hour (wheat sunset, #FBF3E3, button #7A410C), Cherry Pop (blossom spring, #F0F6EA, button #A8203F), Fresh Mint (lily-pond morning, #EEF7F0, button #1D5C44), Maple Season (autumn, #FBF2E9, button #8E3B16), Cocoa Dream (snowy evening, #F3F0F8, button #6B3A2A). Light presets differ in hue and in focus color (a hue that stays distinct from the theme: orange-red on blue and green, plum on maple); only Midnight Grape is natively dark. Dark mode runs `darkUiFrom()` on any light preset, mixing its own ink toward black for grounds and its ground toward white for text. Custom colors derive a palette from the user's shades.
+Lavender Dream (default, lavender-field dusk, Luna the bunny, ground #F5EFFA), Rose Milk (strawberry sunrise, Boo, #EFF6EC, button #6E2440), Midnight Grape (starry night, dark, #160F2C with gold button #FFD58A), Cloud Nine (bright pond day, #E9F5EC, button #1C5487), Golden Hour (wheat sunset, #FBF3E3, button #7A410C), Fresh Mint (lily-pond morning, #EEF7F0, button #1D5C44), Maple Season (autumn, #FBF2E9, button #8E3B16), Cocoa Dream (snowy evening, #F3F0F8, button #6B3A2A). Light presets differ in hue and in focus color (a hue that stays distinct from the theme: orange-red on blue and green, plum on maple); only Midnight Grape is natively dark. Dark mode runs `darkUiFrom()` on any light preset, mixing its own ink toward black for grounds and its ground toward white for text. Custom colors derive a palette from the user's shades.
 
 ### Named Rules
 **The Tinted Ink Rule.** Text is never gray or black. It is the theme's deep ink or soft ink, so every theme and its night version keeps its hue.
@@ -278,7 +278,7 @@ Standard ease is `cubic-bezier(.16, 1, .3, 1)` at .15 to .9s; the segmented cont
 ## Do's and Don'ts
 
 ### Do:
-- **Do** read surface, ink and state colors from `--ranch-*` tokens so all nine themes and dark mode work.
+- **Do** read surface, ink and state colors from `--ranch-*` tokens so every theme and dark mode work.
 - **Do** open every module and dialog with a plank heading.
 - **Do** keep money in Quicksand 700 tabular and wrap it in `.num`.
 - **Do** put the hero action ("Log a payment") in the sky and make it a pill in the button color.

@@ -185,7 +185,7 @@ User Action → useApp() context → Supabase write (optimistic state update fir
 
 ## Theme Presets
 
-`'default' | 'rose-milk' | 'midnight-grape' | 'cloud-nine' | 'golden-hour' | 'cherry-pop' | 'fresh-mint' | 'cocoa-dream' | 'maple' | 'custom'`
+`'default' | 'rose-milk' | 'midnight-grape' | 'cloud-nine' | 'golden-hour' | 'fresh-mint' | 'cocoa-dream' | 'maple' | 'custom'`
 
 ---
 

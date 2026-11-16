@@ -100,6 +100,9 @@
 .th-mode { display: flex; align-items: center; justify-content: space-between; gap: 12px 16px; flex-wrap: wrap; padding: 14px 16px; border-radius: 20px; background: var(--ranch-page2); }
 .th-mode-t { font: 600 18px/1.2 Fredoka, sans-serif; }
 .th-mode .seg { background: var(--ranch-page); }
+.th-night-pro { display: inline-flex; align-items: center; gap: 8px; justify-self: start; min-height: 44px; margin-top: -8px; padding: 6px 12px; border: 0; border-radius: 14px; background: none; color: var(--ranch-ink2); font: 700 14px/1.35 Nunito, sans-serif; text-align: left; cursor: pointer; text-decoration: underline; text-decoration-color: var(--ranch-line); text-underline-offset: 3px; }
+.th-night-pro:hover { color: var(--ranch-ink); }
+.th-night-pro svg { flex: none; }
 .th-h { font: 600 18px/1.2 Fredoka, sans-serif; }
 .th-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .th-tile {

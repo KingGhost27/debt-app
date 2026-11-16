@@ -103,24 +103,6 @@ export const THEME_PRESETS: Record<Exclude<ThemePreset, 'custom'>, ThemeColors> 
     gradientTo: '#FFFAEE',
   },
 
-  // Cherry Pop: cherry-blossom spring
-  'cherry-pop': {
-    primary50: '#FFF4F6',
-    primary100: '#FFE5EA',
-    primary200: '#FFC9D4',
-    primary300: '#FF9EB2',
-    primary400: '#F76B88',
-    primary500: '#D63356',
-    primary600: '#BE2646',
-    primary700: '#9E1E3C',
-    primary800: '#7A1830',
-    primary900: '#40101F',
-    accent: '#FFB3C8',
-    accentLight: '#FFE8EF',
-    gradientFrom: '#FFC9D4',
-    gradientTo: '#FFF4F6',
-  },
-
   // Fresh Mint: spring morning by the lily pond
   'fresh-mint': {
     primary50: '#F2FAF5',
@@ -200,7 +182,7 @@ export const THEME_METADATA: Record<Exclude<ThemePreset, 'custom'>, {
   },
   'midnight-grape': {
     name: 'Midnight Grape',
-    description: 'Luna\'s mysterious deep violet night',
+    description: 'Shadow the bunny\'s starry night',
     emoji: '🌙',
     mascot: '🐰',
   },
@@ -215,12 +197,6 @@ export const THEME_METADATA: Record<Exclude<ThemePreset, 'custom'>, {
     description: 'Sunshine the chick\'s golden world',
     emoji: '🐥',
     mascot: '🐥',
-  },
-  'cherry-pop': {
-    name: 'Cherry Pop',
-    description: 'BooBoo\'s bold cherry red side',
-    emoji: '🍒',
-    mascot: '🐷',
   },
   'fresh-mint': {
     name: 'Fresh Mint',
@@ -269,10 +245,6 @@ export const THEME_DECORATIONS: Record<Exclude<ThemePreset, 'custom'>, {
   'golden-hour': {
     pattern: 'dots',
     floatingEmojis: ['🐥', '⭐', '💛', '🌻'],
-  },
-  'cherry-pop': {
-    pattern: 'flowers',
-    floatingEmojis: ['🐷', '🍒', '❤️', '🌹'],
   },
   'fresh-mint': {
     pattern: 'leaves',
@@ -351,7 +323,55 @@ export function normalizeTheme(saved: ThemeSettings | null | undefined): ThemeSe
   }
   const known =
     saved.preset === 'custom' || Object.prototype.hasOwnProperty.call(THEME_PRESETS, saved.preset);
-  return known ? saved : { ...saved, preset: 'default' };
+  if (!known) return { ...saved, preset: 'default' };
+  // Midnight Grape is the night itself, so it is never saved as a day theme.
+  if (saved.preset === NIGHT_FACE && !saved.darkMode) return { ...saved, darkMode: true };
+  return saved;
+}
+
+// ============================================
+// DAY AND NIGHT: one tile, two faces
+// ============================================
+
+/**
+ * Lavender Dream and Midnight Grape are one theme with two faces: Luna's
+ * lavender dusk by day, Shadow's starry night after dark. Midnight Grape has no
+ * tile of its own. The Day/Night switch is the way in, and it is a Pro perk:
+ * without Pro, night on Lavender Dream is the plain dark mode.
+ */
+export const DAY_FACE = 'default';
+export const NIGHT_FACE = 'midnight-grape';
+
+type PresetId = Exclude<ThemePreset, 'custom'>;
+
+/** The themes that get a tile in the picker, in display order. */
+export const PICKER_PRESETS: ReadonlyArray<PresetId> = (
+  Object.keys(THEME_PRESETS) as PresetId[]
+).filter((preset) => preset !== NIGHT_FACE);
+
+/** The preset a tile stands for right now. Only the Lavender Dream tile changes face. */
+export function tileFace(tile: PresetId, darkMode: boolean, hasNightFace: boolean): PresetId {
+  return tile === DAY_FACE && darkMode && hasNightFace ? NIGHT_FACE : tile;
+}
+
+/** The theme after the Day/Night switch is set. */
+export function themeWithDarkMode(
+  theme: ThemeSettings,
+  darkMode: boolean,
+  hasNightFace: boolean,
+): ThemeSettings {
+  if (theme.preset === DAY_FACE && darkMode && hasNightFace) {
+    return { ...theme, preset: NIGHT_FACE, darkMode: true };
+  }
+  if (theme.preset === NIGHT_FACE && !darkMode) {
+    return { ...theme, preset: DAY_FACE, darkMode: false };
+  }
+  return { ...theme, darkMode };
+}
+
+/** The theme after a tile is picked. */
+export function themeWithTile(theme: ThemeSettings, tile: PresetId, hasNightFace: boolean): ThemeSettings {
+  return { ...theme, preset: tileFace(tile, Boolean(theme.darkMode), hasNightFace) };
 }
 
 /**

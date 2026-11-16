@@ -18,7 +18,7 @@ export type RanchSceneKey = Exclude<ThemePreset, 'custom'>;
 
 export type RanchFriend =
   | 'LunaBunny' | 'BooBoo' | 'ShadowBunny' | 'LiloOtter' | 'SunshineChick'
-  | 'CherryKitty' | 'MochiFrog' | 'ChaiBear' | 'MapleFox';
+  | 'MochiFrog' | 'ChaiBear' | 'MapleFox';
 
 export type CelestialKind = 'moon' | 'sun' | 'crescent' | 'sunrise' | 'sunset' | 'softSun' | 'winterMoon';
 
@@ -309,43 +309,6 @@ export const RANCH_SCENES: Record<RanchSceneKey, RanchSceneDef> = {
       focus: '#A8361B', focusBg: '#FBE5DA', fill: '#C2841A', sh: 'rgb(110 70 20 / .14)',
       thumb: '#E5C98D', sel: '#F7DD9C', selInk: '#3B2408',
       plank: '#7B4F2C', plankInk: '#FFF5E6', picketLine: '#BC9E7E',
-    },
-  },
-
-  // Cherry Pop: cherry-blossom spring
-  'cherry-pop': {
-    key: 'cherry-pop', moment: 'cherry-blossom spring', friend: 'CherryKitty', friendName: 'Cherry',
-    features: { ...FEATURES, celestial: 'softSun', field: 'tulips', trees: 'blossom', falling: 'petals' },
-    art: {
-      ...ART_BASE,
-      sky1: '#86C2EC', sky2: '#ACD7F2', sky3: '#D8EDF6', sky4: '#FCEEF2',
-      glow: '#FFF6F0', glowO: '.7', halo: '#FFF6E0', orb: '#FFF2C2', orbSh: '#FFFBEA',
-      cloud: '#FFFFFF', cloudSh: '#D9E7F4',
-      hA1: '#CCE2DA', hA1b: '#D8EADF', hA2: '#B6DBB9', hA2b: '#C4E2C5', hB: '#9CD08E', hBb: '#A8D69B',
-      hC: '#80C072', hCb: '#8AC67C', hD: '#66AE5B', hDb: '#5CA252', rim: '#F7FFF0', rimO: '.8', haze: '#F8E6EC',
-      path: '#F4DFC0', pathHi: '#FCEEDB', pathEdge: '#D2B28C',
-      barn: '#D6475D', barnSh: '#B5364B', barnDoor: '#C83F54', barnLine: '#B0374B', barnDark: '#4A1A24',
-      roof: '#6A3442', roof2: '#592B37', roofLine: '#572A36', trim: '#FFFFFF', window: '#4A2631',
-      hay: '#F4D27A', hayFace: '#F8DFA0', hayLine: '#D7AF55', stone: '#B8A29E', lamp: '#FFF2C6',
-      silo: '#F7F1EF', siloSh: '#DCCFCB', siloBand: '#C9B6B1', dome: '#BF3A52',
-      tree: '#F6AEC4', treeD: '#E98AA9', treeL: '#FFD6E2', trunk: '#6E4A4A',
-      tree2: '#F6AEC4', treeD2: '#E98AA9', treeL2: '#FFD6E2', tree3: '#F6AEC4', treeD3: '#E98AA9', treeL3: '#FFD6E2',
-      wood: '#9C7350', woodD: '#7B5637', board: '#F7E5C4', boardInk: '#4F3319', nail: '#9C7E62',
-      row: '#5DA957', rowD: '#3F8A42', rowH: '#E23C56', rowH2: '#FF9CB8',
-      fl1: '#FFFFFF', fl2: '#FF93B1', fl3: '#FFE070', flc: '#EBA13E', tuft: '#3F8F48',
-      fall1: '#FFC3D5', fall2: '#FFE4EC', fall3: '#F7A3BE',
-      banner: '#FFD36B', pole: '#6E4A4A',
-      signFocus: '#A3247E', signOk: '#25965E', gshadow: 'rgb(60 70 40 / .2)',
-      title: '#3D0C1C', title2: '#4E1427',
-    },
-    ui: {
-      ...UI_STATE_LIGHT, scheme: 'light', okInk: '#14633F', okBg: '#D3F0DE', okFill: '#2E8C5C',
-      ground: '#F0F6EA', page: '#FFFFFF', page2: '#F9E8EC', line: '#E2DFD2', track: '#E8EADD',
-      ink: '#40101F', ink2: '#73384A', ring: '#40101F',
-      btnBg: '#A8203F', btnSh: 'rgb(168 32 63 / .3)',
-      focus: '#9A1F78', focusBg: '#F8E1F0', fill: '#E04B68', sh: 'rgb(120 30 50 / .14)',
-      thumb: '#F0B5C4', sel: '#FAC8D6', selInk: '#40101F',
-      plank: '#7B5539', plankInk: '#FFF6EA', picketLine: '#C0A090',
     },
   },
 

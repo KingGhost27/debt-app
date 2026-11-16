@@ -15,7 +15,6 @@ export type ThemePreset =
   | 'midnight-grape'
   | 'cloud-nine'
   | 'golden-hour'
-  | 'cherry-pop'
   | 'fresh-mint'
   | 'cocoa-dream'
   | 'maple'

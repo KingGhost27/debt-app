@@ -8,7 +8,7 @@
 import { useEffect, useCallback } from 'react';
 import { useApp } from '../context/AppContext';
 import { applyTheme, generateThemeFromColor, THEME_PRESETS, THEME_METADATA } from '../lib/themes';
-import type { ThemePreset, ThemeColors } from '../types';
+import type { ThemePreset, ThemeColors, ThemeSettings } from '../types';
 
 export function useTheme() {
   const { settings, updateTheme } = useApp();
@@ -41,6 +41,11 @@ export function useTheme() {
     updateTheme({ ...settings.theme, darkMode: !settings.theme?.darkMode });
   }, [updateTheme, settings.theme]);
 
+  // Save a whole theme at once (the picker works out day/night faces itself)
+  const setTheme = useCallback((next: ThemeSettings) => {
+    updateTheme(next);
+  }, [updateTheme]);
+
   // Set dark mode explicitly
   const setDarkMode = useCallback((enabled: boolean) => {
     updateTheme({ ...settings.theme, darkMode: enabled });
@@ -53,6 +58,7 @@ export function useTheme() {
     isDarkMode: settings.theme?.darkMode || false,
 
     // Theme setters
+    setTheme,
     setPreset,
     setCustomColors,
     setCustomFromColor,
