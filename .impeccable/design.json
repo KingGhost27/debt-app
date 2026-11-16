@@ -432,42 +432,42 @@
         "button": "#3A2466"
       },
       {
-        "key": "my-melody",
+        "key": "rose-milk",
         "name": "Rose Milk",
         "moment": "strawberry sunrise",
         "ground": "#EFF6EC",
         "button": "#6E2440"
       },
       {
-        "key": "kuromi",
+        "key": "midnight-grape",
         "name": "Midnight Grape",
         "moment": "starry night (dark)",
         "ground": "#160F2C",
         "button": "#FFD58A"
       },
       {
-        "key": "cinnamoroll",
+        "key": "cloud-nine",
         "name": "Cloud Nine",
         "moment": "bright pond day",
         "ground": "#E9F5EC",
         "button": "#1C5487"
       },
       {
-        "key": "pompompurin",
+        "key": "golden-hour",
         "name": "Golden Hour",
         "moment": "wheat sunset",
         "ground": "#FBF3E3",
         "button": "#7A410C"
       },
       {
-        "key": "hello-kitty",
+        "key": "cherry-pop",
         "name": "Cherry Pop",
         "moment": "blossom spring",
         "ground": "#F0F6EA",
         "button": "#A8203F"
       },
       {
-        "key": "keroppi",
+        "key": "fresh-mint",
         "name": "Fresh Mint",
         "moment": "lily-pond morning",
         "ground": "#EEF7F0",
@@ -481,7 +481,7 @@
         "button": "#8E3B16"
       },
       {
-        "key": "chococat",
+        "key": "cocoa-dream",
         "name": "Cocoa Dream",
         "moment": "snowy evening",
         "ground": "#F3F0F8",

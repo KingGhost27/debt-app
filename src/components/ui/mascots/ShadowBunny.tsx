@@ -1,5 +1,5 @@
 /**
- * ShadowBunny - Kuromi Theme Mascot
+ * ShadowBunny - Midnight Grape theme mascot
  *
  * Shadow the dark bunny! Mischievous purple rebel with spiky bangs.
  */

@@ -1,5 +1,5 @@
 /**
- * BooBoo - My Melody / Hello Kitty Theme Mascot
+ * BooBoo - Rose Milk theme mascot
  *
  * BooBoo the pig! Round pink piglet with a cute bow.
  */

@@ -39,13 +39,13 @@ type MascotComponent = React.ComponentType<{ size?: number; className?: string; 
 
 const THEME_MASCOT: Record<ThemePreset, MascotComponent> = {
   default: LunaBunny,
-  'my-melody': BooBoo,
-  kuromi: ShadowBunny,
-  cinnamoroll: LiloOtter,
-  pompompurin: SunshineChick,
-  'hello-kitty': CherryKitty,
-  keroppi: MochiFrog,
-  chococat: ChaiBear,
+  'rose-milk': BooBoo,
+  'midnight-grape': ShadowBunny,
+  'cloud-nine': LiloOtter,
+  'golden-hour': SunshineChick,
+  'cherry-pop': CherryKitty,
+  'fresh-mint': MochiFrog,
+  'cocoa-dream': ChaiBear,
   maple: MapleFox,
   custom: LunaBunny,
 };

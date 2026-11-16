@@ -1,5 +1,5 @@
 /**
- * MochiFrog - Keroppi Theme Mascot
+ * MochiFrog - Fresh Mint theme mascot
  *
  * Mochi the frog! Bright green with big bulging eyes and a wide happy grin.
  */

@@ -11,13 +11,13 @@
 
 export type ThemePreset =
   | 'default'
-  | 'my-melody'
-  | 'kuromi'
-  | 'cinnamoroll'
-  | 'pompompurin'
-  | 'hello-kitty'
-  | 'keroppi'
-  | 'chococat'
+  | 'rose-milk'
+  | 'midnight-grape'
+  | 'cloud-nine'
+  | 'golden-hour'
+  | 'cherry-pop'
+  | 'fresh-mint'
+  | 'cocoa-dream'
   | 'maple'
   | 'custom';
 

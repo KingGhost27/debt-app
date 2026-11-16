@@ -39,13 +39,13 @@ type Mascot = {
 
 const MASCOTS: Mascot[] = [
   { preset: 'default', Component: LunaBunny, name: 'Luna' },
-  { preset: 'my-melody', Component: BooBoo, name: 'BooBoo' },
-  { preset: 'kuromi', Component: ShadowBunny, name: 'Shadow' },
-  { preset: 'cinnamoroll', Component: LiloOtter, name: 'Lilo' },
-  { preset: 'pompompurin', Component: SunshineChick, name: 'Sunshine' },
-  { preset: 'hello-kitty', Component: CherryKitty, name: 'Cherry' },
-  { preset: 'keroppi', Component: MochiFrog, name: 'Mochi' },
-  { preset: 'chococat', Component: ChaiBear, name: 'Chai' },
+  { preset: 'rose-milk', Component: BooBoo, name: 'BooBoo' },
+  { preset: 'midnight-grape', Component: ShadowBunny, name: 'Shadow' },
+  { preset: 'cloud-nine', Component: LiloOtter, name: 'Lilo' },
+  { preset: 'golden-hour', Component: SunshineChick, name: 'Sunshine' },
+  { preset: 'cherry-pop', Component: CherryKitty, name: 'Cherry' },
+  { preset: 'fresh-mint', Component: MochiFrog, name: 'Mochi' },
+  { preset: 'cocoa-dream', Component: ChaiBear, name: 'Chai' },
   { preset: 'maple', Component: MapleFox, name: 'Maple' },
 ];
 

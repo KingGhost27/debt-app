@@ -164,8 +164,8 @@ export const RANCH_SCENES: Record<RanchSceneKey, RanchSceneDef> = {
   },
 
   // Rose Milk: strawberry-field pink sunrise
-  'my-melody': {
-    key: 'my-melody', moment: 'strawberry-field sunrise', friend: 'BooBoo', friendName: 'BooBoo',
+  'rose-milk': {
+    key: 'rose-milk', moment: 'strawberry-field sunrise', friend: 'BooBoo', friendName: 'BooBoo',
     features: { ...FEATURES, celestial: 'sunrise', field: 'strawberry' },
     art: {
       ...ART_BASE,
@@ -201,8 +201,8 @@ export const RANCH_SCENES: Record<RanchSceneKey, RanchSceneDef> = {
   },
 
   // Midnight Grape: starry night, barn lit from inside (the approved sample, verbatim)
-  kuromi: {
-    key: 'kuromi', moment: 'starry night', friend: 'ShadowBunny', friendName: 'Shadow',
+  'midnight-grape': {
+    key: 'midnight-grape', moment: 'starry night', friend: 'ShadowBunny', friendName: 'Shadow',
     features: { ...FEATURES, celestial: 'crescent', stars: 1, fireflies: true, glow: true, friendGlow: true, field: 'lavender', birds: false },
     art: {
       ...ART_BASE,
@@ -238,8 +238,8 @@ export const RANCH_SCENES: Record<RanchSceneKey, RanchSceneDef> = {
   },
 
   // Cloud Nine: bright sky, big fluffy clouds, a pond for Lilo
-  cinnamoroll: {
-    key: 'cinnamoroll', moment: 'bright day by the pond', friend: 'LiloOtter', friendName: 'Lilo',
+  'cloud-nine': {
+    key: 'cloud-nine', moment: 'bright day by the pond', friend: 'LiloOtter', friendName: 'Lilo',
     features: { ...FEATURES, celestial: 'sun', field: 'meadow', pond: 'left', clouds: 'fluffy' },
     art: {
       ...ART_BASE,
@@ -276,8 +276,8 @@ export const RANCH_SCENES: Record<RanchSceneKey, RanchSceneDef> = {
   },
 
   // Golden Hour: golden sunset over wheat
-  pompompurin: {
-    key: 'pompompurin', moment: 'golden sunset over the wheat', friend: 'SunshineChick', friendName: 'Sunshine',
+  'golden-hour': {
+    key: 'golden-hour', moment: 'golden sunset over the wheat', friend: 'SunshineChick', friendName: 'Sunshine',
     features: { ...FEATURES, celestial: 'sunset', field: 'wheat', extraHay: true },
     art: {
       ...ART_BASE,
@@ -313,8 +313,8 @@ export const RANCH_SCENES: Record<RanchSceneKey, RanchSceneDef> = {
   },
 
   // Cherry Pop: cherry-blossom spring
-  'hello-kitty': {
-    key: 'hello-kitty', moment: 'cherry-blossom spring', friend: 'CherryKitty', friendName: 'Cherry',
+  'cherry-pop': {
+    key: 'cherry-pop', moment: 'cherry-blossom spring', friend: 'CherryKitty', friendName: 'Cherry',
     features: { ...FEATURES, celestial: 'softSun', field: 'tulips', trees: 'blossom', falling: 'petals' },
     art: {
       ...ART_BASE,
@@ -350,8 +350,8 @@ export const RANCH_SCENES: Record<RanchSceneKey, RanchSceneDef> = {
   },
 
   // Fresh Mint: spring morning, a lily pond for Mochi (the approved sample + the pond)
-  keroppi: {
-    key: 'keroppi', moment: 'spring morning by the lily pond', friend: 'MochiFrog', friendName: 'Mochi',
+  'fresh-mint': {
+    key: 'fresh-mint', moment: 'spring morning by the lily pond', friend: 'MochiFrog', friendName: 'Mochi',
     features: { ...FEATURES, celestial: 'sun', field: 'lavender', pond: 'right', lilies: true },
     art: {
       ...ART_BASE,
@@ -388,8 +388,8 @@ export const RANCH_SCENES: Record<RanchSceneKey, RanchSceneDef> = {
   },
 
   // Cocoa Dream: snowy winter evening, warm windows
-  chococat: {
-    key: 'chococat', moment: 'snowy winter evening', friend: 'ChaiBear', friendName: 'Chai',
+  'cocoa-dream': {
+    key: 'cocoa-dream', moment: 'snowy winter evening', friend: 'ChaiBear', friendName: 'Chai',
     features: {
       ...FEATURES, celestial: 'winterMoon', stars: 0.4, glow: true, snow: true, field: 'drifts',
       trees: 'pine', groundDeco: 'sparkles', falling: 'snow', birds: false, snowman: true,

@@ -32,7 +32,7 @@ export const THEME_PRESETS: Record<Exclude<ThemePreset, 'custom'>, ThemeColors> 
   },
 
   // Rose Milk: strawberry-field sunrise
-  'my-melody': {
+  'rose-milk': {
     primary50: '#FFF5F7',
     primary100: '#FDE8EE',
     primary200: '#FACFDB',
@@ -50,7 +50,7 @@ export const THEME_PRESETS: Record<Exclude<ThemePreset, 'custom'>, ThemeColors> 
   },
 
   // Midnight Grape: starry night
-  kuromi: {
+  'midnight-grape': {
     primary50: '#F3EFFF',
     primary100: '#E6DEFF',
     primary200: '#CDBEFF',
@@ -68,7 +68,7 @@ export const THEME_PRESETS: Record<Exclude<ThemePreset, 'custom'>, ThemeColors> 
   },
 
   // Cloud Nine: bright day by the pond
-  cinnamoroll: {
+  'cloud-nine': {
     primary50: '#F2F8FD',
     primary100: '#E2EFFA',
     primary200: '#C4E0F6',
@@ -86,7 +86,7 @@ export const THEME_PRESETS: Record<Exclude<ThemePreset, 'custom'>, ThemeColors> 
   },
 
   // Golden Hour: golden sunset over the wheat
-  pompompurin: {
+  'golden-hour': {
     primary50: '#FFFAEE',
     primary100: '#FEF1D4',
     primary200: '#FCE1A6',
@@ -104,7 +104,7 @@ export const THEME_PRESETS: Record<Exclude<ThemePreset, 'custom'>, ThemeColors> 
   },
 
   // Cherry Pop: cherry-blossom spring
-  'hello-kitty': {
+  'cherry-pop': {
     primary50: '#FFF4F6',
     primary100: '#FFE5EA',
     primary200: '#FFC9D4',
@@ -122,7 +122,7 @@ export const THEME_PRESETS: Record<Exclude<ThemePreset, 'custom'>, ThemeColors> 
   },
 
   // Fresh Mint: spring morning by the lily pond
-  keroppi: {
+  'fresh-mint': {
     primary50: '#F2FAF5',
     primary100: '#E1F3E8',
     primary200: '#C3E7D1',
@@ -158,7 +158,7 @@ export const THEME_PRESETS: Record<Exclude<ThemePreset, 'custom'>, ThemeColors> 
   },
 
   // Cocoa Dream: snowy winter evening
-  chococat: {
+  'cocoa-dream': {
     primary50: '#FBF7F3',
     primary100: '#F4EAE2',
     primary200: '#E8D5C6',
@@ -192,43 +192,43 @@ export const THEME_METADATA: Record<Exclude<ThemePreset, 'custom'>, {
     emoji: '🐰',
     mascot: '🐰',
   },
-  'my-melody': {
+  'rose-milk': {
     name: 'Rose Milk',
     description: 'BooBoo the pig\'s sweet strawberry world',
     emoji: '🐷',
     mascot: '🐷',
   },
-  kuromi: {
+  'midnight-grape': {
     name: 'Midnight Grape',
     description: 'Luna\'s mysterious deep violet night',
     emoji: '🌙',
     mascot: '🐰',
   },
-  cinnamoroll: {
+  'cloud-nine': {
     name: 'Cloud Nine',
     description: 'Lilo the otter\'s sky blue dream',
     emoji: '🦦',
     mascot: '🦦',
   },
-  pompompurin: {
+  'golden-hour': {
     name: 'Golden Hour',
     description: 'Sunshine the chick\'s golden world',
     emoji: '🐥',
     mascot: '🐥',
   },
-  'hello-kitty': {
+  'cherry-pop': {
     name: 'Cherry Pop',
     description: 'BooBoo\'s bold cherry red side',
     emoji: '🍒',
     mascot: '🐷',
   },
-  keroppi: {
+  'fresh-mint': {
     name: 'Fresh Mint',
     description: 'Mochi the frog\'s cool green world',
     emoji: '🐸',
     mascot: '🐸',
   },
-  chococat: {
+  'cocoa-dream': {
     name: 'Cocoa Dream',
     description: 'Chai the bear\'s cozy mocha corner',
     emoji: '🐻',
@@ -254,31 +254,31 @@ export const THEME_DECORATIONS: Record<Exclude<ThemePreset, 'custom'>, {
     pattern: 'sparkles',
     floatingEmojis: ['🐰', '💜', '✨', '🌙'],
   },
-  'my-melody': {
+  'rose-milk': {
     pattern: 'hearts',
     floatingEmojis: ['🐷', '🌸', '💕', '🍓'],
   },
-  kuromi: {
+  'midnight-grape': {
     pattern: 'stars',
     floatingEmojis: ['🐰', '🌙', '💜', '⭐'],
   },
-  cinnamoroll: {
+  'cloud-nine': {
     pattern: 'clouds',
     floatingEmojis: ['🦦', '☁️', '💙', '🌊'],
   },
-  pompompurin: {
+  'golden-hour': {
     pattern: 'dots',
     floatingEmojis: ['🐥', '⭐', '💛', '🌻'],
   },
-  'hello-kitty': {
+  'cherry-pop': {
     pattern: 'flowers',
     floatingEmojis: ['🐷', '🍒', '❤️', '🌹'],
   },
-  keroppi: {
+  'fresh-mint': {
     pattern: 'leaves',
     floatingEmojis: ['🐸', '🌿', '💚', '🍀'],
   },
-  chococat: {
+  'cocoa-dream': {
     pattern: 'beans',
     floatingEmojis: ['🐻', '☕', '🤎', '🍂'],
   },
@@ -329,9 +329,7 @@ export function applyTheme(theme: ThemeSettings): void {
   }
 
   // Set decoration pattern as data attribute
-  const decorations = theme.preset !== 'custom'
-    ? THEME_DECORATIONS[theme.preset as Exclude<ThemePreset, 'custom'>]
-    : THEME_DECORATIONS.default;
+  const decorations = getThemeDecorations(theme);
   root.dataset.pattern = decorations.pattern;
 
   // Ranch surfaces: the scene key plus the --ranch-* product tokens for this preset.
@@ -339,6 +337,21 @@ export function applyTheme(theme: ThemeSettings): void {
   for (const [name, value] of Object.entries(ranchUiVars(ranchUiFor(theme)))) {
     root.style.setProperty(name, value);
   }
+}
+
+/**
+ * A saved theme in a shape this build can use.
+ *
+ * A preset id this build does not know (one renamed or retired since it was
+ * saved) becomes the default theme, keeping the person's light or dark choice.
+ */
+export function normalizeTheme(saved: ThemeSettings | null | undefined): ThemeSettings {
+  if (!saved || typeof saved !== 'object') {
+    return { preset: 'default', darkMode: false };
+  }
+  const known =
+    saved.preset === 'custom' || Object.prototype.hasOwnProperty.call(THEME_PRESETS, saved.preset);
+  return known ? saved : { ...saved, preset: 'default' };
 }
 
 /**

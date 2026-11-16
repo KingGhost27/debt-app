@@ -1,5 +1,5 @@
 /**
- * LiloOtter - Cinnamoroll Theme Mascot
+ * LiloOtter - Cloud Nine theme mascot
  *
  * Lilo the otter! Warm tan coat with sky-blue cheeks and whisker dots.
  */

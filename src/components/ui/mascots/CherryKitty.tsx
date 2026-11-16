@@ -1,7 +1,7 @@
 /**
- * CherryKitty - Hello Kitty Theme Mascot
+ * CherryKitty - Cherry Pop theme mascot
  *
- * Cherry the kitty! Classic white cat with a yellow bow. No mouth (Hello Kitty style).
+ * Cherry the kitty! White cat with a yellow bow.
  */
 
 interface MascotProps {
@@ -63,7 +63,7 @@ export function CherryKitty({ size = 72, className = '', animated = true }: Masc
       <line x1="69" y1="72" x2="84" y2="70" stroke="#d1d5db" strokeWidth="1.2" strokeLinecap="round" />
       <line x1="68" y1="76" x2="82" y2="76" stroke="#d1d5db" strokeWidth="1.2" strokeLinecap="round" />
 
-      {/* NO mouth - Hello Kitty style */}
+      {/* no mouth */}
     </svg>
   );
 }
