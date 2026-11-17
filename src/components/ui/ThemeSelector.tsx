@@ -12,7 +12,7 @@
  * Styles: pages/settings.css (section 5).
  */
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Check, Palette, Moon, Sun, Lock } from 'lucide-react';
 import { useTheme, THEME_METADATA } from '../../hooks/useTheme';
 import { DAY_FACE, NIGHT_FACE, PICKER_PRESETS, themeWithDarkMode, themeWithTile, tileFace } from '../../lib/themes';
@@ -39,6 +39,16 @@ export function ThemeSelector() {
   const hasNightFace = !isThemeLocked(NIGHT_FACE);
   const current = theme ?? { preset: DAY_FACE, darkMode: false };
   const nightFaceTeaser = !hasNightFace && isDarkMode && currentPreset === DAY_FACE && !showCustom;
+
+  // A Pro account still sitting on Lavender Dream at night (it got Pro after
+  // switching to night, or its theme was saved by an older build) is given the
+  // night face, so the tile, the scene and the name agree.
+  const needsNightFace = hasNightFace && current.preset === DAY_FACE && Boolean(current.darkMode);
+  useEffect(() => {
+    if (needsNightFace) setTheme(themeWithDarkMode(current, true, true));
+    // Runs only when the condition flips; `current` is read at that moment.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [needsNightFace]);
 
   const handlePresetSelect = (tile: Exclude<ThemePreset, 'custom'>) => {
     if (isThemeLocked(tile)) {
