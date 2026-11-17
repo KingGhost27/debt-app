@@ -11,7 +11,6 @@ import { useEffect, useState, type ComponentType, type CSSProperties, type React
 import {
   BooBoo,
   ChaiBear,
-  CherryKitty,
   LiloOtter,
   LunaBunny,
   MapleFox,
@@ -36,7 +35,6 @@ const FRIENDS = {
   Shadow: ShadowBunny,
   Lilo: LiloOtter,
   Sunshine: SunshineChick,
-  Cherry: CherryKitty,
   Mochi: MochiFrog,
   Chai: ChaiBear,
   Maple: MapleFox,

@@ -18,7 +18,7 @@ export type RanchSceneKey = Exclude<ThemePreset, 'custom'>;
 
 export type RanchFriend =
   | 'LunaBunny' | 'BooBoo' | 'ShadowBunny' | 'LiloOtter' | 'SunshineChick'
-  | 'CherryKitty' | 'MochiFrog' | 'ChaiBear' | 'MapleFox';
+  | 'MochiFrog' | 'ChaiBear' | 'MapleFox';
 
 export type CelestialKind = 'moon' | 'sun' | 'crescent' | 'sunrise' | 'sunset' | 'softSun' | 'winterMoon';
 
@@ -164,8 +164,8 @@ export const RANCH_SCENES: Record<RanchSceneKey, RanchSceneDef> = {
   },
 
   // Rose Milk: strawberry-field pink sunrise
-  'my-melody': {
-    key: 'my-melody', moment: 'strawberry-field sunrise', friend: 'BooBoo', friendName: 'BooBoo',
+  'rose-milk': {
+    key: 'rose-milk', moment: 'strawberry-field sunrise', friend: 'BooBoo', friendName: 'BooBoo',
     features: { ...FEATURES, celestial: 'sunrise', field: 'strawberry' },
     art: {
       ...ART_BASE,
@@ -201,8 +201,8 @@ export const RANCH_SCENES: Record<RanchSceneKey, RanchSceneDef> = {
   },
 
   // Midnight Grape: starry night, barn lit from inside (the approved sample, verbatim)
-  kuromi: {
-    key: 'kuromi', moment: 'starry night', friend: 'ShadowBunny', friendName: 'Shadow',
+  'midnight-grape': {
+    key: 'midnight-grape', moment: 'starry night', friend: 'ShadowBunny', friendName: 'Shadow',
     features: { ...FEATURES, celestial: 'crescent', stars: 1, fireflies: true, glow: true, friendGlow: true, field: 'lavender', birds: false },
     art: {
       ...ART_BASE,
@@ -238,8 +238,8 @@ export const RANCH_SCENES: Record<RanchSceneKey, RanchSceneDef> = {
   },
 
   // Cloud Nine: bright sky, big fluffy clouds, a pond for Lilo
-  cinnamoroll: {
-    key: 'cinnamoroll', moment: 'bright day by the pond', friend: 'LiloOtter', friendName: 'Lilo',
+  'cloud-nine': {
+    key: 'cloud-nine', moment: 'bright day by the pond', friend: 'LiloOtter', friendName: 'Lilo',
     features: { ...FEATURES, celestial: 'sun', field: 'meadow', pond: 'left', clouds: 'fluffy' },
     art: {
       ...ART_BASE,
@@ -276,8 +276,8 @@ export const RANCH_SCENES: Record<RanchSceneKey, RanchSceneDef> = {
   },
 
   // Golden Hour: golden sunset over wheat
-  pompompurin: {
-    key: 'pompompurin', moment: 'golden sunset over the wheat', friend: 'SunshineChick', friendName: 'Sunshine',
+  'golden-hour': {
+    key: 'golden-hour', moment: 'golden sunset over the wheat', friend: 'SunshineChick', friendName: 'Sunshine',
     features: { ...FEATURES, celestial: 'sunset', field: 'wheat', extraHay: true },
     art: {
       ...ART_BASE,
@@ -312,46 +312,9 @@ export const RANCH_SCENES: Record<RanchSceneKey, RanchSceneDef> = {
     },
   },
 
-  // Cherry Pop: cherry-blossom spring
-  'hello-kitty': {
-    key: 'hello-kitty', moment: 'cherry-blossom spring', friend: 'CherryKitty', friendName: 'Cherry',
-    features: { ...FEATURES, celestial: 'softSun', field: 'tulips', trees: 'blossom', falling: 'petals' },
-    art: {
-      ...ART_BASE,
-      sky1: '#86C2EC', sky2: '#ACD7F2', sky3: '#D8EDF6', sky4: '#FCEEF2',
-      glow: '#FFF6F0', glowO: '.7', halo: '#FFF6E0', orb: '#FFF2C2', orbSh: '#FFFBEA',
-      cloud: '#FFFFFF', cloudSh: '#D9E7F4',
-      hA1: '#CCE2DA', hA1b: '#D8EADF', hA2: '#B6DBB9', hA2b: '#C4E2C5', hB: '#9CD08E', hBb: '#A8D69B',
-      hC: '#80C072', hCb: '#8AC67C', hD: '#66AE5B', hDb: '#5CA252', rim: '#F7FFF0', rimO: '.8', haze: '#F8E6EC',
-      path: '#F4DFC0', pathHi: '#FCEEDB', pathEdge: '#D2B28C',
-      barn: '#D6475D', barnSh: '#B5364B', barnDoor: '#C83F54', barnLine: '#B0374B', barnDark: '#4A1A24',
-      roof: '#6A3442', roof2: '#592B37', roofLine: '#572A36', trim: '#FFFFFF', window: '#4A2631',
-      hay: '#F4D27A', hayFace: '#F8DFA0', hayLine: '#D7AF55', stone: '#B8A29E', lamp: '#FFF2C6',
-      silo: '#F7F1EF', siloSh: '#DCCFCB', siloBand: '#C9B6B1', dome: '#BF3A52',
-      tree: '#F6AEC4', treeD: '#E98AA9', treeL: '#FFD6E2', trunk: '#6E4A4A',
-      tree2: '#F6AEC4', treeD2: '#E98AA9', treeL2: '#FFD6E2', tree3: '#F6AEC4', treeD3: '#E98AA9', treeL3: '#FFD6E2',
-      wood: '#9C7350', woodD: '#7B5637', board: '#F7E5C4', boardInk: '#4F3319', nail: '#9C7E62',
-      row: '#5DA957', rowD: '#3F8A42', rowH: '#E23C56', rowH2: '#FF9CB8',
-      fl1: '#FFFFFF', fl2: '#FF93B1', fl3: '#FFE070', flc: '#EBA13E', tuft: '#3F8F48',
-      fall1: '#FFC3D5', fall2: '#FFE4EC', fall3: '#F7A3BE',
-      banner: '#FFD36B', pole: '#6E4A4A',
-      signFocus: '#A3247E', signOk: '#25965E', gshadow: 'rgb(60 70 40 / .2)',
-      title: '#3D0C1C', title2: '#4E1427',
-    },
-    ui: {
-      ...UI_STATE_LIGHT, scheme: 'light', okInk: '#14633F', okBg: '#D3F0DE', okFill: '#2E8C5C',
-      ground: '#F0F6EA', page: '#FFFFFF', page2: '#F9E8EC', line: '#E2DFD2', track: '#E8EADD',
-      ink: '#40101F', ink2: '#73384A', ring: '#40101F',
-      btnBg: '#A8203F', btnSh: 'rgb(168 32 63 / .3)',
-      focus: '#9A1F78', focusBg: '#F8E1F0', fill: '#E04B68', sh: 'rgb(120 30 50 / .14)',
-      thumb: '#F0B5C4', sel: '#FAC8D6', selInk: '#40101F',
-      plank: '#7B5539', plankInk: '#FFF6EA', picketLine: '#C0A090',
-    },
-  },
-
   // Fresh Mint: spring morning, a lily pond for Mochi (the approved sample + the pond)
-  keroppi: {
-    key: 'keroppi', moment: 'spring morning by the lily pond', friend: 'MochiFrog', friendName: 'Mochi',
+  'fresh-mint': {
+    key: 'fresh-mint', moment: 'spring morning by the lily pond', friend: 'MochiFrog', friendName: 'Mochi',
     features: { ...FEATURES, celestial: 'sun', field: 'lavender', pond: 'right', lilies: true },
     art: {
       ...ART_BASE,
@@ -388,8 +351,8 @@ export const RANCH_SCENES: Record<RanchSceneKey, RanchSceneDef> = {
   },
 
   // Cocoa Dream: snowy winter evening, warm windows
-  chococat: {
-    key: 'chococat', moment: 'snowy winter evening', friend: 'ChaiBear', friendName: 'Chai',
+  'cocoa-dream': {
+    key: 'cocoa-dream', moment: 'snowy winter evening', friend: 'ChaiBear', friendName: 'Chai',
     features: {
       ...FEATURES, celestial: 'winterMoon', stars: 0.4, glow: true, snow: true, field: 'drifts',
       trees: 'pine', groundDeco: 'sparkles', falling: 'snow', birds: false, snowman: true,

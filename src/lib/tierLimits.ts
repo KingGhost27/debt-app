@@ -16,8 +16,8 @@ export const FREE_LIMITS = {
 
 export const FREE_THEMES: ReadonlyArray<ThemePreset> = [
   'default',      // Lavender Dream
-  'my-melody',    // Rose Milk
-  'cinnamoroll',  // Cloud Nine
+  'rose-milk',    // Rose Milk
+  'cloud-nine',  // Cloud Nine
 ];
 
 export function isThemeFree(preset: ThemePreset): boolean {
@@ -56,7 +56,7 @@ export const PRO_FEATURE_COPY: Record<ProFeature, { title: string; description: 
   },
   premium_themes: {
     title: 'All Kawaii Themes',
-    description: 'Unlock all 9 kawaii themes — Kuromi, Hello Kitty, Keroppi, and more.',
+    description: 'Unlock every kawaii theme: Fresh Mint, Golden Hour, Maple Season, and more.',
   },
   asset_tracking: {
     title: 'Asset Tracking',

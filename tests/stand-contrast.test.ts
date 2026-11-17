@@ -17,7 +17,7 @@ describe('farm stand palettes', () => {
   });
 
   test('Rose Milk keeps the approved sample colors', () => {
-    const v = standVars(STAND_PALETTES['my-melody']);
+    const v = standVars(STAND_PALETTES['rose-milk']);
     expect(v['--fs-straw']).toBe('#F2789F');
     expect(v['--fs-board']).toBe('#2F4A3A');
     expect(v['--fs-candy-ink']).toBe('#D43F78');

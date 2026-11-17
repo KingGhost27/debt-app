@@ -1,5 +1,5 @@
 /**
- * SunshineChick - Pompompurin Theme Mascot
+ * SunshineChick - Golden Hour theme mascot
  *
  * Sunshine the chick! Bright yellow fluffball with an orange beak.
  */

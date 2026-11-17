@@ -185,7 +185,7 @@ User Action → useApp() context → Supabase write (optimistic state update fir
 
 ## Theme Presets
 
-`'default' | 'my-melody' | 'kuromi' | 'cinnamoroll' | 'pompompurin' | 'hello-kitty' | 'keroppi' | 'chococat' | 'maple' | 'custom'`
+`'default' | 'rose-milk' | 'midnight-grape' | 'cloud-nine' | 'golden-hour' | 'fresh-mint' | 'cocoa-dream' | 'maple' | 'custom'`
 
 ---
 
@@ -195,7 +195,7 @@ User Action → useApp() context → Supabase write (optimistic state update fir
 
 **Free-tier caps** (source: `src/lib/tierLimits.ts`):
 - 4 debts, 2 income sources, 10 expense entries, 3 custom categories
-- 3 free themes: `default` (Lavender Dream), `my-melody` (Rose Milk), `cinnamoroll` (Cloud Nine)
+- 3 free themes: `default` (Lavender Dream), `rose-milk` (Rose Milk), `cloud-nine` (Cloud Nine)
 - Strategy Comparison chart is **always free** (core value — explicit decision, do not gate).
 
 **Pro-only features** (soft-gate, not hard-disable):

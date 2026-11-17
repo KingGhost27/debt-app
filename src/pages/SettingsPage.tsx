@@ -457,7 +457,7 @@ export function SettingsPage() {
               ))}
             </div>
 
-            <p className="set-group-t">Full Herd (All 10 Animals)</p>
+            <p className="set-group-t">Full Herd (All 9 Animals)</p>
             <div className="set-chips one">
               {TEST_MILESTONES.filter(m => m.event.isFullHerd).map((m) => (
                 <button key={m.event.type} onClick={() => setTestMilestone(m.event)} className="set-chip">{m.label}</button>

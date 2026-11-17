@@ -1,5 +1,5 @@
 /**
- * The farm stand's nine paint jobs, one per app theme.
+ * The farm stand's paint jobs, one per app theme.
  *
  * Each palette is the stand's materials (awning, painted signs, chalkboard and
  * its wood, counter, bunting, price tags, flowers) authored by hand from that
@@ -126,7 +126,7 @@ export const STAND_PALETTES: Record<StandTheme, StandPalette> = {
   },
 
   // Rose Milk: strawberry-field sunrise. The approved sample, value for value.
-  'my-melody': {
+  'rose-milk': {
     scheme: 'light',
     sky: '#FFE2EB', pageMid: '#FFE8EF', closeLow: '#FFD9E5',
     straw: '#F2789F', strawInk: '#B8346A', milk: '#FFF4F7',
@@ -154,7 +154,7 @@ export const STAND_PALETTES: Record<StandTheme, StandPalette> = {
   },
 
   // Midnight Grape: the stand at night under the stars, its signs lamp-lit
-  kuromi: {
+  'midnight-grape': {
     scheme: 'dark',
     sky: '#110A28', pageMid: '#1D1344', closeLow: '#2D1D60',
     straw: '#7556D6', strawInk: '#5B3FBF', milk: '#F4EFFF',
@@ -182,7 +182,7 @@ export const STAND_PALETTES: Record<StandTheme, StandPalette> = {
   },
 
   // Cloud Nine: a bright day by the pond, hydrangeas in the buckets
-  cinnamoroll: {
+  'cloud-nine': {
     scheme: 'light',
     sky: '#D6EBFA', pageMid: '#E6F2FB', closeLow: '#CFE5F7',
     straw: '#63B0E6', strawInk: '#1C5D93', milk: '#F7FBFF',
@@ -210,7 +210,7 @@ export const STAND_PALETTES: Record<StandTheme, StandPalette> = {
   },
 
   // Golden Hour: golden sunset over the wheat, marigolds and peaches
-  pompompurin: {
+  'golden-hour': {
     scheme: 'light',
     sky: '#FCDFB0', pageMid: '#FDEBCB', closeLow: '#FBD9A0',
     straw: '#EFAE3E', strawInk: '#8A4A0C', milk: '#FFF9EC',
@@ -237,36 +237,8 @@ export const STAND_PALETTES: Record<StandTheme, StandPalette> = {
     dust: { ink: '#7A410C', theme: '#EFAE3E', accent: '#F28C5B' },
   },
 
-  // Cherry Pop: cherry-blossom spring, a red awning under a blue sky
-  'hello-kitty': {
-    scheme: 'light',
-    sky: '#D8EDF6', pageMid: '#FCEEF2', closeLow: '#F9DCE4',
-    straw: '#D63356', strawInk: '#A8203F', milk: '#FFF6F8',
-    candy: '#BE2646', candyDeep: '#9E1E3C', candyInk: '#BE2646',
-    berry: '#40101F', berryDeep: '#2E0A15',
-    gold: '#F7C85B', goldDeep: '#B57A17', goldLite: '#FFE7A6', goldLine: '#C98A1E',
-    board: '#22433E', chalk: '#FFF8F9', chalkHi: '#FFD36B',
-    wood: '#B26A50', woodDeep: '#7E4434', post: ['#97553E', '#CF8E72', '#A3604A', '#6E3A2A'], basket: '#C98466',
-    face: '#FFFAFB', faceLow: '#FFE5EA',
-    counter: '#FFC9D4', counterDeep: '#FF9EB2', counterLine: '#FFB5C4', counterTop: '#FFE5EA', counterInk: '#40101F',
-    meadow: '#C9E6B4', meadowDeep: '#A9D690', footInk: '#1E3D1C', footName: '#7A1830',
-    howBg: '#FFF5F7', howHead: '#40101F', howInk: '#6E1D33',
-    packetInk: '#4E1427', bestA: '#FFEEF2', bestB: '#FFF4D6',
-    tagEdge: '#F0C4CE',
-    shade: '#7A1830', shadeDeep: '#3A0A16', woodShade: '#3E1A10',
-    register: '#9E1E3C', registerBase: '#40101F', gingham: '#F28FA6',
-    ringValance: '#FFF6F8',
-    flags: ['#D63356', '#F7C85B', '#FFF6F8', '#FFB3C8', '#A8DCC6', '#F76B88'],
-    blooms: {
-      pink: { outer: '#FFE4EC', mid: '#FFC3D5', inner: '#F7A3BE', deep: '#D4668A' },
-      blush: { outer: '#FFF3F6', mid: '#FFE0E8', inner: '#FFC6D5', deep: '#E08AA6' },
-      berry: { outer: '#F7899F', mid: '#E8506E', inner: '#C42646', deep: '#7A1830' },
-    },
-    dust: { ink: '#A8203F', theme: '#F76B88', accent: '#FFB3C8' },
-  },
-
   // Fresh Mint: spring morning by the lily pond
-  keroppi: {
+  'fresh-mint': {
     scheme: 'light',
     sky: '#E3F5E8', pageMid: '#EEF8F0', closeLow: '#DAF0E1',
     straw: '#62BE8A', strawInk: '#1D5C44', milk: '#F8FDF9',
@@ -322,7 +294,7 @@ export const STAND_PALETTES: Record<StandTheme, StandPalette> = {
   },
 
   // Cocoa Dream: a snowy winter evening, snow on the ground and red winter roses
-  chococat: {
+  'cocoa-dream': {
     scheme: 'light',
     sky: '#E9E4F1', pageMid: '#F3F0F8', closeLow: '#E3DCEC',
     straw: '#946A50', strawInk: '#6B3A2A', milk: '#FFF9F2',
@@ -353,17 +325,16 @@ export const STAND_PALETTES: Record<StandTheme, StandPalette> = {
 /** Theme order matches the app's theme picker (THEME_PRESETS key order). */
 export const STAND_ORDER: StandTheme[] = [
   'default',
-  'my-melody',
-  'kuromi',
-  'cinnamoroll',
-  'pompompurin',
-  'hello-kitty',
-  'keroppi',
+  'rose-milk',
+  'midnight-grape',
+  'cloud-nine',
+  'golden-hour',
+  'fresh-mint',
   'maple',
-  'chococat',
+  'cocoa-dream',
 ];
 
-export const DEFAULT_STAND_THEME: StandTheme = 'my-melody';
+export const DEFAULT_STAND_THEME: StandTheme = 'rose-milk';
 
 export const isStandTheme = (v: unknown): v is StandTheme =>
   typeof v === 'string' && (STAND_ORDER as string[]).includes(v);

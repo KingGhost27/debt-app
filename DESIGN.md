@@ -374,7 +374,7 @@ Warm pastel ground, deep tinted ink, one saturated action color per theme. All v
 - **Picket** (#FFFFFF) and **Picket Line** (#B99C8C): fence streak pickets.
 
 ### The Nine Moments
-Lavender Dream (default, lavender-field dusk, Luna the bunny, ground #F5EFFA), Rose Milk (strawberry sunrise, Boo, #EFF6EC, button #6E2440), Midnight Grape (starry night, dark, #160F2C with gold button #FFD58A), Cloud Nine (bright pond day, #E9F5EC, button #1C5487), Golden Hour (wheat sunset, #FBF3E3, button #7A410C), Cherry Pop (blossom spring, #F0F6EA, button #A8203F), Fresh Mint (lily-pond morning, #EEF7F0, button #1D5C44), Maple Season (autumn, #FBF2E9, button #8E3B16), Cocoa Dream (snowy evening, #F3F0F8, button #6B3A2A). Light presets differ in hue and in focus color (a hue that stays distinct from the theme: orange-red on blue and green, plum on maple); only Midnight Grape is natively dark. Dark mode runs `darkUiFrom()` on any light preset, mixing its own ink toward black for grounds and its ground toward white for text. Custom colors derive a palette from the user's shades.
+Lavender Dream (default, lavender-field dusk, Luna the bunny, ground #F5EFFA), Rose Milk (strawberry sunrise, Boo, #EFF6EC, button #6E2440), Midnight Grape (starry night, dark, #160F2C with gold button #FFD58A), Cloud Nine (bright pond day, #E9F5EC, button #1C5487), Golden Hour (wheat sunset, #FBF3E3, button #7A410C), Fresh Mint (lily-pond morning, #EEF7F0, button #1D5C44), Maple Season (autumn, #FBF2E9, button #8E3B16), Cocoa Dream (snowy evening, #F3F0F8, button #6B3A2A). Light presets differ in hue and in focus color (a hue that stays distinct from the theme: orange-red on blue and green, plum on maple); only Midnight Grape is natively dark. Dark mode runs `darkUiFrom()` on any light preset, mixing its own ink toward black for grounds and its ground toward white for text. Custom colors derive a palette from the user's shades.
 
 ### Named Rules
 **The Tinted Ink Rule.** Text is never gray or black. It is the theme's deep ink or soft ink, so every theme and its night version keeps its hue.
@@ -417,7 +417,6 @@ The rack order matches the app's theme picker. All 68 colors of every paint job 
 | Midnight Grape | night under the stars, signs lamp-lit (dark) | #110A28 | #7556D6 | #4E33A0 | #5B3FBF | #2A1740 | #232C3D | #3E2E7A | #2A1F5D |
 | Cloud Nine | bright day by the pond | #D6EBFA | #63B0E6 | #2C7AB6 | #2170AE | #12324F | #264552 | #C4E0F6 | #C6E8BE |
 | Golden Hour | sunset over the wheat | #FCDFB0 | #EFAE3E | #B86418 | #A6560E | #4A2A0C | #3A2F2A | #FCE1A6 | #EBD08A |
-| Cherry Pop | cherry-blossom spring, red awning | #D8EDF6 | #D63356 | #BE2646 | #BE2646 | #40101F | #22433E | #FFC9D4 | #C9E6B4 |
 | Fresh Mint | spring morning by the lily pond | #E3F5E8 | #62BE8A | #2C8457 | #24784F | #143D2E | #263B40 | #C3E7D1 | #B9E3A6 |
 | Maple Season | autumn afternoon in the maples | #FCE3CC | #EE8F52 | #C2551C | #A84A18 | #3A1F0F | #33302A | #FAD3B5 | #D8C77A |
 | Cocoa Dream | snowy winter evening | #E9E4F1 | #946A50 | #7E553F | #7E553F | #3A2419 | #2C3A3A | #E8D5C6 | #FBF9FD |
@@ -611,7 +610,7 @@ Two easings, shared with the Ranch: ease-out `cubic-bezier(.16, 1, .3, 1)` for t
 ## Do's and Don'ts
 
 ### Do:
-- **Do** read surface, ink and state colors from `--ranch-*` tokens so all nine themes and dark mode work.
+- **Do** read surface, ink and state colors from `--ranch-*` tokens so every theme and dark mode work.
 - **Do** open every module and dialog with a plank heading.
 - **Do** keep money in Quicksand 700 tabular and wrap it in `.num`.
 - **Do** put the hero action ("Log a payment") in the sky and make it a pill in the button color.

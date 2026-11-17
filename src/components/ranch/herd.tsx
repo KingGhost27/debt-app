@@ -23,12 +23,12 @@ function Critter({ who, x, y, size, flip }: { who: RanchFriend; x: number; y: nu
 /** Doorway crowd, clipped to the door opening by the caller. */
 export function DoorwayHerd({ active }: { active: RanchFriend }) {
   const { back, front } = barnHerd(active);
-  const backX = [44, 66, 94, 116];
+  const backX = [54, 80, 106];
   const frontX = [50, 80, 110];
   return (
     <g className="r-herd">
       {back.map((who, i) => (
-        <Critter key={who} who={who} x={backX[i]} y={-19} size={36} flip={i >= 2} />
+        <Critter key={who} who={who} x={backX[i]} y={-19} size={36} flip={i === 2} />
       ))}
       <ellipse className="r-herd-floor" cx="80" cy="-1" rx="46" ry="5" />
       {front.map((who, i) => (

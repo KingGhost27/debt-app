@@ -10,7 +10,7 @@
 
 import { useId, useMemo, type ComponentType, type CSSProperties, type ReactNode } from 'react';
 import {
-  BooBoo, ChaiBear, CherryKitty, LiloOtter, LunaBunny, MapleFox, MochiFrog, ShadowBunny, SunshineChick,
+  BooBoo, ChaiBear, LiloOtter, LunaBunny, MapleFox, MochiFrog, ShadowBunny, SunshineChick,
 } from '../ui/mascots';
 import { RANCH_SCENES, ranchArtVars, type RanchFriend, type RanchSceneKey } from '../../lib/ranchScenes';
 import { WIDE, type Composition } from './compositions';
@@ -22,7 +22,7 @@ import { chainD, hillD, r1, type Cubic } from './geometry';
 type MascotProps = { size?: number; className?: string; animated?: boolean };
 
 const FRIENDS: Record<RanchFriend, ComponentType<MascotProps>> = {
-  LunaBunny, BooBoo, ShadowBunny, LiloOtter, SunshineChick, CherryKitty, MochiFrog, ChaiBear, MapleFox,
+  LunaBunny, BooBoo, ShadowBunny, LiloOtter, SunshineChick, MochiFrog, ChaiBear, MapleFox,
 };
 
 /* squash the wide composition's hills toward a baseline so they fit a short band */

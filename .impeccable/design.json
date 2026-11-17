@@ -1569,42 +1569,35 @@
         "button": "#3A2466"
       },
       {
-        "key": "my-melody",
+        "key": "rose-milk",
         "name": "Rose Milk",
         "moment": "strawberry sunrise",
         "ground": "#EFF6EC",
         "button": "#6E2440"
       },
       {
-        "key": "kuromi",
+        "key": "midnight-grape",
         "name": "Midnight Grape",
         "moment": "starry night (dark)",
         "ground": "#160F2C",
         "button": "#FFD58A"
       },
       {
-        "key": "cinnamoroll",
+        "key": "cloud-nine",
         "name": "Cloud Nine",
         "moment": "bright pond day",
         "ground": "#E9F5EC",
         "button": "#1C5487"
       },
       {
-        "key": "pompompurin",
+        "key": "golden-hour",
         "name": "Golden Hour",
         "moment": "wheat sunset",
         "ground": "#FBF3E3",
         "button": "#7A410C"
       },
       {
-        "key": "hello-kitty",
-        "name": "Cherry Pop",
-        "moment": "blossom spring",
-        "ground": "#F0F6EA",
-        "button": "#A8203F"
-      },
-      {
-        "key": "keroppi",
+        "key": "fresh-mint",
         "name": "Fresh Mint",
         "moment": "lily-pond morning",
         "ground": "#EEF7F0",
@@ -1618,7 +1611,7 @@
         "button": "#8E3B16"
       },
       {
-        "key": "chococat",
+        "key": "cocoa-dream",
         "name": "Cocoa Dream",
         "moment": "snowy evening",
         "ground": "#F3F0F8",
@@ -1704,7 +1697,7 @@
         }
       },
       {
-        "key": "my-melody",
+        "key": "rose-milk",
         "name": "Rose Milk",
         "moment": "strawberry-field sunrise",
         "default": true,
@@ -1781,7 +1774,7 @@
         }
       },
       {
-        "key": "kuromi",
+        "key": "midnight-grape",
         "name": "Midnight Grape",
         "moment": "night under the stars, signs lamp-lit (dark)",
         "default": false,
@@ -1858,7 +1851,7 @@
         }
       },
       {
-        "key": "cinnamoroll",
+        "key": "cloud-nine",
         "name": "Cloud Nine",
         "moment": "bright day by the pond",
         "default": false,
@@ -1935,7 +1928,7 @@
         }
       },
       {
-        "key": "pompompurin",
+        "key": "golden-hour",
         "name": "Golden Hour",
         "moment": "sunset over the wheat",
         "default": false,
@@ -2012,84 +2005,7 @@
         }
       },
       {
-        "key": "hello-kitty",
-        "name": "Cherry Pop",
-        "moment": "cherry-blossom spring, red awning",
-        "default": false,
-        "scheme": "light",
-        "colors": {
-          "stand-sky": "#D8EDF6",
-          "stand-page-mid": "#FCEEF2",
-          "stand-close-low": "#F9DCE4",
-          "stand-straw": "#D63356",
-          "stand-straw-ink": "#A8203F",
-          "stand-milk": "#FFF6F8",
-          "stand-candy": "#BE2646",
-          "stand-candy-deep": "#9E1E3C",
-          "stand-candy-ink": "#BE2646",
-          "stand-berry": "#40101F",
-          "stand-berry-deep": "#2E0A15",
-          "stand-gold": "#F7C85B",
-          "stand-gold-deep": "#B57A17",
-          "stand-gold-lite": "#FFE7A6",
-          "stand-gold-line": "#C98A1E",
-          "stand-board": "#22433E",
-          "stand-chalk": "#FFF8F9",
-          "stand-chalk-hi": "#FFD36B",
-          "stand-wood": "#B26A50",
-          "stand-wood-deep": "#7E4434",
-          "stand-basket": "#C98466",
-          "stand-face": "#FFFAFB",
-          "stand-face-low": "#FFE5EA",
-          "stand-counter": "#FFC9D4",
-          "stand-counter-deep": "#FF9EB2",
-          "stand-counter-line": "#FFB5C4",
-          "stand-counter-top": "#FFE5EA",
-          "stand-counter-ink": "#40101F",
-          "stand-meadow": "#C9E6B4",
-          "stand-meadow-deep": "#A9D690",
-          "stand-foot-ink": "#1E3D1C",
-          "stand-foot-name": "#7A1830",
-          "stand-how-bg": "#FFF5F7",
-          "stand-how-head": "#40101F",
-          "stand-how-ink": "#6E1D33",
-          "stand-packet-ink": "#4E1427",
-          "stand-best-a": "#FFEEF2",
-          "stand-best-b": "#FFF4D6",
-          "stand-tag-edge": "#F0C4CE",
-          "stand-shade": "#7A1830",
-          "stand-shade-deep": "#3A0A16",
-          "stand-wood-shade": "#3E1A10",
-          "stand-register": "#9E1E3C",
-          "stand-register-base": "#40101F",
-          "stand-gingham": "#F28FA6",
-          "stand-ring-valance": "#FFF6F8",
-          "stand-post-0": "#97553E",
-          "stand-post-1": "#CF8E72",
-          "stand-post-2": "#A3604A",
-          "stand-post-3": "#6E3A2A",
-          "stand-flag-0": "#D63356",
-          "stand-flag-1": "#F7C85B",
-          "stand-flag-2": "#FFF6F8",
-          "stand-flag-3": "#FFB3C8",
-          "stand-flag-4": "#A8DCC6",
-          "stand-flag-5": "#F76B88",
-          "stand-bl-pink-outer": "#FFE4EC",
-          "stand-bl-pink-mid": "#FFC3D5",
-          "stand-bl-pink-inner": "#F7A3BE",
-          "stand-bl-pink-deep": "#D4668A",
-          "stand-bl-blush-outer": "#FFF3F6",
-          "stand-bl-blush-mid": "#FFE0E8",
-          "stand-bl-blush-inner": "#FFC6D5",
-          "stand-bl-blush-deep": "#E08AA6",
-          "stand-bl-berry-outer": "#F7899F",
-          "stand-bl-berry-mid": "#E8506E",
-          "stand-bl-berry-inner": "#C42646",
-          "stand-bl-berry-deep": "#7A1830"
-        }
-      },
-      {
-        "key": "keroppi",
+        "key": "fresh-mint",
         "name": "Fresh Mint",
         "moment": "spring morning by the lily pond",
         "default": false,
@@ -2243,7 +2159,7 @@
         }
       },
       {
-        "key": "chococat",
+        "key": "cocoa-dream",
         "name": "Cocoa Dream",
         "moment": "snowy winter evening",
         "default": false,

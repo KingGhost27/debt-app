@@ -685,7 +685,8 @@
 @media (max-width: 389px) {
   .fs-page { --head: 40px; }
 }
-@media (max-width: 380px) {
+/* Below this the name, "How it works" and "Sign in" do not fit on one row; Sign in keeps its place. */
+@media (max-width: 479px) {
   .fs-nav .fs-tag--milk { display: none; }
 }
 

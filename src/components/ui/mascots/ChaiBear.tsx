@@ -1,5 +1,5 @@
 /**
- * ChaiBear - Chococat Theme Mascot
+ * ChaiBear - Cocoa Dream theme mascot
  *
  * Chai the bear! Warm chocolate brown with a cream muzzle and cozy sleepy-happy eyes.
  */

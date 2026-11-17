@@ -41,14 +41,14 @@ Honest math with a cheering companion. Every theme comes with its own animal fri
 - Authed routes: `/dashboard`, `/debts`, `/plan`, `/track`, `/subscriptions`, `/assets`, `/settings`, plus onboarding, auth, and reset-password flows.
 - Free limits (`src/lib/tierLimits.ts`): 4 debts, 2 income sources, 10 expense entries, 3 custom categories, 3 free themes.
 - Pro unlocks: unlimited entries, premium themes, asset tracking, interest-vs-principal chart, payment history, bill calendar, bill distribution, data export.
-- Theme system: 9 presets (`src/lib/themes.ts`), each a palette plus its own mascot; selected in Settings via `ThemeSelector`. Premium themes are a paid Pro feature and must stay.
+- Theme system: 8 presets (`src/lib/themes.ts`), each a palette plus its own mascot, shown as 7 tiles (Midnight Grape is Lavender Dream's Pro night face); selected in Settings via `ThemeSelector`. Premium themes are a paid Pro feature and must stay.
 - A push to `main` is a production deploy (Vercel↔GitHub, live Stripe keys).
 - Fonts are self-hosted via Fontsource; no runtime Google Fonts (CSP `font-src 'self'`).
 
 ## Brand Commitments
 
 - Name: Cowculator. Mascot: Debtsy the cow.
-- **The animals stay** (owner, 2026-11-11): Debtsy plus the theme friends in `src/components/ui/mascots/` (Luna Bunny, BooBoo, Cherry Kitty, Chai Bear, Lilo Otter, Maple Fox, Mochi Frog, Shadow Bunny, Sunshine Chick).
+- **The animals stay** (owner, 2026-11-11): Debtsy plus the theme friends in `src/components/ui/mascots/` (Luna Bunny, BooBoo, Chai Bear, Lilo Otter, Maple Fox, Mochi Frog, Shadow Bunny, Sunshine Chick).
 - **The fonts stay** (owner, 2026-11-11): Bagel Fat One, Fredoka, Nunito, Quicksand.
 - **Theme switcher stays; theme palettes may be redesigned** if the new ones look good (owner, 2026-11-11).
 - Voice: warm, playful, farm-flavored, cheering, never shaming ("Moo... we can't reach the barn"). Part of a wider brand promise: cute tools that help you get your life together.

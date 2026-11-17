@@ -124,8 +124,8 @@ export function standContrastRows(): Row[] {
 if (import.meta.main) {
   const rows = standContrastRows();
   const short: Record<StandTheme, string> = {
-    default: 'Lavndr', 'my-melody': 'RoseMk', kuromi: 'Midnt', cinnamoroll: 'Cloud9', pompompurin: 'Golden',
-    'hello-kitty': 'Cherry', keroppi: 'Mint', maple: 'Maple', chococat: 'Cocoa',
+    default: 'Lavndr', 'rose-milk': 'RoseMk', 'midnight-grape': 'Midnt', 'cloud-nine': 'Cloud9', 'golden-hour': 'Golden',
+    'fresh-mint': 'Mint', maple: 'Maple', 'cocoa-dream': 'Cocoa',
   };
   const w = 31;
   console.log('pairing'.padEnd(w) + 'need ' + STAND_ORDER.map((t) => short[t].padStart(7)).join(''));

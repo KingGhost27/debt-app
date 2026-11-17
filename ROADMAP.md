@@ -54,7 +54,7 @@ Core features are complete. Next phase = monetization + marketing.
 The 3-debt ceiling is the most important gate. Most people with real debt have more than 3.
 They'll hit the wall fast, but only after they've already fallen in love with the app.
 Themes behind Pro also works specifically for Cowculator — the kawaii aesthetic IS the brand.
-People will pay to have Cinnamoroll.
+People will pay to have their favorite theme.
 
 ### Conversion Benchmarks (from research)
 - No free trial: ~2–5% free-to-paid conversion

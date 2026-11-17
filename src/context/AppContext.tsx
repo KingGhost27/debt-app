@@ -25,6 +25,7 @@ import type {
 import type { MilestoneEvent, CelebrationStats } from '../types/celebrations';
 import { DEFAULT_APP_DATA, DEFAULT_STRATEGY, DEFAULT_BUDGET } from '../types';
 import { exportData, exportPaymentsCSV, importData } from '../lib/storage';
+import { normalizeTheme } from '../lib/themes';
 import { supabase } from '../lib/supabase';
 import { useAuth } from './AuthContext';
 import { withoutSampleRows } from '../lib/landingSeed';
@@ -277,7 +278,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
               userName: profile.user_name ?? '',
               currency: profile.currency ?? 'USD',
               dateFormat: profile.date_format ?? 'MM/DD/YYYY',
-              theme: profile.theme ?? { preset: 'default', darkMode: false },
+              theme: normalizeTheme(profile.theme),
               categoryColors: profile.category_colors ?? {},
               tutorialCompleted: profile.tutorial_completed ?? false,
             }

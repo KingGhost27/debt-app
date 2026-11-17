@@ -4,10 +4,10 @@
 
 ### Accomplishments
 
-#### Theme System (My Melody & Kuromi)
+#### Theme System (Rose Milk & Midnight Grape)
 - Created `src/lib/themes.ts` with preset color palettes:
-  - **My Melody**: Soft pink (#ff4d6d) with white accents
-  - **Kuromi**: Purple (#8b5cf6) with lavender accents
+  - **Rose Milk**: Soft pink (#ff4d6d) with white accents
+  - **Midnight Grape**: Purple (#8b5cf6) with lavender accents
   - **Default**: Original teal/cyan theme
 - Created `src/hooks/useTheme.ts` for theme management
 - Updated `src/index.css` with CSS variables for dynamic theming

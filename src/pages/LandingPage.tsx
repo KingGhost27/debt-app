@@ -74,13 +74,12 @@ const LANDING_THEME_KEY = 'cowculator_landing_theme';
  */
 const THEME_FRIEND: Record<StandTheme, FriendName> = {
   default: 'Luna',
-  'my-melody': 'BooBoo',
-  kuromi: 'Shadow',
-  cinnamoroll: 'Lilo',
-  pompompurin: 'Sunshine',
-  'hello-kitty': 'Cherry',
-  keroppi: 'Mochi',
-  chococat: 'Chai',
+  'rose-milk': 'BooBoo',
+  'midnight-grape': 'Shadow',
+  'cloud-nine': 'Lilo',
+  'golden-hour': 'Sunshine',
+  'fresh-mint': 'Mochi',
+  'cocoa-dream': 'Chai',
   maple: 'Maple',
 };
 
@@ -417,7 +416,6 @@ export function LandingPage() {
 
             <div className="fs-board-col">
               <Friend name={peekBoard} i={1} className="fs-peek fs-peek--board" paws={PAWS[peekBoard]} />
-              <Friend name={cast('Cherry')} i={2} className="fs-peek fs-peek--side" />
               <form className="fs-board" id="board" aria-label="Your debts" onSubmit={(e) => e.preventDefault()}>
                 <div className="fs-board-head">
                   <h2 className="fs-board-title">Your debts</h2>
