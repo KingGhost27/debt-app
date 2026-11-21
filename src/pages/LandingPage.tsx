@@ -682,7 +682,7 @@ const FAQS = [
   {
     q: 'Is the Cowculator really free?',
     // Numbers come from tierLimits so this answer can never disagree with what the app enforces.
-    a: `Kinda, lol. We gotta pay off some debts too 😭 The calculator on this page is free: no signup, no card. A free account costs nothing and covers your first ${FREE_LIMITS.DEBTS} debts, ${FREE_THEMES.length} themes, ${FREE_LIMITS.INCOME_SOURCES} income sources, ${FREE_LIMITS.EXPENSE_ENTRIES} expense entries and ${FREE_LIMITS.CUSTOM_CATEGORIES} custom categories. Pro is for when you want more: no limits on any of those, every theme, asset tracking, a bill calendar and extra charts.`,
+    a: `Kinda, lol~ We gotta pay off some debts too 😭 The calculator on this page is free: no signup, no card. A free account costs nothing and covers your first ${FREE_LIMITS.DEBTS} debts, ${FREE_THEMES.length} themes, ${FREE_LIMITS.INCOME_SOURCES} income sources, ${FREE_LIMITS.EXPENSE_ENTRIES} expense entries and ${FREE_LIMITS.CUSTOM_CATEGORIES} custom categories. Pro is for when you want more: no limits on any of those, every theme, asset tracking, a bill calendar and extra charts.`,
   },
   {
     q: 'What is the debt snowball method?',
