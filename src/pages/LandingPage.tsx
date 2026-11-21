@@ -698,7 +698,7 @@ const FAQS = [
   },
   {
     q: 'Do you store my data?',
-    a: 'On this calculator page, no. All math runs in your browser and the numbers stay on your device. If you choose to create a free account to save your plan, your data is stored encrypted in our database (Supabase) and only you can see it.',
+    a: 'On this calculator page, no. All math runs in your browser and the numbers stay on your device. If you choose to create a free account to save your plan, your data is stored encrypted in our database and only you can see it.',
   },
   {
     q: 'How is Cowculator different from other debt apps?',
