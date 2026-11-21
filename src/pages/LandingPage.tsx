@@ -13,7 +13,7 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties, type MouseEve
 import { Link, useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import { generatePayoffPlan } from '../lib/calculations';
-import { LANDING_SEED_FUNDING, LANDING_SEED_ROWS } from '../lib/landingSeed';
+import { BOARD_SLOTS, LANDING_SEED_FUNDING, LANDING_SEED_ROWS, fillSlots, holdsOnlySample, isBlankRow } from '../lib/landingSeed';
 import { FREE_LIMITS, FREE_THEMES } from '../lib/tierLimits';
 import type { Debt, PayoffMilestone } from '../types';
 import { DebtsyCow } from '../components/ui/DebtsyCow';
@@ -26,7 +26,6 @@ import {
   ChalkArrow,
   ChalkLine,
   ChalkLoop,
-  ChalkPlus,
   ChalkX,
   FlowerBucket,
   FlowerSpray,
@@ -98,22 +97,23 @@ const isDraft = (d: unknown): d is DraftDebt =>
 
 const blankDebt = (): DraftDebt => ({ id: uuidv4(), name: '', balance: '', apr: '', minimumPayment: '' });
 
-// The sample rows a fresh board starts with (shared with the signup handoff, which skips them).
-const seedDebts = (): DraftDebt[] => LANDING_SEED_ROWS.map((d) => ({ id: uuidv4(), ...d }));
+// A fresh board: the sample rows (shared with the signup handoff, which skips them), then empty slots.
+const seedDebts = (): DraftDebt[] => fillSlots(LANDING_SEED_ROWS.map((d) => ({ id: uuidv4(), ...d })), blankDebt);
 
 /** True while the board still holds exactly the sample entries (from this visit or restored unchanged). */
-const holdsSample = (debts: DraftDebt[], funding: string) =>
-  funding === LANDING_SEED_FUNDING &&
-  debts.length === LANDING_SEED_ROWS.length &&
-  debts.every((d, i) => DRAFT_FIELDS.every((k) => k === 'id' || d[k] === LANDING_SEED_ROWS[i][k]));
+const holdsSample = (debts: DraftDebt[], funding: string) => funding === LANDING_SEED_FUNDING && holdsOnlySample(debts);
 
 /** Saved drafts from an earlier visit, or the sample entries. Storage may be blocked; never throw. */
 function readDrafts(): DraftDebt[] {
   try {
     const raw = localStorage.getItem(LANDING_DEBTS_KEY);
     const saved: unknown = raw ? JSON.parse(raw) : null;
-    if (Array.isArray(saved) && saved.length > 0 && saved.length <= 5 && saved.every(isDraft)) {
-      return saved.map(({ id, name, balance, apr, minimumPayment }) => ({ id, name, balance, apr, minimumPayment }));
+    if (Array.isArray(saved) && saved.length > 0 && saved.every(isDraft)) {
+      // Rows saved before the board showed every slot were shorter; top them up with empty slots.
+      return fillSlots(
+        saved.map(({ id, name, balance, apr, minimumPayment }) => ({ id, name, balance, apr, minimumPayment })),
+        blankDebt,
+      );
     }
   } catch {
     // blocked storage or unreadable JSON: start from the sample entries
@@ -329,13 +329,10 @@ export function LandingPage() {
     setTouched(true);
     setDebts((prev) => prev.map((d) => (d.id === id ? { ...d, [field]: value } : d)));
   };
-  const addDebt = () => {
+  // Every slot is always on the board, so the x empties a slot instead of removing it.
+  const clearDebt = (id: string) => {
     setTouched(true);
-    setDebts((prev) => (prev.length >= 5 ? prev : [...prev, blankDebt()]));
-  };
-  const removeDebt = (id: string) => {
-    setTouched(true);
-    setDebts((prev) => (prev.length > 1 ? prev.filter((d) => d.id !== id) : prev));
+    setDebts((prev) => prev.map((d) => (d.id === id ? { ...blankDebt(), id } : d)));
   };
   const updateFunding = (value: string) => {
     setTouched(true);
@@ -420,7 +417,7 @@ export function LandingPage() {
               <form className="fs-board" id="board" aria-label="Your debts" onSubmit={(e) => e.preventDefault()}>
                 <div className="fs-board-head">
                   <h2 className="fs-board-title">Your debts</h2>
-                  <span className="fs-count">{debts.length} / 5</span>
+                  <span className="fs-count">{validDebts.length} / {BOARD_SLOTS}</span>
                 </div>
                 {showSampleNote && <p className="fs-sample">These are sample numbers. Type your own over them.</p>}
                 <div className="fs-cols" aria-hidden="true">
@@ -460,22 +457,18 @@ export function LandingPage() {
                           <span className="fs-affix">$</span>
                           <input type="number" inputMode="decimal" value={d.minimumPayment} onChange={(e) => update(d.id, 'minimumPayment', e.target.value)} placeholder="125" aria-label={`${label} min payment`} />
                         </label>
-                        {debts.length > 1 ? (
-                          <button type="button" className="fs-remove" onClick={() => removeDebt(d.id)} aria-label={`Remove ${label}`}>
+                        {isBlankRow(d) ? (
+                          <span className="fs-remove-gap" />
+                        ) : (
+                          <button type="button" className="fs-remove" onClick={() => clearDebt(d.id)} aria-label={`Clear ${label}`}>
                             <ChalkX />
                           </button>
-                        ) : (
-                          <span className="fs-remove-gap" />
                         )}
                       </li>
                     );
                   })}
                 </ul>
                 <div className="fs-mid">
-                  <button type="button" className="fs-add" onClick={addDebt} disabled={debts.length >= 5}>
-                    <ChalkPlus /> Add another debt
-                  </button>
-
                   <div className="fs-extra-wrap">
                     <label className="fs-extra">
                       <span className="fs-extra-label">Extra you can pay each month (on top of minimums)</span>

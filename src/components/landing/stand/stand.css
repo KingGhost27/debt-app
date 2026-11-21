@@ -142,6 +142,8 @@
   gap: clamp(28px, 3.4vw, 56px); align-items: start;
 }
 .fs-sign-col, .fs-board-col { position: relative; }
+/* Room under the board, so a full board clears the date sign and its rosette on the counter below. */
+@media (min-width: 900px) { .fs-board-col { padding-bottom: 46px; } }
 
 .fs-sign {
   position: relative; z-index: 1;
@@ -221,16 +223,8 @@
 }
 .fs-remove svg { width: 16px; height: 16px; }
 .fs-remove:hover { color: var(--fs-chalk-hi); background: color-mix(in srgb, var(--fs-chalk) 8%, transparent); }
-.fs-mid { display: grid; grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.6fr); gap: 12px 22px; align-items: start; margin-top: 12px; }
+.fs-mid { margin-top: 12px; }
 .fs-result { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px 22px; align-items: start; }
-.fs-add {
-  display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
-  margin-top: 0; padding: 9px 12px; border: 2px dashed var(--fs-chalk-line); border-radius: 12px;
-  background: transparent; color: var(--fs-chalk-soft); font: 700 14.5px / 1 var(--fs-hand); white-space: nowrap; cursor: pointer;
-}
-.fs-add svg { width: 16px; height: 16px; }
-.fs-add:hover:not(:disabled) { color: var(--fs-chalk); border-color: var(--fs-chalk-soft); }
-.fs-add:disabled { opacity: 0.45; cursor: not-allowed; }
 
 .fs-extra { display: grid; gap: 2px; }
 .fs-extra-label { font: 600 13.5px / 1.3 var(--fs-hand); color: var(--fs-chalk-soft); }
@@ -645,7 +639,6 @@
   .fs-date-value { --fit: clamp(34px, 10vw, 46px); }
   .fs-rosette { left: -14px; top: -24px; width: 46px; }
   .fs-cols { display: none; }
-  .fs-mid { grid-template-columns: minmax(0, 1fr); }
   .fs-result { grid-template-columns: minmax(0, 1fr); }
   .fs-strategy { flex-direction: row; flex-wrap: wrap; }
   .fs-rows { gap: 10px; }
