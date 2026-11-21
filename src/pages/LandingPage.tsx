@@ -702,7 +702,7 @@ const FAQS = [
   },
   {
     q: 'How is Cowculator different from other debt apps?',
-    a: 'Most debt payoff tools are either bare spreadsheets or paid apps that hide the calculator behind a paywall. Cowculator is genuinely free, doesn\'t need your credit card, runs both strategies side-by-side, and (let\'s be honest) is a lot cuter than the others. The cow is named Debtsy.',
+    a: 'Other debt apps are either really ugly or really limited by a paywall. We\'re on our way to being cute, and we try to make the free plan as useful as possible. Debtsy\'s got debts to pay too 🐄😭💸',
   },
   {
     q: 'Can I use this on my phone?',
