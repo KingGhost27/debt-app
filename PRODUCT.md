@@ -39,7 +39,7 @@ Honest math with a cheering companion. Every theme comes with its own animal fri
 
 - Stack: React 19, TypeScript, Vite 7, Tailwind CSS 4 (tokens in `src/index.css`), Supabase auth + Postgres, Stripe live billing, Recharts, lucide-react icons, date-fns, decimal.js.
 - Authed routes: `/dashboard`, `/debts`, `/plan`, `/track`, `/subscriptions`, `/assets`, `/settings`, plus onboarding, auth, and reset-password flows.
-- Free limits (`src/lib/tierLimits.ts`): 4 debts, 2 income sources, 10 expense entries, 3 custom categories, 3 free themes.
+- Free limits (`src/lib/tierLimits.ts`): 5 debts, 2 income sources, 10 expense entries, 3 custom categories, 3 free themes.
 - Pro unlocks: unlimited entries, premium themes, asset tracking, interest-vs-principal chart, payment history, bill calendar, bill distribution, data export.
 - Theme system: 8 presets (`src/lib/themes.ts`), each a palette plus its own mascot, shown as 7 tiles (Midnight Grape is Lavender Dream's Pro night face); selected in Settings via `ThemeSelector`. Premium themes are a paid Pro feature and must stay.
 - A push to `main` is a production deploy (Vercel↔GitHub, live Stripe keys).

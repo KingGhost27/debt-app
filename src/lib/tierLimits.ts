@@ -8,7 +8,7 @@
 import type { ThemePreset } from '../types';
 
 export const FREE_LIMITS = {
-  DEBTS: 4,
+  DEBTS: 5,
   INCOME_SOURCES: 2,
   EXPENSE_ENTRIES: 10,
   CUSTOM_CATEGORIES: 3,

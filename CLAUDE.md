@@ -194,7 +194,7 @@ User Action → useApp() context → Supabase write (optimistic state update fir
 **Tier strategy** (launch): Free + Pro. Three Pro SKUs: Monthly $4.99, Annual $39.99, OG Heifer $19 one-time (first 200–300 members).
 
 **Free-tier caps** (source: `src/lib/tierLimits.ts`):
-- 4 debts, 2 income sources, 10 expense entries, 3 custom categories
+- 5 debts, 2 income sources, 10 expense entries, 3 custom categories
 - 3 free themes: `default` (Lavender Dream), `rose-milk` (Rose Milk), `cloud-nine` (Cloud Nine)
 - Strategy Comparison chart is **always free** (core value — explicit decision, do not gate).
 
