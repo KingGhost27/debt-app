@@ -686,11 +686,11 @@ const FAQS = [
   },
   {
     q: 'What is the debt snowball method?',
-    a: 'The debt snowball is a payoff strategy where you pay the minimum on every debt and throw all your extra money at the smallest balance first. Once that debt is gone, you roll its payment into the next-smallest. The wins are quick and motivating, even if the math isn\'t the most efficient.',
+    a: 'Smallest debt first. You pay the minimum on everything (that\'s the smallest payment each bill asks for), then put every extra dollar on the debt you owe the least on. When that one is gone, its payment moves to the next smallest. You get a win fast, and wins keep you going. It can cost a bit more in interest than avalanche.',
   },
   {
     q: 'What is the debt avalanche method?',
-    a: 'The debt avalanche pays minimums on every debt and attacks the highest-interest-rate (APR) debt first. It\'s mathematically optimal — you pay the least interest and (usually) finish faster. The downside is your first payoff might take a while, so it requires more patience.',
+    a: 'Most expensive debt first. You pay the minimum on everything, then put every extra dollar on the debt with the highest interest rate. That\'s the % it charges you for owing money, also called APR. It\'s the debt costing you the most, so this way you pay the least interest. The catch: your first win can take a while.',
   },
   {
     q: 'Snowball vs avalanche — which is better?',
