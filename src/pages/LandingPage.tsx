@@ -395,7 +395,7 @@ export function LandingPage() {
                 <Sparkle size={20} className="fs-tw" style={{ top: '16%', right: '9%', '--tw': '.3s' } as CSSProperties} />
                 <Sparkle size={14} className="fs-tw" style={{ top: '30%', right: '18%', '--tw': '1.4s' } as CSSProperties} />
                 <Sparkle size={16} className="fs-tw" style={{ top: '47%', right: '6%', '--tw': '2.1s' } as CSSProperties} />
-                <h1>Free debt payoff calculator</h1>
+                <h1>Track your debts with Debtsy's Cowculator!</h1>
                 <p className="fs-sign-copy">
                   <strong>No signup. No credit card.</strong> Compare the snowball and avalanche methods, see your debt-free
                   date in seconds, and find out exactly how much interest you'll save.
